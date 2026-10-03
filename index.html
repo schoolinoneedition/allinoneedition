@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#ffffff">
 <meta name="description" content="All in One Edition — games, school apps, tools, notes, live news and football. Roy owner.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231b5cff'/%3E%3Cpath d='M17 18h30v11H28v17H17z' fill='white'/%3E%3Cpath d='M29 18l18 13-18 13z' fill='%23ffe16a'/%3E%3C/svg%3E">
-<title>All in One Edition — Roy Owner</title>
+<title>All in One Edition — Roy owner</title>
 <meta name="referrer" content="strict-origin-when-cross-origin">
 
 
@@ -1085,7 +1085,7 @@ function switchAuthMode(mode){
   setAppRoute(mode==='signup'?'signup':'login',true);
 }
 
-async function submitAuth(){if(!supabaseClient)return showToast('Supabase is not ready');const email=$('authEmail').value.trim(),password=$('authPassword').value,username=$('authUsername').value.trim();if(!email||!password)return $('authStatus').textContent='Enter your email and password.';$('authStatus').textContent='Working…';try{let res;if(authMode==='signup')res=await supabaseClient.auth.signUp({email,password,options:{data:{username}}});else res=await supabaseClient.auth.signInWithPassword({email,password});if(res.error)throw res.error;$('authStatus').textContent=authMode==='signup'&&!res.data?.session?'Check your email to confirm the account.':'Signed in.';if(res.data?.session){closeAuth();setAppRoute('home',true);scrollToId('community');}}catch(e){$('authStatus').textContent=e.message||'Authentication failed.';}}
+async function submitAuth(){if(!supabaseClient)return showToast('Supabase is not ready');const email=$('authEmail').value.trim(),password=$('authPassword').value,username=$('authUsername').value.trim();if(!email||!password)return $('authStatus').textContent='Enter your email and password.';$('authStatus').textContent='Working…';try{let res;if(authMode==='signup'){res=await supabaseClient.auth.signUp({email,password,options:{data:{username}}});if(res.error)throw res.error;if(!res.data?.session){const login=await supabaseClient.auth.signInWithPassword({email,password});if(login.error)throw login.error;res=login;}}else{res=await supabaseClient.auth.signInWithPassword({email,password});if(res.error)throw res.error;}$('authStatus').textContent='Signed in.';if(res.data?.session){closeAuth();setAppRoute('home',true);scrollToId('community');}}catch(e){$('authStatus').textContent=e.message||'Authentication failed.';}}
 async function signOutUser(){if(!supabaseClient)return;await supabaseClient.auth.signOut();showToast('Signed out');}
 function openProfileEditor(){if(!currentUser)return openAuth('signin');$('profileEditName').value=currentProfile?.username||'';$('profileEditAvatar').value=currentProfile?.avatar_url||'';$('profileModal').classList.add('open');}
 function closeProfileEditor(){$('profileModal').classList.remove('open')}
