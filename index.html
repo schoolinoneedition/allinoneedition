@@ -204,6 +204,66 @@ html.reduced-motion .cover{transition:none!important}
 @media(max-width:900px){.chat-page-grid{grid-template-columns:1fr}.chat-sidebar{min-height:auto}.chat-page-main{min-height:560px}.party-page-top{flex-direction:column;align-items:flex-start}.party-page-actions{justify-content:flex-start}.party-page-grid{grid-template-columns:1fr}.meeting-fullscreen-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 @media(max-width:600px){.full-chat-box{min-height:400px}.party-big-code{font-size:28px;letter-spacing:5px}.meeting-fullscreen-grid{grid-template-columns:1fr!important}}
 
+
+/* --- Social feed: vertical image/video viewer --- */
+.social-section{scroll-margin-top:90px;min-height:calc(100vh - 110px)}
+.social-section-head{align-items:center}
+.social-cloud-state{font-size:10px;font-weight:850;color:var(--muted);padding:7px 9px;border:1px solid var(--line);border-radius:999px;background:var(--soft);white-space:nowrap}
+.social-feed-shell{display:flex;justify-content:center;min-height:calc(100vh - 155px)}
+.social-feed-column{width:min(540px,100%);min-width:0}
+.social-feed{height:calc(100vh - 165px);min-height:560px;overflow-y:auto;overscroll-behavior:contain;scroll-snap-type:y mandatory;scrollbar-width:none;padding:0 4px 26px}
+.social-feed::-webkit-scrollbar{display:none}
+.social-post{position:relative;height:calc(100vh - 185px);min-height:560px;margin:0 auto 16px;border:1px solid rgba(255,255,255,.12);border-radius:16px;overflow:hidden;background:#080a0e;box-shadow:0 12px 35px rgba(0,0,0,.24);scroll-snap-align:start;isolation:isolate}
+.social-post-media{position:absolute;inset:0;background:#0a0c10;display:grid;place-items:center}
+.social-post-media img,.social-post-media video{width:100%;height:100%;object-fit:cover;display:block;background:#000}
+.social-post-media img{image-rendering:auto}
+.social-media-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.18) 0%,transparent 25%,transparent 55%,rgba(0,0,0,.72) 100%);pointer-events:none;z-index:1}
+.social-post-top{position:absolute;top:12px;left:12px;right:12px;display:flex;align-items:center;justify-content:space-between;gap:8px;z-index:4;color:#fff}
+.social-time{font-size:10px;color:rgba(255,255,255,.76);text-shadow:0 1px 3px rgba(0,0,0,.55)}
+.social-top-menu{border:0;background:rgba(0,0,0,.30);color:#fff;width:34px;height:34px;border-radius:50%;font-weight:900;backdrop-filter:blur(6px)}
+.social-right-rail{position:absolute;right:9px;bottom:95px;display:flex;flex-direction:column;align-items:center;gap:10px;z-index:5}
+.social-creator{display:flex;justify-content:center;position:relative;margin-bottom:4px}
+.social-creator-avatar{width:48px;height:48px;border:2px solid #fff;border-radius:50%;display:grid;place-items:center;overflow:hidden;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-weight:950;box-shadow:0 3px 10px rgba(0,0,0,.3)}
+.social-creator-avatar img{width:100%;height:100%;object-fit:cover}
+.social-follow-plus{position:absolute;right:-2px;bottom:-5px;width:22px;height:22px;border-radius:50%;border:2px solid #111;background:#ff2d55;color:#fff;font-size:14px;line-height:17px;padding:0;font-weight:950}
+.social-follow-plus.following{background:#fff;color:#111}
+.social-rail-btn{width:44px;height:44px;border:0;border-radius:50%;display:grid;place-items:center;background:rgba(0,0,0,.42);color:#fff;font-size:21px;font-weight:900;backdrop-filter:blur(6px);box-shadow:0 3px 12px rgba(0,0,0,.26)}
+.social-rail-btn:hover{transform:scale(1.05);background:rgba(0,0,0,.55)}
+.social-rail-btn.liked{color:#ff3158}
+.social-rail-btn.saved{color:#8db0ff}
+.social-rail-count{font-size:10px;color:#fff;font-weight:850;text-shadow:0 1px 3px rgba(0,0,0,.7);margin-top:-6px}
+.social-post-bottom{position:absolute;left:13px;right:70px;bottom:12px;z-index:4;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.7)}
+.social-post-author{font-size:13px;font-weight:950}
+.social-post-author .verified-dot{display:inline-grid;place-items:center;width:12px;height:12px;border-radius:50%;background:#39a7ff;color:#fff;font-size:8px;margin-left:4px;text-shadow:none}
+.social-post-caption{font-size:12px;line-height:1.42;margin-top:7px;white-space:pre-wrap;overflow-wrap:anywhere;max-width:92%}
+.social-more{font-size:11px;opacity:.82;margin-left:5px}
+.social-media-label{display:inline-flex;margin-top:8px;padding:5px 8px;border-radius:999px;background:rgba(0,0,0,.44);font-size:9px;font-weight:850;backdrop-filter:blur(6px)}
+.social-post-empty{min-height:560px;display:grid;place-items:center;text-align:center;border:1px dashed var(--line);border-radius:16px;background:var(--panel);padding:30px;color:var(--muted)}
+.social-post-empty strong{display:block;color:var(--text);font-size:16px;margin-bottom:7px}
+.social-post-empty span{font-size:12px;line-height:1.5}
+.social-scroll-note{text-align:center;color:var(--muted);font-size:10px;padding:3px 0 6px}
+.social-comments-modal{position:fixed;inset:0;z-index:5000;display:none;background:rgba(4,6,10,.56);backdrop-filter:blur(4px);align-items:flex-end;justify-content:center}
+.social-comments-modal.open{display:flex}
+.social-comments-box{width:min(560px,100%);max-height:min(72vh,650px);background:var(--panel);border:1px solid var(--line);border-bottom:0;border-radius:18px 18px 0 0;box-shadow:0 -20px 60px rgba(0,0,0,.32);display:flex;flex-direction:column;overflow:hidden}
+.social-comments-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 14px;border-bottom:1px solid var(--line)}
+.social-comments-list{flex:1;min-height:150px;overflow:auto;padding:12px 14px}
+.social-comment-item{padding:8px 0;border-bottom:1px solid var(--line);font-size:12px;line-height:1.42}
+.social-comment-item:last-child{border-bottom:0}
+.social-comment-item strong{margin-right:5px}
+.social-comment-empty{color:var(--muted);font-size:12px;text-align:center;padding:28px 10px}
+.social-comment-composer{display:grid;grid-template-columns:115px 1fr auto;gap:7px;padding:10px 12px;border-top:1px solid var(--line)}
+.social-comment-composer input{height:38px;border:1px solid var(--line);border-radius:10px;background:var(--soft);color:var(--text);padding:0 10px;min-width:0}
+.social-comment-composer textarea{min-height:38px;max-height:100px;resize:vertical;border:1px solid var(--line);border-radius:10px;background:var(--soft);color:var(--text);padding:9px}
+.social-community-publisher{margin-top:12px}
+.social-publisher-note{color:var(--muted);font-size:11px;line-height:1.4}
+.social-publisher-grid{display:grid;gap:8px;margin-top:11px}
+.social-publisher-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.social-media-row{display:grid;grid-template-columns:110px 1fr auto;gap:7px;align-items:center}
+.social-file-label{height:38px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:10px;padding:0 11px;font-size:11px;font-weight:850;cursor:pointer;white-space:nowrap}
+.social-file-label input{display:none}
+.social-publish-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px}
+@media(max-width:700px){.social-section{padding-left:0;padding-right:0}.social-section-head{padding:0 10px}.social-feed{height:calc(100vh - 145px);min-height:500px;padding:0 8px 18px}.social-post{height:calc(100vh - 165px);min-height:500px;border-radius:14px}.social-right-rail{right:7px;bottom:86px}.social-post-bottom{left:12px;right:62px;bottom:10px}.social-publisher-row{grid-template-columns:1fr}.social-media-row{grid-template-columns:1fr}.social-publish-actions{align-items:flex-start;flex-direction:column}.social-comment-composer{grid-template-columns:1fr}.social-comments-box{max-height:78vh}}
+
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -248,7 +308,7 @@ html.reduced-motion .cover{transition:none!important}
   <div class="search"><input id="search" autocomplete="off" placeholder="Search games, tools, school apps...  ( / )"></div>
   <button class="btn" id="assistantBtn">Smart answer</button><button class="btn account-btn" id="accountBtn" type="button" onclick="handleAccountClick()"><span class="account-avatar" id="accountAvatar">?</span><span id="accountLabel">Account</span></button><button class="btn" id="settingsBtn">Settings</button><select class="lang-select" id="languageSelect" aria-label="Language"><option value="en">EN</option><option value="es">ES</option><option value="fr">FR</option><option value="de">DE</option><option value="pl">PL</option><option value="pt">PT</option><option value="tr">TR</option><option value="ar">AR</option><option value="it">IT</option><option value="nl">NL</option><option value="ja">JA</option><option value="ko">KO</option></select><button class="btn" id="darkBtn">Dark</button><button class="btn" id="afkBtn" title="Pause your current game and enter AFK mode">AFK</button><button class="btn" id="hideBtn">Hide</button>
  </div>
- <div class="nav"><button data-scroll="home">Home</button><button data-scroll="games">Games</button><button data-scroll="school">School</button><button data-scroll="community">Community</button><button data-scroll="chat">Chat</button><button data-scroll="live">Live</button><button data-scroll="tools">Tools</button><button data-scroll="notes">Notes</button><button data-scroll="music">Music</button><button data-scroll="code">Code Lab</button></div>
+ <div class="nav"><button data-scroll="home">Home</button><button data-scroll="games">Games</button><button data-scroll="school">School</button><button data-scroll="social">Social</button><button data-scroll="community">Community</button><button data-scroll="chat">Chat</button><button data-scroll="live">Live</button><button data-scroll="tools">Tools</button><button data-scroll="notes">Notes</button><button data-scroll="music">Music</button><button data-scroll="code">Code Lab</button></div>
 </header>
 <main id="app">
 <section id="home" class="hero">
@@ -264,8 +324,50 @@ html.reduced-motion .cover{transition:none!important}
  <div class="panel app"><div><strong>Mathsframe</strong><span>KS2 maths games</span></div><button class="btn mini" onclick="openSchool('Mathsframe','https://mathsframe.co.uk/')">Open</button></div>
 </div>
 </section>
+
+<section id="social" class="section social-section">
+  <div class="section-head social-section-head">
+    <div>
+      <h2>Social</h2>
+      <small>Scroll through public images and videos. No account is required.</small>
+    </div>
+    <div class="social-cloud-state" id="socialCloudState">Waiting for posts</div>
+  </div>
+  <div class="social-feed-shell">
+    <div class="social-feed-column">
+      <div id="socialFeed" class="social-feed" aria-live="polite"></div>
+      <div id="socialFeedEmpty" class="social-post-empty">
+        <div><strong>No posts yet</strong><span>Social is empty until someone posts an image or video in Community.</span></div>
+      </div>
+      <div id="socialScrollNote" class="social-scroll-note hidden">Scroll for more</div>
+    </div>
+  </div>
+</section>
+
 <section id="community" class="section">
   <div class="section-head"><h2>Community</h2><small id="supabaseStatus">Connect your account to use friends, parties, DMs and meetings.</small></div>
+  <div class="panel social-community-publisher">
+    <div class="social-composer-top">
+      <div><strong>Post to Social</strong><span class="social-publisher-note">Create an image or video post here. No account is required. It will appear in the Social feed.</span></div>
+      <span class="social-guest-badge">Guest posting</span>
+    </div>
+    <div class="social-publisher-grid">
+      <div class="social-publisher-row">
+        <input id="socialPostName" class="social-input" maxlength="32" placeholder="Display name (e.g. Roy)">
+        <input id="socialPostAvatar" class="social-input" maxlength="500" placeholder="Avatar URL (optional)">
+      </div>
+      <textarea id="socialPostCaption" class="social-textarea" maxlength="500" placeholder="Write a caption…"></textarea>
+      <div class="social-media-row">
+        <select id="socialMediaType" class="social-select"><option value="image">Image</option><option value="video">Video</option></select>
+        <input id="socialMediaUrl" class="social-input" maxlength="2000" placeholder="https://.../image.jpg or video.mp4">
+        <label class="social-file-label">Choose file<input id="socialMediaFile" type="file" accept="image/*,video/*"></label>
+      </div>
+    </div>
+    <div class="social-publish-actions">
+      <span class="tiny-status" id="socialPostHint">Cloud uploads can be shared with other visitors when Supabase Social is configured. Without it, the post stays on this device.</span>
+      <button class="btn mini primary" type="button" onclick="createSocialPost()">Post to Social</button>
+    </div>
+  </div>
   <div class="social-grid">
     <div class="social-card">
       <h3>Your account</h3>
@@ -406,6 +508,14 @@ html.reduced-motion .cover{transition:none!important}
 <body style="font-family:system-ui;padding:20px">
 <h1>Hello from All in One</h1>
 <button onclick="document.body.style.background='#eaf2ff'">Click me</button>
+<div class="social-comments-modal" id="socialCommentsModal" aria-modal="true" role="dialog" aria-label="Social comments">
+  <div class="social-comments-box">
+    <div class="social-comments-head"><strong id="socialCommentsTitle">Comments</strong><button class="btn mini" type="button" onclick="closeSocialComments()">Close</button></div>
+    <div id="socialCommentsList" class="social-comments-list"></div>
+    <div class="social-comment-composer"><input id="socialCommentName" maxlength="32" placeholder="Name"><textarea id="socialCommentBody" maxlength="300" placeholder="Add a comment…"></textarea><button class="btn mini primary" type="button" onclick="addSocialComment()">Send</button></div>
+  </div>
+</div>
+
 </body>
 </html></textarea><iframe id="codePreview" class="preview" sandbox="allow-scripts"></iframe></div></div></section>
 <section class="section"><div class="section-head"><h2>Smart answer</h2><small>Chat-style helper — fast and local.</small></div><div class="panel chatbox" id="assistantChat"></div><div class="assistant-actions"><button class="chip" onclick="smartQuick('What time is it?')">What time is it?</button><button class="chip" onclick="smartQuick('Play Crossy Road')">Play a game</button><button class="chip" onclick="smartQuick('Make a sticky note that says test')">Make a note</button><button class="chip" onclick="smartQuick('Open settings')">Settings</button></div><div class="chatcomposer"><input id="assistantInput" autocomplete="off" placeholder="Message Smart answer…"><button class="btn mini primary" id="assistantSend">Send</button></div></section>
@@ -757,7 +867,8 @@ function executeSmartCommand(raw){
   const lang=x.match(/(?:change|switch|set)\s+(?:the\s+)?(?:language|lang)\s+(?:to|into)\s+(.+)/);
   if(lang){const code=languageCodeFromText(lang[1]);if(code){applyLanguage(code);return`Language changed to ${I18N[code]?.settings||code}.`}}
   if(/^(?:settings|open settings|show settings)$/.test(x)){openSettings();return'Opening settings.'}
-  if(/community|friends|party|direct messages|dms|social/.test(x)){scrollToId('community');return'Opening Community.'}
+  if(/\bsocial\b|social feed|posts|videos|images/.test(x)){scrollToId('social');return'Opening Social.'}
+  if(/community|friends|party|direct messages|dms/.test(x)){scrollToId('community');return'Opening Community.'}
   if(/sign\s*up|create account|register/.test(x)){openAuth('signup');return'Opening sign up.'}
   if(/sign\s*in|log\s*in/.test(x)){openAuth('signin');return'Opening sign in.'}
   if(/draw|drawing board/.test(x)){if(currentParty)openDrawing();else scrollToId('community');return currentParty?'Opening the shared drawing board.':'Open Community and join a party first.'}
@@ -997,7 +1108,40 @@ grant select, insert on public.direct_messages to authenticated;
 grant select, insert, delete on public.parties to authenticated;
 grant select, insert, delete on public.party_members to authenticated;
 grant select, insert on public.meeting_rooms to authenticated;
-grant usage, select on all sequences in schema public to authenticated;
+create table if not exists public.social_posts (id uuid primary key default gen_random_uuid(), visitor_id text, username text not null, avatar_url text, caption text not null default '', media_type text not null check(media_type in ('image','video')), media_url text not null, created_at timestamptz not null default now());
+  alter table public.social_posts add column if not exists visitor_id text;
+  create table if not exists public.social_comments (id bigint generated by default as identity primary key, post_id uuid not null references public.social_posts(id) on delete cascade, visitor_id text, username text not null, body text not null, created_at timestamptz not null default now());
+  alter table public.social_comments add column if not exists visitor_id text;
+  create table if not exists public.social_reactions (post_id uuid not null references public.social_posts(id) on delete cascade, visitor_id text not null, created_at timestamptz not null default now(), primary key(post_id,visitor_id));
+  create table if not exists public.social_follows (visitor_id text not null, username text not null, created_at timestamptz not null default now(), primary key(visitor_id,username));
+  alter table public.social_posts enable row level security;
+  alter table public.social_comments enable row level security;
+  alter table public.social_reactions enable row level security;
+  alter table public.social_follows enable row level security;
+  do $$ begin create policy "public social posts read" on public.social_posts for select to anon, authenticated using (true); exception when duplicate_object then null; end $$;
+  do $$ begin create policy "public social posts insert" on public.social_posts for insert to anon, authenticated with check (char_length(visitor_id) between 20 and 100 and char_length(username) between 1 and 32 and char_length(caption) <= 500 and char_length(media_url) <= 2000); exception when duplicate_object then null; end $$;
+  do $$ begin create policy "public social comments read" on public.social_comments for select to anon, authenticated using (true); exception when duplicate_object then null; end $$;
+  do $$ begin create policy "public social comments insert" on public.social_comments for insert to anon, authenticated with check (char_length(visitor_id) between 20 and 100 and char_length(username) between 1 and 32 and char_length(body) between 1 and 300); exception when duplicate_object then null; end $$;
+  do $$ begin create policy "public social reactions read" on public.social_reactions for select to anon, authenticated using (true); exception when duplicate_object then null; end $$;
+  do $$ begin create policy "public social reactions insert" on public.social_reactions for insert to anon, authenticated with check (char_length(visitor_id) between 20 and 100); exception when duplicate_object then null; end $$;
+  do $$ begin create policy "own social reaction delete" on public.social_reactions for delete to anon, authenticated using (visitor_id = coalesce(auth.uid()::text, visitor_id)); exception when duplicate_object then null; end $$;
+  do $$ begin create policy "public social follows read" on public.social_follows for select to anon, authenticated using (true); exception when duplicate_object then null; end $$;
+  do $$ begin create policy "public social follows insert" on public.social_follows for insert to anon, authenticated with check (char_length(visitor_id) between 20 and 100 and char_length(username) between 1 and 32); exception when duplicate_object then null; end $$;
+  do $$ begin create policy "own social follow delete" on public.social_follows for delete to anon, authenticated using (char_length(visitor_id) between 20 and 100); exception when duplicate_object then null; end $$;
+  grant select, insert on public.social_posts to anon, authenticated;
+  grant select, insert on public.social_comments to anon, authenticated;
+  grant select, insert, delete on public.social_reactions to anon, authenticated;
+  grant select, insert, delete on public.social_follows to anon, authenticated;
+  insert into storage.buckets (id,name,public) values ('social-media','social-media',true) on conflict (id) do update set public=true;
+  do $$ begin create policy "public social media read" on storage.objects for select to anon, authenticated using (bucket_id='social-media'); exception when duplicate_object then null; end $$;
+  do $$ begin create policy "public social media upload" on storage.objects for insert to anon, authenticated with check (bucket_id='social-media' and name like 'social/%'); exception when duplicate_object then null; end $$;
+  do $$ begin
+    if exists (select 1 from pg_publication where pubname='supabase_realtime') then
+      if not exists (select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='social_posts') then alter publication supabase_realtime add table public.social_posts; end if;
+      if not exists (select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='social_comments') then alter publication supabase_realtime add table public.social_comments; end if;
+      if not exists (select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='social_reactions') then alter publication supabase_realtime add table public.social_reactions; end if;
+    end if;
+  exception when others then null; end $$;
 do $$ begin
   if exists (select 1 from pg_publication where pubname='supabase_realtime') then
     if not exists (select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='direct_messages') then
@@ -1041,7 +1185,7 @@ function refreshAccountUI(){
   if($('profileName'))$('profileName').textContent=name;
   if($('supabaseStatus'))$('supabaseStatus').textContent=logged?'Connected · '+name:'Connected · sign in to use Community';
 }
-const APP_ROUTES=new Set(['login','signup','meeting','chat','party','draw','community']);
+const APP_ROUTES=new Set(['login','signup','meeting','chat','party','draw','community','social']);
 function getAppBasePath(){
   try{
     const parts=location.pathname.split('/').filter(Boolean);
@@ -1148,6 +1292,7 @@ const tutorialSteps=[
   {target:'.search input',title:'Search everything',text:'Search games, tools and school apps from one box. Press / any time to focus it.',arrow:'↓'},
   {target:'[data-scroll="games"]',title:'Games',text:'Open the full game library. Cards load progressively so the first screen stays fast.',arrow:'↓'},
   {target:'#assistantBtn',title:'Smart answer',text:'Ask the assistant to launch games, make notes, change language, open tools and control the site.',arrow:'↑'},
+  {target:'[data-scroll="social"]',title:'Social',text:'Scroll through public images and videos. Like, comment, save and follow without an account.',arrow:'↓'},
   {target:'#accountBtn',title:'Accounts & Community',text:'Sign up, find friends, create parties, DM friends, draw together and open meetings.',arrow:'↑'},
   {target:'#settingsBtn',title:'Settings',text:'Control progress, preload, motion, chat history and other site behaviour without cluttering the homepage.',arrow:'↑'}
 ];
@@ -1160,7 +1305,7 @@ function skipTutorial(){storage.setItem('aio-tutorial-done','1');$('tutorialOver
 function finishTutorial(){storage.setItem('aio-tutorial-done','1');$('tutorialOverlay').classList.remove('show');showToast('Welcome to the All in One Edition — Your new game home.');}
 
 // Patch the language nav index after adding Community.
-const oldApplyLanguage=applyLanguage;applyLanguage=function(lang){oldApplyLanguage(lang);document.querySelectorAll('.nav button').forEach((b)=>{if(b.dataset.scroll==='community')b.textContent=(lang==='es'?'Comunidad':lang==='fr'?'Communauté':lang==='de'?'Community':lang==='pl'?'Społeczność':'Community')});};
+const oldApplyLanguage=applyLanguage;applyLanguage=function(lang){oldApplyLanguage(lang);document.querySelectorAll('.nav button').forEach((b)=>{if(b.dataset.scroll==='social')b.textContent='Social';if(b.dataset.scroll==='community')b.textContent=(lang==='es'?'Comunidad':lang==='fr'?'Communauté':lang==='de'?'Community':lang==='pl'?'Społeczność':'Community')});};
 
 // Start the tutorial after the base UI exists.
 setTimeout(startTutorial,1800);
@@ -1265,6 +1410,7 @@ $('friendSearch')?.addEventListener('keydown',e=>{if(e.key==='Enter')searchFrien
 
 // Initialise Supabase only after all community functions exist.
 setTimeout(()=>{try{initCommunity();}catch(e){console.error(e);}},80);
+setTimeout(()=>{try{initSocial();}catch(e){console.error('Social init:',e);}},140);
 setTimeout(()=>{try{refreshAccountUI();}catch{}; handleRoute(location.pathname,true);},120);
 
 // Render state that is declared by the Community/Study modules after their initialization.
@@ -1306,6 +1452,114 @@ handleAuthSession=async function(session){
     $('supabaseStatus').textContent='Signed in · run Supabase setup to enable profiles, friends, parties and DMs.';
   }
 };
+
+/* ===== Social feed: empty by default, public anonymous media ===== */
+const SOCIAL_STORAGE_KEY='aio-social-v5';
+const SOCIAL_FOLLOW_KEY='aio-social-follows-v3';
+const SOCIAL_LIKE_KEY='aio-social-likes-v3';
+const SOCIAL_SAVE_KEY='aio-social-saves-v3';
+const SOCIAL_COMMENT_KEY='aio-social-comments-v3';
+const SOCIAL_VISITOR_KEY='aio-social-visitor-v1';
+let socialMode='for-you',socialPosts=[],socialStats=new Map(),socialCloudReady=false,socialCurrentCommentPost=null;
+function socialRead(key,fallback){try{const raw=localStorage.getItem(key);return raw===null?fallback:JSON.parse(raw)}catch{return fallback}}
+function socialWrite(key,val){try{localStorage.setItem(key,JSON.stringify(val))}catch{}}
+function socialEsc(v){return esc(String(v??''))}
+function socialId(prefix='x'){return prefix+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8)}
+function socialVisitorId(){let id=String(localStorage.getItem(SOCIAL_VISITOR_KEY)||'').trim();if(id.length<20){id=(crypto?.randomUUID?crypto.randomUUID():socialId('visitor')+'-'+Date.now());try{localStorage.setItem(SOCIAL_VISITOR_KEY,id)}catch{}}return id}
+function socialDisplayName(){return (String($('socialPostName')?.value||localStorage.getItem('aio-social-display-name')||'Guest').trim()||'Guest').slice(0,32)}
+function socialAvatarHtml(account){return account?.avatar_url?`<img src="${socialEsc(account.avatar_url)}" alt="" onerror="this.style.display='none'">`:socialEsc(initialsSafe(account?.username||'Guest'))}
+function socialFollowSet(){return new Set(socialRead(SOCIAL_FOLLOW_KEY,[]))}
+function socialLikeSet(){return new Set(socialRead(SOCIAL_LIKE_KEY,[]))}
+function socialSaveSet(){return new Set(socialRead(SOCIAL_SAVE_KEY,[]))}
+function socialCommentMap(){return socialRead(SOCIAL_COMMENT_KEY,{})}
+function socialNormalizePosts(items){return (items||[]).map((p,i)=>({...p,id:p.id||socialId('post'),visitor_id:p.visitor_id||'',username:String(p.username||'Guest').slice(0,32),avatar_url:String(p.avatar_url||''),caption:String(p.caption||'').slice(0,500),media_type:p.media_type==='video'?'video':'image',media_url:String(p.media_url||''),created_at:p.created_at||new Date(Date.now()-i*3600000).toISOString()})).filter(p=>p.media_url)}
+function socialMergePosts(local,cloud){const map=new Map();[...socialNormalizePosts(local),...socialNormalizePosts(cloud)].forEach(p=>map.set(String(p.id),p));return [...map.values()].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))}
+function socialSelectedPosts(){if(socialMode==='following'){const f=socialFollowSet();return socialPosts.filter(p=>f.has(p.username))}return socialPosts}
+function socialTime(ts){const d=new Date(ts);if(Number.isNaN(d.getTime()))return 'now';const s=Math.max(1,Math.floor((Date.now()-d.getTime())/1000));if(s<60)return `${s}s`;if(s<3600)return `${Math.floor(s/60)}m`;if(s<86400)return `${Math.floor(s/3600)}h`;if(s<604800)return `${Math.floor(s/86400)}d`;return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}
+function socialStat(id){if(!socialStats.has(String(id)))socialStats.set(String(id),{likes:0,comments:0});return socialStats.get(String(id))}
+async function socialTryCloudLoad(){
+  socialCloudReady=false;if(!supabaseClient)return {posts:[],comments:[],reactions:[],follows:[]};
+  try{
+    const [postsQ,commentsQ,reactionsQ,followsQ]=await Promise.all([
+      supabaseClient.from('social_posts').select('id,visitor_id,username,avatar_url,caption,media_type,media_url,created_at').order('created_at',{ascending:false}).limit(200),
+      supabaseClient.from('social_comments').select('id,post_id,visitor_id,username,body,created_at').order('created_at',{ascending:true}).limit(1000),
+      supabaseClient.from('social_reactions').select('post_id,visitor_id').limit(5000),
+      supabaseClient.from('social_follows').select('visitor_id,username').limit(5000)
+    ]);
+    if(postsQ.error)throw postsQ.error;
+    socialCloudReady=true;if($('socialCloudState'))$('socialCloudState').textContent='Cloud feed connected';
+    return {posts:postsQ.data||[],comments:commentsQ.data||[],reactions:reactionsQ.data||[],follows:followsQ.data||[]};
+  }catch(e){if($('socialCloudState'))$('socialCloudState').textContent='Local feed';return {posts:[],comments:[],reactions:[],follows:[]}}
+}
+function socialRebuildLocalComments(cloudComments){const map=socialCommentMap();for(const c of cloudComments||[]){const id=String(c.post_id);const arr=Array.isArray(map[id])?map[id]:[];if(!arr.some(x=>String(x.id)===String(c.id)))arr.push(c);map[id]=arr.slice(-100)}socialWrite(SOCIAL_COMMENT_KEY,map)}
+function socialApplyCloudStats(bundle){socialStats=new Map();for(const r of bundle.reactions||[]){const s=socialStat(r.post_id);s.likes++}for(const c of bundle.comments||[]){const s=socialStat(c.post_id);s.comments++}socialRebuildLocalComments(bundle.comments||[])}
+async function socialSync(){const local=socialRead(SOCIAL_STORAGE_KEY,[]),bundle=await socialTryCloudLoad();socialApplyCloudStats(bundle);socialPosts=socialMergePosts(local,bundle.posts);renderSocialFeed()}
+function renderSocialFeed(){
+  const box=$('socialFeed'),empty=$('socialFeedEmpty'),note=$('socialScrollNote');if(!box)return;
+  const posts=socialSelectedPosts();
+  box.innerHTML=posts.map((p,i)=>renderSocialPost(p,i)).join('');
+  const showEmpty=!posts.length;empty.classList.toggle('hidden',!showEmpty);if(note)note.classList.toggle('hidden',posts.length<2);
+  setupSocialVideoObserver();
+}
+function renderSocialPost(p,i){
+  const follows=socialFollowSet(),likes=socialLikeSet(),saves=socialSaveSet();const liked=likes.has(String(p.id)),saved=saves.has(String(p.id)),followed=follows.has(p.username),stat=socialStat(p.id),commentCount=stat.comments||socialCommentMap()[p.id]?.length||0,likeCount=Math.max(stat.likes||0,0)+(liked&&!socialCloudReady?1:0);
+  const media=p.media_type==='video'?`<video src="${socialEsc(p.media_url)}" playsinline muted loop preload="metadata" data-social-video></video>`:`<img src="${socialEsc(p.media_url)}" alt="" loading="${i<2?'eager':'lazy'}" onerror="socialMediaError(this)">`;
+  return `<article class="social-post" data-social-post="${socialEsc(p.id)}">
+    <div class="social-post-media">${media}<div class="social-media-shade"></div></div>
+    <div class="social-post-top"><span class="social-time">${socialTime(p.created_at)}</span><button class="social-top-menu" type="button" onclick="shareSocialPost('${socialEsc(p.id)}')">↗</button></div>
+    <div class="social-right-rail">
+      <div class="social-creator"><div class="social-creator-avatar">${socialAvatarHtml(p)}</div><button class="social-follow-plus ${followed?'following':''}" type="button" aria-label="${followed?'Unfollow':'Follow'} ${socialEsc(p.username)}" onclick="toggleSocialFollow('${socialEsc(p.username)}')">${followed?'✓':'+'}</button></div>
+      <button class="social-rail-btn ${liked?'liked':''}" type="button" aria-label="Like" onclick="toggleSocialLike('${socialEsc(p.id)}')">${liked?'♥':'♡'}</button><span class="social-rail-count" data-like-count="${socialEsc(p.id)}">${socialFormatCount(likeCount)}</span>
+      <button class="social-rail-btn" type="button" aria-label="Comments" onclick="openSocialComments('${socialEsc(p.id)}')">💬</button><span class="social-rail-count" data-comment-count="${socialEsc(p.id)}">${socialFormatCount(commentCount)}</span>
+      <button class="social-rail-btn ${saved?'saved':''}" type="button" aria-label="Save" onclick="toggleSocialSave('${socialEsc(p.id)}')">${saved?'🔖':'🔖'}</button><span class="social-rail-count">${saved?'Saved':''}</span>
+      <button class="social-rail-btn" type="button" aria-label="Share" onclick="shareSocialPost('${socialEsc(p.id)}')">↗</button>
+    </div>
+    <div class="social-post-bottom"><div class="social-post-author">${socialEsc(p.username)}<span class="verified-dot">✓</span></div><div class="social-post-caption">${socialEsc(p.caption)} <span class="social-more">more</span></div><div class="social-media-label">${p.media_type==='video'?'Video':'Image'} · public post</div></div>
+  </article>`
+}
+function socialFormatCount(n){n=Number(n)||0;if(n<1000)return String(n);if(n<1000000)return (n/1000).toFixed(n<10000?1:0).replace(/\.0$/,'')+'K';if(n<1000000000)return (n/1000000).toFixed(1).replace(/\.0$/,'')+'M';return (n/1000000000).toFixed(1).replace(/\.0$/,'')+'B'}
+function socialMediaError(el){const wrap=el?.parentElement;if(!wrap)return;el.remove();wrap.classList.add('placeholder');wrap.insertAdjacentHTML('beforeend','<div style="color:#cfd4de;font-size:12px;padding:30px">This media could not be loaded.</div>')}
+function toggleSocialLike(id){
+  const set=socialLikeSet();const now=!set.has(id);if(now)set.add(id);else set.delete(id);socialWrite(SOCIAL_LIKE_KEY,[...set]);renderSocialFeed();
+  if(socialCloudReady&&supabaseClient){if(now)supabaseClient.from('social_reactions').insert({post_id:id,visitor_id:socialVisitorId()}).then(()=>socialSync()).catch(()=>{});else supabaseClient.from('social_reactions').delete().eq('post_id',id).eq('visitor_id',socialVisitorId()).then(()=>socialSync()).catch(()=>{})}
+}
+function toggleSocialSave(id){const set=socialSaveSet();set.has(id)?set.delete(id):set.add(id);socialWrite(SOCIAL_SAVE_KEY,[...set]);renderSocialFeed();showToast(set.has(id)?'Saved':'Removed from saved')}
+function toggleSocialFollow(name){const set=socialFollowSet();const now=!set.has(name);if(now)set.add(name);else set.delete(name);socialWrite(SOCIAL_FOLLOW_KEY,[...set]);renderSocialFeed();showToast(now?`Following ${name}`:`Unfollowed ${name}`);if(socialCloudReady&&supabaseClient){const q=now?supabaseClient.from('social_follows').insert({visitor_id:socialVisitorId(),username:name}):supabaseClient.from('social_follows').delete().eq('visitor_id',socialVisitorId()).eq('username',name);q.then(()=>{}).catch(()=>{})}}
+async function openSocialComments(postId){
+  socialCurrentCommentPost=postId;const modal=$('socialCommentsModal');if(!modal)return;modal.classList.add('open');renderSocialComments(postId);$('socialCommentBody')?.focus();
+}
+function closeSocialComments(){socialCurrentCommentPost=null;$('socialCommentsModal')?.classList.remove('open')}
+function renderSocialComments(postId){const box=$('socialCommentsList');if(!box)return;const map=socialCommentMap(),list=map[postId]||[];box.innerHTML=list.length?list.slice(-100).map(c=>`<div class="social-comment-item"><strong>${socialEsc(c.username)}</strong>${socialEsc(c.body)}</div>`).join(''):'<div class="social-comment-empty">No comments yet. Be the first.</div>';const p=socialPosts.find(x=>String(x.id)===String(postId));if($('socialCommentsTitle'))$('socialCommentsTitle').textContent=`Comments${p?' · '+p.username:''}`}
+async function addSocialComment(){const postId=socialCurrentCommentPost;if(!postId)return;const body=String($('socialCommentBody')?.value||'').trim();if(!body)return;const username=(String($('socialCommentName')?.value||localStorage.getItem('aio-social-display-name')||'Guest').trim()||'Guest').slice(0,32);try{localStorage.setItem('aio-social-display-name',username)}catch{};const c={id:socialId('comment'),post_id:postId,visitor_id:socialVisitorId(),username,body:body.slice(0,300),created_at:new Date().toISOString()};const map=socialCommentMap();map[postId]=[...(map[postId]||[]),c].slice(-100);socialWrite(SOCIAL_COMMENT_KEY,map);if(socialCloudReady&&supabaseClient){try{await supabaseClient.from('social_comments').insert({post_id:postId,visitor_id:c.visitor_id,username:c.username,body:c.body})}catch{}}if($('socialCommentBody'))$('socialCommentBody').value='';socialApplyLocalStat(postId,'comments',1);renderSocialComments(postId);renderSocialFeed()}
+function socialApplyLocalStat(id,key,amount){const s=socialStat(id);s[key]=(s[key]||0)+amount}
+async function createSocialPost(){
+  const username=socialDisplayName(),avatar=String($('socialPostAvatar')?.value||'').trim().slice(0,500),caption=String($('socialPostCaption')?.value||'').trim().slice(0,500),type=$('socialMediaType')?.value==='video'?'video':'image',url=String($('socialMediaUrl')?.value||'').trim(),file=$('socialMediaFile')?.files?.[0];
+  try{localStorage.setItem('aio-social-display-name',username)}catch{}
+  if(!url&&!file)return showToast('Add an image/video URL or choose a file.');
+  let mediaUrl=url,actualType=type;
+  if(file){actualType=file.type.startsWith('video/')?'video':'image';
+    if(file.size>20*1024*1024)return showToast('Choose a file under 20 MB.');
+    if(socialCloudReady&&supabaseClient){
+      try{const ext=(file.name.split('.').pop()||actualType).toLowerCase().replace(/[^a-z0-9]/g,'')||actualType;const path=`social/${socialVisitorId()}/${crypto?.randomUUID?crypto.randomUUID():socialId('media')}.${ext}`;const up=await supabaseClient.storage.from('social-media').upload(path,file,{upsert:false,contentType:file.type||undefined});if(up.error)throw up.error;const pub=supabaseClient.storage.from('social-media').getPublicUrl(path);mediaUrl=pub.data.publicUrl}catch(e){return showToast('Cloud upload failed. Add a direct media URL or check the Supabase setup.')}}
+    else{mediaUrl=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result));r.onerror=reject;r.readAsDataURL(file)})}
+  }
+  const visitorId=socialVisitorId();const localPost={id:socialId('post'),visitor_id:visitorId,username,avatar_url:avatar,caption,media_type:actualType,media_url:mediaUrl,created_at:new Date().toISOString()};
+  let post=localPost;
+  if(socialCloudReady&&supabaseClient){try{const q=await supabaseClient.from('social_posts').insert({visitor_id:visitorId,username,avatar_url:avatar||null,caption,media_type:actualType,media_url:mediaUrl}).select().single();if(q.error)throw q.error;post=q.data}catch(e){socialWrite(SOCIAL_STORAGE_KEY,[localPost,...socialRead(SOCIAL_STORAGE_KEY,[])].slice(0,100));socialPosts=socialMergePosts([localPost],socialPosts);renderSocialFeed();return showToast('Posted on this device; cloud posting was rejected by Supabase rules.')}}
+  else socialWrite(SOCIAL_STORAGE_KEY,[localPost,...socialRead(SOCIAL_STORAGE_KEY,[])].slice(0,100));
+  socialPosts=socialMergePosts([post],socialPosts);socialStat(post.id);renderSocialFeed();
+  $('socialPostCaption').value='';$('socialMediaUrl').value='';if($('socialMediaFile'))$('socialMediaFile').value='';showToast(socialCloudReady?'Posted to Social':'Posted on this device');scrollToId('social');setTimeout(()=>document.querySelector('.social-post')?.scrollIntoView({behavior:'smooth',block:'start'}),180)
+}
+function socialBind(){
+  const name=$('socialPostName');if(name){const saved=localStorage.getItem('aio-social-display-name');if(saved)name.value=saved;name.addEventListener('input',()=>{try{localStorage.setItem('aio-social-display-name',socialDisplayName())}catch{};})}
+  $('socialMediaFile')?.addEventListener('change',e=>{const f=e.target.files?.[0];if(!f)return;$('socialMediaType').value=f.type.startsWith('video/')?'video':'image';$('socialMediaUrl').value='';showToast(`${f.type.startsWith('video/')?'Video':'Image'} selected`)});
+  $('socialCommentsModal')?.addEventListener('click',e=>{if(e.target.id==='socialCommentsModal')closeSocialComments()});
+  $('socialCommentName')?.addEventListener('input',e=>{try{localStorage.setItem('aio-social-display-name',String(e.target.value||'Guest').slice(0,32))}catch{}});
+}
+function setupSocialVideoObserver(){if(!('IntersectionObserver' in window))return;const videos=document.querySelectorAll('[data-social-video]');if(window.aioSocialVideoObserver)window.aioSocialVideoObserver.disconnect();window.aioSocialVideoObserver=new IntersectionObserver(entries=>{for(const entry of entries){const v=entry.target;if(entry.isIntersecting&&entry.intersectionRatio>.65){document.querySelectorAll('[data-social-video]').forEach(x=>{if(x!==v)try{x.pause()}catch{}});v.muted=true;v.play().catch(()=>{})}else if(!entry.isIntersecting){try{v.pause()}catch{}}}},{threshold:[.65]});videos.forEach(v=>window.aioSocialVideoObserver.observe(v))}
+async function shareSocialPost(id){const p=socialPosts.find(x=>String(x.id)===String(id));if(!p)return;const url=location.href.split('#')[0]+'#social-post-'+encodeURIComponent(id);try{if(navigator.share){await navigator.share({title:`${p.username} on Social`,text:p.caption||'Social post',url})}else{await navigator.clipboard.writeText(url);showToast('Post link copied')}}catch{}}
+function initSocial(){socialBind();setTimeout(()=>socialSync(),150)}
+
 </script>
 </body>
 </html>
