@@ -349,22 +349,22 @@ html.reduced-motion .cover{transition:none!important}
   <div class="panel social-community-publisher">
     <div class="social-composer-top">
       <div><strong>Post to Social</strong><span class="social-publisher-note">Create an image or video post here. No account is required. It will appear in the Social feed.</span></div>
-      <span class="social-guest-badge">Guest posting</span>
+      <span class="social-guest-badge" id="socialIdentityBadge">Guest posting</span>
     </div>
     <div class="social-publisher-grid">
       <div class="social-publisher-row">
-        <input id="socialPostName" class="social-input" maxlength="32" placeholder="Display name (e.g. Roy)">
+        <input id="socialPostName" class="social-input" maxlength="32" placeholder="Display name (your account is used when signed in)">
         <input id="socialPostAvatar" class="social-input" maxlength="500" placeholder="Avatar URL (optional)">
       </div>
       <textarea id="socialPostCaption" class="social-textarea" maxlength="500" placeholder="Write a caption…"></textarea>
       <div class="social-media-row">
         <select id="socialMediaType" class="social-select"><option value="image">Image</option><option value="video">Video</option></select>
         <input id="socialMediaUrl" class="social-input" maxlength="2000" placeholder="https://.../image.jpg or video.mp4">
-        <label class="social-file-label">Choose file<input id="socialMediaFile" type="file" accept="image/*,video/*"></label>
+        <label class="social-file-label">Choose file<input id="socialMediaFile" type="file" accept="image/*,video/mp4,video/webm,video/ogg"></label>
       </div>
     </div>
     <div class="social-publish-actions">
-      <span class="tiny-status" id="socialPostHint">Cloud uploads can be shared with other visitors when Supabase Social is configured. Without it, the post stays on this device.</span>
+      <span class="tiny-status" id="socialPostHint">Posts are saved to Supabase so they remain after refresh. Signed-in posts use your account; guests can still post.</span>
       <button class="btn mini primary" type="button" onclick="createSocialPost()">Post to Social</button>
     </div>
   </div>
@@ -622,7 +622,7 @@ const I18N={
  ja:{assistant:'スマート回答',settings:'設定',dark:'ダーク',light:'ライト',hide:'隠す',show:'表示',home:'ホーム',games:'ゲーム',school:'学校',live:'ライブ',tools:'ツール',notes:'メモ',code:'コードラボ',hero:'1つのサイト。ゲーム、学校、ツール、ライブ情報。',heroSub:'高速な1ファイルハブ。画像は必要なときだけ読み込みます。',browse:'ゲームを見る',schoolApps:'学校アプリ',liveInfo:'ライブ情報',useful:'便利なツール',ask:'質問する',continueTitle:'続きから遊ぶ',continueSub:'最近のゲーム進行はこの端末に保存されます。',gamesSub:'高速ゲーム、検索、保存された進行',schoolSub:'ページ内ワークスペースと外部オプション。',liveTitle:'ライブニュースと最近のサッカー',toolsTitle:'便利なもの',notesTitle:'付箋とタスク',codeTitle:'コードラボ'},
  ko:{assistant:'스마트 답변',settings:'설정',dark:'어두운 화면',light:'밝은 화면',hide:'숨기기',show:'표시',home:'홈',games:'게임',school:'학교',live:'라이브',tools:'도구',notes:'메모',code:'코드 랩',hero:'한 곳에서 게임, 학교, 도구와 라이브 정보를.',heroSub:'빠른 단일 파일 허브. 이미지는 필요할 때만 로드됩니다.',browse:'게임 보기',schoolApps:'학교 앱',liveInfo:'라이브 정보',useful:'유용한 도구',ask:'질문하기',continueTitle:'계속 플레이',continueSub:'최근 게임 진행은 이 기기에 저장됩니다.',gamesSub:'빠른 게임, 검색, 저장된 진행',schoolSub:'페이지 안 공간과 외부 옵션.',liveTitle:'라이브 뉴스와 최근 축구',toolsTitle:'유용한 기능',notesTitle:'메모와 할 일',codeTitle:'코드 랩'}
 };
-function applyLanguage(lang){const t=I18N[lang]||I18N.en;storage.setItem('aio-lang',lang);document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';const set=(id,key)=>{const e=$(id);if(e&&t[key]!=null)e.textContent=t[key]};set('assistantBtn','assistant');set('settingsBtn','settings');set('darkBtn',document.documentElement.classList.contains('dark')?'light':'dark');set('hideBtn',hidden?'show':'hide');document.querySelectorAll('.nav button').forEach((b,i)=>{const k=['home','games','school','community','chat','live','tools','notes','music','code'][i];if(t[k])b.textContent=t[k];else if(k==='music')b.textContent='Music'});const h=document.querySelector('#home h1');if(h)h.textContent=t.hero;const hp=document.querySelector('#home .hero-card p');if(hp)hp.textContent=t.heroSub;const chips=document.querySelectorAll('#home .chip');if(chips[0])chips[0].textContent=t.browse;if(chips[1])chips[1].textContent=t.schoolApps;if(chips[2])chips[2].textContent=t.liveInfo;if(chips[3])chips[3].textContent=t.useful;if(chips[4])chips[4].textContent=t.ask;const hs=document.querySelector('#continueSection h2');if(hs)hs.textContent=t.continueTitle;const hss=document.querySelector('#continueSection small');if(hss)hss.textContent=t.continueSub;const gs=document.querySelector('#games h2');if(gs)gs.textContent=t.games;const gss=document.querySelector('#games .section-head small');if(gss)gss.textContent=t.gamesSub;const sh=document.querySelector('#school h2');if(sh)sh.textContent=t.schoolApps;const liveh=document.querySelector('#live h2');if(liveh)liveh.textContent=t.liveTitle;const th=document.querySelector('#tools h2');if(th)th.textContent=t.toolsTitle;const nh=document.querySelector('#notes h2');if(nh)nh.textContent=t.notesTitle;const ch=document.querySelector('#code h2');if(ch)ch.textContent=t.codeTitle;const mh=document.querySelector('#music h2');if(mh)mh.textContent=MUSIC_TITLES[lang]||'Music streamer';const search=$('search');if(search)search.placeholder=t.games+', '+t.tools+', '+t.schoolApps+'...  ( / )';const sel=$('languageSelect');if(sel)sel.value=lang}function initLanguage(){const lang=storage.getItem('aio-lang')||'en';applyLanguage(lang);$('languageSelect')?.addEventListener('change',e=>applyLanguage(e.target.value))}
+function applyLanguage(lang){const t=I18N[lang]||I18N.en;storage.setItem('aio-lang',lang);document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';const set=(id,key)=>{const e=$(id);if(e&&t[key]!=null)e.textContent=t[key]};set('assistantBtn','assistant');set('settingsBtn','settings');set('darkBtn',document.documentElement.classList.contains('dark')?'light':'dark');set('hideBtn',hidden?'show':'hide');document.querySelectorAll('.nav button').forEach((b,i)=>{const k=['home','games','school','social','community','chat','live','tools','notes','music','code'][i];if(t[k])b.textContent=t[k];else if(k==='music')b.textContent='Music'});const h=document.querySelector('#home h1');if(h)h.textContent=t.hero;const hp=document.querySelector('#home .hero-card p');if(hp)hp.textContent=t.heroSub;const chips=document.querySelectorAll('#home .chip');if(chips[0])chips[0].textContent=t.browse;if(chips[1])chips[1].textContent=t.schoolApps;if(chips[2])chips[2].textContent=t.liveInfo;if(chips[3])chips[3].textContent=t.useful;if(chips[4])chips[4].textContent=t.ask;const hs=document.querySelector('#continueSection h2');if(hs)hs.textContent=t.continueTitle;const hss=document.querySelector('#continueSection small');if(hss)hss.textContent=t.continueSub;const gs=document.querySelector('#games h2');if(gs)gs.textContent=t.games;const gss=document.querySelector('#games .section-head small');if(gss)gss.textContent=t.gamesSub;const sh=document.querySelector('#school h2');if(sh)sh.textContent=t.schoolApps;const liveh=document.querySelector('#live h2');if(liveh)liveh.textContent=t.liveTitle;const th=document.querySelector('#tools h2');if(th)th.textContent=t.toolsTitle;const nh=document.querySelector('#notes h2');if(nh)nh.textContent=t.notesTitle;const ch=document.querySelector('#code h2');if(ch)ch.textContent=t.codeTitle;const mh=document.querySelector('#music h2');if(mh)mh.textContent=MUSIC_TITLES[lang]||'Music streamer';const search=$('search');if(search)search.placeholder=t.games+', '+t.tools+', '+t.schoolApps+'...  ( / )';const sel=$('languageSelect');if(sel)sel.value=lang}function initLanguage(){const lang=storage.getItem('aio-lang')||'en';applyLanguage(lang);$('languageSelect')?.addEventListener('change',e=>applyLanguage(e.target.value))}
 let visibleLimit=84;let currentFiltered=[];function renderFilters(){$('filters').innerHTML=CATEGORIES.map(c=>`<button class="filter ${c===activeCat?'active':''}" onclick='setCat(${JSON.stringify(c)})'>${esc(c)}</button>`).join('')}
 function filteredGames(){let q=$('search').value.trim().toLowerCase();let list=GAMES.map((g,i)=>({g,i})).filter(x=>(activeCat==='All'||x.g.cat===activeCat)&&(!safeMode||!['Horror','Adventure'].includes(x.g.cat))&&(!q||x.g.name.toLowerCase().includes(q)||x.g.cat.toLowerCase().includes(q)));if(activeCat==='All'&&!q)list.sort((a,b)=>{const rank=x=>/featured/i.test(x.g.tag)?0:/popular/i.test(x.g.tag)?1:2;return rank(a)-rank(b)||a.i-b.i});return list;}
 function renderGames(){currentFiltered=filteredGames();if(visibleLimit>currentFiltered.length)visibleLimit=currentFiltered.length;const shown=currentFiltered.slice(0,visibleLimit);$('gameGrid').innerHTML=shown.length?shown.map(x=>cardHTML(x.g,x.i)).join(''):`<div class="panel" style="grid-column:1/-1">No games match that search.</div>`;$('gameCount').textContent=String(GAMES.length);$('librarySummary').textContent=`${GAMES.length} games ready`;const wrap=$('loadMoreWrap'),btn=$('loadMoreBtn');if(wrap&&btn){wrap.style.display=currentFiltered.length>visibleLimit?'flex':'none';btn.textContent=`Load more games (${Math.min(60,currentFiltered.length-visibleLimit)} more)`}hydrateImages();}
@@ -1048,104 +1048,274 @@ const SUPABASE_URL='https://oazcqqhifmyhitasccxc.supabase.co';
 /* Public browser client key: protected by Supabase RLS, not a service key. */
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9hemNxcWhpZm15aGl0YXNjY3hjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA5NTYxNTMsImV4cCI6MjEwNjUzMjE1M30.B0FJtHdYpqz6u6fdEL7pZtCIH99mgq5y0t521Nl-FeU';
 const COMMUNITY_SQL=`create extension if not exists pgcrypto;
+
+-- =========================================================
+-- KEEP THE EXISTING COMMUNITY SYSTEM
+-- =========================================================
+
 create table if not exists public.profiles (id uuid primary key references auth.users(id) on delete cascade, username text unique not null, avatar_url text, created_at timestamptz not null default now());
+
 create table if not exists public.friend_requests (id bigint generated by default as identity primary key, requester uuid not null references auth.users(id) on delete cascade, addressee uuid not null references auth.users(id) on delete cascade, status text not null default 'pending' check(status in ('pending','accepted','declined')), created_at timestamptz not null default now(), unique(requester,addressee));
+
 create table if not exists public.direct_messages (id bigint generated by default as identity primary key, sender_id uuid not null references auth.users(id) on delete cascade, recipient_id uuid not null references auth.users(id) on delete cascade, body text not null, created_at timestamptz not null default now());
+
 create table if not exists public.parties (id uuid primary key default gen_random_uuid(), code text unique not null, owner_id uuid not null references auth.users(id) on delete cascade, created_at timestamptz not null default now());
+
 create table if not exists public.party_members (party_id uuid not null references public.parties(id) on delete cascade, user_id uuid not null references auth.users(id) on delete cascade, joined_at timestamptz not null default now(), primary key(party_id,user_id));
+
 create table if not exists public.meeting_rooms (id uuid primary key default gen_random_uuid(), party_id uuid not null references public.parties(id) on delete cascade, created_by uuid not null references auth.users(id) on delete cascade, created_at timestamptz not null default now());
-alter table public.profiles enable row level security;
-alter table public.friend_requests enable row level security;
-alter table public.direct_messages enable row level security;
-alter table public.parties enable row level security;
-alter table public.party_members enable row level security;
-alter table public.meeting_rooms enable row level security;
+
+-- =========================================================
+-- REMOVE ALL PREVIOUS SOCIAL VERSIONS SO THEY CANNOT OVERLAP
+-- This keeps profiles/friends/DMs/parties/meetings intact.
+-- It also removes old Social posts/media from the old versions.
+-- =========================================================
+
+drop table if exists public.social_post_likes cascade;
+drop table if exists public.social_post_saves cascade;
+drop table if exists public.social_follows cascade;
+drop table if exists public.social_reactions cascade;
+drop table if exists public.social_comments cascade;
+drop table if exists public.social_posts cascade;
+
+drop policy if exists "public social media read" on storage.objects;
+drop policy if exists "public social media upload" on storage.objects;
+drop policy if exists "social media public read" on storage.objects;
+drop policy if exists "social media guest upload" on storage.objects;
+drop policy if exists "social media account upload" on storage.objects;
+drop policy if exists "social media own account delete" on storage.objects;
+
+delete from storage.objects where bucket_id = 'social-media';
+delete from storage.buckets where id = 'social-media';
+
+-- =========================================================
+-- NEW SOCIAL SYSTEM
+-- Public vertical image/video feed.
+-- Guests can post/comment/like/follow.
+-- Signed-in users automatically use their Supabase account ID.
+-- =========================================================
+
+create table public.social_posts (
+  id uuid primary key default gen_random_uuid(),
+  visitor_id text not null,
+  username text not null,
+  avatar_url text,
+  caption text not null default '',
+  media_type text not null check(media_type in ('image','video')),
+  media_url text not null,
+  created_at timestamptz not null default now(),
+  check(char_length(btrim(visitor_id)) between 20 and 100),
+  check(char_length(btrim(username)) between 1 and 32),
+  check(char_length(caption) <= 500),
+  check(char_length(media_url) <= 4000)
+);
+
+create index social_posts_created_at_idx on public.social_posts(created_at desc);
+create index social_posts_visitor_idx on public.social_posts(visitor_id);
+
+create table public.social_comments (
+  id bigint generated by default as identity primary key,
+  post_id uuid not null references public.social_posts(id) on delete cascade,
+  visitor_id text not null,
+  username text not null,
+  body text not null,
+  created_at timestamptz not null default now(),
+  check(char_length(btrim(visitor_id)) between 20 and 100),
+  check(char_length(btrim(username)) between 1 and 32),
+  check(char_length(btrim(body)) between 1 and 300)
+);
+
+create index social_comments_post_idx on public.social_comments(post_id, created_at asc);
+
+create table public.social_reactions (
+  post_id uuid not null references public.social_posts(id) on delete cascade,
+  visitor_id text not null,
+  created_at timestamptz not null default now(),
+  primary key(post_id,visitor_id),
+  check(char_length(btrim(visitor_id)) between 20 and 100)
+);
+
+create table public.social_follows (
+  visitor_id text not null,
+  username text not null,
+  created_at timestamptz not null default now(),
+  primary key(visitor_id,username),
+  check(char_length(btrim(visitor_id)) between 20 and 100),
+  check(char_length(btrim(username)) between 1 and 32)
+);
+
+alter table public.social_posts enable row level security;
+alter table public.social_comments enable row level security;
+alter table public.social_reactions enable row level security;
+alter table public.social_follows enable row level security;
+
+-- Anyone can read the feed/comments/reactions/follows.
 do $$ begin
-  create policy "profiles readable by authenticated" on public.profiles for select to authenticated using (true);
+  create policy "public social posts read" on public.social_posts
+    for select to anon, authenticated using (true);
 exception when duplicate_object then null; end $$;
+
 do $$ begin
-  create policy "own profile write" on public.profiles for all to authenticated using (id=auth.uid()) with check (id=auth.uid());
+  create policy "public social comments read" on public.social_comments
+    for select to anon, authenticated using (true);
 exception when duplicate_object then null; end $$;
+
 do $$ begin
-  create policy "friends visible to participants" on public.friend_requests for select to authenticated using (requester=auth.uid() or addressee=auth.uid());
+  create policy "public social reactions read" on public.social_reactions
+    for select to anon, authenticated using (true);
 exception when duplicate_object then null; end $$;
+
 do $$ begin
-  create policy "send friend request" on public.friend_requests for insert to authenticated with check (requester=auth.uid());
+  create policy "public social follows read" on public.social_follows
+    for select to anon, authenticated using (true);
 exception when duplicate_object then null; end $$;
+
+-- Guests and signed-in users may post.
 do $$ begin
-  create policy "friend response" on public.friend_requests for update to authenticated using (addressee=auth.uid()) with check (addressee=auth.uid());
+  create policy "public social guest post" on public.social_posts
+    for insert to anon
+    with check (
+      char_length(btrim(visitor_id)) between 20 and 100
+      and char_length(btrim(username)) between 1 and 32
+      and char_length(caption) <= 500
+      and char_length(media_url) <= 4000
+    );
 exception when duplicate_object then null; end $$;
+
 do $$ begin
-  create policy "dm participant read" on public.direct_messages for select to authenticated using (sender_id=auth.uid() or recipient_id=auth.uid());
+  create policy "public social account post" on public.social_posts
+    for insert to authenticated
+    with check (
+      visitor_id = auth.uid()::text
+      and char_length(btrim(visitor_id)) between 20 and 100
+      and char_length(btrim(username)) between 1 and 32
+      and char_length(caption) <= 500
+      and char_length(media_url) <= 4000
+    );
 exception when duplicate_object then null; end $$;
+
+-- Guests and signed-in users may comment.
 do $$ begin
-  create policy "dm sender insert" on public.direct_messages for insert to authenticated with check (sender_id=auth.uid());
+  create policy "public social guest comment" on public.social_comments
+    for insert to anon
+    with check (
+      char_length(btrim(visitor_id)) between 20 and 100
+      and char_length(btrim(username)) between 1 and 32
+      and char_length(btrim(body)) between 1 and 300
+    );
 exception when duplicate_object then null; end $$;
+
 do $$ begin
-  create policy "parties readable" on public.parties for select to authenticated using (true);
+  create policy "public social account comment" on public.social_comments
+    for insert to authenticated
+    with check (
+      visitor_id = auth.uid()::text
+      and char_length(btrim(visitor_id)) between 20 and 100
+      and char_length(btrim(username)) between 1 and 32
+      and char_length(btrim(body)) between 1 and 300
+    );
 exception when duplicate_object then null; end $$;
+
+-- Guests and signed-in users may like.
 do $$ begin
-  create policy "party owner insert" on public.parties for insert to authenticated with check (owner_id=auth.uid());
+  create policy "public social account reaction insert" on public.social_reactions
+    for insert to authenticated
+    with check (visitor_id = auth.uid()::text);
 exception when duplicate_object then null; end $$;
+
 do $$ begin
-  create policy "party members visible" on public.party_members for select to authenticated using (true);
+  create policy "own social reaction delete" on public.social_reactions
+    for delete to authenticated
+    using (visitor_id = auth.uid()::text);
 exception when duplicate_object then null; end $$;
+
 do $$ begin
-  create policy "join party" on public.party_members for insert to authenticated with check (user_id=auth.uid());
+  create policy "public social account follow insert" on public.social_follows
+    for insert to authenticated
+    with check (
+      visitor_id = auth.uid()::text
+      and char_length(btrim(visitor_id)) between 20 and 100
+      and char_length(btrim(username)) between 1 and 32
+    );
 exception when duplicate_object then null; end $$;
+
 do $$ begin
-  create policy "leave party" on public.party_members for delete to authenticated using (user_id=auth.uid());
+  create policy "own social follow delete" on public.social_follows
+    for delete to authenticated
+    using (visitor_id = auth.uid()::text);
 exception when duplicate_object then null; end $$;
+
+-- =========================================================
+-- STORAGE FOR SOCIAL IMAGES/VIDEOS
+-- =========================================================
+
+insert into storage.buckets (id,name,public)
+values ('social-media','social-media',true)
+on conflict (id) do update set public=true;
+update storage.buckets set file_size_limit=104857600, allowed_mime_types=array['image/jpeg','image/png','image/gif','image/webp','image/avif','video/mp4','video/webm','video/ogg'] where id='social-media';
+
 do $$ begin
-  create policy "meetings visible" on public.meeting_rooms for select to authenticated using (true);
+  create policy "public social media read" on storage.objects
+    for select to anon, authenticated
+    using (bucket_id='social-media');
 exception when duplicate_object then null; end $$;
+
 do $$ begin
-  create policy "meeting create" on public.meeting_rooms for insert to authenticated with check (created_by=auth.uid());
+  create policy "public social media upload" on storage.objects
+    for insert to anon, authenticated
+    with check (
+      bucket_id='social-media'
+      and name like 'social/%'
+    );
 exception when duplicate_object then null; end $$;
+
+-- Signed-in users can delete their own uploaded files.
+do $$ begin
+  create policy "social media own account delete" on storage.objects
+    for delete to authenticated
+    using (bucket_id='social-media' and owner_id=auth.uid());
+exception when duplicate_object then null; end $$;
+
+-- =========================================================
+-- GRANTS
+-- =========================================================
+
 grant select, insert, update, delete on public.profiles to authenticated;
 grant select, insert, update, delete on public.friend_requests to authenticated;
 grant select, insert on public.direct_messages to authenticated;
 grant select, insert, delete on public.parties to authenticated;
 grant select, insert, delete on public.party_members to authenticated;
 grant select, insert on public.meeting_rooms to authenticated;
-create table if not exists public.social_posts (id uuid primary key default gen_random_uuid(), visitor_id text, username text not null, avatar_url text, caption text not null default '', media_type text not null check(media_type in ('image','video')), media_url text not null, created_at timestamptz not null default now());
-  alter table public.social_posts add column if not exists visitor_id text;
-  create table if not exists public.social_comments (id bigint generated by default as identity primary key, post_id uuid not null references public.social_posts(id) on delete cascade, visitor_id text, username text not null, body text not null, created_at timestamptz not null default now());
-  alter table public.social_comments add column if not exists visitor_id text;
-  create table if not exists public.social_reactions (post_id uuid not null references public.social_posts(id) on delete cascade, visitor_id text not null, created_at timestamptz not null default now(), primary key(post_id,visitor_id));
-  create table if not exists public.social_follows (visitor_id text not null, username text not null, created_at timestamptz not null default now(), primary key(visitor_id,username));
-  alter table public.social_posts enable row level security;
-  alter table public.social_comments enable row level security;
-  alter table public.social_reactions enable row level security;
-  alter table public.social_follows enable row level security;
-  do $$ begin create policy "public social posts read" on public.social_posts for select to anon, authenticated using (true); exception when duplicate_object then null; end $$;
-  do $$ begin create policy "public social posts insert" on public.social_posts for insert to anon, authenticated with check (char_length(visitor_id) between 20 and 100 and char_length(username) between 1 and 32 and char_length(caption) <= 500 and char_length(media_url) <= 2000); exception when duplicate_object then null; end $$;
-  do $$ begin create policy "public social comments read" on public.social_comments for select to anon, authenticated using (true); exception when duplicate_object then null; end $$;
-  do $$ begin create policy "public social comments insert" on public.social_comments for insert to anon, authenticated with check (char_length(visitor_id) between 20 and 100 and char_length(username) between 1 and 32 and char_length(body) between 1 and 300); exception when duplicate_object then null; end $$;
-  do $$ begin create policy "public social reactions read" on public.social_reactions for select to anon, authenticated using (true); exception when duplicate_object then null; end $$;
-  do $$ begin create policy "public social reactions insert" on public.social_reactions for insert to anon, authenticated with check (char_length(visitor_id) between 20 and 100); exception when duplicate_object then null; end $$;
-  do $$ begin create policy "own social reaction delete" on public.social_reactions for delete to anon, authenticated using (visitor_id = coalesce(auth.uid()::text, visitor_id)); exception when duplicate_object then null; end $$;
-  do $$ begin create policy "public social follows read" on public.social_follows for select to anon, authenticated using (true); exception when duplicate_object then null; end $$;
-  do $$ begin create policy "public social follows insert" on public.social_follows for insert to anon, authenticated with check (char_length(visitor_id) between 20 and 100 and char_length(username) between 1 and 32); exception when duplicate_object then null; end $$;
-  do $$ begin create policy "own social follow delete" on public.social_follows for delete to anon, authenticated using (char_length(visitor_id) between 20 and 100); exception when duplicate_object then null; end $$;
-  grant select, insert on public.social_posts to anon, authenticated;
-  grant select, insert on public.social_comments to anon, authenticated;
-  grant select, insert, delete on public.social_reactions to anon, authenticated;
-  grant select, insert, delete on public.social_follows to anon, authenticated;
-  insert into storage.buckets (id,name,public) values ('social-media','social-media',true) on conflict (id) do update set public=true;
-  do $$ begin create policy "public social media read" on storage.objects for select to anon, authenticated using (bucket_id='social-media'); exception when duplicate_object then null; end $$;
-  do $$ begin create policy "public social media upload" on storage.objects for insert to anon, authenticated with check (bucket_id='social-media' and name like 'social/%'); exception when duplicate_object then null; end $$;
-  do $$ begin
-    if exists (select 1 from pg_publication where pubname='supabase_realtime') then
-      if not exists (select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='social_posts') then alter publication supabase_realtime add table public.social_posts; end if;
-      if not exists (select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='social_comments') then alter publication supabase_realtime add table public.social_comments; end if;
-      if not exists (select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='social_reactions') then alter publication supabase_realtime add table public.social_reactions; end if;
-    end if;
-  exception when others then null; end $$;
+
+grant select, insert on public.social_posts to anon, authenticated;
+grant select, insert on public.social_comments to anon, authenticated;
+grant select on public.social_reactions to anon;
+grant select, insert, delete on public.social_reactions to authenticated;
+grant select on public.social_follows to anon;
+grant select, insert, delete on public.social_follows to authenticated;
+
+grant usage, select on all sequences in schema public to anon, authenticated;
+
+-- =========================================================
+-- REALTIME
+-- =========================================================
+
 do $$ begin
   if exists (select 1 from pg_publication where pubname='supabase_realtime') then
     if not exists (select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='direct_messages') then
       alter publication supabase_realtime add table public.direct_messages;
+    end if;
+    if not exists (select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='social_posts') then
+      alter publication supabase_realtime add table public.social_posts;
+    end if;
+    if not exists (select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='social_comments') then
+      alter publication supabase_realtime add table public.social_comments;
+    end if;
+    if not exists (select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='social_reactions') then
+      alter publication supabase_realtime add table public.social_reactions;
+    end if;
+    if not exists (select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='social_follows') then
+      alter publication supabase_realtime add table public.social_follows;
     end if;
   end if;
 exception when others then null; end $$;`;
@@ -1157,6 +1327,8 @@ async function initCommunity(){
     supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
     const {data}=await supabaseClient.auth.getSession(); await handleAuthSession(data?.session||null);
     supabaseClient.auth.onAuthStateChange((_event,session)=>setTimeout(()=>handleAuthSession(session),0));
+    if(typeof socialSync==='function') setTimeout(()=>{try{socialSync()}catch(e){console.warn('Social startup sync:',e)}},0);
+    if(typeof socialRefreshIdentity==='function') setTimeout(()=>{try{socialRefreshIdentity()}catch(e){}},0);
     $('supabaseStatus').textContent=currentUser?'Connected · signed in':'Connected · sign in to use Community';
   }catch(e){$('supabaseStatus').textContent='Supabase could not start on this host.';console.error(e)}
 }
@@ -1166,6 +1338,9 @@ async function handleAuthSession(session){
   refreshAccountUI();
   if(currentUser){await loadFriends();await loadPendingFriendRequests();}
   else{currentProfile=null;friendsCache=[];renderFriends();}
+  // Social must resync after Supabase restores the session on refresh.
+  if(typeof socialSync==='function') setTimeout(()=>{try{socialSync()}catch(e){console.warn('Social auth sync:',e)}},0);
+  if(typeof socialRefreshIdentity==='function') setTimeout(()=>{try{socialRefreshIdentity()}catch(e){}},0);
 }
 async function ensureProfile(){
   if(!supabaseClient||!currentUser)return;
@@ -1328,6 +1503,7 @@ function handleRoute(route,initial=false){
   const r=raw;
   if(r==='login'){ openAuth('signin'); return; }
   if(r==='signup'){ openAuth('signup'); return; }
+  if(r==='social'){ closeAuth(); scrollToId('social'); return; }
   if(r==='chat'){ closeAuth(); scrollToId('chat'); return; }
   if(r==='party'){ closeAuth(); scrollToId('party-workspace'); return; }
   if(r==='draw'){ closeAuth(); openDrawing(); return; }
@@ -1453,112 +1629,302 @@ handleAuthSession=async function(session){
   }
 };
 
-/* ===== Social feed: empty by default, public anonymous media ===== */
-const SOCIAL_STORAGE_KEY='aio-social-v5';
-const SOCIAL_FOLLOW_KEY='aio-social-follows-v3';
-const SOCIAL_LIKE_KEY='aio-social-likes-v3';
-const SOCIAL_SAVE_KEY='aio-social-saves-v3';
-const SOCIAL_COMMENT_KEY='aio-social-comments-v3';
-const SOCIAL_VISITOR_KEY='aio-social-visitor-v1';
+/* ===== Social feed: cloud-persistent public image/video feed ===== */
+const SOCIAL_STORAGE_KEY='aio-social-v6';
+const SOCIAL_FOLLOW_KEY='aio-social-follows-v4';
+const SOCIAL_LIKE_KEY='aio-social-likes-v4';
+const SOCIAL_SAVE_KEY='aio-social-saves-v4';
+const SOCIAL_COMMENT_KEY='aio-social-comments-v4';
+const SOCIAL_VISITOR_KEY='aio-social-visitor-v2';
 let socialMode='for-you',socialPosts=[],socialStats=new Map(),socialCloudReady=false,socialCurrentCommentPost=null;
+try{['aio-social-v5','aio-social-follows-v3','aio-social-likes-v3','aio-social-saves-v3','aio-social-comments-v3','aio-social-visitor-v1'].forEach(k=>localStorage.removeItem(k))}catch{}
 function socialRead(key,fallback){try{const raw=localStorage.getItem(key);return raw===null?fallback:JSON.parse(raw)}catch{return fallback}}
-function socialWrite(key,val){try{localStorage.setItem(key,JSON.stringify(val))}catch{}}
+function socialWrite(key,val){try{localStorage.setItem(key,JSON.stringify(val));return true}catch{return false}}
 function socialEsc(v){return esc(String(v??''))}
-function socialId(prefix='x'){return prefix+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8)}
-function socialVisitorId(){let id=String(localStorage.getItem(SOCIAL_VISITOR_KEY)||'').trim();if(id.length<20){id=(crypto?.randomUUID?crypto.randomUUID():socialId('visitor')+'-'+Date.now());try{localStorage.setItem(SOCIAL_VISITOR_KEY,id)}catch{}}return id}
-function socialDisplayName(){return (String($('socialPostName')?.value||localStorage.getItem('aio-social-display-name')||'Guest').trim()||'Guest').slice(0,32)}
+function socialId(prefix='x'){return prefix+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9)}
+function socialVisitorId(){
+  // Use the signed-in account ID when available so likes/follows/comments stay tied to the account.
+  if(typeof currentUser!=='undefined' && currentUser?.id)return String(currentUser.id);
+  let id=String(localStorage.getItem(SOCIAL_VISITOR_KEY)||'').trim();
+  if(id.length<20){
+    id=(crypto?.randomUUID?crypto.randomUUID():socialId('visitor')+'-'+Date.now());
+    try{localStorage.setItem(SOCIAL_VISITOR_KEY,id)}catch{}
+  }
+  return id;
+}
+function socialDisplayName(){
+  const accountName=(typeof currentProfile!=='undefined'&&currentProfile?.username)||
+    ((typeof currentUser!=='undefined'&&currentUser?.user_metadata?.username)||'');
+  const typed=String($('socialPostName')?.value||'').trim();
+  return (accountName||typed||localStorage.getItem('aio-social-display-name')||'Guest').slice(0,32) || 'Guest';
+}
+function socialCommentDisplayName(){
+  const accountName=(typeof currentProfile!=='undefined'&&currentProfile?.username)||
+    ((typeof currentUser!=='undefined'&&currentUser?.user_metadata?.username)||'');
+  const typed=String($('socialCommentName')?.value||'').trim();
+  return (accountName||typed||localStorage.getItem('aio-social-display-name')||'Guest').slice(0,32) || 'Guest';
+}
+function socialAvatarUrl(){
+  return String(
+    (typeof currentProfile!=='undefined'&&currentProfile?.avatar_url)||
+    $('socialPostAvatar')?.value||''
+  ).trim().slice(0,500);
+}
 function socialAvatarHtml(account){return account?.avatar_url?`<img src="${socialEsc(account.avatar_url)}" alt="" onerror="this.style.display='none'">`:socialEsc(initialsSafe(account?.username||'Guest'))}
 function socialFollowSet(){return new Set(socialRead(SOCIAL_FOLLOW_KEY,[]))}
 function socialLikeSet(){return new Set(socialRead(SOCIAL_LIKE_KEY,[]))}
 function socialSaveSet(){return new Set(socialRead(SOCIAL_SAVE_KEY,[]))}
 function socialCommentMap(){return socialRead(SOCIAL_COMMENT_KEY,{})}
-function socialNormalizePosts(items){return (items||[]).map((p,i)=>({...p,id:p.id||socialId('post'),visitor_id:p.visitor_id||'',username:String(p.username||'Guest').slice(0,32),avatar_url:String(p.avatar_url||''),caption:String(p.caption||'').slice(0,500),media_type:p.media_type==='video'?'video':'image',media_url:String(p.media_url||''),created_at:p.created_at||new Date(Date.now()-i*3600000).toISOString()})).filter(p=>p.media_url)}
-function socialMergePosts(local,cloud){const map=new Map();[...socialNormalizePosts(local),...socialNormalizePosts(cloud)].forEach(p=>map.set(String(p.id),p));return [...map.values()].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))}
-function socialSelectedPosts(){if(socialMode==='following'){const f=socialFollowSet();return socialPosts.filter(p=>f.has(p.username))}return socialPosts}
+function socialNormalizePosts(items){
+  return (items||[]).map((p,i)=>({
+    ...p,id:p.id||socialId('post'),visitor_id:p.visitor_id||'',
+    username:String(p.username||'Guest').slice(0,32),
+    avatar_url:String(p.avatar_url||''),caption:String(p.caption||'').slice(0,500),
+    media_type:p.media_type==='video'?'video':'image',
+    media_url:String(p.media_url||''),
+    created_at:p.created_at||new Date(Date.now()-i*3600000).toISOString()
+  })).filter(p=>p.media_url);
+}
+function socialMergePosts(local,cloud){
+  const map=new Map();
+  [...socialNormalizePosts(local),...socialNormalizePosts(cloud)].forEach(p=>map.set(String(p.id),p));
+  return [...map.values()].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+}
+function socialSelectedPosts(){
+  if(socialMode==='following'){const f=socialFollowSet();return socialPosts.filter(p=>f.has(p.username))}
+  return socialPosts;
+}
 function socialTime(ts){const d=new Date(ts);if(Number.isNaN(d.getTime()))return 'now';const s=Math.max(1,Math.floor((Date.now()-d.getTime())/1000));if(s<60)return `${s}s`;if(s<3600)return `${Math.floor(s/60)}m`;if(s<86400)return `${Math.floor(s/3600)}h`;if(s<604800)return `${Math.floor(s/86400)}d`;return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}
 function socialStat(id){if(!socialStats.has(String(id)))socialStats.set(String(id),{likes:0,comments:0});return socialStats.get(String(id))}
+
 async function socialTryCloudLoad(){
-  socialCloudReady=false;if(!supabaseClient)return {posts:[],comments:[],reactions:[],follows:[]};
-  try{
-    const [postsQ,commentsQ,reactionsQ,followsQ]=await Promise.all([
-      supabaseClient.from('social_posts').select('id,visitor_id,username,avatar_url,caption,media_type,media_url,created_at').order('created_at',{ascending:false}).limit(200),
-      supabaseClient.from('social_comments').select('id,post_id,visitor_id,username,body,created_at').order('created_at',{ascending:true}).limit(1000),
-      supabaseClient.from('social_reactions').select('post_id,visitor_id').limit(5000),
-      supabaseClient.from('social_follows').select('visitor_id,username').limit(5000)
-    ]);
-    if(postsQ.error)throw postsQ.error;
-    socialCloudReady=true;if($('socialCloudState'))$('socialCloudState').textContent='Cloud feed connected';
-    return {posts:postsQ.data||[],comments:commentsQ.data||[],reactions:reactionsQ.data||[],follows:followsQ.data||[]};
-  }catch(e){if($('socialCloudState'))$('socialCloudState').textContent='Local feed';return {posts:[],comments:[],reactions:[],follows:[]}}
+  socialCloudReady=false;
+  if(!supabaseClient)return {posts:[],comments:[],reactions:[],follows:[]};
+
+  // The posts table is the only required Social cloud dependency.
+  const postsQ=await supabaseClient.from('social_posts')
+    .select('id,visitor_id,username,avatar_url,caption,media_type,media_url,created_at')
+    .order('created_at',{ascending:false}).limit(200);
+  if(postsQ.error){
+    if($('socialCloudState'))$('socialCloudState').textContent='Social setup needed';
+    return {posts:[],comments:[],reactions:[],follows:[]};
+  }
+
+  socialCloudReady=true;
+  if($('socialCloudState'))$('socialCloudState').textContent='Cloud feed connected';
+
+  const [commentsQ,reactionsQ,followsQ]=await Promise.all([
+    supabaseClient.from('social_comments').select('id,post_id,visitor_id,username,body,created_at').order('created_at',{ascending:true}).limit(1000),
+    supabaseClient.from('social_reactions').select('post_id,visitor_id').limit(5000),
+    supabaseClient.from('social_follows').select('visitor_id,username').limit(5000)
+  ]);
+
+  return {
+    posts:postsQ.data||[],
+    comments:commentsQ.error?[]:(commentsQ.data||[]),
+    reactions:reactionsQ.error?[]:(reactionsQ.data||[]),
+    follows:followsQ.error?[]:(followsQ.data||[])
+  };
 }
-function socialRebuildLocalComments(cloudComments){const map=socialCommentMap();for(const c of cloudComments||[]){const id=String(c.post_id);const arr=Array.isArray(map[id])?map[id]:[];if(!arr.some(x=>String(x.id)===String(c.id)))arr.push(c);map[id]=arr.slice(-100)}socialWrite(SOCIAL_COMMENT_KEY,map)}
-function socialApplyCloudStats(bundle){socialStats=new Map();for(const r of bundle.reactions||[]){const s=socialStat(r.post_id);s.likes++}for(const c of bundle.comments||[]){const s=socialStat(c.post_id);s.comments++}socialRebuildLocalComments(bundle.comments||[])}
-async function socialSync(){const local=socialRead(SOCIAL_STORAGE_KEY,[]),bundle=await socialTryCloudLoad();socialApplyCloudStats(bundle);socialPosts=socialMergePosts(local,bundle.posts);renderSocialFeed()}
+function socialRebuildLocalComments(cloudComments){
+  const map=socialCommentMap();
+  for(const c of cloudComments||[]){
+    const id=String(c.post_id),arr=Array.isArray(map[id])?map[id]:[];
+    if(!arr.some(x=>String(x.id)===String(c.id)))arr.push(c);
+    map[id]=arr.slice(-100);
+  }
+  socialWrite(SOCIAL_COMMENT_KEY,map);
+}
+function socialApplyCloudStats(bundle){
+  socialStats=new Map();
+  for(const r of bundle.reactions||[]){const st=socialStat(r.post_id);st.likes++}
+  for(const c of bundle.comments||[]){const st=socialStat(c.post_id);st.comments++}
+  socialRebuildLocalComments(bundle.comments||[]);
+}
+async function socialSync(){
+  const local=socialRead(SOCIAL_STORAGE_KEY,[]);
+  const bundle=await socialTryCloudLoad();
+  socialApplyCloudStats(bundle);
+  socialPosts=socialMergePosts(local,bundle.posts);
+  // Never persist a large data URI just to keep a file alive. Cloud URLs are lightweight and refresh-safe.
+  const cloudUrls=socialPosts.filter(p=>/^https?:\/\//i.test(p.media_url));
+  if(cloudUrls.length)socialWrite(SOCIAL_STORAGE_KEY,cloudUrls.slice(0,100));
+  renderSocialFeed();
+}
 function renderSocialFeed(){
   const box=$('socialFeed'),empty=$('socialFeedEmpty'),note=$('socialScrollNote');if(!box)return;
   const posts=socialSelectedPosts();
   box.innerHTML=posts.map((p,i)=>renderSocialPost(p,i)).join('');
-  const showEmpty=!posts.length;empty.classList.toggle('hidden',!showEmpty);if(note)note.classList.toggle('hidden',posts.length<2);
+  const showEmpty=!posts.length;empty.classList.toggle('hidden',!showEmpty);
+  if(note)note.classList.toggle('hidden',posts.length<2);
   setupSocialVideoObserver();
 }
 function renderSocialPost(p,i){
-  const follows=socialFollowSet(),likes=socialLikeSet(),saves=socialSaveSet();const liked=likes.has(String(p.id)),saved=saves.has(String(p.id)),followed=follows.has(p.username),stat=socialStat(p.id),commentCount=stat.comments||socialCommentMap()[p.id]?.length||0,likeCount=Math.max(stat.likes||0,0)+(liked&&!socialCloudReady?1:0);
-  const media=p.media_type==='video'?`<video src="${socialEsc(p.media_url)}" playsinline muted loop preload="metadata" data-social-video></video>`:`<img src="${socialEsc(p.media_url)}" alt="" loading="${i<2?'eager':'lazy'}" onerror="socialMediaError(this)">`;
+  const follows=socialFollowSet(),likes=socialLikeSet(),saves=socialSaveSet();
+  const liked=likes.has(String(p.id)),saved=saves.has(String(p.id)),followed=follows.has(p.username);
+  const stat=socialStat(p.id),commentCount=stat.comments||socialCommentMap()[p.id]?.length||0;
+  const likeCount=Math.max(stat.likes||0,0)+(liked&&!socialCloudReady?1:0);
+  const media=p.media_type==='video'
+    ?`<video src="${socialEsc(p.media_url)}" playsinline muted loop autoplay preload="auto" data-social-video controlslist="nodownload noplaybackrate"></video>`
+    :`<img src="${socialEsc(p.media_url)}" alt="" loading="${i<2?'eager':'lazy'}" decoding="async" onerror="socialMediaError(this)">`;
   return `<article class="social-post" data-social-post="${socialEsc(p.id)}">
     <div class="social-post-media">${media}<div class="social-media-shade"></div></div>
-    <div class="social-post-top"><span class="social-time">${socialTime(p.created_at)}</span><button class="social-top-menu" type="button" onclick="shareSocialPost('${socialEsc(p.id)}')">↗</button></div>
+    <div class="social-post-top"><span class="social-time">${socialTime(p.created_at)}</span><button class="social-top-menu" type="button" aria-label="Share" onclick="shareSocialPost('${socialEsc(p.id)}')">↗</button></div>
     <div class="social-right-rail">
       <div class="social-creator"><div class="social-creator-avatar">${socialAvatarHtml(p)}</div><button class="social-follow-plus ${followed?'following':''}" type="button" aria-label="${followed?'Unfollow':'Follow'} ${socialEsc(p.username)}" onclick="toggleSocialFollow('${socialEsc(p.username)}')">${followed?'✓':'+'}</button></div>
       <button class="social-rail-btn ${liked?'liked':''}" type="button" aria-label="Like" onclick="toggleSocialLike('${socialEsc(p.id)}')">${liked?'♥':'♡'}</button><span class="social-rail-count" data-like-count="${socialEsc(p.id)}">${socialFormatCount(likeCount)}</span>
       <button class="social-rail-btn" type="button" aria-label="Comments" onclick="openSocialComments('${socialEsc(p.id)}')">💬</button><span class="social-rail-count" data-comment-count="${socialEsc(p.id)}">${socialFormatCount(commentCount)}</span>
-      <button class="social-rail-btn ${saved?'saved':''}" type="button" aria-label="Save" onclick="toggleSocialSave('${socialEsc(p.id)}')">${saved?'🔖':'🔖'}</button><span class="social-rail-count">${saved?'Saved':''}</span>
+      <button class="social-rail-btn ${saved?'saved':''}" type="button" aria-label="Save" onclick="toggleSocialSave('${socialEsc(p.id)}')">🔖</button><span class="social-rail-count">${saved?'Saved':''}</span>
       <button class="social-rail-btn" type="button" aria-label="Share" onclick="shareSocialPost('${socialEsc(p.id)}')">↗</button>
     </div>
-    <div class="social-post-bottom"><div class="social-post-author">${socialEsc(p.username)}<span class="verified-dot">✓</span></div><div class="social-post-caption">${socialEsc(p.caption)} <span class="social-more">more</span></div><div class="social-media-label">${p.media_type==='video'?'Video':'Image'} · public post</div></div>
+    <div class="social-post-bottom"><div class="social-post-author">${socialEsc(p.username)}</div><div class="social-post-caption">${socialEsc(p.caption)} <span class="social-more">more</span></div><div class="social-media-label">${p.media_type==='video'?'Video':'Image'} · public post</div></div>
   </article>`
 }
 function socialFormatCount(n){n=Number(n)||0;if(n<1000)return String(n);if(n<1000000)return (n/1000).toFixed(n<10000?1:0).replace(/\.0$/,'')+'K';if(n<1000000000)return (n/1000000).toFixed(1).replace(/\.0$/,'')+'M';return (n/1000000000).toFixed(1).replace(/\.0$/,'')+'B'}
-function socialMediaError(el){const wrap=el?.parentElement;if(!wrap)return;el.remove();wrap.classList.add('placeholder');wrap.insertAdjacentHTML('beforeend','<div style="color:#cfd4de;font-size:12px;padding:30px">This media could not be loaded.</div>')}
+function socialMediaError(el){const wrap=el?.parentElement;if(!wrap)return;el.remove();wrap.classList.add('placeholder');wrap.insertAdjacentHTML('beforeend','<div style="color:#cfd4de;font-size:12px;padding:30px;text-align:center">This media could not be loaded.</div>')}
 function toggleSocialLike(id){
-  const set=socialLikeSet();const now=!set.has(id);if(now)set.add(id);else set.delete(id);socialWrite(SOCIAL_LIKE_KEY,[...set]);renderSocialFeed();
-  if(socialCloudReady&&supabaseClient){if(now)supabaseClient.from('social_reactions').insert({post_id:id,visitor_id:socialVisitorId()}).then(()=>socialSync()).catch(()=>{});else supabaseClient.from('social_reactions').delete().eq('post_id',id).eq('visitor_id',socialVisitorId()).then(()=>socialSync()).catch(()=>{})}
+  const set=socialLikeSet(),now=!set.has(id);
+  if(now)set.add(id);else set.delete(id);socialWrite(SOCIAL_LIKE_KEY,[...set]);renderSocialFeed();
+  if(socialCloudReady&&supabaseClient&&typeof currentUser!=='undefined'&&currentUser){
+    const q=now
+      ?supabaseClient.from('social_reactions').insert({post_id:id,visitor_id:currentUser.id})
+      :supabaseClient.from('social_reactions').delete().eq('post_id',id).eq('visitor_id',currentUser.id);
+    q.then(()=>socialSync()).catch(()=>{});
+  }
 }
 function toggleSocialSave(id){const set=socialSaveSet();set.has(id)?set.delete(id):set.add(id);socialWrite(SOCIAL_SAVE_KEY,[...set]);renderSocialFeed();showToast(set.has(id)?'Saved':'Removed from saved')}
-function toggleSocialFollow(name){const set=socialFollowSet();const now=!set.has(name);if(now)set.add(name);else set.delete(name);socialWrite(SOCIAL_FOLLOW_KEY,[...set]);renderSocialFeed();showToast(now?`Following ${name}`:`Unfollowed ${name}`);if(socialCloudReady&&supabaseClient){const q=now?supabaseClient.from('social_follows').insert({visitor_id:socialVisitorId(),username:name}):supabaseClient.from('social_follows').delete().eq('visitor_id',socialVisitorId()).eq('username',name);q.then(()=>{}).catch(()=>{})}}
-async function openSocialComments(postId){
-  socialCurrentCommentPost=postId;const modal=$('socialCommentsModal');if(!modal)return;modal.classList.add('open');renderSocialComments(postId);$('socialCommentBody')?.focus();
+function toggleSocialFollow(name){
+  const set=socialFollowSet(),now=!set.has(name);if(now)set.add(name);else set.delete(name);socialWrite(SOCIAL_FOLLOW_KEY,[...set]);renderSocialFeed();showToast(now?`Following ${name}`:`Unfollowed ${name}`);
+  if(socialCloudReady&&supabaseClient&&typeof currentUser!=='undefined'&&currentUser){
+    const q=now
+      ?supabaseClient.from('social_follows').insert({visitor_id:currentUser.id,username:name})
+      :supabaseClient.from('social_follows').delete().eq('visitor_id',currentUser.id).eq('username',name);
+    q.then(()=>{}).catch(()=>{});
+  }
 }
+async function openSocialComments(postId){socialCurrentCommentPost=postId;const modal=$('socialCommentsModal');if(!modal)return;modal.classList.add('open');renderSocialComments(postId);$('socialCommentBody')?.focus()}
 function closeSocialComments(){socialCurrentCommentPost=null;$('socialCommentsModal')?.classList.remove('open')}
 function renderSocialComments(postId){const box=$('socialCommentsList');if(!box)return;const map=socialCommentMap(),list=map[postId]||[];box.innerHTML=list.length?list.slice(-100).map(c=>`<div class="social-comment-item"><strong>${socialEsc(c.username)}</strong>${socialEsc(c.body)}</div>`).join(''):'<div class="social-comment-empty">No comments yet. Be the first.</div>';const p=socialPosts.find(x=>String(x.id)===String(postId));if($('socialCommentsTitle'))$('socialCommentsTitle').textContent=`Comments${p?' · '+p.username:''}`}
-async function addSocialComment(){const postId=socialCurrentCommentPost;if(!postId)return;const body=String($('socialCommentBody')?.value||'').trim();if(!body)return;const username=(String($('socialCommentName')?.value||localStorage.getItem('aio-social-display-name')||'Guest').trim()||'Guest').slice(0,32);try{localStorage.setItem('aio-social-display-name',username)}catch{};const c={id:socialId('comment'),post_id:postId,visitor_id:socialVisitorId(),username,body:body.slice(0,300),created_at:new Date().toISOString()};const map=socialCommentMap();map[postId]=[...(map[postId]||[]),c].slice(-100);socialWrite(SOCIAL_COMMENT_KEY,map);if(socialCloudReady&&supabaseClient){try{await supabaseClient.from('social_comments').insert({post_id:postId,visitor_id:c.visitor_id,username:c.username,body:c.body})}catch{}}if($('socialCommentBody'))$('socialCommentBody').value='';socialApplyLocalStat(postId,'comments',1);renderSocialComments(postId);renderSocialFeed()}
-function socialApplyLocalStat(id,key,amount){const s=socialStat(id);s[key]=(s[key]||0)+amount}
+async function addSocialComment(){
+  const postId=socialCurrentCommentPost;if(!postId)return;
+  const body=String($('socialCommentBody')?.value||'').trim();if(!body)return;
+  const username=socialCommentDisplayName();try{localStorage.setItem('aio-social-display-name',username)}catch{}
+  const c={id:socialId('comment'),post_id:postId,visitor_id:socialVisitorId(),username,body:body.slice(0,300),created_at:new Date().toISOString()};
+  const map=socialCommentMap();map[postId]=[...(map[postId]||[]),c].slice(-100);socialWrite(SOCIAL_COMMENT_KEY,map);
+  if(socialCloudReady&&supabaseClient){try{const q=await supabaseClient.from('social_comments').insert({post_id:postId,visitor_id:c.visitor_id,username:c.username,body:c.body});if(q.error)throw q.error}catch(e){console.warn('Social comment cloud save failed:',e)}}
+  if($('socialCommentBody'))$('socialCommentBody').value='';socialApplyLocalStat(postId,'comments',1);renderSocialComments(postId);renderSocialFeed();
+}
+function socialApplyLocalStat(id,key,amount){const st=socialStat(id);st[key]=(st[key]||0)+amount}
+
 async function createSocialPost(){
-  const username=socialDisplayName(),avatar=String($('socialPostAvatar')?.value||'').trim().slice(0,500),caption=String($('socialPostCaption')?.value||'').trim().slice(0,500),type=$('socialMediaType')?.value==='video'?'video':'image',url=String($('socialMediaUrl')?.value||'').trim(),file=$('socialMediaFile')?.files?.[0];
-  try{localStorage.setItem('aio-social-display-name',username)}catch{}
+  const file=$('socialMediaFile')?.files?.[0];
+  const typedName=String($('socialPostName')?.value||'').trim();
+  const accountName=(typeof currentProfile!=='undefined'&&currentProfile?.username)||((typeof currentUser!=='undefined'&&currentUser?.user_metadata?.username)||'');
+  const username=(accountName||typedName||localStorage.getItem('aio-social-display-name')||'Guest').slice(0,32)||'Guest';
+  const avatar=socialAvatarUrl();
+  const caption=String($('socialPostCaption')?.value||'').trim().slice(0,500);
+  const requestedType=$('socialMediaType')?.value==='video'?'video':'image';
+  const url=String($('socialMediaUrl')?.value||'').trim();
+
   if(!url&&!file)return showToast('Add an image/video URL or choose a file.');
-  let mediaUrl=url,actualType=type;
-  if(file){actualType=file.type.startsWith('video/')?'video':'image';
-    if(file.size>20*1024*1024)return showToast('Choose a file under 20 MB.');
-    if(socialCloudReady&&supabaseClient){
-      try{const ext=(file.name.split('.').pop()||actualType).toLowerCase().replace(/[^a-z0-9]/g,'')||actualType;const path=`social/${socialVisitorId()}/${crypto?.randomUUID?crypto.randomUUID():socialId('media')}.${ext}`;const up=await supabaseClient.storage.from('social-media').upload(path,file,{upsert:false,contentType:file.type||undefined});if(up.error)throw up.error;const pub=supabaseClient.storage.from('social-media').getPublicUrl(path);mediaUrl=pub.data.publicUrl}catch(e){return showToast('Cloud upload failed. Add a direct media URL or check the Supabase setup.')}}
-    else{mediaUrl=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result));r.onerror=reject;r.readAsDataURL(file)})}
+  if(file && file.size>100*1024*1024)return showToast('Choose a file under 100 MB.');
+  if(file && !/^((video|image)\/(mp4|webm|ogg|quicktime|jpeg|png|gif|webp|avif|jpg))$/i.test(file.type) && !(file.type.startsWith('image/')||file.type.startsWith('video/'))){
+    return showToast('That media type is not supported. Use a normal image or MP4/WebM video.');
   }
-  const visitorId=socialVisitorId();const localPost={id:socialId('post'),visitor_id:visitorId,username,avatar_url:avatar,caption,media_type:actualType,media_url:mediaUrl,created_at:new Date().toISOString()};
+
+  let mediaUrl=url,actualType=requestedType,uploadedStoragePath='';
+
+  // Upload files directly to Supabase Storage. Never put a large uploaded video into localStorage.
+  if(file){
+    actualType=file.type.startsWith('video/')?'video':'image';
+    if(!supabaseClient)return showToast('Supabase is not ready yet. Refresh once and try again.');
+    try{
+      const safeExt=(file.name.split('.').pop()||actualType).toLowerCase().replace(/[^a-z0-9]/g,'')|| (actualType==='video'?'mp4':'jpg');
+      const actor=socialVisitorId();
+      const uid=(crypto?.randomUUID?crypto.randomUUID():socialId('media'));
+      uploadedStoragePath=`social/${actor}/${uid}.${safeExt}`;
+      const up=await supabaseClient.storage.from('social-media').upload(uploadedStoragePath,file,{upsert:false,contentType:file.type||undefined,cacheControl:'31536000'});
+      if(up.error)throw up.error;
+      const pub=supabaseClient.storage.from('social-media').getPublicUrl(uploadedStoragePath);
+      mediaUrl=pub?.data?.publicUrl||'';
+      if(!mediaUrl)throw Error('No public media URL returned.');
+    }catch(e){
+      console.error('Social upload failed:',e);
+      return showToast('Cloud upload failed: '+(e?.message||'check the Supabase SQL/storage setup.'));
+    }
+  }
+
+  const visitorId=socialVisitorId();
+  const localPost={id:socialId('post'),visitor_id:visitorId,username,avatar_url:avatar,caption,media_type:actualType,media_url:mediaUrl,created_at:new Date().toISOString()};
   let post=localPost;
-  if(socialCloudReady&&supabaseClient){try{const q=await supabaseClient.from('social_posts').insert({visitor_id:visitorId,username,avatar_url:avatar||null,caption,media_type:actualType,media_url:mediaUrl}).select().single();if(q.error)throw q.error;post=q.data}catch(e){socialWrite(SOCIAL_STORAGE_KEY,[localPost,...socialRead(SOCIAL_STORAGE_KEY,[])].slice(0,100));socialPosts=socialMergePosts([localPost],socialPosts);renderSocialFeed();return showToast('Posted on this device; cloud posting was rejected by Supabase rules.')}}
-  else socialWrite(SOCIAL_STORAGE_KEY,[localPost,...socialRead(SOCIAL_STORAGE_KEY,[])].slice(0,100));
+
+  if(supabaseClient){
+    try{
+      const q=await supabaseClient.from('social_posts').insert({visitor_id:visitorId,username,avatar_url:avatar||null,caption,media_type:actualType,media_url:mediaUrl}).select().single();
+      if(q.error)throw q.error;
+      post=q.data;
+    }catch(e){
+      // Remove an uploaded file when its post row could not be created.
+      if(uploadedStoragePath){try{await supabaseClient.storage.from('social-media').remove([uploadedStoragePath])}catch{}}
+      socialWrite(SOCIAL_STORAGE_KEY,[localPost,...socialRead(SOCIAL_STORAGE_KEY,[])].filter(x=>x.media_url&&/^https?:\/\//i.test(x.media_url)).slice(0,100));
+      socialPosts=socialMergePosts([localPost],socialPosts);renderSocialFeed();
+      return showToast('Post could not be saved to Social: '+(e?.message||'check your Supabase SQL.'));
+    }
+  }else{
+    // Direct URL posts can still be kept locally when Supabase is unavailable.
+    if(file)return showToast('Supabase is required for uploaded files so they survive refresh.');
+    socialWrite(SOCIAL_STORAGE_KEY,[localPost,...socialRead(SOCIAL_STORAGE_KEY,[])].slice(0,100));
+  }
+
+  // Store only the small cloud URL locally as a fast refresh fallback.
+  if(/^https?:\/\//i.test(post.media_url))socialWrite(SOCIAL_STORAGE_KEY,[post,...socialRead(SOCIAL_STORAGE_KEY,[])].filter(x=>x.media_url&&/^https?:\/\//i.test(x.media_url)).slice(0,100));
   socialPosts=socialMergePosts([post],socialPosts);socialStat(post.id);renderSocialFeed();
-  $('socialPostCaption').value='';$('socialMediaUrl').value='';if($('socialMediaFile'))$('socialMediaFile').value='';showToast(socialCloudReady?'Posted to Social':'Posted on this device');scrollToId('social');setTimeout(()=>document.querySelector('.social-post')?.scrollIntoView({behavior:'smooth',block:'start'}),180)
+  if($('socialPostCaption'))$('socialPostCaption').value='';
+  if($('socialMediaUrl'))$('socialMediaUrl').value='';
+  if($('socialMediaFile'))$('socialMediaFile').value='';
+  if($('socialMediaType'))$('socialMediaType').value='image';
+  if($('socialPostHint'))$('socialPostHint').textContent='Posted successfully. It is stored in Social and will remain after refresh.';
+  showToast('Posted to Social');
+  scrollToId('social');
+  setTimeout(()=>document.querySelector('.social-post')?.scrollIntoView({behavior:'smooth',block:'start'}),180);
+}
+function socialRefreshIdentity(){
+  const name=$('socialPostName'),avatar=$('socialPostAvatar'),badge=$('socialIdentityBadge');
+  const accountName=(typeof currentProfile!=='undefined'&&currentProfile?.username)||((typeof currentUser!=='undefined'&&currentUser?.user_metadata?.username)||'');
+  const accountAvatar=(typeof currentProfile!=='undefined'&&currentProfile?.avatar_url)||'';
+  if(name){if(accountName){name.value=accountName;name.readOnly=true;name.title='Signed-in account name';}else{name.readOnly=false;if(!name.value){const saved=localStorage.getItem('aio-social-display-name');if(saved)name.value=saved;}}}
+  if(avatar){if(accountAvatar){avatar.value=accountAvatar;avatar.readOnly=true;}else{avatar.readOnly=false;}}
+  if(badge){badge.textContent=accountName?'Signed-in account':'Guest posting';}
+  const commentName=$('socialCommentName');if(commentName&&accountName){commentName.value=accountName;commentName.readOnly=true;}
 }
 function socialBind(){
-  const name=$('socialPostName');if(name){const saved=localStorage.getItem('aio-social-display-name');if(saved)name.value=saved;name.addEventListener('input',()=>{try{localStorage.setItem('aio-social-display-name',socialDisplayName())}catch{};})}
-  $('socialMediaFile')?.addEventListener('change',e=>{const f=e.target.files?.[0];if(!f)return;$('socialMediaType').value=f.type.startsWith('video/')?'video':'image';$('socialMediaUrl').value='';showToast(`${f.type.startsWith('video/')?'Video':'Image'} selected`)});
+  const name=$('socialPostName');
+  if(name){name.addEventListener('input',()=>{if(!name.readOnly){try{localStorage.setItem('aio-social-display-name',socialDisplayName())}catch{}}});}
+  const fileInput=$('socialMediaFile');
+  if(fileInput)fileInput.addEventListener('change',e=>{const f=e.target.files?.[0];if(!f)return;$('socialMediaType').value=f.type.startsWith('video/')?'video':'image';$('socialMediaUrl').value='';showToast(`${f.type.startsWith('video/')?'Video':'Image'} selected · will upload to Social`)});
   $('socialCommentsModal')?.addEventListener('click',e=>{if(e.target.id==='socialCommentsModal')closeSocialComments()});
-  $('socialCommentName')?.addEventListener('input',e=>{try{localStorage.setItem('aio-social-display-name',String(e.target.value||'Guest').slice(0,32))}catch{}});
+  $('socialCommentName')?.addEventListener('input',e=>{if(!e.target.readOnly){try{localStorage.setItem('aio-social-display-name',String(e.target.value||'Guest').slice(0,32))}catch{}}});
+  socialRefreshIdentity();
 }
-function setupSocialVideoObserver(){if(!('IntersectionObserver' in window))return;const videos=document.querySelectorAll('[data-social-video]');if(window.aioSocialVideoObserver)window.aioSocialVideoObserver.disconnect();window.aioSocialVideoObserver=new IntersectionObserver(entries=>{for(const entry of entries){const v=entry.target;if(entry.isIntersecting&&entry.intersectionRatio>.65){document.querySelectorAll('[data-social-video]').forEach(x=>{if(x!==v)try{x.pause()}catch{}});v.muted=true;v.play().catch(()=>{})}else if(!entry.isIntersecting){try{v.pause()}catch{}}}},{threshold:[.65]});videos.forEach(v=>window.aioSocialVideoObserver.observe(v))}
+function setupSocialVideoObserver(){
+  if(!('IntersectionObserver' in window))return;
+  const videos=document.querySelectorAll('[data-social-video]');
+  if(window.aioSocialVideoObserver)window.aioSocialVideoObserver.disconnect();
+  window.aioSocialVideoObserver=new IntersectionObserver(entries=>{
+    for(const entry of entries){
+      const v=entry.target;
+      if(entry.isIntersecting&&entry.intersectionRatio>.60){
+        document.querySelectorAll('[data-social-video]').forEach(x=>{if(x!==v)try{x.pause()}catch{}});
+        v.muted=true;
+        v.play().catch(()=>{});
+      }else if(!entry.isIntersecting){try{v.pause()}catch{}}
+    }
+  },{threshold:[.60]});
+  videos.forEach(v=>v.addEventListener('loadeddata',()=>{if(v.closest('.social-post')?.getBoundingClientRect().top>=0){}},{once:true}));
+  videos.forEach(v=>window.aioSocialVideoObserver.observe(v));
+}
 async function shareSocialPost(id){const p=socialPosts.find(x=>String(x.id)===String(id));if(!p)return;const url=location.href.split('#')[0]+'#social-post-'+encodeURIComponent(id);try{if(navigator.share){await navigator.share({title:`${p.username} on Social`,text:p.caption||'Social post',url})}else{await navigator.clipboard.writeText(url);showToast('Post link copied')}}catch{}}
-function initSocial(){socialBind();setTimeout(()=>socialSync(),150)}
+function initSocial(){socialBind();setTimeout(()=>{try{socialSync()}catch(e){console.error('Social init:',e)}},350)}
 
 </script>
 </body>
