@@ -222,7 +222,7 @@ html.reduced-motion .cover{transition:none!important}
 .social-video-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:58px;height:58px;border:0;border-radius:50%;background:rgba(0,0,0,.58);color:#fff;display:grid;place-items:center;font-size:25px;font-weight:900;z-index:3;backdrop-filter:blur(8px);box-shadow:0 8px 25px rgba(0,0,0,.3);opacity:.96}
 .social-video-play.hidden{display:none}
 .social-video-play:hover{transform:translate(-50%,-50%) scale(1.06);background:rgba(0,0,0,.72)}
-.social-video-sound{position:absolute;right:12px;top:12px;z-index:5;border:1px solid rgba(255,255,255,.22);background:rgba(16,18,24,.78);color:#fff;border-radius:10px;padding:8px 10px;font-size:11px;font-weight:900;backdrop-filter:blur(8px)}.social-video-sound:hover{background:rgba(25,29,38,.92)}.social-video-sound.sound-on{background:rgba(27,92,255,.88)}
+
 .social-video-status{position:absolute;left:12px;top:12px;z-index:3;background:rgba(0,0,0,.42);color:#fff;border-radius:999px;padding:6px 8px;font-size:9px;font-weight:850;backdrop-filter:blur(6px);display:none}
 .social-video-status.show{display:block}
 .social-post-media img{image-rendering:auto}
@@ -367,9 +367,8 @@ html.reduced-motion .cover{transition:none!important}
       </div>
       <textarea id="socialPostCaption" class="social-textarea" maxlength="500" placeholder="Write a caption…"></textarea>
       <div class="social-media-row">
-        <select id="socialMediaType" class="social-select"><option value="image">Image</option><option value="video">Video</option></select>
-        <input id="socialMediaUrl" class="social-input" maxlength="2000" placeholder="https://.../image.jpg or video.mp4">
-        <label class="social-file-label">Choose file<input id="socialMediaFile" type="file" accept="image/*,video/mp4,video/webm,video/ogg"></label>
+        <input id="socialMediaUrl" class="social-input" maxlength="2000" placeholder="Direct MP4 URL: https://.../video.mp4">
+        <label class="social-file-label">Choose MP4<input id="socialMediaFile" type="file" accept="video/mp4,.mp4" /></label>
       </div>
     </div>
     <div class="social-publish-actions">
@@ -1774,7 +1773,7 @@ function renderSocialPost(p,i){
   const stat=socialStat(p.id),commentCount=stat.comments||socialCommentMap()[p.id]?.length||0;
   const likeCount=Math.max(stat.likes||0,0)+(liked&&!socialCloudReady?1:0);
   const media=p.media_type==='video'
-    ?`<div class="social-video-wrap"><video src="${socialEsc(p.media_url)}" playsinline webkit-playsinline muted loop autoplay preload="metadata" data-social-video controls controlslist="nodownload noplaybackrate" disablepictureinpicture></video><button type="button" class="social-video-play" aria-label="Play video" onclick="toggleSocialVideo(event,this)">▶</button><button type="button" class="social-video-sound" aria-label="Turn sound on" onclick="enableSocialSound(event,this)">Sound</button><div class="social-video-status" data-social-video-status>Click play if your browser blocks autoplay</div></div>`
+    ?`<div class="social-video-wrap"><video src="${socialEsc(p.media_url)}" playsinline webkit-playsinline loop autoplay preload="metadata" data-social-video controls controlslist="nodownload noplaybackrate" disablepictureinpicture></video><button type="button" class="social-video-play" aria-label="Play video" onclick="toggleSocialVideo(event,this)">▶</button> <div class="social-video-status" data-social-video-status>Click play if your browser blocks autoplay</div></div>`
     :`<img src="${socialEsc(p.media_url)}" alt="" loading="${i<2?'eager':'lazy'}" decoding="async" onerror="socialMediaError(this)">`;
   return `<article class="social-post" data-social-post="${socialEsc(p.id)}">
     <div class="social-post-media">${media}<div class="social-media-shade"></div></div>
@@ -1832,23 +1831,25 @@ async function createSocialPost(){
   const username=(accountName||typedName||localStorage.getItem('aio-social-display-name')||'Guest').slice(0,32)||'Guest';
   const avatar=socialAvatarUrl();
   const caption=String($('socialPostCaption')?.value||'').trim().slice(0,500);
-  const requestedType=$('socialMediaType')?.value==='video'?'video':'image';
   const url=String($('socialMediaUrl')?.value||'').trim();
 
-  if(!url&&!file)return showToast('Add an image/video URL or choose a file.');
-  if(file && file.size>100*1024*1024)return showToast('Choose a file under 100 MB.');
-  if(file && !/^((video|image)\/(mp4|webm|ogg|quicktime|jpeg|png|gif|webp|avif|jpg))$/i.test(file.type) && !(file.type.startsWith('image/')||file.type.startsWith('video/'))){
-    return showToast('That media type is not supported. Use a normal image or MP4/WebM video.');
+  if(!url&&!file)return showToast('Choose an MP4 video or enter a direct .mp4 URL.');
+  if(file && file.size>100*1024*1024)return showToast('Choose an MP4 under 100 MB.');
+  if(file && !(file.type==='video/mp4' || /\.mp4$/i.test(file.name))){
+    return showToast('Only MP4 video files are allowed.');
+  }
+  if(url && !/\.mp4(?:[?#].*)?$/i.test(url)){
+    return showToast('Only direct .mp4 video URLs are allowed.');
   }
 
-  let mediaUrl=url,actualType=requestedType,uploadedStoragePath='';
+  let mediaUrl=url,actualType='video',uploadedStoragePath='';
 
   // Upload files directly to Supabase Storage. Never put a large uploaded video into localStorage.
   if(file){
-    actualType=file.type.startsWith('video/')?'video':'image';
+    actualType='video';
     if(!supabaseClient)return showToast('Supabase is not ready yet. Refresh once and try again.');
     try{
-      const safeExt=(file.name.split('.').pop()||actualType).toLowerCase().replace(/[^a-z0-9]/g,'')|| (actualType==='video'?'mp4':'jpg');
+      const safeExt='mp4';
       const actor=socialVisitorId();
       const uid=(crypto?.randomUUID?crypto.randomUUID():socialId('media'));
       uploadedStoragePath=`social/${actor}/${uid}.${safeExt}`;
@@ -1891,7 +1892,6 @@ async function createSocialPost(){
   if($('socialPostCaption'))$('socialPostCaption').value='';
   if($('socialMediaUrl'))$('socialMediaUrl').value='';
   if($('socialMediaFile'))$('socialMediaFile').value='';
-  if($('socialMediaType'))$('socialMediaType').value='image';
   if($('socialPostHint'))$('socialPostHint').textContent='Posted successfully. It is stored in Social and will remain after refresh.';
   showToast('Posted to Social');
   scrollToId('social');
@@ -1910,7 +1910,7 @@ function socialBind(){
   const name=$('socialPostName');
   if(name){name.addEventListener('input',()=>{if(!name.readOnly){try{localStorage.setItem('aio-social-display-name',socialDisplayName())}catch{}}});}
   const fileInput=$('socialMediaFile');
-  if(fileInput)fileInput.addEventListener('change',e=>{const f=e.target.files?.[0];if(!f)return;$('socialMediaType').value=f.type.startsWith('video/')?'video':'image';$('socialMediaUrl').value='';showToast(`${f.type.startsWith('video/')?'Video':'Image'} selected · will upload to Social`)});
+  if(fileInput)fileInput.addEventListener('change',e=>{const f=e.target.files?.[0];if(!f)return;if(!(f.type==='video/mp4'||/\.mp4$/i.test(f.name))){e.target.value='';showToast('Only MP4 video files are allowed');return;}$('socialMediaUrl').value='';showToast('MP4 selected · ready to upload');});
   $('socialCommentsModal')?.addEventListener('click',e=>{if(e.target.id==='socialCommentsModal')closeSocialComments()});
   $('socialCommentName')?.addEventListener('input',e=>{if(!e.target.readOnly){try{localStorage.setItem('aio-social-display-name',String(e.target.value||'Guest').slice(0,32))}catch{}}});
   socialRefreshIdentity();
@@ -1920,56 +1920,37 @@ function toggleSocialVideo(event,button){
   const wrap=button?.closest('.social-video-wrap');
   const v=wrap?.querySelector('video');
   if(!v)return;
-  if(v.paused){
-    // A real click is a user gesture, so desktop browsers allow audio here.
-    v.dataset.socialSound='on';
-    v.defaultMuted=false;
-    v.muted=false;
-    v.volume=1;
-    v.play().then(()=>{
-      button.classList.add('hidden');
-      wrap.querySelector('.social-video-sound')?.classList.add('sound-on');
-      wrap.querySelector('[data-social-video-status]')?.classList.remove('show');
-    }).catch(()=>{
-      wrap.querySelector('[data-social-video-status]')?.classList.add('show');
-    });
-  }else{
-    v.pause();
-    button.classList.remove('hidden');
-  }
-}
-function enableSocialSound(event,button){
-  event?.stopPropagation?.();
-  const wrap=button?.closest('.social-video-wrap');
-  const v=wrap?.querySelector('video');
-  if(!v)return;
+  // The overlay is deliberately the only custom control. Clicking it is a
+  // user gesture, so browsers are allowed to start the MP4 with sound.
   v.dataset.socialSound='on';
   v.defaultMuted=false;
   v.muted=false;
-  v.volume=1;
-  const playPromise=v.play();
-  if(playPromise?.catch)playPromise.catch(()=>{});
-  button.textContent='Sound on';
-  button.classList.add('sound-on');
-  wrap.querySelector('.social-video-play')?.classList.add('hidden');
-  wrap.querySelector('[data-social-video-status]')?.classList.remove('show');
+  v.volume=v.volume||1;
+  v.play().then(()=>{
+    button?.classList.add('hidden');
+    wrap.querySelector('[data-social-video-status]')?.classList.remove('show');
+  }).catch(()=>{
+    v.muted=true;
+    v.play().catch(()=>{});
+    wrap.querySelector('[data-social-video-status]')?.classList.add('show');
+  });
 }
 function socialTryPlayVideo(v){
   if(!v)return;
   const soundOn=v.dataset.socialSound==='on';
+  // Autoplay is allowed reliably when muted. Once the user unmutes via the
+  // native controls or presses the play overlay, keep that choice.
   if(!soundOn){
     v.muted=true;
     v.defaultMuted=true;
-    try{v.setAttribute('muted','');}catch{}
   }
   const wrap=v.closest('.social-video-wrap');
   const button=wrap?.querySelector('.social-video-play');
-  const soundButton=wrap?.querySelector('.social-video-sound');
   const status=wrap?.querySelector('[data-social-video-status]');
   const attempt=()=>{
     const p=v.play();
     if(p?.then){
-      p.then(()=>{button?.classList.add('hidden');status?.classList.remove('show');if(soundOn){soundButton?.classList.add('sound-on');soundButton&&(soundButton.textContent='Sound on');}})
+      p.then(()=>{button?.classList.add('hidden');status?.classList.remove('show');})
        .catch(()=>{button?.classList.remove('hidden');status?.classList.add('show');});
     }
   };
@@ -2005,16 +1986,31 @@ function setupSocialVideoObserver(){
     videos.forEach(v=>window.aioSocialVideoObserver.observe(v));
   }
   videos.forEach(v=>{
-    v.muted=v.dataset.socialSound!=='on';
-    v.defaultMuted=v.dataset.socialSound!=='on';
     v.playsInline=true;
+    v.setAttribute('playsinline','');
+    v.setAttribute('webkit-playsinline','');
+    v.addEventListener('volumechange',()=>{
+      // Native controls can unmute the video. Remember that choice so the
+      // observer never silently turns sound back off.
+      if(!v.muted && v.volume>0){
+        v.dataset.socialSound='on';
+        v.defaultMuted=false;
+      }
+    });
+    v.addEventListener('click',e=>{
+      // Clicking the media itself is also a user gesture on desktop.
+      // Don't fight native controls: when the browser gives the click to
+      // its controls, the native control can handle volume/playback.
+      if(e.target!==v)return;
+      if(v.paused || v.muted){
+        toggleSocialVideo(e,v.closest('.social-video-wrap')?.querySelector('.social-video-play'));
+      }
+    });
     v.addEventListener('loadedmetadata',()=>socialTryPlayVideo(v),{once:true});
     v.addEventListener('loadeddata',()=>socialTryPlayVideo(v),{once:true});
     v.addEventListener('playing',()=>{const b=v.closest('.social-video-wrap')?.querySelector('.social-video-play');b?.classList.add('hidden')});
     v.addEventListener('pause',()=>{if(v.closest('.social-post')?.getBoundingClientRect().top>=-20){v.closest('.social-video-wrap')?.querySelector('.social-video-play')?.classList.remove('hidden')}});
     v.addEventListener('error',()=>{v.closest('.social-video-wrap')?.querySelector('[data-social-video-status]')?.classList.add('show')});
-    // Native video controls handle play/pause/volume themselves.
-    // The custom overlay button calls toggleSocialVideo(), and Sound calls enableSocialSound().
   });
   playVisible();
 }
