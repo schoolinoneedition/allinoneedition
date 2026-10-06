@@ -273,6 +273,51 @@ html.reduced-motion .cover{transition:none!important}
 .social-publish-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px}
 @media(max-width:700px){.social-section{padding-left:0;padding-right:0}.social-section-head{padding:0 10px}.social-feed{height:calc(100vh - 145px);min-height:500px;padding:0 8px 18px}.social-post{height:calc(100vh - 165px);min-height:500px;border-radius:14px}.social-right-rail{right:7px;bottom:86px}.social-post-bottom{left:12px;right:62px;bottom:10px}.social-publisher-row{grid-template-columns:1fr}.social-media-row{grid-template-columns:1fr}.social-publish-actions{align-items:flex-start;flex-direction:column}.social-comment-composer{grid-template-columns:1fr}.social-comments-box{max-height:78vh}}
 
+
+/* Enhanced custom Social player — never shows native browser controls. */
+.social-video-wrap{background:#000}
+.social-video-wrap video{object-fit:cover;width:100%;height:100%;background:#000}
+.social-video-play{transition:opacity .18s ease,transform .18s ease}
+.social-video-play.hidden{opacity:0;pointer-events:none;transform:translate(-50%,-50%) scale(.92)}
+.social-player-controls{position:absolute;left:10px;right:10px;bottom:10px;z-index:6;display:flex;align-items:center;gap:7px;padding:8px 9px;border-radius:12px;background:linear-gradient(180deg,rgba(7,9,12,.20),rgba(7,9,12,.80));backdrop-filter:blur(9px);opacity:0;transform:translateY(5px);transition:.18s}
+.social-video-wrap:hover .social-player-controls,.social-video-wrap.player-active .social-player-controls{opacity:1;transform:none}
+.social-player-btn{width:32px;height:32px;border:0;border-radius:9px;background:rgba(255,255,255,.12);color:#fff;display:grid;place-items:center;font-size:14px;font-weight:900;flex:0 0 auto}
+.social-player-btn:hover{background:rgba(255,255,255,.22)}
+.social-player-range{flex:1;min-width:60px;accent-color:#fff;height:4px;cursor:pointer}
+.social-player-time{font-size:9px;color:#fff;min-width:30px;text-align:center;font-weight:850}
+.social-player-controls input:focus-visible,.social-player-btn:focus-visible,.social-video-play:focus-visible{outline:2px solid #fff;outline-offset:2px}
+
+/* Party fun tools */
+.party-page-grid.party-fun{grid-template-columns:1fr 1fr}
+.party-fun-wide{grid-column:1/-1}
+.party-tool-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.party-tool-title h3{margin:0;font-size:14px}
+.party-wheel-wrap{display:grid;grid-template-columns:210px 1fr;gap:14px;align-items:center}
+.party-wheel-stage{position:relative;width:200px;height:200px;margin:auto}
+.party-wheel{width:200px;height:200px;border-radius:50%;border:8px solid #fff;box-shadow:0 10px 28px rgba(0,0,0,.22);background:conic-gradient(#ff5f6d 0deg 45deg,#ffc371 45deg 90deg,#6a8dff 90deg 135deg,#52d681 135deg 180deg,#b56dff 180deg 225deg,#f7b733 225deg 270deg,#38d9d9 270deg 315deg,#ff8f4d 315deg 360deg);position:relative;display:grid;place-items:center;transition:transform 3s cubic-bezier(.12,.8,.16,1)}
+.party-wheel:after{content:"";width:52px;height:52px;border-radius:50%;background:#fff;box-shadow:0 3px 10px rgba(0,0,0,.18)}
+.party-wheel-pointer{position:absolute;top:-12px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:0;border-bottom:22px solid #17191f;z-index:2}
+.party-wheel-labels{position:absolute;inset:0;pointer-events:none;font-size:10px;font-weight:950;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.party-wheel-labels span{position:absolute;left:50%;top:50%;transform-origin:0 0}
+.party-wheel-input{display:flex;gap:7px;align-items:center;margin-top:8px}
+.party-wheel-input input{flex:1;height:36px;border:1px solid var(--line);border-radius:9px;background:var(--soft);color:var(--text);padding:0 9px}
+.party-result{padding:11px;border:1px solid var(--line);border-radius:12px;background:var(--soft);font-weight:900;font-size:13px;min-height:42px;display:flex;align-items:center}
+.party-challenge{min-height:90px;padding:14px;border-radius:14px;background:linear-gradient(135deg,var(--soft),var(--panel));border:1px solid var(--line);display:grid;place-items:center;text-align:center;font-size:18px;font-weight:950}
+.party-challenge small{display:block;font-size:10px;color:var(--muted);font-weight:750;margin-top:6px}
+.party-editor-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(250px,.7fr);gap:10px}
+.party-editor-stage{background:#080a0e;border:1px solid #262b35;border-radius:13px;min-height:290px;display:grid;place-items:center;position:relative;overflow:hidden}
+.party-editor-video{max-width:100%;max-height:420px;display:block;background:#000}
+.party-editor-preview-text{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:#fff;font-size:24px;font-weight:950;text-align:center;text-shadow:0 2px 8px #000;pointer-events:none;white-space:pre-wrap}
+.party-editor-side{display:grid;gap:8px;align-content:start}
+.party-editor-side label{font-size:10px;font-weight:850;color:var(--muted)}
+.party-editor-side input[type=range]{width:100%;accent-color:var(--accent)}
+.party-editor-side input[type=text],.party-editor-side select{width:100%;height:36px;border:1px solid var(--line);border-radius:9px;background:var(--soft);color:var(--text);padding:0 9px}
+.party-editor-actions{display:flex;gap:7px;flex-wrap:wrap}
+.party-quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.party-quick-btn{min-height:62px;border:1px solid var(--line);background:var(--soft);color:var(--text);border-radius:12px;font-weight:900;font-size:11px;padding:8px}
+.party-quick-btn:hover{background:var(--panel);transform:translateY(-1px)}
+@media(max-width:760px){.party-page-grid.party-fun{grid-template-columns:1fr}.party-wheel-wrap{grid-template-columns:1fr}.party-editor-grid{grid-template-columns:1fr}.party-quick-grid{grid-template-columns:1fr 1fr}.social-player-controls{opacity:1;transform:none}}
+
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -417,7 +462,55 @@ html.reduced-motion .cover{transition:none!important}
       <div><div class="tiny-status">Current party</div><div class="party-big-code" id="partyWorkspaceCode">------</div><div id="partyWorkspaceStatus" class="tiny-status">Create or join a party from Community.</div></div>
       <div class="party-page-actions"><button class="btn primary" onclick="createParty()">Create party</button><button class="btn" onclick="joinPartyByCode()">Join using code above</button><button class="btn" onclick="openDrawing()">Open drawboard</button><button class="btn" onclick="openMeeting()">Open meeting</button></div>
     </div>
-    <div class="party-page-grid"><div class="panel"><h3 style="margin:0 0 8px">Members</h3><div id="partyWorkspaceMembers" class="member-list"></div></div><div class="panel"><h3 style="margin:0 0 8px">Shared tools</h3><p class="muted" style="font-size:12px">Use the full drawboard or party meeting without leaving your room.</p><div class="social-actions"><button class="btn mini" onclick="openDrawing()">Draw together</button><button class="btn mini" onclick="openMeeting()">Meeting</button><button class="btn mini" onclick="scrollToId('chat')">Open chat</button><button class="btn mini" onclick="leaveParty()">Leave party</button></div></div></div>
+    <div class="party-page-grid party-fun">
+  <div class="panel">
+    <div class="party-tool-title"><h3>Members</h3><span class="tiny-status">Current room</span></div>
+    <div id="partyWorkspaceMembers" class="member-list"></div>
+  </div>
+  <div class="panel">
+    <div class="party-tool-title"><h3>Shared tools</h3><span class="tiny-status">Play together</span></div>
+    <p class="muted" style="font-size:12px">Draw, meet or chat without leaving your party.</p>
+    <div class="social-actions"><button class="btn mini" onclick="openDrawing()">Draw together</button><button class="btn mini" onclick="openMeeting()">Meeting</button><button class="btn mini" onclick="scrollToId('chat')">Open chat</button><button class="btn mini" onclick="leaveParty()">Leave party</button></div>
+  </div>
+  <div class="panel party-fun-wide">
+    <div class="party-tool-title"><h3>Spinner wheel</h3><span class="tiny-status">Make a quick party decision</span></div>
+    <div class="party-wheel-wrap">
+      <div class="party-wheel-stage"><div class="party-wheel-pointer"></div><div class="party-wheel" id="partyWheel"></div><div class="party-wheel-labels" id="partyWheelLabels"></div></div>
+      <div><div id="partyWheelResult" class="party-result">Add choices, then spin the wheel.</div><div class="party-wheel-input"><input id="partyWheelChoices" placeholder="Roy, Alex, Sam, Jamie"><button class="btn mini primary" onclick="spinPartyWheel()">Spin</button></div><div class="tiny-status" style="margin-top:7px">Separate choices with commas.</div></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="party-tool-title"><h3>Party challenge</h3><button class="btn mini" onclick="newPartyChallenge()">New challenge</button></div>
+    <div id="partyChallenge" class="party-challenge">Ready for a challenge?<small>Press New challenge.</small></div>
+  </div>
+  <div class="panel">
+    <div class="party-tool-title"><h3>Quick party box</h3><span class="tiny-status">Instant activities</span></div>
+    <div class="party-quick-grid">
+      <button class="party-quick-btn" onclick="partyWouldYouRather()">Would you rather</button>
+      <button class="party-quick-btn" onclick="partyCountdown()">30s countdown</button>
+      <button class="party-quick-btn" onclick="partyRandomNumber()">Random number</button>
+      <button class="party-quick-btn" onclick="partyCoinFlip()">Coin flip</button>
+      <button class="party-quick-btn" onclick="partyDiceRoll()">Roll dice</button>
+      <button class="party-quick-btn" onclick="partyTeamSplit()">Split teams</button>
+    </div>
+    <div id="partyQuickResult" class="party-result" style="margin-top:9px">Pick an activity.</div>
+  </div>
+  <div class="panel party-fun-wide">
+    <div class="party-tool-title"><h3>Mini CapCut</h3><span class="tiny-status">Lightweight browser editor</span></div>
+    <div class="party-editor-grid">
+      <div class="party-editor-stage" id="partyEditorStage"><video id="partyEditorVideo" class="party-editor-video" playsinline preload="metadata"></video><div id="partyEditorTextPreview" class="party-editor-preview-text"></div><div class="tiny-status" id="partyEditorEmpty" style="color:#aeb4c2">Choose an MP4 to start editing.</div></div>
+      <div class="party-editor-side">
+        <input id="partyEditorFile" type="file" accept="video/mp4,.mp4">
+        <label>Trim start <span id="partyTrimStartLabel">0.0s</span><input id="partyTrimStart" type="range" min="0" max="0" step="0.1" value="0"></label>
+        <label>Trim end <span id="partyTrimEndLabel">0.0s</span><input id="partyTrimEnd" type="range" min="0" max="0" step="0.1" value="0"></label>
+        <label>Text overlay<input id="partyEditorText" type="text" maxlength="80" placeholder="Add text…"></label>
+        <label>Filter<select id="partyEditorFilter"><option value="none">Original</option><option value="brightness(1.15) saturate(1.15)">Bright</option><option value="grayscale(1)">Black & white</option><option value="contrast(1.25) saturate(.8)">Contrast</option><option value="sepia(.8)">Sepia</option></select></label>
+        <div class="party-editor-actions"><button class="btn mini" onclick="partyEditorApplyPreview()">Apply preview</button><button class="btn mini primary" onclick="partyEditorExport()">Export clip</button><button class="btn mini" onclick="partyEditorReset()">Reset</button></div>
+        <div id="partyEditorStatus" class="tiny-status">MP4 only. Export uses your browser's local video tools.</div>
+      </div>
+    </div>
+  </div>
+</div>
   </div>
 </section>
 <section id="live" class="section"><div class="section-head"><h2>Live news & recent football</h2><small id="liveStatus">Connecting…</small></div><div class="newsgrid"><div class="newsbox"><h3 style="margin:0 0 8px">UK news</h3><div id="newsList"><div class="muted">Loading live headlines…</div></div></div><div class="football"><h3 style="margin:0 0 8px">Recent Premier League scores</h3><div id="footballList"><div class="muted">Loading recent scores…</div></div></div></div></section>
@@ -1773,7 +1866,7 @@ function renderSocialPost(p,i){
   const stat=socialStat(p.id),commentCount=stat.comments||socialCommentMap()[p.id]?.length||0;
   const likeCount=Math.max(stat.likes||0,0)+(liked&&!socialCloudReady?1:0);
   const media=p.media_type==='video'
-    ?`<div class="social-video-wrap"><video src="${socialEsc(p.media_url)}" playsinline webkit-playsinline loop autoplay preload="metadata" data-social-video controls controlslist="nodownload noplaybackrate" disablepictureinpicture></video><button type="button" class="social-video-play" aria-label="Play video" onclick="toggleSocialVideo(event,this)">▶</button> <div class="social-video-status" data-social-video-status>Click play if your browser blocks autoplay</div></div>`
+    ?`<div class="social-video-wrap"><video src="${socialEsc(p.media_url)}" playsinline webkit-playsinline loop preload="auto" data-social-video></video><button type="button" class="social-video-play" aria-label="Play video" onclick="toggleSocialVideo(event,this)">▶</button><div class="social-video-status" data-social-video-status>Click play to start with sound</div><div class="social-player-controls" data-social-player-controls><button type="button" class="social-player-btn" data-sp-play aria-label="Play or pause">▶</button><div class="social-player-time" data-sp-time>0:00</div><input class="social-player-range" data-sp-range type="range" min="0" max="100" value="0" step="0.1" aria-label="Video progress"><div class="social-player-time" data-sp-duration>0:00</div><button type="button" class="social-player-btn" data-sp-fullscreen aria-label="Fullscreen">⛶</button></div></div>`
     :`<img src="${socialEsc(p.media_url)}" alt="" loading="${i<2?'eager':'lazy'}" decoding="async" onerror="socialMediaError(this)">`;
   return `<article class="social-post" data-social-post="${socialEsc(p.id)}">
     <div class="social-post-media">${media}<div class="social-media-shade"></div></div>
@@ -2017,6 +2110,249 @@ function setupSocialVideoObserver(){
 window.addEventListener('scroll',()=>{if(location.hash.includes('social')||document.getElementById('social')?.getBoundingClientRect().top<window.innerHeight)setupSocialVideoObserver()},{passive:true});
 async function shareSocialPost(id){const p=socialPosts.find(x=>String(x.id)===String(id));if(!p)return;const url=location.href.split('#')[0]+'#social-post-'+encodeURIComponent(id);try{if(navigator.share){await navigator.share({title:`${p.username} on Social`,text:p.caption||'Social post',url})}else{await navigator.clipboard.writeText(url);showToast('Post link copied')}}catch{}}
 function initSocial(){socialBind();setTimeout(()=>{try{socialSync()}catch(e){console.error('Social init:',e)}},350)}
+
+
+
+/* =========================
+   Enhanced Social player
+   ========================= */
+function socialFmtTime(sec){
+  sec=Number(sec)||0;
+  const m=Math.floor(sec/60),s=Math.floor(sec%60);
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+function socialCustomPlayerInit(v){
+  if(!v||v.dataset.playerBound==='1')return;
+  v.dataset.playerBound='1';
+  const wrap=v.closest('.social-video-wrap');
+  const play=wrap?.querySelector('[data-sp-play]');
+  const range=wrap?.querySelector('[data-sp-range]');
+  const time=wrap?.querySelector('[data-sp-time]');
+  const duration=wrap?.querySelector('[data-sp-duration]');
+  const full=wrap?.querySelector('[data-sp-fullscreen]');
+  const center=wrap?.querySelector('.social-video-play');
+  const status=wrap?.querySelector('[data-social-video-status]');
+  const setPlay=()=>{
+    const paused=v.paused;
+    if(play)play.textContent=paused?'▶':'❚❚';
+    center?.classList.toggle('hidden',!paused);
+  };
+  const sync=()=>{
+    if(range&&v.duration){range.value=((v.currentTime/v.duration)*100)||0;}
+    if(time)time.textContent=socialFmtTime(v.currentTime);
+    if(duration)duration.textContent=socialFmtTime(v.duration);
+  };
+  const userStart=()=>{
+    v.dataset.socialUserStarted='1';
+    v.defaultMuted=false;v.muted=false;v.volume=1;
+    const p=v.play();
+    if(p?.catch)p.catch(()=>{
+      v.muted=true;v.defaultMuted=true;
+      v.play().catch(()=>{});
+      if(status){status.textContent='Browser blocked sound autoplay. Click play to enable sound.';status.classList.add('show');}
+    });
+  };
+  const toggle=()=>{
+    if(v.paused){userStart();}
+    else{v.pause();}
+  };
+  play?.addEventListener('click',e=>{e.stopPropagation();toggle()});
+  center?.addEventListener('click',e=>{e.stopPropagation();userStart()});
+  range?.addEventListener('input',()=>{if(v.duration)v.currentTime=(Number(range.value)/100)*v.duration});
+  full?.addEventListener('click',e=>{
+    e.stopPropagation();
+    const target=wrap;
+    if(target?.requestFullscreen)target.requestFullscreen().catch(()=>{});
+    else if(v.webkitEnterFullscreen)v.webkitEnterFullscreen();
+  });
+  v.addEventListener('timeupdate',sync);
+  v.addEventListener('loadedmetadata',sync);
+  v.addEventListener('play',setPlay);
+  v.addEventListener('pause',setPlay);
+  v.addEventListener('ended',setPlay);
+  v.addEventListener('click',e=>{if(e.target===v){if(v.paused||v.muted)userStart();else v.pause()}});
+  wrap?.addEventListener('mousemove',()=>wrap.classList.add('player-active'));
+  wrap?.addEventListener('mouseleave',()=>wrap.classList.remove('player-active'));
+  setPlay();sync();
+}
+function socialTryPlayVideo(v){
+  if(!v)return;
+  socialCustomPlayerInit(v);
+  const wrap=v.closest('.social-video-wrap');
+  const center=wrap?.querySelector('.social-video-play');
+  const status=wrap?.querySelector('[data-social-video-status]');
+  // First attempt: automatic sound. Browser policy may refuse audible autoplay.
+  const attemptAudible=()=>{
+    if(v.dataset.socialUserStarted==='1')return;
+    v.defaultMuted=false;v.muted=false;v.volume=1;
+    const p=v.play();
+    if(p?.then){
+      p.then(()=>{center?.classList.add('hidden');status?.classList.remove('show')}).catch(()=>{
+        // Fallback keeps scrolling autoplay working, while the next click starts sound.
+        v.muted=true;v.defaultMuted=true;
+        v.play().then(()=>{center?.classList.add('hidden');status?.classList.add('show')}).catch(()=>{center?.classList.remove('hidden');status?.classList.add('show')});
+      });
+    }
+  };
+  if(v.readyState>=2)attemptAudible();
+  else v.addEventListener('canplay',attemptAudible,{once:true});
+}
+function setupSocialVideoObserver(){
+  const videos=document.querySelectorAll('[data-social-video]');
+  if(window.aioSocialVideoObserver)window.aioSocialVideoObserver.disconnect();
+  const playVisible=()=>{
+    let chosen=null;
+    for(const v of videos){
+      const r=v.getBoundingClientRect();
+      if(r.top<window.innerHeight*.82&&r.bottom>window.innerHeight*.18){chosen=v;break;}
+    }
+    if(chosen){
+      videos.forEach(x=>{if(x!==chosen){try{x.pause()}catch{}}});
+      socialTryPlayVideo(chosen);
+    }
+  };
+  if('IntersectionObserver'in window){
+    window.aioSocialVideoObserver=new IntersectionObserver(entries=>{
+      for(const entry of entries){
+        const v=entry.target;
+        if(entry.isIntersecting&&entry.intersectionRatio>.55){
+          videos.forEach(x=>{if(x!==v){try{x.pause()}catch{}}});
+          socialTryPlayVideo(v);
+        }else if(!entry.isIntersecting){try{v.pause()}catch{}}
+      }
+    },{threshold:[0,.55,.8]});
+    videos.forEach(v=>window.aioSocialVideoObserver.observe(v));
+  }
+  videos.forEach(v=>{
+    v.playsInline=true;
+    v.setAttribute('playsinline','');
+    v.setAttribute('webkit-playsinline','');
+    socialCustomPlayerInit(v);
+    v.addEventListener('error',()=>v.closest('.social-video-wrap')?.querySelector('[data-social-video-status]')?.classList.add('show'));
+  });
+  playVisible();
+}
+
+/* =========================
+   Party spinner + activities
+   ========================= */
+const PARTY_CHALLENGES=[
+  'First person to laugh loses.',
+  'Everybody picks a number. Closest to 50 wins.',
+  'Describe a game without saying its name.',
+  'Do your best dramatic movie trailer voice.',
+  'Pick someone to choose the next activity.',
+  'Everyone votes: racing game or shooter?',
+  'Tell a funny school-safe story in 20 seconds.',
+  'Who can name 5 games the fastest?',
+  'Make up a ridiculous game title.',
+  'Everyone has 10 seconds to choose a superpower.'
+];
+const PARTY_WOULD=[
+  'Would you rather have unlimited Robux or unlimited game passes?',
+  'Would you rather be amazing at racing or platformers?',
+  'Would you rather have a private server forever or every game for free?',
+  'Would you rather never lose a challenge or always go first?',
+  'Would you rather play with a giant team or a tiny team?'
+];
+function partyWheelItems(){
+  const raw=String($('partyWheelChoices')?.value||'Roy, Alex, Sam, Jamie');
+  return raw.split(',').map(x=>x.trim()).filter(Boolean).slice(0,12);
+}
+function renderPartyWheelLabels(items){
+  const box=$('partyWheelLabels');if(!box)return;
+  box.innerHTML=items.map((x,i)=>{const angle=(360/items.length)*i+(180/items.length);return `<span style="transform:rotate(${angle}deg) translate(0,-86px) rotate(${-angle}deg);width:92px;text-align:center;transform-origin:center">${esc(x).slice(0,14)}</span>`}).join('');
+}
+function spinPartyWheel(){
+  const items=partyWheelItems();
+  if(!items.length)return showToast('Add at least one choice');
+  renderPartyWheelLabels(items);
+  const idx=Math.floor(Math.random()*items.length);
+  const deg=360*5 + (360-(idx*(360/items.length))-(360/items.length)/2);
+  const wheel=$('partyWheel');if(!wheel)return;
+  wheel.style.transform='rotate('+deg+'deg)';
+  setTimeout(()=>{$('partyWheelResult').textContent='Winner: '+items[idx];showToast('Wheel picked '+items[idx])},3050);
+}
+function newPartyChallenge(){const x=PARTY_CHALLENGES[Math.floor(Math.random()*PARTY_CHALLENGES.length)];if($('partyChallenge'))$('partyChallenge').innerHTML=esc(x)+'<small>Do it together in your party.</small>'}
+function partyQuickResult(t){if($('partyQuickResult'))$('partyQuickResult').textContent=t}
+function partyWouldYouRather(){partyQuickResult(PARTY_WOULD[Math.floor(Math.random()*PARTY_WOULD.length)])}
+function partyCountdown(){let n=30;partyQuickResult('30 seconds…');clearInterval(window.aioPartyCountdown);window.aioPartyCountdown=setInterval(()=>{n--;partyQuickResult(n>0?n+' seconds…':'Time!');if(n<=0)clearInterval(window.aioPartyCountdown)},1000)}
+function partyRandomNumber(){partyQuickResult('Random number: '+(Math.floor(Math.random()*100)+1))}
+function partyCoinFlip(){partyQuickResult(Math.random()<.5?'Heads':'Tails')}
+function partyDiceRoll(){partyQuickResult('Dice: '+(Math.floor(Math.random()*6)+1))}
+function partyTeamSplit(){partyQuickResult('Split: Team A vs Team B — alternate members down the list.')}
+
+/* =========================
+   Mini CapCut-style editor
+   ========================= */
+let partyEditorUrl='';let partyEditorObjectUrl='';
+function partyEditorBind(){
+  const f=$('partyEditorFile');if(!f||f.dataset.bound==='1')return;f.dataset.bound='1';
+  f.addEventListener('change',()=>partyEditorLoad(f.files?.[0]));
+  $('partyTrimStart')?.addEventListener('input',partyEditorSyncLabels);
+  $('partyTrimEnd')?.addEventListener('input',partyEditorSyncLabels);
+  $('partyEditorText')?.addEventListener('input',()=>{if($('partyEditorTextPreview'))$('partyEditorTextPreview').textContent=$('partyEditorText').value});
+  $('partyEditorFilter')?.addEventListener('change',partyEditorApplyPreview);
+}
+function partyEditorLoad(file){
+  if(!file)return;
+  if(!(file.type==='video/mp4'||/\.mp4$/i.test(file.name))){showToast('Mini CapCut only accepts MP4');$('partyEditorFile').value='';return}
+  if(partyEditorObjectUrl)URL.revokeObjectURL(partyEditorObjectUrl);
+  partyEditorObjectUrl=URL.createObjectURL(file);partyEditorUrl=partyEditorObjectUrl;
+  const v=$('partyEditorVideo');if(!v)return;v.src=partyEditorUrl;v.load();
+  v.onloadedmetadata=()=>{
+    const d=v.duration||0;
+    const a=$('partyTrimStart'),b=$('partyTrimEnd');
+    [a,b].forEach(x=>{if(x){x.max=d;x.value=x===a?0:d}});partyEditorSyncLabels();
+    $('partyEditorEmpty')?.classList.add('hidden');partyEditorApplyPreview();
+    if($('partyEditorStatus'))$('partyEditorStatus').textContent=`Loaded ${socialFmtTime(d)} MP4. Trim, add text or pick a filter.`;
+  };
+}
+function partyEditorSyncLabels(){
+  const a=Number($('partyTrimStart')?.value||0),b=Number($('partyTrimEnd')?.value||0);
+  if($('partyTrimStartLabel'))$('partyTrimStartLabel').textContent=a.toFixed(1)+'s';
+  if($('partyTrimEndLabel'))$('partyTrimEndLabel').textContent=b.toFixed(1)+'s';
+  const v=$('partyEditorVideo');if(v&&v.duration&&v.currentTime<a)v.currentTime=a;
+}
+function partyEditorApplyPreview(){
+  const v=$('partyEditorVideo');if(!v)return;
+  v.style.filter=$('partyEditorFilter')?.value||'none';
+  if($('partyEditorTextPreview'))$('partyEditorTextPreview').textContent=$('partyEditorText')?.value||'';
+}
+async function partyEditorExport(){
+  const v=$('partyEditorVideo');if(!v||!v.src)return showToast('Choose an MP4 first');
+  if(!window.MediaRecorder||!HTMLCanvasElement.prototype.captureStream)return showToast('Your browser does not support browser video export');
+  const start=Math.max(0,Number($('partyTrimStart')?.value||0));
+  const end=Math.min(v.duration||0,Number($('partyTrimEnd')?.value||v.duration||0));
+  if(end<=start){return showToast('Trim end must be after trim start')}
+  const canvas=document.createElement('canvas');canvas.width=v.videoWidth||720;canvas.height=v.videoHeight||1280;const ctx=canvas.getContext('2d');
+  const stream=canvas.captureStream(30);
+  try{const audio=v.captureStream?.().getAudioTracks?.()||[];audio.forEach(t=>stream.addTrack(t))}catch{}
+  let options={};
+  if(MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus'))options.mimeType='video/webm;codecs=vp9,opus';
+  else if(MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus'))options.mimeType='video/webm;codecs=vp8,opus';
+  const rec=new MediaRecorder(stream,options),chunks=[];
+  rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+  const done=new Promise(resolve=>rec.onstop=resolve);
+  v.currentTime=start;v.muted=false;
+  await v.play().catch(()=>{});rec.start(200);
+  const draw=()=>{
+    if(v.ended||v.currentTime>=end){try{v.pause()}catch{};try{rec.stop()}catch{};return}
+    ctx.filter=$('partyEditorFilter')?.value||'none';ctx.drawImage(v,0,0,canvas.width,canvas.height);ctx.filter='none';
+    const text=String($('partyEditorText')?.value||'');if(text){ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(0,canvas.height-100,canvas.width,100);ctx.fillStyle='#fff';ctx.font='bold '+Math.max(24,Math.round(canvas.width/20))+'px system-ui';ctx.textAlign='center';ctx.fillText(text,canvas.width/2,canvas.height-40)}
+    requestAnimationFrame(draw);
+  };draw();
+  await done;stream.getTracks().forEach(t=>t.stop());
+  const blob=new Blob(chunks,{type:rec.mimeType||'video/webm'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='all-in-one-party-edit.webm';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);
+  if($('partyEditorStatus'))$('partyEditorStatus').textContent='Exported your edited clip. Browser export is WebM.';
+}
+function partyEditorReset(){
+  const v=$('partyEditorVideo');if(v)v.style.filter='none';if($('partyEditorText'))$('partyEditorText').value='';if($('partyEditorTextPreview'))$('partyEditorTextPreview').textContent='';if($('partyEditorFilter'))$('partyEditorFilter').value='none';partyEditorSyncLabels();
+}
+
+setTimeout(()=>{try{partyEditorBind()}catch(e){console.warn('Party editor:',e)}},250);
+const __oldSocialBind=socialBind;
+socialBind=function(){__oldSocialBind();setTimeout(()=>{try{setupSocialVideoObserver()}catch(e){console.warn('Social player:',e)}},120);};
 
 </script>
 </body>
