@@ -222,6 +222,7 @@ html.reduced-motion .cover{transition:none!important}
 .social-video-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:58px;height:58px;border:0;border-radius:50%;background:rgba(0,0,0,.58);color:#fff;display:grid;place-items:center;font-size:25px;font-weight:900;z-index:3;backdrop-filter:blur(8px);box-shadow:0 8px 25px rgba(0,0,0,.3);opacity:.96}
 .social-video-play.hidden{display:none}
 .social-video-play:hover{transform:translate(-50%,-50%) scale(1.06);background:rgba(0,0,0,.72)}
+.social-video-sound{position:absolute;right:12px;top:12px;z-index:5;border:1px solid rgba(255,255,255,.22);background:rgba(16,18,24,.78);color:#fff;border-radius:10px;padding:8px 10px;font-size:11px;font-weight:900;backdrop-filter:blur(8px)}.social-video-sound:hover{background:rgba(25,29,38,.92)}.social-video-sound.sound-on{background:rgba(27,92,255,.88)}
 .social-video-status{position:absolute;left:12px;top:12px;z-index:3;background:rgba(0,0,0,.42);color:#fff;border-radius:999px;padding:6px 8px;font-size:9px;font-weight:850;backdrop-filter:blur(6px);display:none}
 .social-video-status.show{display:block}
 .social-post-media img{image-rendering:auto}
@@ -1773,7 +1774,7 @@ function renderSocialPost(p,i){
   const stat=socialStat(p.id),commentCount=stat.comments||socialCommentMap()[p.id]?.length||0;
   const likeCount=Math.max(stat.likes||0,0)+(liked&&!socialCloudReady?1:0);
   const media=p.media_type==='video'
-    ?`<div class="social-video-wrap"><video src="${socialEsc(p.media_url)}" playsinline webkit-playsinline muted loop autoplay preload="metadata" data-social-video controls controlslist="nodownload noplaybackrate" disablepictureinpicture></video><button type="button" class="social-video-play" aria-label="Play video" onclick="toggleSocialVideo(event,this)">▶</button><div class="social-video-status" data-social-video-status>Click play if your browser blocks autoplay</div></div>`
+    ?`<div class="social-video-wrap"><video src="${socialEsc(p.media_url)}" playsinline webkit-playsinline muted loop autoplay preload="metadata" data-social-video controls controlslist="nodownload noplaybackrate" disablepictureinpicture></video><button type="button" class="social-video-play" aria-label="Play video" onclick="toggleSocialVideo(event,this)">▶</button><button type="button" class="social-video-sound" aria-label="Turn sound on" onclick="enableSocialSound(event,this)">Sound</button><div class="social-video-status" data-social-video-status>Click play if your browser blocks autoplay</div></div>`
     :`<img src="${socialEsc(p.media_url)}" alt="" loading="${i<2?'eager':'lazy'}" decoding="async" onerror="socialMediaError(this)">`;
   return `<article class="social-post" data-social-post="${socialEsc(p.id)}">
     <div class="social-post-media">${media}<div class="social-media-shade"></div></div>
@@ -1919,10 +1920,15 @@ function toggleSocialVideo(event,button){
   const wrap=button?.closest('.social-video-wrap');
   const v=wrap?.querySelector('video');
   if(!v)return;
-  v.muted=true;
   if(v.paused){
+    // A real click is a user gesture, so desktop browsers allow audio here.
+    v.dataset.socialSound='on';
+    v.defaultMuted=false;
+    v.muted=false;
+    v.volume=1;
     v.play().then(()=>{
       button.classList.add('hidden');
+      wrap.querySelector('.social-video-sound')?.classList.add('sound-on');
       wrap.querySelector('[data-social-video-status]')?.classList.remove('show');
     }).catch(()=>{
       wrap.querySelector('[data-social-video-status]')?.classList.add('show');
@@ -1932,18 +1938,38 @@ function toggleSocialVideo(event,button){
     button.classList.remove('hidden');
   }
 }
+function enableSocialSound(event,button){
+  event?.stopPropagation?.();
+  const wrap=button?.closest('.social-video-wrap');
+  const v=wrap?.querySelector('video');
+  if(!v)return;
+  v.dataset.socialSound='on';
+  v.defaultMuted=false;
+  v.muted=false;
+  v.volume=1;
+  const playPromise=v.play();
+  if(playPromise?.catch)playPromise.catch(()=>{});
+  button.textContent='Sound on';
+  button.classList.add('sound-on');
+  wrap.querySelector('.social-video-play')?.classList.add('hidden');
+  wrap.querySelector('[data-social-video-status]')?.classList.remove('show');
+}
 function socialTryPlayVideo(v){
   if(!v)return;
-  v.muted=true;
-  v.defaultMuted=true;
-  try{v.setAttribute('muted','');}catch{}
+  const soundOn=v.dataset.socialSound==='on';
+  if(!soundOn){
+    v.muted=true;
+    v.defaultMuted=true;
+    try{v.setAttribute('muted','');}catch{}
+  }
   const wrap=v.closest('.social-video-wrap');
   const button=wrap?.querySelector('.social-video-play');
+  const soundButton=wrap?.querySelector('.social-video-sound');
   const status=wrap?.querySelector('[data-social-video-status]');
   const attempt=()=>{
     const p=v.play();
     if(p?.then){
-      p.then(()=>{button?.classList.add('hidden');status?.classList.remove('show');})
+      p.then(()=>{button?.classList.add('hidden');status?.classList.remove('show');if(soundOn){soundButton?.classList.add('sound-on');soundButton&&(soundButton.textContent='Sound on');}})
        .catch(()=>{button?.classList.remove('hidden');status?.classList.add('show');});
     }
   };
@@ -1979,15 +2005,16 @@ function setupSocialVideoObserver(){
     videos.forEach(v=>window.aioSocialVideoObserver.observe(v));
   }
   videos.forEach(v=>{
-    v.muted=true;
-    v.defaultMuted=true;
+    v.muted=v.dataset.socialSound!=='on';
+    v.defaultMuted=v.dataset.socialSound!=='on';
     v.playsInline=true;
     v.addEventListener('loadedmetadata',()=>socialTryPlayVideo(v),{once:true});
     v.addEventListener('loadeddata',()=>socialTryPlayVideo(v),{once:true});
     v.addEventListener('playing',()=>{const b=v.closest('.social-video-wrap')?.querySelector('.social-video-play');b?.classList.add('hidden')});
     v.addEventListener('pause',()=>{if(v.closest('.social-post')?.getBoundingClientRect().top>=-20){v.closest('.social-video-wrap')?.querySelector('.social-video-play')?.classList.remove('hidden')}});
     v.addEventListener('error',()=>{v.closest('.social-video-wrap')?.querySelector('[data-social-video-status]')?.classList.add('show')});
-    v.addEventListener('click',e=>toggleSocialVideo(e,v.closest('.social-video-wrap')?.querySelector('.social-video-play')));
+    // Native video controls handle play/pause/volume themselves.
+    // The custom overlay button calls toggleSocialVideo(), and Sound calls enableSocialSound().
   });
   playVisible();
 }
