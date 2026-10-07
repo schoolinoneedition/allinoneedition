@@ -318,6 +318,54 @@ html.reduced-motion .cover{transition:none!important}
 .party-quick-btn:hover{background:var(--panel);transform:translateY(-1px)}
 @media(max-width:760px){.party-page-grid.party-fun{grid-template-columns:1fr}.party-wheel-wrap{grid-template-columns:1fr}.party-editor-grid{grid-template-columns:1fr}.party-quick-grid{grid-template-columns:1fr 1fr}.social-player-controls{opacity:1;transform:none}}
 
+
+/* Final Social layout: tall 9:16 feed like the reference image. */
+.social-feed-shell{display:flex;justify-content:center;min-height:calc(100vh - 155px)}
+.social-feed-column{width:min(390px,calc(100vw - 90px));min-width:0}
+.social-feed{height:calc(100vh - 110px);min-height:0;overflow-y:auto;overscroll-behavior:contain;scroll-snap-type:y mandatory;scrollbar-width:none;padding:0 0 24px}
+.social-post{position:relative;width:100%;height:auto;aspect-ratio:9/16;min-height:0;margin:0 auto 16px;border:1px solid rgba(255,255,255,.12);border-radius:16px;overflow:hidden;background:#080a0e;box-shadow:0 12px 35px rgba(0,0,0,.24);scroll-snap-align:start;isolation:isolate}
+.social-post-media,.social-post-media img,.social-post-media video,.social-video-wrap,.social-video-wrap video{width:100%;height:100%}
+.social-post-media img,.social-post-media video,.social-video-wrap video{object-fit:cover;display:block}
+.social-video-wrap{position:absolute;inset:0;background:#000}
+@media(max-width:700px){
+ .social-feed-shell{min-height:0}
+ .social-feed-column{width:min(390px,calc(100vw - 18px))}
+ .social-feed{height:calc(100vh - 120px);padding:0 0 18px}
+ .social-post{width:100%;aspect-ratio:9/16;min-height:0}
+}
+/* Keep the custom player only; never expose native browser controls. */
+.social-video-wrap video::-webkit-media-controls{display:none!important}
+.social-video-wrap video::-webkit-media-controls-enclosure{display:none!important}
+.social-video-wrap video::-webkit-media-controls-panel{display:none!important}
+
+
+/* Spinner wheel alignment fix */
+.party-wheel-wrap{grid-template-columns:230px 1fr;align-items:center}
+.party-wheel-stage{width:220px;height:220px;position:relative;margin:auto;display:grid;place-items:center}
+.party-wheel{width:220px;height:220px;border-radius:50%;position:relative;display:block;overflow:hidden;transform-origin:center center;box-sizing:border-box;border:7px solid #fff;}
+.party-wheel:after{content:"";position:absolute;left:50%;top:50%;width:48px;height:48px;transform:translate(-50%,-50%);border-radius:50%;background:#fff;box-shadow:0 3px 12px rgba(0,0,0,.2);z-index:2}
+.party-wheel-labels{position:absolute;inset:0;z-index:4;pointer-events:none}
+.party-wheel-labels span{position:absolute;left:50%;top:50%;width:70px;transform-origin:center center!important;font-size:9px;line-height:1.1;text-align:center;color:#fff;font-weight:950;text-shadow:0 1px 4px rgba(0,0,0,.75);}
+.party-wheel-pointer{position:absolute;top:-14px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:0;border-bottom:22px solid #17191f;z-index:8}
+@media(max-width:700px){.party-wheel-wrap{grid-template-columns:1fr}.party-wheel-stage{width:210px;height:210px}.party-wheel{width:210px;height:210px}}
+
+
+/* Friend calling */
+.friend-call-btn{min-width:54px}
+.call-modal-box{width:min(920px,100%);height:min(720px,92vh)}
+.call-stage{flex:1;min-height:0;background:#080a0e;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.call-remote-video{width:100%;height:100%;object-fit:contain;background:#080a0e}
+.call-local-video{position:absolute;right:14px;bottom:14px;width:180px;height:120px;object-fit:cover;background:#111;border:2px solid rgba(255,255,255,.75);border-radius:12px;z-index:3}
+.call-status{position:absolute;left:14px;top:14px;z-index:4;padding:8px 11px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;font-size:11px;font-weight:850;backdrop-filter:blur(8px)}
+.call-actions{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;padding:12px;background:#0f1218;border-top:1px solid #242a35}
+.call-incoming{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(5,7,10,.82);backdrop-filter:blur(8px);z-index:10}
+.call-incoming.open{display:flex}
+.call-incoming-card{width:min(360px,calc(100% - 30px));background:#151820;border:1px solid #303642;border-radius:20px;padding:22px;text-align:center;color:#fff;box-shadow:0 25px 70px rgba(0,0,0,.45)}
+.call-incoming-avatar{width:64px;height:64px;margin:0 auto 10px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));font-weight:950;font-size:22px;overflow:hidden}
+.call-incoming-avatar img{width:100%;height:100%;object-fit:cover}
+.call-incoming-actions{display:flex;gap:8px;justify-content:center;margin-top:14px}
+@media(max-width:700px){.call-local-video{width:130px;height:92px;right:9px;bottom:9px}}
+
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -632,6 +680,36 @@ html.reduced-motion .cover{transition:none!important}
 <div class="modal" id="authModal"><div class="modalbox" style="width:min(560px,100%);height:auto"><div class="modalhead"><strong id="authTitle">Create account</strong><button class="btn mini" onclick="closeAuth()">Close</button></div><div style="padding:16px"><div class="inline" style="margin-top:0"><button id="authSignTab" class="btn mini primary" onclick="switchAuthMode('signup')">Sign up</button><button id="authLoginTab" class="btn mini" onclick="switchAuthMode('signin')">Sign in</button></div><input id="authUsername" class="social-input" style="margin-top:10px" placeholder="Username" autocomplete="nickname"><input id="authEmail" class="social-input" style="margin-top:8px" placeholder="Email" autocomplete="email"><input id="authPassword" class="social-input" style="margin-top:8px" type="password" placeholder="Password" autocomplete="current-password"><button class="btn primary" style="width:100%;margin-top:10px" onclick="submitAuth()">Continue</button><div id="authStatus" class="assistant-answer" style="min-height:45px"></div></div></div></div>
 <div class="modal" id="profileModal"><div class="modalbox" style="width:min(560px,100%);height:auto"><div class="modalhead"><strong>Edit profile</strong><button class="btn mini" onclick="closeProfileEditor()">Close</button></div><div style="padding:16px"><input id="profileEditName" class="social-input" placeholder="Username"><input id="profileEditAvatar" class="social-input" style="margin-top:8px" placeholder="Avatar image URL (optional)"><button class="btn primary" style="margin-top:10px" onclick="saveProfileEditor()">Save profile</button><div id="profileEditStatus" class="assistant-answer" style="min-height:40px"></div></div></div></div>
 <div class="modal" id="drawModal"><div class="modalbox" style="width:min(1100px,100%);height:min(820px,100%)"><div class="modalhead"><strong>Shared drawing board</strong><span class="row-fill"></span><button class="btn mini" onclick="clearDrawing()">Clear</button><button class="btn mini" onclick="closeDrawing()">Close</button></div><div class="draw-fullscreen-body"><div class="draw-toolbar"><label>Colour <input id="drawColor" type="color" value="#1b5cff"></label><label>Brush <input id="drawSize" type="range" min="1" max="30" value="5"></label><button class="btn mini" onclick="downloadDrawing()">Save PNG</button></div><div class="draw-wrap"><canvas id="drawCanvas" class="draw-canvas" width="1200" height="720"></canvas></div><div class="tiny-status" style="margin-top:8px">Drawings sync live with your current party.</div></div></div></div>
+<div class="modal" id="callModal">
+  <div class="modalbox call-modal-box">
+    <div class="modalhead" style="background:#0f1218;color:#fff;border-color:#242a35">
+      <strong id="callTitle">Friend call</strong>
+      <span class="row-fill"></span>
+      <button class="btn mini" onclick="endFriendCall()">Close</button>
+    </div>
+    <div class="call-stage">
+      <video id="callRemoteVideo" class="call-remote-video" autoplay playsinline></video>
+      <video id="callLocalVideo" class="call-local-video" autoplay muted playsinline></video>
+      <div class="call-status" id="callStatus">Ready</div>
+      <div class="call-incoming" id="callIncoming">
+        <div class="call-incoming-card">
+          <div class="call-incoming-avatar" id="callIncomingAvatar">?</div>
+          <strong id="callIncomingName">Incoming call</strong>
+          <div style="color:#b7beca;font-size:11px;margin-top:5px">A friend is calling you</div>
+          <div class="call-incoming-actions">
+            <button class="btn mini primary" onclick="answerFriendCall()">Answer</button>
+            <button class="btn mini" onclick="rejectFriendCall()">Decline</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="call-actions">
+      <button class="btn mini" id="callMicBtn" onclick="toggleFriendCallMic()">Mute mic</button>
+      <button class="btn mini" id="callCameraBtn" onclick="toggleFriendCallCamera()">Turn camera off</button>
+      <button class="btn mini" onclick="endFriendCall()">End call</button>
+    </div>
+  </div>
+</div>
 <div class="modal" id="meetingModal"><div class="modalbox" style="width:min(1200px,100%);height:min(820px,100%);background:#0a0c10;color:#fff"><div class="modalhead" style="background:#0f1218;border-color:#242a35"><strong>Party meeting</strong><span class="row-fill"></span><button class="btn mini" onclick="toggleMeetingMic()">Mic</button><button class="btn mini" onclick="toggleMeetingCamera()">Camera</button><button class="btn mini primary" onclick="shareScreen()">Share screen</button><button class="btn mini" onclick="closeMeeting()">Close</button></div><div id="meetingGrid" class="meeting-grid meeting-fullscreen-grid"></div><div style="padding:10px;background:#0f1218;border-top:1px solid #242a35"><div class="tiny-status">WebRTC media is peer-to-peer; Supabase Realtime is used for room signalling.</div></div></div></div>
 <div class="modal" id="setupSqlModal"><div class="modalbox" style="width:min(900px,100%);height:min(760px,100%)"><div class="modalhead"><strong>Supabase setup SQL</strong><button class="btn mini" onclick="copySetupSQL()">Copy SQL</button><button class="btn mini" onclick="closeSetupSQL()">Close</button></div><div style="padding:16px;overflow:auto"><p class="muted" style="font-size:12px;line-height:1.5">Run this once in Supabase SQL Editor. It creates the tables and RLS policies used by Accounts, Friends, Parties and DMs.</p><textarea id="setupSql" class="setup-sql" readonly></textarea></div></div></div>
 <div class="tutorial-overlay" id="tutorialOverlay"><div class="tutorial-spot" id="tutorialSpot"></div><div class="tutorial-card" id="tutorialCard"><div class="tutorial-arrow" id="tutorialArrow">↓</div><strong id="tutorialTitle">Welcome</strong><p id="tutorialText"></p><div class="tutorial-actions"><button class="btn mini" onclick="skipTutorial()">Skip tutorial</button><div><button class="btn mini" onclick="tutorialPrev()">Back</button><button class="btn mini primary" onclick="tutorialNext()">Next</button></div></div></div></div>
@@ -1516,7 +1594,7 @@ async function sendFriendRequest(id){if(!currentUser)return;const {error}=await 
 async function loadPendingFriendRequests(){if(!currentUser||!supabaseClient)return;const {data,error}=await supabaseClient.from('friend_requests').select('id,requester,addressee,status,created_at').eq('addressee',currentUser.id).eq('status','pending').order('created_at',{ascending:false});const box=$('friendRequests');if(error){box.innerHTML='<div class="tiny-status">Friend requests need the Supabase setup SQL.</div>';return}if(!data?.length){box.innerHTML='';return}const ids=data.map(x=>x.requester);const users=ids.length?(await supabaseClient.from('profiles').select('id,username').in('id',ids)).data||[]:[];box.innerHTML=data.map(r=>{const u=users.find(x=>x.id===r.requester);return `<div class="friend-row"><div class="row-fill"><strong>${esc(u?.username||'User')}</strong><span> wants to be friends</span></div><button class="btn mini" onclick="respondFriend(${r.id},true)">Accept</button><button class="btn mini" onclick="respondFriend(${r.id},false)">Decline</button></div>`}).join('');}
 async function respondFriend(id,accept){const {error}=await supabaseClient.from('friend_requests').update({status:accept?'accepted':'declined'}).eq('id',id);showToast(error?error.message:(accept?'Friend added':'Request declined'));await loadFriends();await loadPendingFriendRequests();}
 async function loadFriends(){if(!currentUser||!supabaseClient)return;const {data,error}=await supabaseClient.from('friend_requests').select('requester,addressee').eq('status','accepted').or(`requester.eq.${currentUser.id},addressee.eq.${currentUser.id}`);if(error){renderFriends();return}const ids=(data||[]).map(x=>x.requester===currentUser.id?x.addressee:x.requester);if(!ids.length){friendsCache=[];renderFriends();return}const q=await supabaseClient.from('profiles').select('id,username,avatar_url').in('id',ids);friendsCache=q.data||[];renderFriends();}
-function renderFriends(){const box=$('friendsList');if(!box)return;box.innerHTML=friendsCache.length?friendsCache.map(p=>`<div class="friend-row"><div class="row-fill"><strong>${esc(p.username)}</strong><span> · friend</span></div><button class="btn mini" onclick="selectDMFriend('${p.id}')">Message</button></div>`).join(''):'<div class="tiny-status">No accepted friends yet.</div>';const sel=$('dmFriend');if(sel){sel.innerHTML='<option value="">Choose a friend…</option>'+friendsCache.map(p=>`<option value="${p.id}">${esc(p.username)}</option>`).join('');if(currentDmFriend)sel.value=currentDmFriend;}}
+function renderFriends(){const box=$('friendsList');if(!box)return;box.innerHTML=friendsCache.length?friendsCache.map(p=>`<div class="friend-row"><div class="row-fill"><strong>${esc(p.username)}</strong><span> · friend</span></div><button class="btn mini" onclick="selectDMFriend('${p.id}')">Message</button><button class="btn mini friend-call-btn" onclick="startFriendCall('${p.id}')">Call</button></div>`).join(''):'<div class="tiny-status">No accepted friends yet.</div>';const sel=$('dmFriend');if(sel){sel.innerHTML='<option value="">Choose a friend…</option>'+friendsCache.map(p=>`<option value="${p.id}">${esc(p.username)}</option>`).join('');if(currentDmFriend)sel.value=currentDmFriend;}}
 async function selectDMFriend(id){currentDmFriend=id;$('dmFriend').value=id;await loadDMs();subscribeDM();}
 async function loadDMs(){if(!currentUser||!currentDmFriend)return;const {data,error}=await supabaseClient.from('direct_messages').select('*').or(`and(sender_id.eq.${currentUser.id},recipient_id.eq.${currentDmFriend}),and(sender_id.eq.${currentDmFriend},recipient_id.eq.${currentUser.id})`).order('created_at',{ascending:true}).limit(100);const box=$('dmChat');if(error){box.innerHTML='<div class="tiny-status">DM table is not ready. Open Supabase setup.</div>';return}box.innerHTML=(data||[]).map(m=>`<div class="dm-item ${m.sender_id===currentUser.id?'me':''}"><div class="dm-bubble">${esc(m.body)}</div><span class="dm-meta">${new Date(m.created_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</span></div>`).join('')||'<div class="tiny-status">No messages yet.</div>';box.scrollTop=box.scrollHeight;}
 async function sendDM(){if(!currentUser)return openAuth('signin');const rid=$('dmFriend').value,text=($('dmInput').value||'').trim();if(!rid)return showToast('Choose a friend');if(!text)return;const {error}=await supabaseClient.from('direct_messages').insert({sender_id:currentUser.id,recipient_id:rid,body:text});if(error)showToast(error.message);else{$('dmInput').value='';await loadDMs();}}
@@ -1627,7 +1705,7 @@ function openChatPage(friendId){
 }
 function renderFullChatFriends(){
   const box=$('chatFriendsList'); if(!box)return;
-  box.innerHTML=friendsCache.length ? friendsCache.map(p=>`<div class="friend-row"><div class="row-fill"><strong>${esc(p.username)}</strong></div><button class="btn mini" onclick="openChatPage('${p.id}')">Chat</button></div>`).join('') : '<div class="tiny-status">No accepted friends yet.</div>';
+  box.innerHTML=friendsCache.length ? friendsCache.map(p=>`<div class="friend-row"><div class="row-fill"><strong>${esc(p.username)}</strong></div><button class="btn mini" onclick="openChatPage('${p.id}')">Chat</button><button class="btn mini friend-call-btn" onclick="startFriendCall('${p.id}')">Call</button></div>`).join('') : '<div class="tiny-status">No accepted friends yet.</div>';
   const big=$('chatProfileBig'),name=$('chatProfileName');
   const n=currentProfile?.username||currentUser?.email?.split('@')[0]||'Account';
   if(name)name.textContent=n;if(big)big.textContent=initialsSafe(n);
@@ -1681,6 +1759,7 @@ $('authModal')?.addEventListener('click',e=>{if(e.target.id==='authModal')closeA
 $('profileModal')?.addEventListener('click',e=>{if(e.target.id==='profileModal')closeProfileEditor();});
 $('drawModal')?.addEventListener('click',e=>{if(e.target.id==='drawModal')closeDrawing();});
 $('meetingModal')?.addEventListener('click',e=>{if(e.target.id==='meetingModal')closeMeeting();});
+$('callModal')?.addEventListener('click',e=>{if(e.target.id==='callModal')endFriendCall();});
 $('setupSqlModal')?.addEventListener('click',e=>{if(e.target.id==='setupSqlModal')closeSetupSQL();});
 // Add a friend-search Enter shortcut without hijacking the rest of the site.
 $('friendSearch')?.addEventListener('keydown',e=>{if(e.key==='Enter')searchFriends();});
@@ -2030,27 +2109,61 @@ function toggleSocialVideo(event,button){
 }
 function socialTryPlayVideo(v){
   if(!v)return;
-  const soundOn=v.dataset.socialSound==='on';
-  // Autoplay is allowed reliably when muted. Once the user unmutes via the
-  // native controls or presses the play overlay, keep that choice.
-  if(!soundOn){
-    v.muted=true;
-    v.defaultMuted=true;
-  }
+  socialCustomPlayerInit(v);
   const wrap=v.closest('.social-video-wrap');
-  const button=wrap?.querySelector('.social-video-play');
+  const center=wrap?.querySelector('.social-video-play');
   const status=wrap?.querySelector('[data-social-video-status]');
   const attempt=()=>{
+    if(v.dataset.socialUserStarted==='1'){
+      v.muted=false;v.defaultMuted=false;v.volume=1;
+    }else{
+      /* Ask for audible autoplay first. */
+      v.muted=false;v.defaultMuted=false;v.volume=1;
+    }
     const p=v.play();
     if(p?.then){
-      p.then(()=>{button?.classList.add('hidden');status?.classList.remove('show');})
-       .catch(()=>{button?.classList.remove('hidden');status?.classList.add('show');});
+      p.then(()=>{
+        center?.classList.add('hidden');
+        status?.classList.remove('show');
+      }).catch(()=>{
+        /* Browser autoplay policy can block sound. Keep the video available and
+           let the first real pointer/keyboard gesture unlock it. */
+        v.muted=true;v.defaultMuted=true;
+        const mutedPlay=v.play();
+        if(mutedPlay?.then)mutedPlay.then(()=>{center?.classList.add('hidden');}).catch(()=>center?.classList.remove('hidden'));
+        if(status){status.textContent='Sound will start after your first click.';status.classList.add('show');}
+      });
     }
   };
-  if(v.readyState>=2)attempt();else{
-    v.addEventListener('canplay',attempt,{once:true});
-    try{v.load()}catch{}
+  if(v.readyState>=2)attempt();
+  else v.addEventListener('canplay',attempt,{once:true});
+}
+function socialUnlockAudio(){
+  const videos=[...document.querySelectorAll('[data-social-video]')];
+  let any=false;
+  for(const v of videos){
+    const r=v.getBoundingClientRect();
+    const visible=r.top<window.innerHeight*.9 && r.bottom>window.innerHeight*.1;
+    if(!visible)continue;
+    try{
+      v.dataset.socialUserStarted='1';
+      v.defaultMuted=false;v.muted=false;v.volume=1;
+      const p=v.play();
+      if(p?.then)p.then(()=>{
+        const w=v.closest('.social-video-wrap');
+        w?.querySelector('.social-video-play')?.classList.add('hidden');
+        w?.querySelector('[data-social-video-status]')?.classList.remove('show');
+      }).catch(()=>{});
+      any=true;
+    }catch{}
   }
+  return any;
+}
+if(!window.aioSocialAudioUnlockBound){
+  window.aioSocialAudioUnlockBound=true;
+  const unlock=()=>socialUnlockAudio();
+  window.addEventListener('pointerdown',unlock,{passive:true,capture:true,once:false});
+  window.addEventListener('keydown',unlock,{passive:true,capture:true,once:false});
 }
 function setupSocialVideoObserver(){
   const videos=document.querySelectorAll('[data-social-video]');
@@ -2109,6 +2222,135 @@ function setupSocialVideoObserver(){
 }
 window.addEventListener('scroll',()=>{if(location.hash.includes('social')||document.getElementById('social')?.getBoundingClientRect().top<window.innerHeight)setupSocialVideoObserver()},{passive:true});
 async function shareSocialPost(id){const p=socialPosts.find(x=>String(x.id)===String(id));if(!p)return;const url=location.href.split('#')[0]+'#social-post-'+encodeURIComponent(id);try{if(navigator.share){await navigator.share({title:`${p.username} on Social`,text:p.caption||'Social post',url})}else{await navigator.clipboard.writeText(url);showToast('Post link copied')}}catch{}}
+
+/* =========================
+   Friend calling (WebRTC + Supabase Realtime Broadcast)
+   ========================= */
+let friendCallPeer=null,friendCallChannel=null,friendCallLocalStream=null;
+let friendCallTargetId='',friendCallTargetName='',friendCallIncoming=null;
+let friendCallMicOn=true,friendCallCameraOn=true;
+function friendCallTargetChannel(id){return supabaseClient?.channel('friend-call:'+id)}
+async function friendCallEnsureChannel(){
+  if(!supabaseClient||!currentUser)return null;
+  if(friendCallChannel)return friendCallChannel;
+  friendCallChannel=supabaseClient.channel('friend-call:'+currentUser.id);
+  friendCallChannel.on('broadcast',{event:'call'},async msg=>{
+    const d=msg?.payload||{};
+    if(!d.from||d.from===currentUser.id)return;
+    if(d.type==='offer')await friendCallReceiveOffer(d);
+    else if(d.type==='answer')await friendCallReceiveAnswer(d);
+    else if(d.type==='ice')await friendCallReceiveIce(d);
+    else if(d.type==='hangup')endFriendCall(true);
+    else if(d.type==='reject'){showCallStatus('Call declined');setTimeout(()=>endFriendCall(true),700);}
+  });
+  await friendCallChannel.subscribe();
+  return friendCallChannel;
+}
+async function friendCallSend(targetId,payload){
+  if(!supabaseClient||!currentUser||!targetId)return;
+  const ch=friendCallTargetChannel(targetId);if(!ch)return;
+  try{
+    await ch.subscribe();
+    await ch.send({type:'broadcast',event:'call',payload:{...payload,from:currentUser.id,to:targetId}});
+    setTimeout(()=>{try{supabaseClient.removeChannel(ch)}catch{}},10000);
+  }catch(e){console.warn('Friend call signal failed',e)}
+}
+function showCallStatus(t){if($('callStatus'))$('callStatus').textContent=t}
+function openCallModal(){
+  $('callModal')?.classList.add('open');
+  $('callIncoming')?.classList.remove('open');
+}
+function closeCallModal(){$('callModal')?.classList.remove('open')}
+async function startFriendCall(friendId){
+  if(!currentUser||!supabaseClient)return openAuth('signin');
+  const friend=friendsCache.find(x=>String(x.id)===String(friendId));
+  if(!friend)return showToast('Friend not found');
+  if(friendCallPeer)return showToast('You are already in a call');
+  friendCallTargetId=friendId;friendCallTargetName=friend.username||'Friend';
+  if($('callTitle'))$('callTitle').textContent='Calling '+friendCallTargetName;
+  openCallModal();showCallStatus('Calling '+friendCallTargetName+'…');
+  try{
+    await friendCallEnsureChannel();
+    friendCallLocalStream=await navigator.mediaDevices.getUserMedia({audio:true,video:true});
+    $('callLocalVideo').srcObject=friendCallLocalStream;
+    friendCallPeer=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'}]});
+    friendCallLocalStream.getTracks().forEach(t=>friendCallPeer.addTrack(t,friendCallLocalStream));
+    friendCallPeer.ontrack=e=>{if(e.streams?.[0])$('callRemoteVideo').srcObject=e.streams[0]};
+    friendCallPeer.onicecandidate=e=>{if(e.candidate)friendCallSend(friendCallTargetId,{type:'ice',candidate:e.candidate})};
+    friendCallPeer.onconnectionstatechange=()=>{
+      const st=friendCallPeer?.connectionState;
+      if(st==='connected')showCallStatus('Connected');
+      if(st==='failed')showCallStatus('Connection failed');
+    };
+    const offer=await friendCallPeer.createOffer();
+    await friendCallPeer.setLocalDescription(offer);
+    await friendCallSend(friendCallTargetId,{type:'offer',offer,callerName:currentProfile?.username||'Friend',callerAvatar:currentProfile?.avatar_url||''});
+  }catch(e){
+    console.warn(e);showCallStatus(e?.message||'Camera/microphone permission was blocked');showToast('Could not start the call');
+  }
+}
+async function friendCallReceiveOffer(d){
+  if(friendCallPeer){await friendCallSend(d.from,{type:'reject'});return;}
+  friendCallIncoming=d;friendCallTargetId=d.from;friendCallTargetName=d.callerName||'Friend';
+  if($('callTitle'))$('callTitle').textContent='Incoming call';
+  if($('callIncomingName'))$('callIncomingName').textContent=friendCallTargetName;
+  if($('callIncomingAvatar'))$('callIncomingAvatar').innerHTML=d.callerAvatar?`<img src="${esc(d.callerAvatar)}" alt="">`:esc(initialsSafe(friendCallTargetName));
+  openCallModal();$('callIncoming').classList.add('open');showCallStatus('Incoming call');
+}
+async function answerFriendCall(){
+  const d=friendCallIncoming;if(!d)return;
+  $('callIncoming').classList.remove('open');
+  try{
+    friendCallLocalStream=await navigator.mediaDevices.getUserMedia({audio:true,video:true});
+    $('callLocalVideo').srcObject=friendCallLocalStream;
+    friendCallPeer=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'}]});
+    friendCallLocalStream.getTracks().forEach(t=>friendCallPeer.addTrack(t,friendCallLocalStream));
+    friendCallPeer.ontrack=e=>{if(e.streams?.[0])$('callRemoteVideo').srcObject=e.streams[0]};
+    friendCallPeer.onicecandidate=e=>{if(e.candidate)friendCallSend(friendCallTargetId,{type:'ice',candidate:e.candidate})};
+    await friendCallPeer.setRemoteDescription(d.offer);
+    const answer=await friendCallPeer.createAnswer();
+    await friendCallPeer.setLocalDescription(answer);
+    await friendCallSend(friendCallTargetId,{type:'answer',answer});
+    showCallStatus('Connecting…');
+  }catch(e){
+    showCallStatus(e?.message||'Could not answer the call');
+    await friendCallSend(friendCallTargetId,{type:'reject'});
+    endFriendCall(true);
+  }
+  friendCallIncoming=null;
+}
+async function rejectFriendCall(){
+  const from=friendCallIncoming?.from;if(from)await friendCallSend(from,{type:'reject'});
+  friendCallIncoming=null;$('callIncoming')?.classList.remove('open');endFriendCall(true);
+}
+async function friendCallReceiveAnswer(d){
+  try{if(friendCallPeer&&!friendCallPeer.currentRemoteDescription)await friendCallPeer.setRemoteDescription(d.answer)}catch(e){console.warn(e)}
+}
+async function friendCallReceiveIce(d){
+  try{if(friendCallPeer&&d.candidate)await friendCallPeer.addIceCandidate(d.candidate)}catch{}
+}
+function toggleFriendCallMic(){
+  if(!friendCallLocalStream)return;
+  friendCallMicOn=!friendCallMicOn;friendCallLocalStream.getAudioTracks().forEach(t=>t.enabled=friendCallMicOn);
+  if($('callMicBtn'))$('callMicBtn').textContent=friendCallMicOn?'Mute mic':'Unmute mic';
+}
+function toggleFriendCallCamera(){
+  if(!friendCallLocalStream)return;
+  friendCallCameraOn=!friendCallCameraOn;friendCallLocalStream.getVideoTracks().forEach(t=>t.enabled=friendCallCameraOn);
+  if($('callCameraBtn'))$('callCameraBtn').textContent=friendCallCameraOn?'Turn camera off':'Turn camera on';
+}
+async function endFriendCall(silent=false){
+  const target=friendCallTargetId;
+  if(target&&!silent)await friendCallSend(target,{type:'hangup'});
+  try{friendCallPeer?.close()}catch{}
+  try{friendCallLocalStream?.getTracks().forEach(t=>t.stop())}catch{}
+  friendCallPeer=null;friendCallLocalStream=null;friendCallIncoming=null;friendCallTargetId='';friendCallTargetName='';
+  if($('callRemoteVideo'))$('callRemoteVideo').srcObject=null;
+  if($('callLocalVideo'))$('callLocalVideo').srcObject=null;
+  closeCallModal();
+  if(!silent)showToast('Call ended');
+}
+
 function initSocial(){socialBind();setTimeout(()=>{try{socialSync()}catch(e){console.error('Social init:',e)}},350)}
 
 
@@ -2170,7 +2412,7 @@ function socialCustomPlayerInit(v){
   v.addEventListener('play',setPlay);
   v.addEventListener('pause',setPlay);
   v.addEventListener('ended',setPlay);
-  v.addEventListener('click',e=>{if(e.target===v){if(v.paused||v.muted)userStart();else v.pause()}});
+  v.addEventListener('click',e=>{if(e.target===v){userStart()}});
   wrap?.addEventListener('mousemove',()=>wrap.classList.add('player-active'));
   wrap?.addEventListener('mouseleave',()=>wrap.classList.remove('player-active'));
   setPlay();sync();
@@ -2259,19 +2501,34 @@ function partyWheelItems(){
   const raw=String($('partyWheelChoices')?.value||'Roy, Alex, Sam, Jamie');
   return raw.split(',').map(x=>x.trim()).filter(Boolean).slice(0,12);
 }
+let partyWheelAngle=0;
 function renderPartyWheelLabels(items){
-  const box=$('partyWheelLabels');if(!box)return;
-  box.innerHTML=items.map((x,i)=>{const angle=(360/items.length)*i+(180/items.length);return `<span style="transform:rotate(${angle}deg) translate(0,-86px) rotate(${-angle}deg);width:92px;text-align:center;transform-origin:center">${esc(x).slice(0,14)}</span>`}).join('');
+  const box=$('partyWheelLabels'),wheel=$('partyWheel');if(!box||!wheel)return;
+  const colors=['#ff5f6d','#ffc371','#6a8dff','#52d681','#b56dff','#f7b733','#38d9d9','#ff8f4d','#8b7cff','#ff6fb1','#49c1ff','#8bd450'];
+  const step=360/items.length;
+  wheel.style.background=`conic-gradient(${items.map((_,i)=>`${colors[i%colors.length]} ${i*step}deg ${(i+1)*step}deg`).join(',')})`;
+  box.innerHTML=items.map((x,i)=>{
+    const angle=i*step+step/2;
+    return `<span style="transform:translate(-50%,-50%) rotate(${angle}deg) translateY(-72px) rotate(${-angle}deg)">${esc(x).slice(0,14)}</span>`;
+  }).join('');
 }
 function spinPartyWheel(){
   const items=partyWheelItems();
   if(!items.length)return showToast('Add at least one choice');
   renderPartyWheelLabels(items);
   const idx=Math.floor(Math.random()*items.length);
-  const deg=360*5 + (360-(idx*(360/items.length))-(360/items.length)/2);
+  const step=360/items.length;
+  const targetCenter=idx*step+step/2;
+  const current=((partyWheelAngle%360)+360)%360;
+  const correction=(360-((current+targetCenter)%360))%360;
+  partyWheelAngle+=360*5+correction;
   const wheel=$('partyWheel');if(!wheel)return;
-  wheel.style.transform='rotate('+deg+'deg)';
-  setTimeout(()=>{$('partyWheelResult').textContent='Winner: '+items[idx];showToast('Wheel picked '+items[idx])},3050);
+  wheel.style.transform=`rotate(${partyWheelAngle}deg)`;
+  clearTimeout(window.aioPartyWheelTimer);
+  window.aioPartyWheelTimer=setTimeout(()=>{
+    $('partyWheelResult').textContent='Winner: '+items[idx];
+    showToast('Wheel picked '+items[idx]);
+  },3050);
 }
 function newPartyChallenge(){const x=PARTY_CHALLENGES[Math.floor(Math.random()*PARTY_CHALLENGES.length)];if($('partyChallenge'))$('partyChallenge').innerHTML=esc(x)+'<small>Do it together in your party.</small>'}
 function partyQuickResult(t){if($('partyQuickResult'))$('partyQuickResult').textContent=t}
