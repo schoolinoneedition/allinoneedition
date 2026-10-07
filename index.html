@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#ffffff">
 <meta name="description" content="All in One Edition — games, school apps, tools, notes, live news and football. Roy owner.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231b5cff'/%3E%3Cpath d='M17 18h30v11H28v17H17z' fill='white'/%3E%3Cpath d='M29 18l18 13-18 13z' fill='%23ffe16a'/%3E%3C/svg%3E">
-<title>All in One Edition — Roy owner</title>
+<title>All in One Edition — Roy Owner</title>
 <meta name="referrer" content="strict-origin-when-cross-origin">
 
 
@@ -366,6 +366,74 @@ html.reduced-motion .cover{transition:none!important}
 .call-incoming-actions{display:flex;gap:8px;justify-content:center;margin-top:14px}
 @media(max-width:700px){.call-local-video{width:130px;height:92px;right:9px;bottom:9px}}
 
+
+/* Final Social media sizing: preserve each video's real aspect ratio. */
+.social-post{width:min(430px,calc(100vw - 24px));aspect-ratio:9/16;height:auto;min-height:0;max-height:calc(100vh - 165px)}
+.social-post-media{display:flex;align-items:center;justify-content:center;background:#000}
+.social-post-media img{width:100%;height:100%;object-fit:contain;background:#000}
+.social-video-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#000;overflow:hidden}
+.social-video-wrap video{position:relative;inset:auto;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;object-position:center;background:#000;display:block}
+.social-player-controls{z-index:6}
+.social-video-status{z-index:6}
+.social-video-play{z-index:7}
+/* Keep the player compact on very small screens while preserving 9:16. */
+@media(max-width:700px){
+  .social-feed-column{width:min(430px,calc(100vw - 18px))}
+  .social-post{width:100%;aspect-ratio:9/16;max-height:calc(100vh - 145px)}
+}
+/* Management modal */
+.social-manage-list{display:grid;gap:9px;max-height:62vh;overflow:auto;padding-right:2px}
+.social-manage-item{display:grid;grid-template-columns:72px 1fr auto;gap:10px;align-items:center;border:1px solid var(--line);background:var(--soft);border-radius:12px;padding:9px}
+.social-manage-thumb{width:72px;height:72px;border-radius:9px;overflow:hidden;background:#080a0e;display:grid;place-items:center;color:#fff;font-size:11px;font-weight:900}
+.social-manage-thumb img,.social-manage-thumb video{width:100%;height:100%;object-fit:cover;display:block}
+.social-manage-info strong{display:block;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.social-manage-info span{display:block;color:var(--muted);font-size:10px;margin-top:3px;line-height:1.35}
+.social-manage-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.social-manage-empty{padding:25px;text-align:center;color:var(--muted);font-size:12px}
+@media(max-width:600px){.social-manage-item{grid-template-columns:58px 1fr}.social-manage-thumb{width:58px;height:58px}.social-manage-actions{grid-column:1/-1;justify-content:flex-start}}
+
+
+/* Keep spinner labels attached to the spinning wheel. */
+.party-wheel,.party-wheel-labels{transition:transform 3s cubic-bezier(.12,.74,.18,1);transform-origin:center}
+.party-wheel-labels{pointer-events:none}
+
+
+/* ===== Final Social media sizing / preload polish ===== */
+.social-feed-shell{width:100%;display:flex;justify-content:center;min-height:0}
+.social-feed-column{width:min(520px,calc(100vw - 24px));min-width:0}
+.social-feed{height:calc(100vh - 155px);min-height:0;overflow-y:auto;scroll-snap-type:y mandatory;scrollbar-width:none;padding:0 0 24px}
+.social-feed::-webkit-scrollbar{display:none}
+.social-post{box-sizing:border-box;width:min(520px,calc(100vw - 24px));height:520px;min-height:180px;max-height:calc(100vh - 175px);margin:0 auto 18px;border-radius:16px;overflow:hidden}
+.social-post-media,.social-video-wrap{width:100%;height:100%}
+.social-post-media{display:flex;align-items:center;justify-content:center;background:#000}
+.social-post-media img{width:100%;height:100%;object-fit:contain;display:block;background:#000}
+.social-video-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#000;overflow:hidden}
+.social-video-wrap video{position:relative!important;inset:auto!important;width:100%!important;height:100%!important;max-width:100%;max-height:100%;object-fit:contain!important;object-position:center center!important;background:#000;display:block}
+.social-player-controls{left:10px;right:10px;bottom:10px}
+@media(max-width:700px){
+  .social-section{padding-left:8px;padding-right:8px}
+  .social-feed-column{width:min(520px,calc(100vw - 16px))}
+  .social-feed{height:calc(100vh - 135px);padding-bottom:18px}
+  .social-post{width:min(520px,calc(100vw - 16px));max-height:calc(100vh - 150px);border-radius:14px}
+}
+/* The post itself follows the source ratio, so media is never squeezed or stretched. */
+.social-post[data-media-ratio]{aspect-ratio:var(--social-ratio);height:auto}
+/* Never expose browser-native media controls; the feed uses its own player. */
+.social-video-wrap video::-webkit-media-controls,
+.social-video-wrap video::-webkit-media-controls-enclosure,
+.social-video-wrap video::-webkit-media-controls-panel,
+.social-video-wrap video::-webkit-media-controls-play-button,
+.social-video-wrap video::-webkit-media-controls-start-playback-button{display:none!important}
+
+/* ===== Cleaner spinner wheel ===== */
+.party-wheel-stage{width:238px;height:238px;position:relative;margin:auto;display:grid;place-items:center}
+.party-wheel-rotor{position:absolute;left:9px;top:9px;width:220px;height:220px;transform-origin:center center}
+.party-wheel{width:220px;height:220px;border-radius:50%;position:absolute;inset:0;display:block;overflow:hidden;box-sizing:border-box;border:7px solid #fff;transition:transform 3.05s cubic-bezier(.15,.75,.13,1)}
+.party-wheel-labels{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden}
+.party-wheel-labels span{position:absolute;left:50%;top:50%;width:66px;margin-left:-33px;margin-top:-9px;font-size:9px;line-height:1.15;text-align:center;color:#fff;font-weight:950;text-shadow:0 1px 4px rgba(0,0,0,.75);transform-origin:33px 9px}
+.party-wheel-pointer{position:absolute;top:-3px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-top:0;border-bottom:24px solid #17191f;z-index:12;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25))}
+@media(max-width:700px){.party-wheel-stage{width:220px;height:220px}.party-wheel-rotor{left:5px;top:5px}.party-wheel{width:210px;height:210px}.party-wheel-labels{width:210px;height:210px}}
+
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -465,8 +533,8 @@ html.reduced-motion .cover{transition:none!important}
       </div>
     </div>
     <div class="social-publish-actions">
-      <span class="tiny-status" id="socialPostHint">Posts are saved to Supabase so they remain after refresh. Signed-in posts use your account; guests can still post.</span>
-      <button class="btn mini primary" type="button" onclick="createSocialPost()">Post to Social</button>
+      <span class="tiny-status" id="socialPostHint">MP4 only · up to 100 MB. Posts are saved to Supabase so they remain after refresh. Signed-in posts use your account; guests can still post.</span>
+      <div class="social-publish-button-row"><button class="btn mini" type="button" onclick="openSocialManage()">Manage my posts</button><button class="btn mini primary" type="button" onclick="createSocialPost()">Post to Social</button></div>
     </div>
   </div>
   <div class="social-grid">
@@ -523,7 +591,7 @@ html.reduced-motion .cover{transition:none!important}
   <div class="panel party-fun-wide">
     <div class="party-tool-title"><h3>Spinner wheel</h3><span class="tiny-status">Make a quick party decision</span></div>
     <div class="party-wheel-wrap">
-      <div class="party-wheel-stage"><div class="party-wheel-pointer"></div><div class="party-wheel" id="partyWheel"></div><div class="party-wheel-labels" id="partyWheelLabels"></div></div>
+      <div class="party-wheel-stage"><div class="party-wheel-pointer"></div><div class="party-wheel-rotor" id="partyWheelRotor"><div class="party-wheel" id="partyWheel"></div><div class="party-wheel-labels" id="partyWheelLabels"></div></div></div>
       <div><div id="partyWheelResult" class="party-result">Add choices, then spin the wheel.</div><div class="party-wheel-input"><input id="partyWheelChoices" placeholder="Roy, Alex, Sam, Jamie"><button class="btn mini primary" onclick="spinPartyWheel()">Spin</button></div><div class="tiny-status" style="margin-top:7px">Separate choices with commas.</div></div>
     </div>
   </div>
@@ -711,6 +779,17 @@ html.reduced-motion .cover{transition:none!important}
   </div>
 </div>
 <div class="modal" id="meetingModal"><div class="modalbox" style="width:min(1200px,100%);height:min(820px,100%);background:#0a0c10;color:#fff"><div class="modalhead" style="background:#0f1218;border-color:#242a35"><strong>Party meeting</strong><span class="row-fill"></span><button class="btn mini" onclick="toggleMeetingMic()">Mic</button><button class="btn mini" onclick="toggleMeetingCamera()">Camera</button><button class="btn mini primary" onclick="shareScreen()">Share screen</button><button class="btn mini" onclick="closeMeeting()">Close</button></div><div id="meetingGrid" class="meeting-grid meeting-fullscreen-grid"></div><div style="padding:10px;background:#0f1218;border-top:1px solid #242a35"><div class="tiny-status">WebRTC media is peer-to-peer; Supabase Realtime is used for room signalling.</div></div></div></div>
+
+<div class="modal" id="socialManageModal">
+  <div class="modalbox" style="width:min(720px,100%);height:min(760px,92vh)">
+    <div class="modalhead"><strong>Manage my posts</strong><span class="row-fill"></span><button class="btn mini" onclick="closeSocialManage()">Close</button></div>
+    <div style="padding:14px;overflow:auto">
+      <div class="tiny-status" id="socialManageStatus">Your signed-in Social posts appear here.</div>
+      <div id="socialManageList" class="social-manage-list" style="margin-top:10px"></div>
+    </div>
+  </div>
+</div>
+
 <div class="modal" id="setupSqlModal"><div class="modalbox" style="width:min(900px,100%);height:min(760px,100%)"><div class="modalhead"><strong>Supabase setup SQL</strong><button class="btn mini" onclick="copySetupSQL()">Copy SQL</button><button class="btn mini" onclick="closeSetupSQL()">Close</button></div><div style="padding:16px;overflow:auto"><p class="muted" style="font-size:12px;line-height:1.5">Run this once in Supabase SQL Editor. It creates the tables and RLS policies used by Accounts, Friends, Parties and DMs.</p><textarea id="setupSql" class="setup-sql" readonly></textarea></div></div></div>
 <div class="tutorial-overlay" id="tutorialOverlay"><div class="tutorial-spot" id="tutorialSpot"></div><div class="tutorial-card" id="tutorialCard"><div class="tutorial-arrow" id="tutorialArrow">↓</div><strong id="tutorialTitle">Welcome</strong><p id="tutorialText"></p><div class="tutorial-actions"><button class="btn mini" onclick="skipTutorial()">Skip tutorial</button><div><button class="btn mini" onclick="tutorialPrev()">Back</button><button class="btn mini primary" onclick="tutorialNext()">Next</button></div></div></div></div>
 <div class="toast" id="toast"></div><div id="disguise" class="disguise hidden" aria-hidden="true"><div class="study-top"><strong>Study Workspace</strong><span>Practice dashboard · Ctrl+Q / Alt+Q to return</span><button onclick="hideSite()">Return to All in One</button></div><div class="study-grid"><div class="study-card big"><small>QUICK PRACTICE</small><div class="study-number" id="studyQuestion">7 × 8 = ?</div><div class="study-keys" id="studyChoices"></div><p class="study-feedback" id="studyFeedback">Choose an answer.</p><div class="study-card-actions"><button type="button" onclick="studyNewQuestion()">New question</button><button type="button" onclick="studyGo('school')">School apps</button><button type="button" onclick="studyGo('notes')">Notes</button></div><div class="study-stats"><div class="study-stat"><small>STREAK</small><strong id="studyStreak">0</strong></div><div class="study-stat"><small>SCORE</small><strong id="studyScore">0</strong></div><div class="study-stat"><small>DONE</small><strong id="studyDone">0</strong></div></div></div><div class="study-card"><small>FOCUS</small><strong>Practice mode</strong><p>Use this clean dashboard when you want your screen to look like a normal study workspace.</p><div class="study-card-actions"><button type="button" onclick="studyGo('games')">Games</button><button type="button" onclick="studyGo('tools')">Tools</button><button type="button" onclick="studyGo('music')">Music</button><button type="button" onclick="studyGo('notes')">Notes</button></div></div><div class="study-card"><small>PROGRESS</small><strong id="studyProgress">0%</strong><p id="studyProgressText">Your saved hub activity will appear here.</p></div><div class="study-card"><small>TIME</small><strong class="study-clock" id="studyClock">--:--</strong><p>Current local time</p></div></div></div>
@@ -1373,6 +1452,19 @@ do $$ begin
     );
 exception when duplicate_object then null; end $$;
 
+do $$ begin
+  create policy "own social post update" on public.social_posts
+    for update to authenticated
+    using (visitor_id = auth.uid()::text)
+    with check (visitor_id = auth.uid()::text);
+exception when duplicate_object then null; end $$;
+
+do $$ begin
+  create policy "own social post delete" on public.social_posts
+    for delete to authenticated
+    using (visitor_id = auth.uid()::text);
+exception when duplicate_object then null; end $$;
+
 -- Guests and signed-in users may comment.
 do $$ begin
   create policy "public social guest comment" on public.social_comments
@@ -1431,7 +1523,7 @@ exception when duplicate_object then null; end $$;
 insert into storage.buckets (id,name,public)
 values ('social-media','social-media',true)
 on conflict (id) do update set public=true;
-update storage.buckets set file_size_limit=104857600, allowed_mime_types=array['image/jpeg','image/png','image/gif','image/webp','image/avif','video/mp4','video/webm','video/ogg'] where id='social-media';
+update storage.buckets set file_size_limit=104857600, allowed_mime_types=array['video/mp4'] where id='social-media';
 
 do $$ begin
   create policy "public social media read" on storage.objects
@@ -1452,7 +1544,7 @@ exception when duplicate_object then null; end $$;
 do $$ begin
   create policy "social media own account delete" on storage.objects
     for delete to authenticated
-    using (bucket_id='social-media' and owner_id=auth.uid());
+    using (bucket_id='social-media' and owner_id=(select auth.uid()::text));
 exception when duplicate_object then null; end $$;
 
 -- =========================================================
@@ -1517,6 +1609,8 @@ async function handleAuthSession(session){
   refreshAccountUI();
   if(currentUser){await loadFriends();await loadPendingFriendRequests();}
   else{currentProfile=null;friendsCache=[];renderFriends();}
+  try{socialRefreshIdentity?.();}catch{}
+  if(document.getElementById('socialManageModal')?.classList.contains('open')){try{socialRenderManageList()}catch{}}
   // Social must resync after Supabase restores the session on refresh.
   if(typeof socialSync==='function') setTimeout(()=>{try{socialSync()}catch(e){console.warn('Social auth sync:',e)}},0);
   if(typeof socialRefreshIdentity==='function') setTimeout(()=>{try{socialRefreshIdentity()}catch(e){}},0);
@@ -1945,7 +2039,7 @@ function renderSocialPost(p,i){
   const stat=socialStat(p.id),commentCount=stat.comments||socialCommentMap()[p.id]?.length||0;
   const likeCount=Math.max(stat.likes||0,0)+(liked&&!socialCloudReady?1:0);
   const media=p.media_type==='video'
-    ?`<div class="social-video-wrap"><video src="${socialEsc(p.media_url)}" playsinline webkit-playsinline loop preload="auto" data-social-video></video><button type="button" class="social-video-play" aria-label="Play video" onclick="toggleSocialVideo(event,this)">▶</button><div class="social-video-status" data-social-video-status>Click play to start with sound</div><div class="social-player-controls" data-social-player-controls><button type="button" class="social-player-btn" data-sp-play aria-label="Play or pause">▶</button><div class="social-player-time" data-sp-time>0:00</div><input class="social-player-range" data-sp-range type="range" min="0" max="100" value="0" step="0.1" aria-label="Video progress"><div class="social-player-time" data-sp-duration>0:00</div><button type="button" class="social-player-btn" data-sp-fullscreen aria-label="Fullscreen">⛶</button></div></div>`
+    ?`<div class="social-video-wrap"><video src="${socialEsc(p.media_url)}" playsinline webkit-playsinline autoplay loop preload="auto" data-social-video></video><button type="button" class="social-video-play" aria-label="Play video" onclick="toggleSocialVideo(event,this)">▶</button><div class="social-video-status" data-social-video-status>Click play to start with sound</div><div class="social-player-controls" data-social-player-controls><button type="button" class="social-player-btn" data-sp-play aria-label="Play or pause">▶</button><div class="social-player-time" data-sp-time>0:00</div><input class="social-player-range" data-sp-range type="range" min="0" max="100" value="0" step="0.1" aria-label="Video progress"><div class="social-player-time" data-sp-duration>0:00</div><button type="button" class="social-player-btn" data-sp-fullscreen aria-label="Fullscreen">⛶</button></div></div>`
     :`<img src="${socialEsc(p.media_url)}" alt="" loading="${i<2?'eager':'lazy'}" decoding="async" onerror="socialMediaError(this)">`;
   return `<article class="social-post" data-social-post="${socialEsc(p.id)}">
     <div class="social-post-media">${media}<div class="social-media-shade"></div></div>
@@ -2025,7 +2119,7 @@ async function createSocialPost(){
       const actor=socialVisitorId();
       const uid=(crypto?.randomUUID?crypto.randomUUID():socialId('media'));
       uploadedStoragePath=`social/${actor}/${uid}.${safeExt}`;
-      const up=await supabaseClient.storage.from('social-media').upload(uploadedStoragePath,file,{upsert:false,contentType:file.type||undefined,cacheControl:'31536000'});
+      const up=await supabaseClient.storage.from('social-media').upload(uploadedStoragePath,file,{upsert:false,contentType:'video/mp4',cacheControl:'31536000'});
       if(up.error)throw up.error;
       const pub=supabaseClient.storage.from('social-media').getPublicUrl(uploadedStoragePath);
       mediaUrl=pub?.data?.publicUrl||'';
@@ -2092,19 +2186,13 @@ function toggleSocialVideo(event,button){
   const wrap=button?.closest('.social-video-wrap');
   const v=wrap?.querySelector('video');
   if(!v)return;
-  // The overlay is deliberately the only custom control. Clicking it is a
-  // user gesture, so browsers are allowed to start the MP4 with sound.
-  v.dataset.socialSound='on';
-  v.defaultMuted=false;
-  v.muted=false;
-  v.volume=v.volume||1;
-  v.play().then(()=>{
-    button?.classList.add('hidden');
-    wrap.querySelector('[data-social-video-status]')?.classList.remove('show');
-  }).catch(()=>{
-    v.muted=true;
-    v.play().catch(()=>{});
+  if(!v.paused){v.pause();return;}
+  socialMarkAudioUnlocked();
+  socialPlayAudible(v).catch(()=>{
+    // If the browser rejects an audible gesture for this specific media source,
+    // leave it paused rather than silently changing the player's sound state.
     wrap.querySelector('[data-social-video-status]')?.classList.add('show');
+    wrap.querySelector('[data-social-video-status]')?.replaceChildren(document.createTextNode('Press play again to start sound'));
   });
 }
 function socialTryPlayVideo(v){
@@ -2351,7 +2439,81 @@ async function endFriendCall(silent=false){
   if(!silent)showToast('Call ended');
 }
 
-function initSocial(){socialBind();setTimeout(()=>{try{socialSync()}catch(e){console.error('Social init:',e)}},350)}
+
+function socialIsOwnPost(p){
+  return !!(typeof currentUser!=='undefined'&&currentUser?.id&&String(p?.visitor_id||'')===String(currentUser.id));
+}
+function socialStoragePathFromUrl(url){
+  const s=String(url||'');
+  const marker='/storage/v1/object/public/social-media/';
+  const i=s.indexOf(marker);
+  return i>=0?decodeURIComponent(s.slice(i+marker.length)):'';
+}
+async function openSocialManage(){
+  const modal=$('socialManageModal');if(!modal)return;
+  if(!(typeof currentUser!=='undefined'&&currentUser)){
+    openAuth('signin');
+    return;
+  }
+  modal.classList.add('open');
+  await socialRenderManageList();
+}
+function closeSocialManage(){$('socialManageModal')?.classList.remove('open')}
+async function socialRenderManageList(){
+  const box=$('socialManageList'),status=$('socialManageStatus');if(!box)return;
+  box.innerHTML='<div class="social-manage-empty">Loading your posts…</div>';
+  if(!supabaseClient||!currentUser){box.innerHTML='<div class="social-manage-empty">Sign in to manage your posts.</div>';return;}
+  try{
+    const q=await supabaseClient.from('social_posts').select('id,username,caption,media_type,media_url,created_at,visitor_id').eq('visitor_id',currentUser.id).order('created_at',{ascending:false}).limit(100);
+    if(q.error)throw q.error;
+    const posts=q.data||[];
+    if(status)status.textContent=posts.length?`${posts.length} post${posts.length===1?'':'s'} found`:'You have no Social posts yet.';
+    box.innerHTML=posts.length?posts.map(p=>{
+      const thumb=p.media_type==='video'?`<video src="${socialEsc(p.media_url)}" muted preload="metadata"></video>`:`<img src="${socialEsc(p.media_url)}" alt="">`;
+      return `<div class="social-manage-item" data-manage-post="${socialEsc(p.id)}"><div class="social-manage-thumb">${thumb}</div><div class="social-manage-info"><strong>${socialEsc(p.caption||'No caption')}</strong><span>${socialTime(p.created_at)} · ${p.media_type==='video'?'MP4 video':'Image'}</span></div><div class="social-manage-actions"><button class="btn mini" type="button" onclick="socialEditCaption('${socialEsc(p.id)}')">Edit caption</button><button class="btn mini" type="button" onclick="deleteSocialPost('${socialEsc(p.id)}')">Delete</button></div></div>`;
+    }).join(''):'<div class="social-manage-empty">You have no Social posts yet.</div>';
+  }catch(e){
+    console.warn('Social manage load failed',e);
+    if(status)status.textContent='Could not load your posts';
+    box.innerHTML=`<div class="social-manage-empty">${socialEsc(e?.message||'Social management is unavailable. Run the updated SQL.')}</div>`;
+  }
+}
+async function deleteSocialPost(id){
+  if(!currentUser||!supabaseClient)return openAuth('signin');
+  const p=socialPosts.find(x=>String(x.id)===String(id));
+  if(!p){return showToast('Post not found')}
+  if(!socialIsOwnPost(p))return showToast('You can only delete your own posts');
+  if(!confirm('Delete this Social post?'))return;
+  try{
+    const q=await supabaseClient.from('social_posts').delete().eq('id',id).eq('visitor_id',currentUser.id);
+    if(q.error)throw q.error;
+    const storagePath=socialStoragePathFromUrl(p.media_url);
+    if(storagePath){try{await supabaseClient.storage.from('social-media').remove([storagePath])}catch(e){console.warn('Media cleanup failed',e)}}
+    socialPosts=socialPosts.filter(x=>String(x.id)!==String(id));
+    socialWrite(SOCIAL_STORAGE_KEY,socialRead(SOCIAL_STORAGE_KEY,[]).filter(x=>String(x.id)!==String(id)));
+    const likes=socialLikeSet();likes.delete(String(id));socialWrite(SOCIAL_LIKE_KEY,[...likes]);
+    renderSocialFeed();await socialRenderManageList();showToast('Post deleted');
+  }catch(e){showToast('Delete failed: '+(e?.message||'check the Supabase SQL'))}
+}
+async function socialEditCaption(id){
+  if(!currentUser||!supabaseClient)return openAuth('signin');
+  const p=socialPosts.find(x=>String(x.id)===String(id));if(!p||!socialIsOwnPost(p))return showToast('You can only edit your own posts');
+  const next=prompt('New caption:',p.caption||'');if(next===null)return;
+  const caption=String(next).trim().slice(0,500);
+  try{
+    const q=await supabaseClient.from('social_posts').update({caption}).eq('id',id).eq('visitor_id',currentUser.id);
+    if(q.error)throw q.error;
+    p.caption=caption;
+    socialPosts=socialPosts.map(x=>String(x.id)===String(id)?p:x);
+    socialWrite(SOCIAL_STORAGE_KEY,socialRead(SOCIAL_STORAGE_KEY,[]).map(x=>String(x.id)===String(id)?{...x,caption}:x));
+    renderSocialFeed();await socialRenderManageList();showToast('Caption updated');
+  }catch(e){showToast('Edit failed: '+(e?.message||'check the Supabase SQL'))}
+}
+function socialBindPostManagement(){
+  $('socialManageModal')?.addEventListener('click',e=>{if(e.target.id==='socialManageModal')closeSocialManage()});
+}
+
+function initSocial(){socialBind();setTimeout(()=>{try{socialSync();socialPreloadDuringIdle()}catch(e){console.error('Social init:',e)}},350)}
 
 
 
@@ -2380,121 +2542,235 @@ function socialCustomPlayerInit(v){
     center?.classList.toggle('hidden',!paused);
   };
   const sync=()=>{
-    if(range&&v.duration){range.value=((v.currentTime/v.duration)*100)||0;}
+    if(range&&Number.isFinite(v.duration)&&v.duration>0)range.value=((v.currentTime/v.duration)*100)||0;
     if(time)time.textContent=socialFmtTime(v.currentTime);
     if(duration)duration.textContent=socialFmtTime(v.duration);
   };
-  const userStart=()=>{
+  const startWithUserGesture=()=>{
     v.dataset.socialUserStarted='1';
-    v.defaultMuted=false;v.muted=false;v.volume=1;
+    v.defaultMuted=false;
+    v.muted=false;
+    v.volume=Math.max(.7,v.volume||1);
     const p=v.play();
-    if(p?.catch)p.catch(()=>{
-      v.muted=true;v.defaultMuted=true;
-      v.play().catch(()=>{});
-      if(status){status.textContent='Browser blocked sound autoplay. Click play to enable sound.';status.classList.add('show');}
+    if(p?.then)p.then(()=>{
+      center?.classList.add('hidden');
+      status?.classList.remove('show');
+    }).catch(()=>{
+      // Some browsers still require a second direct gesture for sound.
+      v.muted=true;
+      v.defaultMuted=true;
+      const q=v.play();
+      if(q?.catch)q.catch(()=>{});
+      if(status){status.textContent='Click play to enable sound';status.classList.add('show');}
     });
   };
-  const toggle=()=>{
-    if(v.paused){userStart();}
-    else{v.pause();}
-  };
+  const toggle=()=>v.paused?startWithUserGesture():v.pause();
   play?.addEventListener('click',e=>{e.stopPropagation();toggle()});
-  center?.addEventListener('click',e=>{e.stopPropagation();userStart()});
-  range?.addEventListener('input',()=>{if(v.duration)v.currentTime=(Number(range.value)/100)*v.duration});
-  full?.addEventListener('click',e=>{
-    e.stopPropagation();
-    const target=wrap;
-    if(target?.requestFullscreen)target.requestFullscreen().catch(()=>{});
-    else if(v.webkitEnterFullscreen)v.webkitEnterFullscreen();
-  });
+  center?.addEventListener('click',e=>{e.stopPropagation();startWithUserGesture()});
+  range?.addEventListener('input',()=>{if(Number.isFinite(v.duration)&&v.duration>0)v.currentTime=(Number(range.value)/100)*v.duration});
+  full?.addEventListener('click',e=>{e.stopPropagation();const target=wrap;if(target?.requestFullscreen)target.requestFullscreen().catch(()=>{});else if(v.webkitEnterFullscreen)v.webkitEnterFullscreen()});
   v.addEventListener('timeupdate',sync);
   v.addEventListener('loadedmetadata',sync);
   v.addEventListener('play',setPlay);
   v.addEventListener('pause',setPlay);
   v.addEventListener('ended',setPlay);
-  v.addEventListener('click',e=>{if(e.target===v){userStart()}});
+  v.addEventListener('click',e=>{if(e.target===v)startWithUserGesture()});
   wrap?.addEventListener('mousemove',()=>wrap.classList.add('player-active'));
   wrap?.addEventListener('mouseleave',()=>wrap.classList.remove('player-active'));
   setPlay();sync();
 }
-function socialTryPlayVideo(v){
+function socialStartVisibleWithSound(){
+  const videos=[...document.querySelectorAll('[data-social-video]')];
+  let started=false;
+  for(const v of videos){
+    const r=v.getBoundingClientRect();
+    if(r.top<window.innerHeight*.86&&r.bottom>window.innerHeight*.14){
+      v.dataset.socialUserStarted='1';
+      v.defaultMuted=false;v.muted=false;v.volume=Math.max(.7,v.volume||1);
+      const p=v.play();
+      if(p?.then)p.then(()=>{
+        const w=v.closest('.social-video-wrap');
+        w?.querySelector('.social-video-play')?.classList.add('hidden');
+        w?.querySelector('[data-social-video-status]')?.classList.remove('show');
+      }).catch(()=>{
+        // Audible autoplay is ultimately controlled by the browser.
+        // A click on the player is the fallback and is handled by the custom control.
+      });
+      started=true;
+      break;
+    }
+  }
+  return started;
+}
+function socialTryAudibleAutoplay(v){
+  if(!v||v.dataset.socialUserStarted==='1')return;
+  v.defaultMuted=false;v.muted=false;v.volume=1;
+  const p=v.play();
+  if(p?.catch)p.catch(()=>{
+    // Keep autoplay moving silently when policy blocks sound.
+    v.muted=true;v.defaultMuted=true;
+    v.play().catch(()=>{});
+  });
+}
+function socialPostFitRatio(post,ratio){
+  if(!post||!Number.isFinite(ratio)||ratio<=0)return;
+  const maxW=Math.min(520,Math.max(240,window.innerWidth-24));
+  const maxH=Math.max(300,window.innerHeight-175);
+  let w=maxW,h=w/ratio;
+  if(h>maxH){h=maxH;w=h*ratio;}
+  post.style.width=Math.round(w)+'px';
+  post.style.height=Math.round(h)+'px';
+  post.style.aspectRatio=ratio;
+  post.dataset.mediaRatio='1';
+  post.style.setProperty('--social-ratio',String(ratio));
+}
+function socialFitPostToMedia(media){
+  const post=media?.closest('.social-post');if(!post)return;
+  const ratio=media instanceof HTMLVideoElement
+    ? (media.videoWidth>0&&media.videoHeight>0?media.videoWidth/media.videoHeight:0)
+    : (media.naturalWidth>0&&media.naturalHeight>0?media.naturalWidth/media.naturalHeight:0);
+  if(ratio)socialPostFitRatio(post,ratio);
+}
+function socialFitAllPosts(){
+  document.querySelectorAll('.social-post').forEach(post=>{
+    const v=post.querySelector('[data-social-video]'),img=post.querySelector('img');
+    if(v)socialFitPostToMedia(v);else if(img)socialFitPostToMedia(img);
+  });
+}
+function socialPreloadNextVideos(limit=6){
+  const posts=[...document.querySelectorAll('.social-post')];
+  const activeIndex=Math.max(0,posts.findIndex(p=>{
+    const r=p.getBoundingClientRect();
+    return r.top<window.innerHeight*.86&&r.bottom>window.innerHeight*.14;
+  }));
+  for(let n=1;n<=limit;n++){
+    const post=posts[activeIndex+n],v=post?.querySelector('[data-social-video]');
+    if(!v)continue;
+    try{v.preload='auto';if(v.readyState<2)v.load();}catch{}
+  }
+}
+let socialIdlePreloadTimer=0,socialIdlePreloadRound=0;
+function scheduleSocialVideoPreload(){
+  clearTimeout(socialIdlePreloadTimer);
+  const run=()=>{
+    if(navigator.connection?.saveData)return;
+    socialPreloadNextVideos(6);
+    socialIdlePreloadRound++;
+    if(socialIdlePreloadRound<4){
+      if('requestIdleCallback' in window)requestIdleCallback(()=>socialPreloadNextVideos(8),{timeout:3000});
+      else socialIdlePreloadTimer=setTimeout(()=>socialPreloadNextVideos(8),1800);
+    }
+  };
+  if('requestIdleCallback' in window)requestIdleCallback(run,{timeout:2500});
+  else socialIdlePreloadTimer=setTimeout(run,1400);
+}
+function socialMarkAudioUnlocked(){
+  try{sessionStorage.setItem('aio-social-audio-unlocked','1')}catch{}
+}
+function socialAudioIsUnlocked(){try{return sessionStorage.getItem('aio-social-audio-unlocked')==='1'}catch{return false}}
+function socialPlayAudible(v){
+  if(!v)return Promise.reject(new Error('No video'));
+  v.dataset.socialUserStarted='1';
+  v.defaultMuted=false;
+  v.muted=false;
+  v.volume=1;
+  const p=v.play();
+  if(p?.then)return p.then(()=>{
+    socialMarkAudioUnlocked();
+    const w=v.closest('.social-video-wrap');
+    w?.querySelector('.social-video-play')?.classList.add('hidden');
+    w?.querySelector('[data-social-video-status]')?.classList.remove('show');
+  });
+  return Promise.resolve();
+}
+function socialTryAudibleAutoplay(v){
   if(!v)return;
   socialCustomPlayerInit(v);
-  const wrap=v.closest('.social-video-wrap');
-  const center=wrap?.querySelector('.social-video-play');
-  const status=wrap?.querySelector('[data-social-video-status]');
-  // First attempt: automatic sound. Browser policy may refuse audible autoplay.
-  const attemptAudible=()=>{
-    if(v.dataset.socialUserStarted==='1')return;
-    v.defaultMuted=false;v.muted=false;v.volume=1;
-    const p=v.play();
-    if(p?.then){
-      p.then(()=>{center?.classList.add('hidden');status?.classList.remove('show')}).catch(()=>{
-        // Fallback keeps scrolling autoplay working, while the next click starts sound.
-        v.muted=true;v.defaultMuted=true;
-        v.play().then(()=>{center?.classList.add('hidden');status?.classList.add('show')}).catch(()=>{center?.classList.remove('hidden');status?.classList.add('show')});
-      });
-    }
+  if(socialAudioIsUnlocked()||v.dataset.socialUserStarted==='1'){
+    socialPlayAudible(v).catch(()=>{});
+    return;
+  }
+  v.defaultMuted=false;v.muted=false;v.volume=1;
+  const p=v.play();
+  if(p?.catch)p.catch(()=>{
+    // Browser autoplay policy may block sound before user interaction.
+    // Do not force a squished/muted player: keep the video ready and show the play gesture.
+    try{v.pause();}catch{}
+    const w=v.closest('.social-video-wrap');
+    w?.querySelector('.social-video-play')?.classList.remove('hidden');
+    const status=w?.querySelector('[data-social-video-status]');
+    if(status){status.textContent='Click play for sound';status.classList.add('show');}
+  });
+}
+function socialPreloadDuringIdle(){
+  if(navigator.connection?.saveData)return;
+  const run=()=>{
+    socialPreloadNextVideos(8);
+    document.querySelectorAll('[data-social-video]').forEach((v,i)=>{if(i<8)try{v.preload='auto'}catch{}});
   };
-  if(v.readyState>=2)attemptAudible();
-  else v.addEventListener('canplay',attemptAudible,{once:true});
+  if('requestIdleCallback' in window)requestIdleCallback(run,{timeout:4500});
+  else setTimeout(run,2200);
 }
 function setupSocialVideoObserver(){
-  const videos=document.querySelectorAll('[data-social-video]');
+  const videos=[...document.querySelectorAll('[data-social-video]')];
   if(window.aioSocialVideoObserver)window.aioSocialVideoObserver.disconnect();
-  const playVisible=()=>{
-    let chosen=null;
-    for(const v of videos){
-      const r=v.getBoundingClientRect();
-      if(r.top<window.innerHeight*.82&&r.bottom>window.innerHeight*.18){chosen=v;break;}
-    }
-    if(chosen){
-      videos.forEach(x=>{if(x!==chosen){try{x.pause()}catch{}}});
-      socialTryPlayVideo(chosen);
-    }
-  };
-  if('IntersectionObserver'in window){
+  videos.forEach(v=>{
+    v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.removeAttribute('controls');v.preload='auto';
+    socialCustomPlayerInit(v);
+    v.addEventListener('loadedmetadata',()=>{socialFitPostToMedia(v);scheduleSocialVideoPreload()}, {once:true});
+    v.addEventListener('canplay',()=>{socialFitPostToMedia(v)}, {once:true});
+    v.addEventListener('error',()=>v.closest('.social-video-wrap')?.querySelector('[data-social-video-status]')?.classList.add('show'));
+  });
+  document.querySelectorAll('.social-post-media img').forEach(img=>{
+    if(img.complete)socialFitPostToMedia(img);
+    else img.addEventListener('load',()=>socialFitPostToMedia(img),{once:true});
+  });
+  if('IntersectionObserver' in window){
     window.aioSocialVideoObserver=new IntersectionObserver(entries=>{
       for(const entry of entries){
         const v=entry.target;
         if(entry.isIntersecting&&entry.intersectionRatio>.55){
-          videos.forEach(x=>{if(x!==v){try{x.pause()}catch{}}});
-          socialTryPlayVideo(v);
+          videos.forEach(x=>{if(x!==v)try{x.pause()}catch{}});
+          socialTryAudibleAutoplay(v);
+          scheduleSocialVideoPreload();
         }else if(!entry.isIntersecting){try{v.pause()}catch{}}
       }
     },{threshold:[0,.55,.8]});
     videos.forEach(v=>window.aioSocialVideoObserver.observe(v));
   }
-  videos.forEach(v=>{
-    v.playsInline=true;
-    v.setAttribute('playsinline','');
-    v.setAttribute('webkit-playsinline','');
-    socialCustomPlayerInit(v);
-    v.addEventListener('error',()=>v.closest('.social-video-wrap')?.querySelector('[data-social-video-status]')?.classList.add('show'));
-  });
-  playVisible();
+  socialFitAllPosts();
+  socialPreloadDuringIdle();
+  scheduleSocialVideoPreload();
 }
+if(!window.aioSocialAudioGestureBound){
+  window.aioSocialAudioGestureBound=true;
+  const unlock=()=>{
+    socialMarkAudioUnlocked();
+    const vids=[...document.querySelectorAll('[data-social-video]')];
+    const active=vids.find(v=>{const r=v.getBoundingClientRect();return r.top<window.innerHeight*.86&&r.bottom>window.innerHeight*.14});
+    if(active){socialPlayAudible(active).catch(()=>{})}
+  };
+  window.addEventListener('pointerdown',unlock,{capture:true,passive:true});
+  window.addEventListener('keydown',unlock,{capture:true,passive:true});
+}
+window.addEventListener('resize',()=>socialFitAllPosts(),{passive:true});
+window.addEventListener('scroll',()=>{
+  const sec=document.getElementById('social');
+  if(sec&&sec.getBoundingClientRect().top<window.innerHeight){scheduleSocialVideoPreload();}
+},{passive:true});
 
 /* =========================
    Party spinner + activities
    ========================= */
 const PARTY_CHALLENGES=[
-  'First person to laugh loses.',
-  'Everybody picks a number. Closest to 50 wins.',
-  'Describe a game without saying its name.',
-  'Do your best dramatic movie trailer voice.',
-  'Pick someone to choose the next activity.',
-  'Everyone votes: racing game or shooter?',
-  'Tell a funny school-safe story in 20 seconds.',
-  'Who can name 5 games the fastest?',
-  'Make up a ridiculous game title.',
+  'First person to laugh loses.','Everybody picks a number. Closest to 50 wins.','Describe a game without saying its name.',
+  'Do your best dramatic movie trailer voice.','Pick someone to choose the next activity.','Everyone votes: racing game or shooter?',
+  'Tell a funny school-safe story in 20 seconds.','Who can name 5 games the fastest?','Make up a ridiculous game title.',
   'Everyone has 10 seconds to choose a superpower.'
 ];
 const PARTY_WOULD=[
-  'Would you rather have unlimited Robux or unlimited game passes?',
-  'Would you rather be amazing at racing or platformers?',
-  'Would you rather have a private server forever or every game for free?',
-  'Would you rather never lose a challenge or always go first?',
+  'Would you rather have unlimited Robux or unlimited game passes?','Would you rather be amazing at racing or platformers?',
+  'Would you rather have a private server forever or every game for free?','Would you rather never lose a challenge or always go first?',
   'Would you rather play with a giant team or a tiny team?'
 ];
 function partyWheelItems(){
@@ -2503,30 +2779,28 @@ function partyWheelItems(){
 }
 let partyWheelAngle=0;
 function renderPartyWheelLabels(items){
-  const box=$('partyWheelLabels'),wheel=$('partyWheel');if(!box||!wheel)return;
+  const box=$('partyWheelLabels'),wheel=$('partyWheel');if(!box||!wheel||!items.length)return;
   const colors=['#ff5f6d','#ffc371','#6a8dff','#52d681','#b56dff','#f7b733','#38d9d9','#ff8f4d','#8b7cff','#ff6fb1','#49c1ff','#8bd450'];
   const step=360/items.length;
   wheel.style.background=`conic-gradient(${items.map((_,i)=>`${colors[i%colors.length]} ${i*step}deg ${(i+1)*step}deg`).join(',')})`;
   box.innerHTML=items.map((x,i)=>{
     const angle=i*step+step/2;
-    return `<span style="transform:translate(-50%,-50%) rotate(${angle}deg) translateY(-72px) rotate(${-angle}deg)">${esc(x).slice(0,14)}</span>`;
+    const rad=(angle-90)*Math.PI/180;
+    const cx=110+Math.cos(rad)*72,cy=110+Math.sin(rad)*72;
+    return `<span style="left:${cx}px;top:${cy}px">${esc(x).slice(0,14)}</span>`;
   }).join('');
 }
 function spinPartyWheel(){
-  const items=partyWheelItems();
-  if(!items.length)return showToast('Add at least one choice');
+  const items=partyWheelItems();if(!items.length)return showToast('Add at least one choice');
   renderPartyWheelLabels(items);
-  const idx=Math.floor(Math.random()*items.length);
-  const step=360/items.length;
-  const targetCenter=idx*step+step/2;
-  const current=((partyWheelAngle%360)+360)%360;
-  const correction=(360-((current+targetCenter)%360))%360;
-  partyWheelAngle+=360*5+correction;
-  const wheel=$('partyWheel');if(!wheel)return;
-  wheel.style.transform=`rotate(${partyWheelAngle}deg)`;
+  const idx=Math.floor(Math.random()*items.length),step=360/items.length,target=idx*step+step/2,current=((partyWheelAngle%360)+360)%360;
+  const correction=(360-((current+target)%360))%360;
+  partyWheelAngle+=360*6+correction;
+  const rotor=$('partyWheelRotor');if(!rotor)return;
+  rotor.style.transform=`rotate(${partyWheelAngle}deg)`;
   clearTimeout(window.aioPartyWheelTimer);
   window.aioPartyWheelTimer=setTimeout(()=>{
-    $('partyWheelResult').textContent='Winner: '+items[idx];
+    if($('partyWheelResult'))$('partyWheelResult').textContent='Winner: '+items[idx];
     showToast('Wheel picked '+items[idx]);
   },3050);
 }
@@ -2607,9 +2881,10 @@ function partyEditorReset(){
   const v=$('partyEditorVideo');if(v)v.style.filter='none';if($('partyEditorText'))$('partyEditorText').value='';if($('partyEditorTextPreview'))$('partyEditorTextPreview').textContent='';if($('partyEditorFilter'))$('partyEditorFilter').value='none';partyEditorSyncLabels();
 }
 
+document.querySelectorAll('.nav button[data-scroll="social"]').forEach(b=>b.addEventListener('click',()=>socialStartVisibleWithSound()));
 setTimeout(()=>{try{partyEditorBind()}catch(e){console.warn('Party editor:',e)}},250);
 const __oldSocialBind=socialBind;
-socialBind=function(){__oldSocialBind();setTimeout(()=>{try{setupSocialVideoObserver()}catch(e){console.warn('Social player:',e)}},120);};
+socialBind=function(){__oldSocialBind();socialBindPostManagement();setTimeout(()=>{try{setupSocialVideoObserver()}catch(e){console.warn('Social player:',e)}},120);};
 
 </script>
 </body>
