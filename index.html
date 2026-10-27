@@ -243,7 +243,7 @@ html.reduced-motion .cover{transition:none!important}
 .social-rail-btn.saved{color:#8db0ff}
 .social-rail-count{font-size:10px;color:#fff;font-weight:850;text-shadow:0 1px 3px rgba(0,0,0,.7);margin-top:-6px}
 .social-post-bottom{position:absolute;left:13px;right:70px;bottom:12px;z-index:4;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.7)}
-.social-post-author{font-size:13px;font-weight:950}
+.social-post-author{border:0;padding:0;background:transparent;color:#fff;font:inherit;font-weight:900;text-align:left;cursor:pointer}.social-post-author{font-size:13px;font-weight:950}
 .social-post-author .verified-dot{display:inline-grid;place-items:center;width:12px;height:12px;border-radius:50%;background:#39a7ff;color:#fff;font-size:8px;margin-left:4px;text-shadow:none}
 .social-post-caption{font-size:12px;line-height:1.42;margin-top:7px;white-space:pre-wrap;overflow-wrap:anywhere;max-width:92%}
 .social-more{font-size:11px;opacity:.82;margin-left:5px}
@@ -1965,8 +1965,10 @@ function socialMergePosts(local,cloud){
   [...socialNormalizePosts(local),...socialNormalizePosts(cloud)].forEach(p=>map.set(String(p.id),p));
   return [...map.values()].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
 }
-function setSocialMode(mode){socialMode=mode===1?'following':mode===2?'saved':'for-you';const note=$('socialProfileNote');if(note){note.classList.add('hidden');note.textContent=''}renderSocialFeed();[[0,'socialForYouTab'],[1,'socialFollowingTab'],[2,'socialSavedTab']].forEach(([m,id])=>{const b=$(id);if(b){b.classList.toggle('primary',m===mode);b.setAttribute('aria-selected',String(m===mode))}})}
+let socialProfileFilter='';
+function setSocialMode(mode){socialProfileFilter='';socialMode=mode===1?'following':mode===2?'saved':'for-you';const note=$('socialProfileNote');if(note){note.classList.add('hidden');note.textContent=''}renderSocialFeed();[[0,'socialForYouTab'],[1,'socialFollowingTab'],[2,'socialSavedTab']].forEach(([m,id])=>{const b=$(id);if(b){b.classList.toggle('primary',m===mode);b.setAttribute('aria-selected',String(m===mode))}})}
 function socialSelectedPosts(){
+  if(socialProfileFilter)return socialPosts.filter(p=>p.username===socialProfileFilter);
   if(socialMode==='following'){const f=socialFollowSet();return socialPosts.filter(p=>f.has(p.username))}
   if(socialMode==='saved'){const s=socialSaveSet();return socialPosts.filter(p=>s.has(String(p.id)))}
   return socialPosts;
@@ -2032,6 +2034,7 @@ function renderSocialFeed(){
   const box=$('socialFeed'),empty=$('socialFeedEmpty'),note=$('socialScrollNote');if(!box)return;
   const posts=socialSelectedPosts();
   box.innerHTML=posts.map((p,i)=>renderSocialPost(p,i)).join('');
+  box.querySelectorAll('[data-social-profile]').forEach(el=>el.addEventListener('click',()=>{socialProfileFilter=el.dataset.socialProfile||'';const note=$('socialProfileNote');if(note){note.textContent='Posts by '+socialProfileFilter;note.classList.remove('hidden')}renderSocialFeed()}));
   const showEmpty=!posts.length;empty.classList.toggle('hidden',!showEmpty);
   if(note)note.classList.toggle('hidden',posts.length<2);
   setupSocialVideoObserver();
@@ -2054,7 +2057,7 @@ function renderSocialPost(p,i){
       <button class="social-rail-btn ${saved?'saved':''}" type="button" aria-label="Save" onclick="toggleSocialSave('${socialEsc(p.id)}')">🔖</button><span class="social-rail-count">${saved?'Saved':''}</span>
       <button class="social-rail-btn" type="button" aria-label="Share" onclick="shareSocialPost('${socialEsc(p.id)}')">↗</button>
     </div>
-    <div class="social-post-bottom"><div class="social-post-author">${socialEsc(p.username)}</div><div class="social-post-caption">${socialEsc(p.caption)} <span class="social-more">more</span></div><div class="social-media-label">${p.media_type==='video'?'Video':'Image'} · public post</div></div>
+    <div class="social-post-bottom"><button type="button" class="social-post-author" data-social-profile="${socialEsc(p.username)}">${socialEsc(p.username)}</button><div class="social-post-caption">${socialEsc(p.caption)} <span class="social-more">more</span></div><div class="social-media-label">${p.media_type==='video'?'Video':'Image'} · public post</div></div>
   </article>`
 }
 function socialFormatCount(n){n=Number(n)||0;if(n<1000)return String(n);if(n<1000000)return (n/1000).toFixed(n<10000?1:0).replace(/\.0$/,'')+'K';if(n<1000000000)return (n/1000000).toFixed(1).replace(/\.0$/,'')+'M';return (n/1000000000).toFixed(1).replace(/\.0$/,'')+'B'}
