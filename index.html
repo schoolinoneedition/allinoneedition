@@ -1821,6 +1821,7 @@ function handleRoute(route,initial=false){
   if(r==='login'){ openAuth('signin'); return; }
   if(r==='signup'){ openAuth('signup'); return; }
   if(r==='social'){ closeAuth(); scrollToId('social'); return; }
+  if(r==='videos'){ closeAuth(); scrollToId('videos'); return; }
   if(r==='chat'){ closeAuth(); scrollToId('chat'); return; }
   if(r==='party'){ closeAuth(); scrollToId('party-workspace'); return; }
   if(r==='draw'){ closeAuth(); openDrawing(); return; }
