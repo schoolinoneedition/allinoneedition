@@ -73,7 +73,7 @@ function build(){
  fs.addEventListener('change',()=>{state.font=fs.value;applyFont();});
  heading.querySelector('input').addEventListener('change',()=>{state.headingFont=heading.querySelector('input').checked?'cherry':'default';applyFont();});
  themeSel.addEventListener('change',()=>{state.theme=themeSel.value;save();applyTheme();status('Theme changed.');});
- $('aioCursorToggle').querySelector('input').addEventListener('change',e=>{state.cursor=e.target.checked;save();applyCursor();status('Cursor preference saved.');});
+ $('aioCursorToggle').addEventListener('change',e=>{state.cursor=e.target.checked;save();applyCursor();status('Cursor preference saved.');});
 }
 function selectWallpaper(id){const w=wallpapers.find(x=>x.id===id);const preview=$('aioWallpaperPreview');if(!preview)return;preview.style.backgroundImage=id==='custom'&&customUrl?'url("'+customUrl+'")':w?w.bg:'none';preview.textContent='Preview: '+(w?.name||'Custom image');refreshGallery();status('Preview only. Press Apply wallpaper to save it.');}
 function refreshGallery(){document.querySelectorAll('.aio-wallpaper-option').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.wallpaper===(state.pendingWallpaper||state.wallpaper))));}
