@@ -207,6 +207,7 @@ html.reduced-motion .cover{transition:none!important}
 
 /* --- Social feed: vertical image/video viewer --- */
 .social-section{scroll-margin-top:90px;min-height:calc(100vh - 110px)}
+@media (pointer:fine){body{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Ccircle cx='10' cy='10' r='6.5' fill='%231b5cff' fill-opacity='.20' stroke='%231b5cff' stroke-width='2'/%3E%3Cpath d='M14.5 14.5L23 23' stroke='%231b5cff' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") 10 10,auto}button,a,label,[role=button]{cursor:pointer}input,textarea,[contenteditable=true]{cursor:text}}
 .social-section-head{align-items:center}
 .social-cloud-state{font-size:10px;font-weight:850;color:var(--muted);padding:7px 9px;border:1px solid var(--line);border-radius:999px;background:var(--soft);white-space:nowrap}
 .social-feed-shell{display:flex;justify-content:center;min-height:calc(100vh - 155px)}
@@ -528,12 +529,12 @@ html.reduced-motion .cover{transition:none!important}
       </div>
       <textarea id="socialPostCaption" class="social-textarea" maxlength="500" placeholder="Write a caption…"></textarea>
       <div class="social-media-row">
-        <input id="socialMediaUrl" class="social-input" maxlength="2000" placeholder="Direct MP4 URL: https://.../video.mp4">
-        <label class="social-file-label">Choose MP4<input id="socialMediaFile" type="file" accept="video/mp4,.mp4" /></label>
+        <input id="socialMediaUrl" class="social-input" maxlength="2000" placeholder="Direct image/video URL (JPG, PNG, WebP, GIF, MP4)">
+        <label class="social-file-label">Choose media<input id="socialMediaFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,.jpg,.jpeg,.png,.webp,.gif,.mp4" /></label>
       </div>
     </div>
     <div class="social-publish-actions">
-      <span class="tiny-status" id="socialPostHint">MP4 only · up to 100 MB. Posts are saved to Supabase so they remain after refresh. Signed-in posts use your account; guests can still post.</span>
+      <span class="tiny-status" id="socialPostHint">Images (JPG, PNG, WebP, GIF) up to 15 MB or MP4 videos up to 100 MB. Posts are saved to Supabase.</span>
       <div class="social-publish-button-row"><button class="btn mini" type="button" onclick="openSocialManage()">Manage my posts</button><button class="btn mini primary" type="button" onclick="createSocialPost()">Post to Social</button></div>
     </div>
   </div>
@@ -1523,7 +1524,7 @@ exception when duplicate_object then null; end $$;
 insert into storage.buckets (id,name,public)
 values ('social-media','social-media',true)
 on conflict (id) do update set public=true;
-update storage.buckets set file_size_limit=104857600, allowed_mime_types=array['video/mp4'] where id='social-media';
+update storage.buckets set file_size_limit=104857600, allowed_mime_types=array['video/mp4','image/jpeg','image/png','image/webp','image/gif'] where id='social-media';
 
 do $$ begin
   create policy "public social media read" on storage.objects
@@ -2095,72 +2096,58 @@ async function createSocialPost(){
   const typedName=String($('socialPostName')?.value||'').trim();
   const accountName=(typeof currentProfile!=='undefined'&&currentProfile?.username)||((typeof currentUser!=='undefined'&&currentUser?.user_metadata?.username)||'');
   const username=(accountName||typedName||localStorage.getItem('aio-social-display-name')||'Guest').slice(0,32)||'Guest';
-  const avatar=socialAvatarUrl();
-  const caption=String($('socialPostCaption')?.value||'').trim().slice(0,500);
+  const avatar=socialAvatarUrl(),caption=String($('socialPostCaption')?.value||'').trim().slice(0,500);
   const url=String($('socialMediaUrl')?.value||'').trim();
-
-  if(!url&&!file)return showToast('Choose an MP4 video or enter a direct .mp4 URL.');
-  if(file && file.size>100*1024*1024)return showToast('Choose an MP4 under 100 MB.');
-  if(file && !(file.type==='video/mp4' || /\.mp4$/i.test(file.name))){
-    return showToast('Only MP4 video files are allowed.');
-  }
-  if(url && !/\.mp4(?:[?#].*)?$/i.test(url)){
-    return showToast('Only direct .mp4 video URLs are allowed.');
-  }
-
-  let mediaUrl=url,actualType='video',uploadedStoragePath='';
-
-  // Upload files directly to Supabase Storage. Never put a large uploaded video into localStorage.
+  const imageTypes=['image/jpeg','image/png','image/webp','image/gif'];
+  const isImageFile=!!file&&(imageTypes.includes(file.type)||/\.(jpe?g|png|webp|gif)$/i.test(file.name));
+  const isVideoFile=!!file&&(file.type==='video/mp4'||/\.mp4$/i.test(file.name));
+  if(!url&&!file)return showToast('Choose an image/video file or enter a direct media URL.');
+  if(file&&!isImageFile&&!isVideoFile)return showToast('Use JPG, PNG, WebP, GIF or MP4 media.');
+  if(file&&isImageFile&&file.size>15*1024*1024)return showToast('Images must be 15 MB or smaller.');
+  if(file&&isVideoFile&&file.size>100*1024*1024)return showToast('Videos must be 100 MB or smaller.');
+  if(url&&!/^https?:\/\//i.test(url))return showToast('Media URLs must start with https:// or http://.');
+  const urlIsVideo=/\.mp4(?:[?#].*)?$/i.test(url),urlIsImage=/\.(jpe?g|png|webp|gif)(?:[?#].*)?$/i.test(url);
+  if(url&&!urlIsVideo&&!urlIsImage)return showToast('Use a direct JPG, PNG, WebP, GIF or MP4 URL.');
+  let mediaUrl=url,actualType=(file?isVideoFile:urlIsVideo)?'video':'image',uploadedStoragePath='';
   if(file){
-    actualType='video';
+    actualType=isVideoFile?'video':'image';
     if(!supabaseClient)return showToast('Supabase is not ready yet. Refresh once and try again.');
     try{
-      const safeExt='mp4';
-      const actor=socialVisitorId();
-      const uid=(crypto?.randomUUID?crypto.randomUUID():socialId('media'));
+      const safeExt=isVideoFile?'mp4':(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');
+      const contentType=isVideoFile?'video/mp4':(file.type||'image/jpeg');
+      const actor=socialVisitorId(),uid=(crypto?.randomUUID?crypto.randomUUID():socialId('media'));
       uploadedStoragePath=`social/${actor}/${uid}.${safeExt}`;
-      const up=await supabaseClient.storage.from('social-media').upload(uploadedStoragePath,file,{upsert:false,contentType:'video/mp4',cacheControl:'31536000'});
+      const up=await supabaseClient.storage.from('social-media').upload(uploadedStoragePath,file,{upsert:false,contentType,cacheControl:'31536000'});
       if(up.error)throw up.error;
       const pub=supabaseClient.storage.from('social-media').getPublicUrl(uploadedStoragePath);
       mediaUrl=pub?.data?.publicUrl||'';
       if(!mediaUrl)throw Error('No public media URL returned.');
-    }catch(e){
-      console.error('Social upload failed:',e);
-      return showToast('Cloud upload failed: '+(e?.message||'check the Supabase SQL/storage setup.'));
-    }
+    }catch(e){console.error('Social upload failed:',e);return showToast('Cloud upload failed: '+(e?.message||'check the Supabase storage setup.'));}
   }
-
   const visitorId=socialVisitorId();
   const localPost={id:socialId('post'),visitor_id:visitorId,username,avatar_url:avatar,caption,media_type:actualType,media_url:mediaUrl,created_at:new Date().toISOString()};
   let post=localPost;
-
   if(supabaseClient){
     try{
       const q=await supabaseClient.from('social_posts').insert({visitor_id:visitorId,username,avatar_url:avatar||null,caption,media_type:actualType,media_url:mediaUrl}).select().single();
-      if(q.error)throw q.error;
-      post=q.data;
+      if(q.error)throw q.error;post=q.data;
     }catch(e){
-      // Remove an uploaded file when its post row could not be created.
       if(uploadedStoragePath){try{await supabaseClient.storage.from('social-media').remove([uploadedStoragePath])}catch{}}
       socialWrite(SOCIAL_STORAGE_KEY,[localPost,...socialRead(SOCIAL_STORAGE_KEY,[])].filter(x=>x.media_url&&/^https?:\/\//i.test(x.media_url)).slice(0,100));
       socialPosts=socialMergePosts([localPost],socialPosts);renderSocialFeed();
-      return showToast('Post could not be saved to Social: '+(e?.message||'check your Supabase SQL.'));
+      return showToast('Post could not be saved to Social: '+(e?.message||'check your Supabase setup.'));
     }
   }else{
-    // Direct URL posts can still be kept locally when Supabase is unavailable.
     if(file)return showToast('Supabase is required for uploaded files so they survive refresh.');
     socialWrite(SOCIAL_STORAGE_KEY,[localPost,...socialRead(SOCIAL_STORAGE_KEY,[])].slice(0,100));
   }
-
-  // Store only the small cloud URL locally as a fast refresh fallback.
   if(/^https?:\/\//i.test(post.media_url))socialWrite(SOCIAL_STORAGE_KEY,[post,...socialRead(SOCIAL_STORAGE_KEY,[])].filter(x=>x.media_url&&/^https?:\/\//i.test(x.media_url)).slice(0,100));
   socialPosts=socialMergePosts([post],socialPosts);socialStat(post.id);renderSocialFeed();
   if($('socialPostCaption'))$('socialPostCaption').value='';
   if($('socialMediaUrl'))$('socialMediaUrl').value='';
   if($('socialMediaFile'))$('socialMediaFile').value='';
   if($('socialPostHint'))$('socialPostHint').textContent='Posted successfully. It is stored in Social and will remain after refresh.';
-  showToast('Posted to Social');
-  scrollToId('social');
+  showToast('Posted to Social');scrollToId('social');
   setTimeout(()=>document.querySelector('.social-post')?.scrollIntoView({behavior:'smooth',block:'start'}),180);
 }
 function socialRefreshIdentity(){
@@ -2176,7 +2163,7 @@ function socialBind(){
   const name=$('socialPostName');
   if(name){name.addEventListener('input',()=>{if(!name.readOnly){try{localStorage.setItem('aio-social-display-name',socialDisplayName())}catch{}}});}
   const fileInput=$('socialMediaFile');
-  if(fileInput)fileInput.addEventListener('change',e=>{const f=e.target.files?.[0];if(!f)return;if(!(f.type==='video/mp4'||/\.mp4$/i.test(f.name))){e.target.value='';showToast('Only MP4 video files are allowed');return;}$('socialMediaUrl').value='';showToast('MP4 selected · ready to upload');});
+  if(fileInput)fileInput.addEventListener('change',e=>{const f=e.target.files?.[0];if(!f)return;const image=['image/jpeg','image/png','image/webp','image/gif'].includes(f.type)||/\.(jpe?g|png|webp|gif)$/i.test(f.name);const video=f.type==='video/mp4'||/\.mp4$/i.test(f.name);if(!image&&!video){e.target.value='';showToast('Use JPG, PNG, WebP, GIF or MP4');return;}if(image&&f.size>15*1024*1024){e.target.value='';showToast('Images must be 15 MB or smaller');return;}if(video&&f.size>100*1024*1024){e.target.value='';showToast('Videos must be 100 MB or smaller');return;}$('socialMediaUrl').value='';showToast((video?'MP4 video':'Image')+' selected · ready to upload');});
   $('socialCommentsModal')?.addEventListener('click',e=>{if(e.target.id==='socialCommentsModal')closeSocialComments()});
   $('socialCommentName')?.addEventListener('input',e=>{if(!e.target.readOnly){try{localStorage.setItem('aio-social-display-name',String(e.target.value||'Guest').slice(0,32))}catch{}}});
   socialRefreshIdentity();
