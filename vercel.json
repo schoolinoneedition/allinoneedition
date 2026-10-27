@@ -1,0 +1,13 @@
+{
+  "rewrites": [
+    { "source": "/login", "destination": "/index.html" },
+    { "source": "/signup", "destination": "/index.html" },
+    { "source": "/meeting", "destination": "/index.html" },
+    { "source": "/chat", "destination": "/index.html" },
+    { "source": "/party", "destination": "/index.html" },
+    { "source": "/draw", "destination": "/index.html" },
+    { "source": "/community", "destination": "/index.html" },
+    { "source": "/social", "destination": "/index.html" },
+    { "source": "/videos", "destination": "/index.html" }
+  ]
+}
