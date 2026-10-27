@@ -543,7 +543,7 @@ html.reduced-motion .cover{transition:none!important}
     </div>
     <div class="social-publish-actions">
       <span class="tiny-status" id="socialPostHint">Images (JPG, PNG, WebP, GIF) up to 15 MB or MP4 videos up to 100 MB. Posts are saved to Supabase.</span>
-      <div class="social-publish-button-row"><button class="btn mini" type="button" onclick="openSocialManage()">Manage my posts</button><button class="btn mini primary" type="button" onclick="createSocialPost()">Post to Social</button></div>
+      <div class="social-publish-button-row"><button class="btn mini" type="button" onclick="openSocialManage()">Manage my posts</button><button id="socialPostSubmitBtn" class="btn mini primary" type="button" onclick="createSocialPost()">Post to Social</button></div>
     </div>
   </div>
   <div class="social-grid">
@@ -1693,8 +1693,24 @@ function switchAuthMode(mode){
   setAppRoute(mode==='signup'?'signup':'login',true);
 }
 
-async function submitAuth(){if(!supabaseClient)return showToast('Supabase is not ready');const email=$('authEmail').value.trim(),password=$('authPassword').value,username=$('authUsername').value.trim();if(!email||!password)return $('authStatus').textContent='Enter your email and password.';$('authStatus').textContent='Working…';try{let res;if(authMode==='signup')res=await supabaseClient.auth.signUp({email,password,options:{data:{username}}});else res=await supabaseClient.auth.signInWithPassword({email,password});if(res.error)throw res.error;$('authStatus').textContent=authMode==='signup'&&!res.data?.session?'Check your email to confirm the account.':'Signed in.';if(res.data?.session){closeAuth();setAppRoute('home',true);scrollToId('community');}}catch(e){$('authStatus').textContent=e.message||'Authentication failed.';}}
-async function signOutUser(){if(!supabaseClient)return;await supabaseClient.auth.signOut();showToast('Signed out');}
+async function submitAuth(){
+  if(!supabaseClient)return showToast('Supabase is not ready. Refresh and try again.');
+  const email=$('authEmail').value.trim(),password=$('authPassword').value,username=$('authUsername').value.trim();
+  if(!email||!password){$('authStatus').textContent='Enter your email and password.';return;}
+  if(authMode==='signup'&&password.length<6){$('authStatus').textContent='Use a password with at least 6 characters.';return;}
+  const button=$('authSubmitBtn');if(button){button.disabled=true;button.textContent='Please wait…';}
+  $('authStatus').textContent=authMode==='signup'?'Creating your account…':'Signing in…';
+  try{
+    let res;
+    if(authMode==='signup')res=await supabaseClient.auth.signUp({email,password,options:{data:{username},emailRedirectTo:location.origin+'/'}});
+    else res=await supabaseClient.auth.signInWithPassword({email,password});
+    if(res.error)throw res.error;
+    $('authStatus').textContent=authMode==='signup'&&!res.data?.session?'Account created. Check your email to confirm it before signing in.':'Signed in successfully.';
+    if(res.data?.session){closeAuth();setAppRoute('home',true);scrollToId('community');}
+  }catch(e){$('authStatus').textContent=e.message||'Authentication failed. Check your details and try again.';}
+  finally{if(button){button.disabled=false;button.textContent='Continue';}}
+}
+async function signOutUser(){if(!supabaseClient)return;try{const {error}=await supabaseClient.auth.signOut();if(error)throw error;showToast('Signed out');}catch(e){showToast('Sign out failed: '+(e?.message||'try again'));}}
 function openProfileEditor(){if(!currentUser)return openAuth('signin');$('profileEditName').value=currentProfile?.username||'';$('profileEditAvatar').value=currentProfile?.avatar_url||'';$('profileModal').classList.add('open');}
 function closeProfileEditor(){$('profileModal').classList.remove('open')}
 async function saveProfileEditor(){if(!currentUser||!supabaseClient)return;const username=$('profileEditName').value.trim().slice(0,24),avatar=$('profileEditAvatar').value.trim();if(!username)return showToast('Enter a username');const {data,error}=await supabaseClient.from('profiles').upsert({id:currentUser.id,username,avatar_url:avatar||null}).select().single();if(error){$('profileEditStatus').textContent=error.message;return}currentProfile=data;refreshAccountUI();closeProfileEditor();showToast('Profile saved');}
@@ -2137,14 +2153,17 @@ async function createSocialPost(){
     try{
       const safeExt=isVideoFile?'mp4':(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');
       const contentType=isVideoFile?'video/mp4':(file.type||'image/jpeg');
-      const actor=socialVisitorId(),uid=(crypto?.randomUUID?crypto.randomUUID():socialId('media'));
+      const actor=currentUser.id,uid=(crypto?.randomUUID?crypto.randomUUID():socialId('media'));
       uploadedStoragePath=`social/${actor}/${uid}.${safeExt}`;
+      const submitButton=$('socialPostSubmitBtn')||document.querySelector('[onclick="createSocialPost()"]');
+      if(submitButton){submitButton.disabled=true;submitButton.textContent='Uploading…';}
+      if($('socialPostHint'))$('socialPostHint').textContent='Uploading directly to XBT Storage. Keep this tab open until the upload finishes…';
       const up=await supabaseClient.storage.from('social-media').upload(uploadedStoragePath,file,{upsert:false,contentType,cacheControl:'31536000'});
       if(up.error)throw up.error;
       const pub=supabaseClient.storage.from('social-media').getPublicUrl(uploadedStoragePath);
       mediaUrl=pub?.data?.publicUrl||'';
       if(!mediaUrl)throw Error('No public media URL returned.');
-    }catch(e){console.error('Social upload failed:',e);return showToast('Cloud upload failed: '+(e?.message||'check the Supabase storage setup.'));}
+    }catch(e){console.error('Social upload failed:',e);const b=$('socialPostSubmitBtn');if(b){b.disabled=false;b.textContent='Post to Social';}if($('socialPostHint'))$('socialPostHint').textContent='Upload failed. Your post was not published. Retry when your connection is stable.';return showToast('Cloud upload failed: '+(e?.message||'check the Supabase storage setup.'));}
   }
   const visitorId=socialVisitorId();
   let post=null;
@@ -2162,6 +2181,7 @@ async function createSocialPost(){
   if($('socialPostCaption'))$('socialPostCaption').value='';
   if($('socialMediaUrl'))$('socialMediaUrl').value='';
   if($('socialMediaFile'))$('socialMediaFile').value='';
+  const finishedButton=$('socialPostSubmitBtn');if(finishedButton){finishedButton.disabled=false;finishedButton.textContent='Post to Social';}
   if($('socialPostHint'))$('socialPostHint').textContent='Posted successfully. It is stored in Social and will remain after refresh.';
   showToast('Posted to Social');scrollToId('social');
   setTimeout(()=>document.querySelector('.social-post')?.scrollIntoView({behavior:'smooth',block:'start'}),180);
