@@ -36,3 +36,27 @@ html[data-aio-minimal-cursor="1"] :is(input[type="range"],input[type="checkbox"]
 .aio-appearance-status{font-size:11px;color:var(--muted);min-height:16px;margin-top:8px}
 .aio-appearance .btn.mini{height:auto;min-height:34px}
 @media(max-width:520px){.aio-wallpaper-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}.aio-appearance-section{padding:11px}.aio-font-preview h4{font-size:20px}}
+
+
+/* Persistent video gallery and owner-only staff controls. */
+.video-gallery-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0 14px}
+.video-gallery-toolbar .social-input{flex:1;min-width:220px}
+.aio-video-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.aio-video-card{min-width:0;overflow:hidden;border:1px solid var(--line);border-radius:15px;background:var(--panel);box-shadow:0 4px 14px rgba(20,30,45,.06)}
+.aio-video-card video{width:100%;aspect-ratio:16/9;display:block;background:#08090d;object-fit:contain}
+.aio-video-details{padding:11px 12px;display:grid;gap:5px}
+.aio-video-details strong{font-size:13px;line-height:1.35;overflow-wrap:anywhere}
+.aio-video-details span{font-size:11px;color:var(--muted)}
+.aio-video-empty{grid-column:1/-1;padding:22px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);text-align:center;background:var(--soft)}
+.aio-video-error{padding:10px;font-size:12px;color:var(--muted)}
+.aio-staff-panel{display:block}
+.aio-staff-form{display:grid;grid-template-columns:minmax(0,1fr) 130px auto;gap:8px;align-items:center;margin:12px 0}
+.aio-staff-list{display:grid;gap:8px;margin-top:12px}
+.aio-staff-row{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:11px;padding:10px;background:var(--soft);min-width:0}
+.aio-staff-info{display:grid;gap:3px;flex:1;min-width:0}
+.aio-staff-info strong{font-size:12px;overflow-wrap:anywhere}
+.aio-staff-info span{font-size:10px;color:var(--muted);overflow-wrap:anywhere}
+.aio-staff-role{font-size:10px;font-weight:900;text-transform:uppercase;padding:5px 7px;border-radius:7px;background:var(--panel);border:1px solid var(--line)}
+#authSubmitBtn:disabled{opacity:.65;cursor:wait}
+@media(max-width:900px){.aio-video-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.aio-video-gallery{grid-template-columns:1fr}.aio-staff-form{grid-template-columns:1fr}.aio-staff-row{align-items:flex-start;flex-wrap:wrap}.video-gallery-toolbar .social-input{min-width:100%}}
