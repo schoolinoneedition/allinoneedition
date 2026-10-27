@@ -45,8 +45,8 @@
       return;
     }
     controls?.classList.add('hidden');
-    const ownerResult=await supabaseClient.from('staff_roles').select('user_id').eq('role','owner').limit(1);
-    if(!ownerResult.error&&!(ownerResult.data||[]).length){
+    const ownerResult=await supabaseClient.rpc('aio_owner_exists');
+    if(!ownerResult.error&&ownerResult.data===false){
       if(status)status.textContent='Owner setup required.';
       setup?.classList.remove('hidden');
       if(byId('aioStaffCurrentId'))byId('aioStaffCurrentId').value=currentUser.id;
