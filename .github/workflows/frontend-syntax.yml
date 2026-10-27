@@ -25,10 +25,10 @@ jobs:
           python - <<'PY'
           import pathlib, re, subprocess, sys
           html = pathlib.Path("index.html").read_text(encoding="utf-8")
-          scripts = re.findall(r"<script\\b([^>]*)>([\\s\\S]*?)</script>", html, flags=re.I)
+          scripts = re.findall(r"<script\b([^>]*)>([\s\S]*?)</script>", html, flags=re.I)
           checked = 0
           for index, (attrs, body) in enumerate(scripts):
-              if re.search(r"\\bsrc\\s*=", attrs, flags=re.I):
+              if re.search(r"\bsrc\s*=", attrs, flags=re.I):
                   continue
               path = pathlib.Path(f"/tmp/aio-inline-{index}.js")
               path.write_text(body, encoding="utf-8")
