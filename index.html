@@ -210,7 +210,7 @@ html.reduced-motion .cover{transition:none!important}
 @media (pointer:fine){body{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Ccircle cx='10' cy='10' r='6.5' fill='%231b5cff' fill-opacity='.20' stroke='%231b5cff' stroke-width='2'/%3E%3Cpath d='M14.5 14.5L23 23' stroke='%231b5cff' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") 10 10,auto}button,a,label,[role=button]{cursor:pointer}input,textarea,[contenteditable=true]{cursor:text}}
 .social-section-head{align-items:center}
 .social-cloud-state{font-size:10px;font-weight:850;color:var(--muted);padding:7px 9px;border:1px solid var(--line);border-radius:999px;background:var(--soft);white-space:nowrap}
-.social-feed-shell{display:flex;justify-content:center;min-height:calc(100vh - 155px)}
+.social-feed-tabs{display:flex;gap:7px;justify-content:center;margin:0 auto 12px}.social-profile-note{text-align:center;font-size:12px;font-weight:800;margin:0 auto 10px;color:var(--muted)}.social-feed-shell{display:flex;justify-content:center;min-height:calc(100vh - 155px)}
 .social-feed-column{width:min(540px,100%);min-width:0}
 .social-feed{height:calc(100vh - 165px);min-height:560px;overflow-y:auto;overscroll-behavior:contain;scroll-snap-type:y mandatory;scrollbar-width:none;padding:0 4px 26px}
 .social-feed::-webkit-scrollbar{display:none}
@@ -504,7 +504,7 @@ html.reduced-motion .cover{transition:none!important}
     </div>
     <div class="social-cloud-state" id="socialCloudState">Waiting for posts</div>
   </div>
-  <div class="social-feed-shell">
+  <div class="social-feed-tabs" role="tablist" aria-label="Social feed"><button class="btn mini primary" id="socialForYouTab" onclick="setSocialMode(0)">For you</button><button class="btn mini" id="socialFollowingTab" onclick="setSocialMode(1)">Following</button><button class="btn mini" id="socialSavedTab" onclick="setSocialMode(2)">Saved</button></div><div class="social-profile-note hidden" id="socialProfileNote"></div><div class="social-feed-shell">
     <div class="social-feed-column">
       <div id="socialFeed" class="social-feed" aria-live="polite"></div>
       <div id="socialFeedEmpty" class="social-post-empty">
@@ -1965,8 +1965,10 @@ function socialMergePosts(local,cloud){
   [...socialNormalizePosts(local),...socialNormalizePosts(cloud)].forEach(p=>map.set(String(p.id),p));
   return [...map.values()].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
 }
+function setSocialMode(mode){socialMode=mode===1?'following':mode===2?'saved':'for-you';const note=$('socialProfileNote');if(note){note.classList.add('hidden');note.textContent=''}renderSocialFeed();[[0,'socialForYouTab'],[1,'socialFollowingTab'],[2,'socialSavedTab']].forEach(([m,id])=>{const b=$(id);if(b){b.classList.toggle('primary',m===mode);b.setAttribute('aria-selected',String(m===mode))}})}
 function socialSelectedPosts(){
   if(socialMode==='following'){const f=socialFollowSet();return socialPosts.filter(p=>f.has(p.username))}
+  if(socialMode==='saved'){const s=socialSaveSet();return socialPosts.filter(p=>s.has(String(p.id)))}
   return socialPosts;
 }
 function socialTime(ts){const d=new Date(ts);if(Number.isNaN(d.getTime()))return 'now';const s=Math.max(1,Math.floor((Date.now()-d.getTime())/1000));if(s<60)return `${s}s`;if(s<3600)return `${Math.floor(s/60)}m`;if(s<86400)return `${Math.floor(s/3600)}h`;if(s<604800)return `${Math.floor(s/86400)}d`;return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}
