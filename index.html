@@ -804,7 +804,7 @@ html.reduced-motion .cover{transition:none!important}
   </div>
 </div>
 
-<div class="modal" id="setupSqlModal"><div class="modalbox" style="width:min(900px,100%);height:min(760px,100%)"><div class="modalhead"><strong>Supabase setup SQL</strong><button class="btn mini" onclick="copySetupSQL()">Copy SQL</button><button class="btn mini" onclick="closeSetupSQL()">Close</button></div><div style="padding:16px;overflow:auto"><p class="muted" style="font-size:12px;line-height:1.5">Run this once in Supabase SQL Editor. It creates the tables and RLS policies used by Accounts, Friends, Parties and DMs.</p><textarea id="setupSql" class="setup-sql" readonly></textarea></div></div></div>
+<div class="modal" id="setupSqlModal"><div class="modalbox" style="width:min(900px,100%);height:min(760px,100%)"><div class="modalhead"><strong>Backend status</strong><button class="btn mini" onclick="copySetupSQL()">Copy details</button><button class="btn mini" onclick="closeSetupSQL()">Close</button></div><div style="padding:16px;overflow:auto"><p class="muted" style="font-size:12px;line-height:1.5">The backend status and owner bootstrap instructions for the existing XBT project.</p><textarea id="setupSql" class="setup-sql" readonly></textarea></div></div></div>
 <div class="tutorial-overlay" id="tutorialOverlay"><div class="tutorial-spot" id="tutorialSpot"></div><div class="tutorial-card" id="tutorialCard"><div class="tutorial-arrow" id="tutorialArrow">↓</div><strong id="tutorialTitle">Welcome</strong><p id="tutorialText"></p><div class="tutorial-actions"><button class="btn mini" onclick="skipTutorial()">Skip tutorial</button><div><button class="btn mini" onclick="tutorialPrev()">Back</button><button class="btn mini primary" onclick="tutorialNext()">Next</button></div></div></div></div>
 <div class="toast" id="toast"></div><div id="disguise" class="disguise hidden" aria-hidden="true"><div class="study-top"><strong>Study Workspace</strong><span>Practice dashboard · Ctrl+Q / Alt+Q to return</span><button onclick="hideSite()">Return to All in One</button></div><div class="study-grid"><div class="study-card big"><small>QUICK PRACTICE</small><div class="study-number" id="studyQuestion">7 × 8 = ?</div><div class="study-keys" id="studyChoices"></div><p class="study-feedback" id="studyFeedback">Choose an answer.</p><div class="study-card-actions"><button type="button" onclick="studyNewQuestion()">New question</button><button type="button" onclick="studyGo('school')">School apps</button><button type="button" onclick="studyGo('notes')">Notes</button></div><div class="study-stats"><div class="study-stat"><small>STREAK</small><strong id="studyStreak">0</strong></div><div class="study-stat"><small>SCORE</small><strong id="studyScore">0</strong></div><div class="study-stat"><small>DONE</small><strong id="studyDone">0</strong></div></div></div><div class="study-card"><small>FOCUS</small><strong>Practice mode</strong><p>Use this clean dashboard when you want your screen to look like a normal study workspace.</p><div class="study-card-actions"><button type="button" onclick="studyGo('games')">Games</button><button type="button" onclick="studyGo('tools')">Tools</button><button type="button" onclick="studyGo('music')">Music</button><button type="button" onclick="studyGo('notes')">Notes</button></div></div><div class="study-card"><small>PROGRESS</small><strong id="studyProgress">0%</strong><p id="studyProgressText">Your saved hub activity will appear here.</p></div><div class="study-card"><small>TIME</small><strong class="study-clock" id="studyClock">--:--</strong><p>Current local time</p></div></div></div>
 <script>
@@ -1633,11 +1633,23 @@ async function handleAuthSession(session){
 }
 async function ensureProfile(){
   if(!supabaseClient||!currentUser)return;
-  const meta=currentUser.user_metadata||{}; let p=null;
-  try{const q=await supabaseClient.from('profiles').select('*').eq('id',currentUser.id).maybeSingle();p=q.data||null;
-    if(!p){const username=String(meta.username||currentUser.email?.split('@')[0]||'Player').replace(/[^a-zA-Z0-9_ -]/g,'').slice(0,24)||'Player';const ins=await supabaseClient.from('profiles').insert({id:currentUser.id,username}).select().single();p=ins.data||null;}
-  }catch(e){console.warn('Profile table unavailable; run setup SQL.',e)}
-  currentProfile=p;
+  const meta=currentUser.user_metadata||{};
+  try{
+    const q=await supabaseClient.from('profiles').select('*').eq('id',currentUser.id).maybeSingle();
+    if(q.error)throw q.error;
+    if(q.data){currentProfile=q.data;return;}
+    const base=String(meta.username||currentUser.email?.split('@')[0]||'Player').replace(/[^a-zA-Z0-9_ -]/g,'').slice(0,18).trim()||'Player';
+    let profile=null,lastError=null;
+    for(let i=0;i<6;i++){
+      const username=i===0?base:(base.slice(0,14)+'_'+Math.random().toString(36).slice(2,7));
+      const inserted=await supabaseClient.from('profiles').insert({id:currentUser.id,username}).select().single();
+      if(!inserted.error){profile=inserted.data;break;}
+      lastError=inserted.error;
+      if(inserted.error.code!=='23505')break;
+    }
+    if(!profile)throw lastError||Error('Profile could not be created.');
+    currentProfile=profile;
+  }catch(e){console.warn('Profile initialisation failed:',e);currentProfile=null;}
 }
 function refreshAccountUI(){
   const logged=!!currentUser;
@@ -1649,7 +1661,7 @@ function refreshAccountUI(){
   if($('profileName'))$('profileName').textContent=name;
   if($('supabaseStatus'))$('supabaseStatus').textContent=logged?'Connected · '+name:'Connected · sign in to use Community';
 }
-const APP_ROUTES=new Set(['login','signup','meeting','chat','party','draw','community','social']);
+const APP_ROUTES=new Set(['login','signup','meeting','chat','party','draw','community','social','videos']);
 function getAppBasePath(){
   try{
     const parts=location.pathname.split('/').filter(Boolean);
@@ -1763,9 +1775,9 @@ function magmaNext(){magmaMake()}
 function answerMagma(v){const correct=magmaAnswer();if(Number(v)===correct){magma.score++;magma.streak++;magma.best=Math.max(magma.best,magma.streak);showToast('Correct');magmaMake();}else{magma.streak=0;showToast('Not quite');magmaMake();}}
 
 /* Expanded local assistant: site control + tools + social + maths. */
-function openSetupSQL(){$('setupSql').value=COMMUNITY_SQL;$('setupSqlModal').classList.add('open')}
+function openSetupSQL(){$('setupSql').value='All in One Edition is connected to the existing XBT Supabase project. The community tables, video storage bucket, RLS policies, and staff-role RPC are installed. Applied migrations are stored in supabase/migrations/. Do not rerun the old setup script.\n\nCurrent project URL: https://btnbuchsrfllpzlypjtn.supabase.co\n\nIf no site owner is configured, sign in to the website, open Community > Staff management, copy the owner setup SQL, and run it in the XBT Supabase SQL Editor as a project administrator.';$('setupSqlModal').classList.add('open')}
 function closeSetupSQL(){$('setupSqlModal').classList.remove('open')}
-function copySetupSQL(){navigator.clipboard?.writeText(COMMUNITY_SQL).then(()=>showToast('SQL copied')).catch(()=>showToast('Clipboard blocked'))}
+function copySetupSQL(){navigator.clipboard?.writeText($('setupSql').value).then(()=>showToast('Backend details copied')).catch(()=>showToast('Clipboard blocked'))}
 
 /* Tutorial: point at controls without crowding the main UI. */
 const tutorialSteps=[
@@ -2173,6 +2185,8 @@ async function createSocialPost(){
       if(q.error)throw q.error;post=q.data;
     }catch(e){
       if(uploadedStoragePath){const cleanup=await supabaseClient.storage.from('social-media').remove([uploadedStoragePath]);if(cleanup.error)console.warn('Upload cleanup needs attention:',cleanup.error);}
+      const failedButton=$('socialPostSubmitBtn');if(failedButton){failedButton.disabled=false;failedButton.textContent='Post to Social';}
+      if($('socialPostHint'))$('socialPostHint').textContent='Post was not published. Please retry; no local fake post was created.';
       return showToast('Post was not published: '+(e?.message||'check your connection and try again.'));
     }
   }
