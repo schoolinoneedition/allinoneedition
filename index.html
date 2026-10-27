@@ -480,7 +480,7 @@ html.reduced-motion .cover{transition:none!important}
   <div class="search"><input id="search" autocomplete="off" placeholder="Search games, tools, school apps...  ( / )"></div>
   <button class="btn" id="assistantBtn">Smart answer</button><button class="btn account-btn" id="accountBtn" type="button" onclick="handleAccountClick()"><span class="account-avatar" id="accountAvatar">?</span><span id="accountLabel">Account</span></button><button class="btn" id="settingsBtn">Settings</button><select class="lang-select" id="languageSelect" aria-label="Language"><option value="en">EN</option><option value="es">ES</option><option value="fr">FR</option><option value="de">DE</option><option value="pl">PL</option><option value="pt">PT</option><option value="tr">TR</option><option value="ar">AR</option><option value="it">IT</option><option value="nl">NL</option><option value="ja">JA</option><option value="ko">KO</option></select><button class="btn" id="darkBtn">Dark</button><button class="btn" id="afkBtn" title="Pause your current game and enter AFK mode">AFK</button><button class="btn" id="hideBtn">Hide</button>
  </div>
- <div class="nav"><button data-scroll="home">Home</button><button data-scroll="games">Games</button><button data-scroll="school">School</button><button data-scroll="social">Social</button><button data-scroll="community">Community</button><button data-scroll="chat">Chat</button><button data-scroll="live">Live</button><button data-scroll="tools">Tools</button><button data-scroll="notes">Notes</button><button data-scroll="music">Music</button><button data-scroll="code">Code Lab</button></div>
+ <div class="nav"><button data-scroll="home">Home</button><button data-scroll="games">Games</button><button data-scroll="school">School</button><button data-scroll="social">Social</button><button data-scroll="videos">Videos</button><button data-scroll="community">Community</button><button data-scroll="chat">Chat</button><button data-scroll="live">Live</button><button data-scroll="tools">Tools</button><button data-scroll="notes">Notes</button><button data-scroll="music">Music</button><button data-scroll="code">Code Lab</button></div>
 </header>
 <main id="app">
 <section id="home" class="hero">
@@ -514,6 +514,13 @@ html.reduced-motion .cover{transition:none!important}
       <div id="socialScrollNote" class="social-scroll-note hidden">Scroll for more</div>
     </div>
   </div>
+</section>
+
+<section id="videos" class="section">
+  <div class="section-head"><div><h2>Videos</h2><small>Browse real video posts saved in the XBT Supabase project.</small></div><div class="inline" style="margin-top:0"><button class="btn mini" type="button" onclick="loadVideoGallery(true)">Refresh</button><button class="btn mini primary" type="button" onclick="openSocialManage()">My uploads</button></div></div>
+  <div class="video-gallery-toolbar"><input id="videoSearchInput" class="social-input" type="search" placeholder="Search video captions or creators…" oninput="filterVideoGallery()" aria-label="Search videos"><span id="videoGalleryStatus" class="tiny-status" role="status">Open Videos to load saved uploads.</span></div>
+  <div id="videoGallery" class="aio-video-gallery" aria-live="polite"></div>
+  <div class="inline"><button id="videoLoadMore" class="btn mini hidden" type="button" onclick="loadVideoGallery(false)">Load more videos</button></div>
 </section>
 
 <section id="community" class="section">
@@ -747,7 +754,7 @@ html.reduced-motion .cover{transition:none!important}
 <div class="modal" id="assistantModal"><div class="modalbox" style="width:min(760px,100%);height:min(680px,92vh)"><div class="modalhead"><strong>Smart answer</strong><button class="btn mini" onclick="closeAssistant()">Close</button></div><div class="chatbox modal-chat" id="assistantModalChat"></div><div class="chatcomposer"><input id="assistantModalInput" placeholder="Message Smart answer…"><button class="btn mini primary" onclick="answerModalQuestion()">Send</button></div></div></div>
 <div class="modal" id="settingsModal"><div class="modalbox settings-box"><div class="modalhead"><strong>Settings</strong><button class="btn mini" onclick="closeSettings()">Close</button></div><div class="settings-body"><div class="setting-row"><div><strong>Game progress controls</strong><span>Shows the progress slider, reset and complete buttons inside the game player.</span></div><label class="switch"><input id="progressControlsToggle" type="checkbox"><span></span></label></div><div class="setting-row"><div><strong>Progress on game cards</strong><span>Shows saved percentage strips and percentages on cards.</span></div><label class="switch"><input id="progressCardsToggle" type="checkbox"><span></span></label></div><div class="setting-row"><div><strong>Remember Smart answer chat</strong><span>Keep the last 40 local messages after refresh.</span></div><label class="switch"><input id="chatHistoryToggle" type="checkbox" checked><span></span></label></div><div class="setting-row"><div><strong>Show animated intro</strong><span>Play the game-card intro whenever the site loads.</span></div><label class="switch"><input id="introToggle" type="checkbox" checked><span></span></label></div><div class="setting-row"><div><strong>AFK mode</strong><span>Pause your current game as far as the embedded game allows and show a full-screen shuffled game wall. Click Resume when you return.</span></div><button class="btn mini" onclick="enterAFK();closeSettings()">Start AFK</button></div><div class="setting-row"><div><strong>Background image preloading</strong><span>Warm all remote game-card artwork into the browser cache after the first screen is ready.</span></div><label class="switch"><input id="preloadAssetsToggle" type="checkbox" checked><span></span></label></div><div class="setting-row"><div><strong>Background game warm-up</strong><span>Warm every unique game page in the background after the hub is ready. It never blocks the homepage and uses the browser HTTP cache where available.</span></div><label class="switch"><input id="preloadGamesToggle" type="checkbox" checked><span></span></label></div><div class="setting-row"><div><strong>Persistent browser storage</strong><span>Ask the browser to keep this site's local data and caches around longer when supported.</span></div><button class="btn mini" onclick="requestPersistentStorage()">Enable</button></div><div class="setting-row"><div><strong>Reduced motion</strong><span>Reduce loaders, hover movement and transitions.</span></div><label class="switch"><input id="reducedMotionToggle" type="checkbox"><span></span></label></div><div class="setting-row"><div><strong>Clear saved game hub progress</strong><span>Removes the hub play count, progress and continue data.</span></div><button class="btn mini" onclick="clearGameProgress()">Clear</button></div><div class="settings-help"><strong>Smart answer commands</strong><p>Try “play Monkey Mart”, “make a sticky note called homework that says do maths”, “change language to Spanish”, “what time is it?”, “25 times 8”, “open settings”, “show progress”, “hide progress”, “dark mode”, “mute game”, “loop Spotify”, or “continue my last game”.</p><div class="cache-status" id="cacheStatus">Checking background cache settings…</div></div></div></div></div>
 
-<div class="modal" id="authModal"><div class="modalbox" style="width:min(560px,100%);height:auto"><div class="modalhead"><strong id="authTitle">Create account</strong><button class="btn mini" onclick="closeAuth()">Close</button></div><div style="padding:16px"><div class="inline" style="margin-top:0"><button id="authSignTab" class="btn mini primary" onclick="switchAuthMode('signup')">Sign up</button><button id="authLoginTab" class="btn mini" onclick="switchAuthMode('signin')">Sign in</button></div><input id="authUsername" class="social-input" style="margin-top:10px" placeholder="Username" autocomplete="nickname"><input id="authEmail" class="social-input" style="margin-top:8px" placeholder="Email" autocomplete="email"><input id="authPassword" class="social-input" style="margin-top:8px" type="password" placeholder="Password" autocomplete="current-password"><button class="btn primary" style="width:100%;margin-top:10px" onclick="submitAuth()">Continue</button><div id="authStatus" class="assistant-answer" style="min-height:45px"></div></div></div></div>
+<div class="modal" id="authModal"><div class="modalbox" style="width:min(560px,100%);height:auto"><div class="modalhead"><strong id="authTitle">Create account</strong><button class="btn mini" onclick="closeAuth()">Close</button></div><div style="padding:16px"><div class="inline" style="margin-top:0"><button id="authSignTab" class="btn mini primary" onclick="switchAuthMode('signup')">Sign up</button><button id="authLoginTab" class="btn mini" onclick="switchAuthMode('signin')">Sign in</button></div><input id="authUsername" class="social-input" style="margin-top:10px" placeholder="Username" autocomplete="nickname"><input id="authEmail" class="social-input" style="margin-top:8px" placeholder="Email" autocomplete="email"><input id="authPassword" class="social-input" style="margin-top:8px" type="password" placeholder="Password" autocomplete="current-password"><button id="authSubmitBtn" class="btn primary" style="width:100%;margin-top:10px" onclick="submitAuth()">Continue</button><button class="btn mini" style="width:100%;margin-top:7px" type="button" onclick="resetAccountPassword()">Forgot password?</button><div id="authStatus" class="assistant-answer" style="min-height:45px"></div></div></div></div>
 <div class="modal" id="profileModal"><div class="modalbox" style="width:min(560px,100%);height:auto"><div class="modalhead"><strong>Edit profile</strong><button class="btn mini" onclick="closeProfileEditor()">Close</button></div><div style="padding:16px"><input id="profileEditName" class="social-input" placeholder="Username"><input id="profileEditAvatar" class="social-input" style="margin-top:8px" placeholder="Avatar image URL (optional)"><button class="btn primary" style="margin-top:10px" onclick="saveProfileEditor()">Save profile</button><div id="profileEditStatus" class="assistant-answer" style="min-height:40px"></div></div></div></div>
 <div class="modal" id="drawModal"><div class="modalbox" style="width:min(1100px,100%);height:min(820px,100%)"><div class="modalhead"><strong>Shared drawing board</strong><span class="row-fill"></span><button class="btn mini" onclick="clearDrawing()">Clear</button><button class="btn mini" onclick="closeDrawing()">Close</button></div><div class="draw-fullscreen-body"><div class="draw-toolbar"><label>Colour <input id="drawColor" type="color" value="#1b5cff"></label><label>Brush <input id="drawSize" type="range" min="1" max="30" value="5"></label><button class="btn mini" onclick="downloadDrawing()">Save PNG</button></div><div class="draw-wrap"><canvas id="drawCanvas" class="draw-canvas" width="1200" height="720"></canvas></div><div class="tiny-status" style="margin-top:8px">Drawings sync live with your current party.</div></div></div></div>
 <div class="modal" id="callModal">
@@ -1304,9 +1311,9 @@ setTimeout(()=>safeBoot(loadOnlineGamesCatalog),650);setTimeout(()=>safeBoot(cac
 
 
 /* ===== Accounts / community / WebRTC / Magma Maths ===== */
-const SUPABASE_URL='https://oazcqqhifmyhitasccxc.supabase.co';
+const SUPABASE_URL='https://btnbuchsrfllpzlypjtn.supabase.co';
 /* Public browser client key: protected by Supabase RLS, not a service key. */
-const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9hemNxcWhpZm15aGl0YXNjY3hjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA5NTYxNTMsImV4cCI6MjEwNjUzMjE1M30.B0FJtHdYpqz6u6fdEL7pZtCIH99mgq5y0t521Nl-FeU';
+const SUPABASE_KEY='sb_publishable_a1gdNTiQdF9587p5K-Sw-Q_nFbvWRmp';
 const COMMUNITY_SQL=`create extension if not exists pgcrypto;
 
 -- =========================================================
@@ -1346,7 +1353,7 @@ drop policy if exists "social media account upload" on storage.objects;
 drop policy if exists "social media own account delete" on storage.objects;
 
 delete from storage.objects where bucket_id = 'social-media';
-delete from storage.buckets where id = 'social-media';
+-- Preserve the existing bucket; never delete user uploads during setup.
 
 -- =========================================================
 -- NEW SOCIAL SYSTEM
@@ -1533,14 +1540,15 @@ do $$ begin
     using (bucket_id='social-media');
 exception when duplicate_object then null; end $$;
 
-do $$ begin
-  create policy "public social media upload" on storage.objects
-    for insert to anon, authenticated
-    with check (
-      bucket_id='social-media'
-      and name like 'social/%'
-    );
-exception when duplicate_object then null; end $$;
+drop policy if exists "public social media upload" on storage.objects;
+drop policy if exists "social media authenticated upload own folder" on storage.objects;
+create policy "social media authenticated upload own folder" on storage.objects
+  for insert to authenticated
+  with check (
+    bucket_id='social-media'
+    and (storage.foldername(name))[1] = 'social'
+    and (storage.foldername(name))[2] = (select auth.uid())::text
+  );
 
 -- Signed-in users can delete their own uploaded files.
 do $$ begin
@@ -1609,6 +1617,7 @@ async function handleAuthSession(session){
   currentUser=session?.user||null;
   if(currentUser) await ensureProfile();
   refreshAccountUI();
+  if(typeof refreshAioStaffPanel==='function'){try{await refreshAioStaffPanel()}catch(e){console.warn('Staff role refresh failed:',e)}}
   if(currentUser){await loadFriends();await loadPendingFriendRequests();}
   else{currentProfile=null;friendsCache=[];renderFriends();}
   try{socialRefreshIdentity?.();}catch{}
@@ -2108,6 +2117,8 @@ async function createSocialPost(){
   const isImageFile=!!file&&(imageTypes.includes(file.type)||/\.(jpe?g|png|webp|gif)$/i.test(file.name));
   const isVideoFile=!!file&&(file.type==='video/mp4'||/\.mp4$/i.test(file.name));
   if(!url&&!file)return showToast('Choose an image/video file or enter a direct media URL.');
+  if(file&&!currentUser){showToast('Sign in to upload media so ownership and deletion are protected.');return openAuth('signin');}
+  if(!supabaseClient)return showToast('Cloud service is unavailable. Nothing was posted; try again when the connection returns.');
   if(file&&!isImageFile&&!isVideoFile)return showToast('Use JPG, PNG, WebP, GIF or MP4 media.');
   if(file&&isImageFile&&file.size>15*1024*1024)return showToast('Images must be 15 MB or smaller.');
   if(file&&isVideoFile&&file.size>100*1024*1024)return showToast('Videos must be 100 MB or smaller.');
@@ -2131,21 +2142,15 @@ async function createSocialPost(){
     }catch(e){console.error('Social upload failed:',e);return showToast('Cloud upload failed: '+(e?.message||'check the Supabase storage setup.'));}
   }
   const visitorId=socialVisitorId();
-  const localPost={id:socialId('post'),visitor_id:visitorId,username,avatar_url:avatar,caption,media_type:actualType,media_url:mediaUrl,created_at:new Date().toISOString()};
-  let post=localPost;
+  let post=null;
   if(supabaseClient){
     try{
       const q=await supabaseClient.from('social_posts').insert({visitor_id:visitorId,username,avatar_url:avatar||null,caption,media_type:actualType,media_url:mediaUrl}).select().single();
       if(q.error)throw q.error;post=q.data;
     }catch(e){
-      if(uploadedStoragePath){try{await supabaseClient.storage.from('social-media').remove([uploadedStoragePath])}catch{}}
-      socialWrite(SOCIAL_STORAGE_KEY,[localPost,...socialRead(SOCIAL_STORAGE_KEY,[])].filter(x=>x.media_url&&/^https?:\/\//i.test(x.media_url)).slice(0,100));
-      socialPosts=socialMergePosts([localPost],socialPosts);renderSocialFeed();
-      return showToast('Post could not be saved to Social: '+(e?.message||'check your Supabase setup.'));
+      if(uploadedStoragePath){const cleanup=await supabaseClient.storage.from('social-media').remove([uploadedStoragePath]);if(cleanup.error)console.warn('Upload cleanup needs attention:',cleanup.error);}
+      return showToast('Post was not published: '+(e?.message||'check your connection and try again.'));
     }
-  }else{
-    if(file)return showToast('Supabase is required for uploaded files so they survive refresh.');
-    socialWrite(SOCIAL_STORAGE_KEY,[localPost,...socialRead(SOCIAL_STORAGE_KEY,[])].slice(0,100));
   }
   if(/^https?:\/\//i.test(post.media_url))socialWrite(SOCIAL_STORAGE_KEY,[post,...socialRead(SOCIAL_STORAGE_KEY,[])].filter(x=>x.media_url&&/^https?:\/\//i.test(x.media_url)).slice(0,100));
   socialPosts=socialMergePosts([post],socialPosts);socialStat(post.id);renderSocialFeed();
@@ -2478,14 +2483,15 @@ async function deleteSocialPost(id){
   if(!socialIsOwnPost(p))return showToast('You can only delete your own posts');
   if(!confirm('Delete this Social post?'))return;
   try{
-    const q=await supabaseClient.from('social_posts').delete().eq('id',id).eq('visitor_id',currentUser.id);
+    const q=await supabaseClient.from('social_posts').delete().eq('id',id).eq('visitor_id',currentUser.id).select('id').single();
     if(q.error)throw q.error;
     const storagePath=socialStoragePathFromUrl(p.media_url);
-    if(storagePath){try{await supabaseClient.storage.from('social-media').remove([storagePath])}catch(e){console.warn('Media cleanup failed',e)}}
+    let cleanupWarning='';
+    if(storagePath){const cleanup=await supabaseClient.storage.from('social-media').remove([storagePath]);if(cleanup.error){console.warn('Media cleanup failed',cleanup.error);cleanupWarning=' The post was deleted, but the stored file could not be removed. Please contact the site owner.';}}
     socialPosts=socialPosts.filter(x=>String(x.id)!==String(id));
     socialWrite(SOCIAL_STORAGE_KEY,socialRead(SOCIAL_STORAGE_KEY,[]).filter(x=>String(x.id)!==String(id)));
     const likes=socialLikeSet();likes.delete(String(id));socialWrite(SOCIAL_LIKE_KEY,[...likes]);
-    renderSocialFeed();await socialRenderManageList();showToast('Post deleted');
+    renderSocialFeed();await socialRenderManageList();showToast('Post deleted.'+cleanupWarning);
   }catch(e){showToast('Delete failed: '+(e?.message||'check the Supabase SQL'))}
 }
 async function socialEditCaption(id){
@@ -2880,6 +2886,7 @@ const __oldSocialBind=socialBind;
 socialBind=function(){__oldSocialBind();socialBindPostManagement();setTimeout(()=>{try{setupSocialVideoObserver()}catch(e){console.warn('Social player:',e)}},120);};
 
 </script>
+<script src="./backend-features.js" defer></script>
 <script src="./appearance.js" defer></script>
 </body>
 </html>
