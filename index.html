@@ -562,6 +562,11 @@ html.reduced-motion .cover{transition:none!important}
       <h3>Direct messages</h3><p>Messages are stored behind your Supabase Auth + RLS rules. Realtime updates appear when Realtime is enabled for the table.</p><button class="btn mini community-link-btn" onclick="scrollToId('chat')">Open full chat</button><select id="dmFriend" class="social-select"><option value="">Choose a friend…</option></select><div id="dmChat" class="chat-mini" style="margin-top:9px"><div class="tiny-status">Select a friend to start chatting.</div></div><div class="inline"><input id="dmInput" class="social-input" placeholder="Write a message…"><button class="btn mini primary" onclick="sendDM()">Send</button></div>
     </div>
   </div>
+  <div id="aioStaffPanel" class="social-card aio-staff-panel hidden" style="margin-top:14px">
+    <div class="section-head"><div><h3 style="margin:0">Staff management</h3><small id="aioStaffStatus">Checking your permissions…</small></div><button class="btn mini" type="button" onclick="loadAioStaffList()">Refresh staff</button></div>
+    <div id="aioStaffOwnerSetup" class="hidden"><p class="tiny-status">No site owner is configured yet. Sign in with the account that should own the site, then use its account ID in the Supabase SQL Editor. Only a Supabase project administrator can run the owner bootstrap SQL.</p><label class="tiny-status" for="aioStaffCurrentId">Your account ID</label><input id="aioStaffCurrentId" class="social-input" readonly><button class="btn mini" type="button" onclick="copyAioOwnerSetup()">Copy owner setup SQL</button></div>
+    <div id="aioStaffControls" class="hidden"><div class="aio-staff-form"><input id="aioStaffUsername" class="social-input" maxlength="24" placeholder="Exact username of an existing account" aria-label="Staff username"><select id="aioStaffRole" class="social-select" aria-label="Staff role"><option value="staff">Staff</option><option value="admin">Admin</option></select><button class="btn mini primary" type="button" onclick="assignAioStaff()">Assign role</button></div><div id="aioStaffList" class="aio-staff-list"></div></div>
+  </div>
 </section>
 <section id="chat" class="section">
   <div class="section-head"><h2>Messages</h2><small>Full-page private chat workspace</small></div>
