@@ -19,7 +19,7 @@ These migrations were applied to the live XBT project and their SQL is tracked h
 
 They create the missing profile, friends, messages, parties, social-post, comment, reaction, and follow tables; enable RLS; create the public `social-media` bucket with a 100 MiB limit for MP4 and supported image formats; and restrict file uploads/deletes to authenticated users' own storage folders. Public Social media is intentionally public. Do not put private videos in this bucket.
 
-## Supabase Auth URL configuration
+5. `20261028102739_secure_tiktok_sticker_download_counter.sql`\n\nThe public sticker download counter now requires a signed-in account and counts each sticker at most once per account per UTC day. Anonymous visitors can still download public stickers; they cannot call the counter RPC. The private event ledger has RLS enabled and no direct client grants.\n\n## Supabase Auth URL configuration
 
 In the XBT Supabase Dashboard, open **Authentication → URL Configuration** and verify:
 
