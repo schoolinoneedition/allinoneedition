@@ -41,8 +41,8 @@ function switcher(checked,label,id){const l=document.createElement('label');l.cl
 function build(){
  const body=document.querySelector('#settingsModal .settings-body');if(!body||$('aioAppearanceRoot'))return;
  const root=document.createElement('div');root.id='aioAppearanceRoot';root.className='aio-appearance';
- const cursor=section('Cursor','Keep the normal system cursor sharp and responsive. No fake pointer, trail, or lagging overlay is used.','aioCursorSection');
- row(cursor,'Minimal cursor styling',switcher(state.cursor,'Minimal cursor styling','aioCursorToggle'),'Preserves I-beam text selection and pointer/resize states.');root.append(cursor);
+ const cursor=section('Cursor','Choose a distinct native or lightweight custom pointer. Cross-origin games may control their own cursor inside the embedded frame.','aioCursorSection');
+ const cursorSel=select([['default','Default'],['minimal','Minimal'],['chatgpt','ChatGPT-inspired']],state.cursorStyle||(state.cursor?'minimal':'default'),'aioCursorStyleSelect');row(cursor,'Cursor style',cursorSel,'Text fields keep a text cursor; links and buttons remain clickable.');root.append(cursor);
  const theme=section('Theme','Switch between the standard hub and a translucent Liquid Glass appearance.','aioThemeSection');
  const themeSel=select([['standard','Standard'],['glass','Liquid Glass']],state.theme,'aioThemeSelect');row(theme,'Appearance theme',themeSel,'Glass blur is reduced automatically when unsupported.');root.append(theme);
  const fonts=section('Fonts','Preview before applying. Cherry Bomb One loads from the official Google Fonts CSS endpoint.','aioFontsSection');
@@ -74,7 +74,7 @@ function build(){
  fs.addEventListener('change',()=>{state.font=fs.value;save();applyFont();status('Font preference saved.');});
  heading.querySelector('input').addEventListener('change',()=>{state.headingFont=heading.querySelector('input').checked?'cherry':'default';save();applyFont();status('Heading font preference saved.');});
  themeSel.addEventListener('change',()=>{state.theme=themeSel.value;save();applyTheme();status('Theme changed.');});
- $('aioCursorToggle').addEventListener('change',e=>{state.cursor=e.target.checked;state.cursorStyle=e.target.checked?'minimal':'default';save();applyCursor();status('Cursor preference saved.');});
+ $('aioCursorStyleSelect').addEventListener('change',e=>{state.cursorStyle=e.target.value;state.cursor=state.cursorStyle!=='default';save();applyCursor();status('Cursor preference saved.');});
 }
 function selectWallpaper(id){const w=wallpapers.find(x=>x.id===id);if(id==='custom'&&!customUrl){status('Upload an image first.');return;}if(id!=='custom'&&!w){status('That wallpaper is unavailable.');return;}const preview=$('aioWallpaperPreview');state.wallpaper=id;delete state.pendingWallpaper;save();applyWallpaper();if(preview){preview.style.backgroundImage=id==='custom'&&customUrl?'url("'+customUrl+'")':w?w.bg:'none';preview.textContent='Applied: '+(w?.name||'Custom image');}refreshGallery();status('Wallpaper applied and saved on this device.');}
 function refreshGallery(){document.querySelectorAll('.aio-wallpaper-option').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.wallpaper===(state.pendingWallpaper||state.wallpaper))));}
