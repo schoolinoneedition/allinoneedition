@@ -27,6 +27,7 @@ These migrations were applied to the live XBT project and their SQL is tracked i
 13. `20261028102739_secure_tiktok_sticker_download_counter.sql`
 14. `20261028103352_deny_client_access_to_tiktok_sticker_download_events.sql`
 15. `20261028103427_index_tiktok_sticker_download_events_sticker_id.sql`
+16. `20261028103528_optimize_tiktok_sticker_staff_rls_policies.sql`
 
 The community migrations create the profile, friends, messages, parties, social-post, comment, reaction, and follow tables; enable RLS; create the public `social-media` bucket with a 100 MiB limit for MP4 and supported image formats; and restrict uploads/deletes to authenticated users' own storage folders. Public Social media is intentionally public. Do not put private videos in this bucket.
 
