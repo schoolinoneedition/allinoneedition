@@ -1,7 +1,7 @@
 (()=> {
 'use strict';
 const KEY='aio-appearance-v1';
-const defaults={font:'inter',headingFont:'default',theme:'standard',wallpaper:'default',cursor:true,fit:'cover',position:'center',dim:0,overlay:0};
+const defaults={font:'inter',headingFont:'default',theme:'standard',wallpaper:'default',cursor:true,cursorStyle:'chatgpt',fit:'cover',position:'center',dim:0,overlay:0};
 const wallpapers=[
 {id:'default',name:'Default',bg:'linear-gradient(135deg,#f7f7f8 0%,#e8edf7 100%)'},
 {id:'blue',name:'Blue hour',bg:'linear-gradient(135deg,#0f172a 0%,#1d4ed8 52%,#8b5cf6 100%)'},
@@ -27,7 +27,7 @@ function updateFontPreview(){const s=$('aioFontSelect'),preview=$('aioFontPrevie
 function bgCss(w){if(w)return w.bg;if(state.wallpaper==='custom'&&customUrl)return 'url("'+customUrl.replace(/["\\]/g,'')+'")';return wallpapers[0].bg}
 function applyWallpaper(){const root=document.documentElement;const w=wallpapers.find(x=>x.id===state.wallpaper);if(state.wallpaper==='custom'&&customUrl)root.style.setProperty('--aio-wallpaper-layer','url("'+customUrl.replace(/["\\]/g,'')+'")');else if(state.wallpaper==='default'){root.style.setProperty('--aio-wallpaper-layer','none')}else root.style.setProperty('--aio-wallpaper-layer',bgCss(w));root.dataset.aioWallpaperFit=state.fit||'cover';root.style.setProperty('--aio-wallpaper-position',state.position||'center');root.style.setProperty('--aio-wallpaper-dim',String(Math.max(0,Math.min(.7,Number(state.dim)||0))));root.style.setProperty('--aio-wallpaper-opacity',String(1-Math.max(0,Math.min(.45,Number(state.overlay)||0))));}
 function applyTheme(){document.documentElement.dataset.aioTheme=state.theme==='glass'?'glass':'standard';}
-function applyCursor(){document.documentElement.dataset.aioMinimalCursor=state.cursor?'1':'0';}
+function applyCursor(){document.documentElement.dataset.aioMinimalCursor=state.cursor?'1':'0';document.documentElement.dataset.aioCursorStyle=state.cursorStyle||(state.cursor?'minimal':'default');}
 function db(){if(dbPromise)return dbPromise;dbPromise=new Promise((resolve,reject)=>{if(!('indexedDB'in window))return reject(Error('IndexedDB unavailable'));const r=indexedDB.open('aio-appearance-media',1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('wallpapers'))r.result.createObjectStore('wallpapers')};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error||Error('Database unavailable'));});return dbPromise}
 async function getCustom(){try{const d=await db();const blob=await new Promise((resolve,reject)=>{const tx=d.transaction('wallpapers','readonly');const r=tx.objectStore('wallpapers').get('custom');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});if(blob instanceof Blob){if(customUrl)URL.revokeObjectURL(customUrl);customUrl=URL.createObjectURL(blob);if(state.wallpaper==='custom')applyWallpaper();}}catch{}}
 async function saveCustom(blob){const d=await db();return new Promise((resolve,reject)=>{const tx=d.transaction('wallpapers','readwrite');tx.objectStore('wallpapers').put(blob,'custom');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error||Error('Could not save image'));});}
@@ -84,5 +84,5 @@ function init(){applyAll();build();getCustom();}
 document.addEventListener('DOMContentLoaded',init,{once:true});
 document.addEventListener('click',e=>{const b=e.target.closest('#settingsBtn');if(b){setTimeout(()=>{build();updateFontPreview();},0)}});
 window.addEventListener('storage',e=>{if(e.key===KEY){state=load();applyAll()}});
-window.AIOAppearance={reset:()=>{state={...defaults};save();applyAll()},getState:()=>({...state})};
+window.AIOAppearance={reset:()=>{state={...defaults};save();applyAll()},getState:()=>({...state}),getWallpapers:()=>wallpapers.map(w=>({id:w.id,name:w.name,bg:w.bg})),setChoice:async choices=>{if(!choices||typeof choices!=='object')return; if(['system','inter','cherry','sakura'].includes(choices.font))state.font=choices.font; if(typeof choices.wallpaper==='string'&&(wallpapers.some(w=>w.id===choices.wallpaper)||choices.wallpaper==='custom'))state.wallpaper=choices.wallpaper; if(['default','minimal','chatgpt'].includes(choices.cursorStyle)){state.cursorStyle=choices.cursorStyle;state.cursor=choices.cursorStyle!=='default';} save();applyAll();return {...state};}};
 })();
