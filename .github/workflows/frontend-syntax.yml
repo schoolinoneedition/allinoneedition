@@ -23,6 +23,8 @@ jobs:
           node --check ultimate-experience.js
       - name: Check appearance, auth, game and security wiring
         run: node tests/frontend-contracts.cjs
+      - name: Audit game catalogue duplicates and required fields
+        run: node scripts/audit-games.cjs
       - name: Check inline JavaScript in app and original games
         run: |
           python - <<'PY'
