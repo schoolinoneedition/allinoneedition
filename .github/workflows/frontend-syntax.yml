@@ -20,6 +20,7 @@ jobs:
         run: |
           node --check backend-features.js
           node --check appearance.js
+          node --check ultimate-experience.js
       - name: Check inline JavaScript in index.html
         run: |
           python - <<'PY'
@@ -37,5 +38,5 @@ jobs:
                   print(f"Inline script {index} failed syntax check:\\n{result.stderr}")
                   sys.exit(result.returncode)
               checked += 1
-          print(f"Syntax OK: {checked} inline scripts and 2 external scripts.")
+          print(f"Syntax OK: {checked} inline scripts and 3 external scripts.")
           PY
