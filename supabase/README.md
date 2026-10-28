@@ -49,9 +49,9 @@ The database RPC checks the owner role and records assignments/revocations in `s
 
 ## A-Coins and game economy
 
-Migrations `20261028101000_aio_coin_quests_pricing_security.sql` and `20261028102000_aio_economy_rpc_privileges.sql` add server-authoritative wallets, immutable transaction entries, game sessions/activity, one-time quest claims, game prices and purchases, and restrict economy RPC execution to authenticated users. Wallet changes occur only through authenticated RPCs; owner pricing and refunds check `staff_roles.role = 'owner'` server-side. Game-session rewards require at least 90 seconds and are capped at five session rewards per UTC day. The browser UI cannot write balances or transaction rows directly.
+Migrations `20261028093212_aio_coin_quests_pricing_security.sql` and `20261028093734_aio_economy_rpc_privileges.sql` add server-authoritative wallets, immutable transaction entries, game sessions/activity, one-time quest claims, game prices and purchases, and restrict economy RPC execution to authenticated users. Wallet changes occur only through authenticated RPCs; owner pricing and refunds check `staff_roles.role = 'owner'` server-side. Game-session rewards require at least 90 seconds and are capped at five session rewards per UTC day. The browser UI cannot write balances or transaction rows directly.
 
 
 ## Community game submissions
 
-Migration `20261028104000_aio_community_game_submissions_moderation.sql` adds an authenticated HTTPS-only submission RPC, public visibility only after approval, and owner-only review/feature/price/removal RPCs. Community games are launched in a sandboxed iframe without same-origin access. External links remain hosted by their original creators; submitted rights are not independently verified, so approve only content that is authorised for public linking.
+Migration `20261028094117_aio_community_game_submissions_moderation.sql` adds an authenticated HTTPS-only submission RPC, public visibility only after approval, and owner-only review/feature/price/removal RPCs. Community games are launched in a sandboxed iframe without same-origin access. External links remain hosted by their original creators; submitted rights are not independently verified, so approve only content that is authorised for public linking.
