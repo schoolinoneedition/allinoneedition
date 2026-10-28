@@ -21,6 +21,8 @@ jobs:
           node --check backend-features.js
           node --check appearance.js
           node --check ultimate-experience.js
+      - name: Check appearance, auth, game and security wiring
+        run: node tests/frontend-contracts.cjs
       - name: Check inline JavaScript in index.html
         run: |
           python - <<'PY'
