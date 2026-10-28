@@ -1,0 +1,16 @@
+create index if not exists aio_game_prices_updated_by_idx on public.aio_game_prices(updated_by);
+create index if not exists aio_game_submissions_reviewed_by_idx on public.aio_game_submissions(reviewed_by);
+drop policy if exists aio_wallet_read_own on public.aio_coin_wallets;
+create policy aio_wallet_read_own on public.aio_coin_wallets for select to authenticated using(user_id=(select auth.uid()));
+drop policy if exists aio_transactions_read_own on public.aio_coin_transactions;
+create policy aio_transactions_read_own on public.aio_coin_transactions for select to authenticated using(user_id=(select auth.uid()));
+drop policy if exists aio_purchases_read_own on public.aio_game_purchases;
+create policy aio_purchases_read_own on public.aio_game_purchases for select to authenticated using(user_id=(select auth.uid()));
+drop policy if exists aio_sessions_read_own on public.aio_game_sessions;
+create policy aio_sessions_read_own on public.aio_game_sessions for select to authenticated using(user_id=(select auth.uid()));
+drop policy if exists aio_activity_read_own on public.aio_game_activity;
+create policy aio_activity_read_own on public.aio_game_activity for select to authenticated using(user_id=(select auth.uid()));
+drop policy if exists aio_claims_read_own on public.aio_quest_claims;
+create policy aio_claims_read_own on public.aio_quest_claims for select to authenticated using(user_id=(select auth.uid()));
+drop policy if exists aio_game_submissions_read_public_or_own on public.aio_game_submissions;
+create policy aio_game_submissions_read_public_or_own on public.aio_game_submissions for select to anon,authenticated using(status='approved' or submitter_id=(select auth.uid()));
