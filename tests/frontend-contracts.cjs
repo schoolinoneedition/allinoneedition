@@ -62,6 +62,7 @@ assert.match(staffRls, /sr\.user_id = \(select auth\.uid\(\)\)/i);
 
 const arcade = read('games/originals.html');
 const arcade2 = read('games/arcade-pack-2.html');
+const arcade3 = read('games/arcade-pack-3.html');
 
 // Original mini-games must be real self-contained game modes, not placeholder cards.
 for (const mode of ['snake','memory','reaction','breakout','ttt','pong','mines','slide','simon','word']) {
@@ -78,6 +79,19 @@ for (const mode of ['maze','math','color','typing','mole','target','merge','ligh
   assert.ok(arcade2.includes('function ' + mode + '('), 'Missing implementation for ' + mode);
 }
 assert.match(arcade2, /aria-live="polite"/);
+
+// The third original pack registers exactly 100 unique additional game entries.
+const registryStart = html.indexOf('const GAMES=') + 'const GAMES='.length;
+const registryEnd = html.indexOf(';const EXTRA_', registryStart);
+assert.ok(registryStart >= 'const GAMES='.length && registryEnd > registryStart, 'Game registry boundaries must exist');
+const registeredGames = JSON.parse(html.slice(registryStart, registryEnd));
+const pack3 = registeredGames.filter(g => String(g.url || '').startsWith('games/arcade-pack-3.html?game='));
+assert.equal(pack3.length, 100, 'Third pack should add exactly 100 registry entries');
+assert.equal(new Set(pack3.map(g => g.url)).size, 100, 'Third pack URLs must be unique');
+assert.equal(new Set(pack3.map(g => g.name.trim().toLowerCase())).size, 100, 'Third pack titles must be unique');
+for (const mode of ['reaction','math','pairs','sequence','scramble','typing','color','odd','order','aim','lights','maze','timing','wordpick','count','pattern','keyreflex','ttt','connect','merge']) {
+  assert.ok(arcade3.includes('function ' + mode + '('), 'Missing game engine: ' + mode);
+}
 assert.match(arcade2, /addEventListener\('keydown'/);
 
 const cardRenderer = html.match(/function cardHTML\(g,i\)\{[\s\S]*?\n\}/)?.[0] || '';
