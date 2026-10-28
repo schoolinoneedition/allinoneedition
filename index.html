@@ -2142,6 +2142,7 @@ async function addSocialComment(){
 function socialApplyLocalStat(id,key,amount){const st=socialStat(id);st[key]=(st[key]||0)+amount}
 
 async function createSocialPost(){
+  if(window.__aioSocialPostBusy){showToast('Your post is already being submitted.');return;}
   const file=$('socialMediaFile')?.files?.[0];
   const typedName=String($('socialPostName')?.value||'').trim();
   const accountName=(typeof currentProfile!=='undefined'&&currentProfile?.username)||((typeof currentUser!=='undefined'&&currentUser?.user_metadata?.username)||'');
@@ -2160,6 +2161,8 @@ async function createSocialPost(){
   if(url&&!/^https?:\/\//i.test(url))return showToast('Media URLs must start with https:// or http://.');
   const urlIsVideo=/\.mp4(?:[?#].*)?$/i.test(url),urlIsImage=/\.(jpe?g|png|webp|gif)(?:[?#].*)?$/i.test(url);
   if(url&&!urlIsVideo&&!urlIsImage)return showToast('Use a direct JPG, PNG, WebP, GIF or MP4 URL.');
+  window.__aioSocialPostBusy=true;
+  const startButton=$('socialPostSubmitBtn');if(startButton){startButton.disabled=true;startButton.textContent='Preparing…';}
   let mediaUrl=url,actualType=(file?isVideoFile:urlIsVideo)?'video':'image',uploadedStoragePath='';
   if(file){
     actualType=isVideoFile?'video':'image';
@@ -2177,7 +2180,7 @@ async function createSocialPost(){
       const pub=supabaseClient.storage.from('social-media').getPublicUrl(uploadedStoragePath);
       mediaUrl=pub?.data?.publicUrl||'';
       if(!mediaUrl)throw Error('No public media URL returned.');
-    }catch(e){console.error('Social upload failed:',e);const b=$('socialPostSubmitBtn');if(b){b.disabled=false;b.textContent='Post to Social';}if($('socialPostHint'))$('socialPostHint').textContent='Upload failed. Your post was not published. Retry when your connection is stable.';return showToast('Cloud upload failed: '+(e?.message||'check the Supabase storage setup.'));}
+    }catch(e){console.error('Social upload failed:',e);const b=$('socialPostSubmitBtn');if(b){b.disabled=false;b.textContent='Post to Social';}if($('socialPostHint'))$('socialPostHint').textContent='Upload failed. Your post was not published. Retry when your connection is stable.';window.__aioSocialPostBusy=false;return showToast('Cloud upload failed: '+(e?.message||'check the Supabase storage setup.'));}
   }
   const visitorId=socialVisitorId();
   let post=null;
@@ -2189,6 +2192,7 @@ async function createSocialPost(){
       if(uploadedStoragePath){const cleanup=await supabaseClient.storage.from('social-media').remove([uploadedStoragePath]);if(cleanup.error)console.warn('Upload cleanup needs attention:',cleanup.error);}
       const failedButton=$('socialPostSubmitBtn');if(failedButton){failedButton.disabled=false;failedButton.textContent='Post to Social';}
       if($('socialPostHint'))$('socialPostHint').textContent='Post was not published. Please retry; no local fake post was created.';
+      window.__aioSocialPostBusy=false;
       return showToast('Post was not published: '+(e?.message||'check your connection and try again.'));
     }
   }
@@ -2199,6 +2203,7 @@ async function createSocialPost(){
   if($('socialMediaFile'))$('socialMediaFile').value='';
   const finishedButton=$('socialPostSubmitBtn');if(finishedButton){finishedButton.disabled=false;finishedButton.textContent='Post to Social';}
   if($('socialPostHint'))$('socialPostHint').textContent='Posted successfully. It is stored in Social and will remain after refresh.';
+  window.__aioSocialPostBusy=false;
   showToast('Posted to Social');scrollToId('social');
   setTimeout(()=>document.querySelector('.social-post')?.scrollIntoView({behavior:'smooth',block:'start'}),180);
 }
