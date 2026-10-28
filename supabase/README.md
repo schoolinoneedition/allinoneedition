@@ -55,3 +55,6 @@ Migrations `20261028093212_aio_coin_quests_pricing_security.sql` and `2026102809
 ## Community game submissions
 
 Migration `20261028094117_aio_community_game_submissions_moderation.sql` adds an authenticated HTTPS-only submission RPC, public visibility only after approval, and owner-only review/feature/price/removal RPCs. Community games are launched in a sandboxed iframe without same-origin access. External links remain hosted by their original creators; submitted rights are not independently verified, so approve only content that is authorised for public linking.
+
+
+Migration `20261028094514_aio_economy_policy_performance.sql` adds covering indexes for moderation/pricing foreign keys and uses init-plan-friendly auth checks in the new economy/submission read policies.
