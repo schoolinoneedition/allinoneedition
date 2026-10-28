@@ -13,6 +13,7 @@ const rewardRules = read('supabase/migrations/20261028094634_aio_game_reward_rul
 const counter = read('supabase/migrations/20261028102739_secure_tiktok_sticker_download_counter.sql');
 const eventPolicy = read('supabase/migrations/20261028103352_deny_client_access_to_tiktok_sticker_download_events.sql');
 const eventIndex = read('supabase/migrations/20261028103427_index_tiktok_sticker_download_events_sticker_id.sql');
+const staffRls = read('supabase/migrations/20261028103528_optimize_tiktok_sticker_staff_rls_policies.sql');
 
 // Appearance choices must change the real UI and persist, not just update previews.
 assert.match(appearance, /function selectWallpaper\(id\)[\s\S]*?state\.wallpaper=id;delete state\.pendingWallpaper;save\(\);applyWallpaper\(\)/);
@@ -53,5 +54,6 @@ assert.match(counter, /revoke all on function public\.increment_tiktok_sticker_d
 assert.match(counter, /grant execute on function public\.increment_tiktok_sticker_downloads\(uuid\) to authenticated/i);
 assert.match(eventPolicy, /for all to anon, authenticated[\s\S]*using \(false\)[\s\S]*with check \(false\)/i);
 assert.match(eventIndex, /create index if not exists tiktok_sticker_download_events_sticker_id_idx/i);
+assert.match(staffRls, /sr\.user_id = \(select auth\.uid\(\)\)/i);
 
 console.log('Frontend contract checks passed: appearance persistence, context menu/game freeze wiring, auth/video safeguards, and economy/security migration contracts.');
