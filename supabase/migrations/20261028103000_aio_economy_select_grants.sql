@@ -1,1 +1,0 @@
-grant select on public.aio_coin_wallets, public.aio_coin_transactions, public.aio_game_purchases, public.aio_game_sessions, public.aio_game_activity, public.aio_quest_claims to authenticated; grant select on public.aio_game_prices to anon, authenticated;
