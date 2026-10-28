@@ -1,0 +1,1 @@
+drop policy if exists aio_reward_rules_no_client_access on public.aio_game_reward_rules; create policy aio_reward_rules_no_client_access on public.aio_game_reward_rules for select to anon, authenticated using(false);
