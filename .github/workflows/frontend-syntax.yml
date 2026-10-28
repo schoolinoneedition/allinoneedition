@@ -32,15 +32,15 @@ jobs:
           checked = 0
           for html_path in ["index.html", "games/originals.html", "games/arcade-pack-2.html", "games/arcade-pack-3.html"]:
               html = pathlib.Path(html_path).read_text(encoding="utf-8")
-              scripts = re.findall(r"<script\\b([^>]*)>([\\s\\S]*?)</script>", html, flags=re.I)
+              scripts = re.findall(r"<script\b([^>]*)>([\s\S]*?)</script>", html, flags=re.I)
               for index, (attrs, body) in enumerate(scripts):
-                  if re.search(r"\\bsrc\\s*=", attrs, flags=re.I):
+                  if re.search(r"\bsrc\s*=", attrs, flags=re.I):
                       continue
                   path = pathlib.Path(f"/tmp/aio-{pathlib.Path(html_path).stem}-inline-{index}.js")
                   path.write_text(body, encoding="utf-8")
                   result = subprocess.run(["node", "--check", str(path)], text=True, capture_output=True)
                   if result.returncode:
-                      print(f"{html_path}: inline script {index} failed syntax check:\\n{result.stderr}")
+                      print(f"{html_path}: inline script {index} failed syntax check:\n{result.stderr}")
                       sys.exit(result.returncode)
                   checked += 1
           print(f"Syntax OK: {checked} inline scripts across all four HTML files and 3 external scripts.")
