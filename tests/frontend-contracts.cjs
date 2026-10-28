@@ -25,6 +25,9 @@ assert.match(css, /html\[data-aio-theme="glass"\]/);
 assert.match(css, /data-aio-font="cherry"/);
 assert.match(css, /data-aio-cursor-style="minimal"/);
 assert.match(css, /data-aio-cursor-style="chatgpt"/);
+assert.match(css, /\.aio-wallpaper-gallery/);
+assert.match(css, /\.aio-wallpaper-preview/);
+assert.match(css, /\.aio-font-preview/);
 
 // Context actions should report errors; freeze must block input and game switching should close sessions.
 assert.match(ux, /Menu action failed:/);
