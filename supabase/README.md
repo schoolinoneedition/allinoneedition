@@ -45,3 +45,8 @@ The database RPC checks the owner role and records assignments/revocations in `s
 - Social uploads require sign-in. MP4 videos are capped at 100 MiB and images at 15 MiB by the UI.
 - The Videos page reads saved `social_posts` records; it does not show demo placeholders.
 - Vercel rewrites route refreshes (for example `/login` and `/videos`) to the existing `index.html`.
+
+
+## A-Coins and game economy
+
+Migration `20261028101000_aio_coin_quests_pricing_security.sql` adds server-authoritative wallets, immutable transaction entries, game sessions/activity, one-time quest claims, game prices and purchases. Wallet changes occur only through authenticated RPCs; owner pricing and refunds check `staff_roles.role = 'owner'` server-side. Game-session rewards require at least 90 seconds and are capped at five session rewards per UTC day. The browser UI cannot write balances or transaction rows directly.
