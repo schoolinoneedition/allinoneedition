@@ -64,3 +64,6 @@ Migration `20261028094634_aio_game_reward_rules.sql` makes rewards opt-in by gam
 
 
 Migration `20261028094752_aio_purchase_rebuy_after_refund.sql` allows a refunded purchase to be bought again while keeping a unique constraint on active ownership, so a normal repeat purchase still cannot double-charge an owner.
+
+
+Migration `20261028094834_aio_reward_rules_deny_client_reads.sql` explicitly denies direct client reads of the private game reward allowlist; authenticated users can only interact with it through the server-validated session RPCs.
