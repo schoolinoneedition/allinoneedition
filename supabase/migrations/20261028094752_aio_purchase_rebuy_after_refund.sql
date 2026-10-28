@@ -1,0 +1,2 @@
+alter table public.aio_game_purchases drop constraint if exists aio_game_purchases_user_id_game_id_key;
+create unique index if not exists aio_game_purchases_active_unique on public.aio_game_purchases(user_id,game_id) where refunded_at is null;
