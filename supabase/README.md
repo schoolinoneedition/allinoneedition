@@ -58,3 +58,6 @@ Migration `20261028094117_aio_community_game_submissions_moderation.sql` adds an
 
 
 Migration `20261028094514_aio_economy_policy_performance.sql` adds covering indexes for moderation/pricing foreign keys and uses init-plan-friendly auth checks in the new economy/submission read policies.
+
+
+Migration `20261028094634_aio_game_reward_rules.sql` makes rewards opt-in by game ID on the server. Only seeded games can start a rewarded session; each reward is configured server-side, session time is validated in Postgres, and daily reward limits are enforced there too.
