@@ -28,7 +28,7 @@ jobs:
           python - <<'PY'
           import pathlib, re, subprocess, sys
           checked = 0
-          for html_path in ["index.html", "games/originals.html"]:
+          for html_path in ["index.html", "games/originals.html", "games/arcade-pack-2.html"]:
               html = pathlib.Path(html_path).read_text(encoding="utf-8")
               scripts = re.findall(r"<script\\b([^>]*)>([\\s\\S]*?)</script>", html, flags=re.I)
               for index, (attrs, body) in enumerate(scripts):
@@ -41,5 +41,5 @@ jobs:
                       print(f"{html_path}: inline script {index} failed syntax check:\\n{result.stderr}")
                       sys.exit(result.returncode)
                   checked += 1
-          print(f"Syntax OK: {checked} inline scripts across both HTML files and 3 external scripts.")
+          print(f"Syntax OK: {checked} inline scripts across all three HTML files and 3 external scripts.")
           PY
