@@ -23,22 +23,23 @@ jobs:
           node --check ultimate-experience.js
       - name: Check appearance, auth, game and security wiring
         run: node tests/frontend-contracts.cjs
-      - name: Check inline JavaScript in index.html
+      - name: Check inline JavaScript in app and original games
         run: |
           python - <<'PY'
           import pathlib, re, subprocess, sys
-          html = pathlib.Path("index.html").read_text(encoding="utf-8")
-          scripts = re.findall(r"<script\b([^>]*)>([\s\S]*?)</script>", html, flags=re.I)
           checked = 0
-          for index, (attrs, body) in enumerate(scripts):
-              if re.search(r"\bsrc\s*=", attrs, flags=re.I):
-                  continue
-              path = pathlib.Path(f"/tmp/aio-inline-{index}.js")
-              path.write_text(body, encoding="utf-8")
-              result = subprocess.run(["node", "--check", str(path)], text=True, capture_output=True)
-              if result.returncode:
-                  print(f"Inline script {index} failed syntax check:\\n{result.stderr}")
-                  sys.exit(result.returncode)
-              checked += 1
-          print(f"Syntax OK: {checked} inline scripts and 3 external scripts.")
+          for html_path in ["index.html", "games/originals.html"]:
+              html = pathlib.Path(html_path).read_text(encoding="utf-8")
+              scripts = re.findall(r"<script\\b([^>]*)>([\\s\\S]*?)</script>", html, flags=re.I)
+              for index, (attrs, body) in enumerate(scripts):
+                  if re.search(r"\\bsrc\\s*=", attrs, flags=re.I):
+                      continue
+                  path = pathlib.Path(f"/tmp/aio-{pathlib.Path(html_path).stem}-inline-{index}.js")
+                  path.write_text(body, encoding="utf-8")
+                  result = subprocess.run(["node", "--check", str(path)], text=True, capture_output=True)
+                  if result.returncode:
+                      print(f"{html_path}: inline script {index} failed syntax check:\\n{result.stderr}")
+                      sys.exit(result.returncode)
+                  checked += 1
+          print(f"Syntax OK: {checked} inline scripts across both HTML files and 3 external scripts.")
           PY
