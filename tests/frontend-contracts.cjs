@@ -28,6 +28,9 @@ assert.match(ux, /Menu action failed:/);
 assert.match(ux, /f\.blur\(\)/);
 assert.match(ux, /f\.style\.pointerEvents=frozen\?'none':''/);
 assert.match(ux, /await endSession\(\);orig\(i\)/);
+assert.match(ux, /window\.open\('about:blank','_blank'\)/);
+assert.match(ux, /openContext\(p\.x,p\.y\)/);
+assert.match(ux, /e\.key==='ContextMenu'/);
 assert.match(ux, /aio-wallpaper-hidden/);
 
 // Auth restoration, profile provisioning and media upload cleanup are wired in the existing page.
