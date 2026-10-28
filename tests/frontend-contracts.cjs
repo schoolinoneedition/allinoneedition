@@ -59,4 +59,21 @@ assert.match(eventPolicy, /for all to anon, authenticated[\s\S]*using \(false\)[
 assert.match(eventIndex, /create index if not exists tiktok_sticker_download_events_sticker_id_idx/i);
 assert.match(staffRls, /sr\.user_id = \(select auth\.uid\(\)\)/i);
 
+
+const arcade = read('games/originals.html');
+
+// Original mini-games must be real self-contained game modes, not placeholder cards.
+for (const mode of ['snake','memory','reaction','breakout','ttt','pong','mines','slide','simon','word']) {
+  assert.match(html, new RegExp('games/originals\\.html\\?game=' + mode));
+  assert.match(arcade, new RegExp('function ' + ({snake:'snake',memory:'memory',reaction:'reaction',breakout:'breakout',ttt:'ttt',pong:'pong',mines:'mines',slide:'slide',simon:'simon',word:'word'})[mode] + '\\('));
+}
+assert.match(arcade, /addEventListener\('keydown'/);
+assert.match(arcade, /pointermove/);
+assert.match(arcade, /aria-live="polite"/);
+const cardRenderer = html.match(/function cardHTML\(g,i\)\{[\s\S]*?\n\}/)?.[0] || '';
+const cardMarkup = cardRenderer.match(/return \x60<article class="card"[\s\S]*?<\\/article>\x60;/)?.[0] || '';
+assert.ok(cardMarkup, 'Game card renderer should return consistent markup');
+assert.doesNotMatch(cardMarkup, /source\s*:|source\s*\}|powered by/i, 'Provider labels must not appear on ordinary game cards');
+assert.match(html, /function filteredGames\(\)/);
+
 console.log('Frontend contract checks passed: appearance persistence, context menu/game freeze wiring, auth/video safeguards, and economy/security migration contracts.');
