@@ -10,16 +10,27 @@ The website client is configured for the existing **XBT Website Builders** Supab
 
 ## Applied migrations
 
-These migrations were applied to the live XBT project and their SQL is tracked here:
+These migrations were applied to the live XBT project and their SQL is tracked in `supabase/migrations/`:
 
 1. `20261027182254_allinone_community_video_staff_security.sql`
 2. `20261027182825_staff_owner_read_policy_and_indexes.sql`
 3. `20261027183344_aio_owner_bootstrap_status.sql`
 4. `20261027183454_move_staff_privilege_checks_private.sql`
+5. `20261028093212_aio_coin_quests_pricing_security.sql`
+6. `20261028093734_aio_economy_rpc_privileges.sql`
+7. `20261028093939_aio_economy_select_grants.sql`
+8. `20261028094117_aio_community_game_submissions_moderation.sql`
+9. `20261028094514_aio_economy_policy_performance.sql`
+10. `20261028094634_aio_game_reward_rules.sql`
+11. `20261028094752_aio_purchase_rebuy_after_refund.sql`
+12. `20261028094834_aio_reward_rules_deny_client_reads.sql`
+13. `20261028102739_secure_tiktok_sticker_download_counter.sql`
 
-They create the missing profile, friends, messages, parties, social-post, comment, reaction, and follow tables; enable RLS; create the public `social-media` bucket with a 100 MiB limit for MP4 and supported image formats; and restrict file uploads/deletes to authenticated users' own storage folders. Public Social media is intentionally public. Do not put private videos in this bucket.
+The community migrations create the profile, friends, messages, parties, social-post, comment, reaction, and follow tables; enable RLS; create the public `social-media` bucket with a 100 MiB limit for MP4 and supported image formats; and restrict uploads/deletes to authenticated users' own storage folders. Public Social media is intentionally public. Do not put private videos in this bucket.
 
-5. `20261028102739_secure_tiktok_sticker_download_counter.sql`\n\nThe public sticker download counter now requires a signed-in account and counts each sticker at most once per account per UTC day. Anonymous visitors can still download public stickers; they cannot call the counter RPC. The private event ledger has RLS enabled and no direct client grants.\n\n## Supabase Auth URL configuration
+The economy migrations add server-authoritative wallets, immutable transaction entries, game sessions/activity, one-time quest claims, game prices and purchases, and restrict economy RPC execution to authenticated users. The sticker download counter now requires a signed-in account and counts each sticker at most once per account per UTC day. Anonymous visitors can still download public stickers, but cannot call the counter RPC; its private event ledger has RLS enabled and no direct client grants.
+
+## Supabase Auth URL configuration
 
 In the XBT Supabase Dashboard, open **Authentication → URL Configuration** and verify:
 
