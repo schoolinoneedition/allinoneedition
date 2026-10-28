@@ -61,6 +61,7 @@ assert.match(staffRls, /sr\.user_id = \(select auth\.uid\(\)\)/i);
 
 
 const arcade = read('games/originals.html');
+const arcade2 = read('games/arcade-pack-2.html');
 
 // Original mini-games must be real self-contained game modes, not placeholder cards.
 for (const mode of ['snake','memory','reaction','breakout','ttt','pong','mines','slide','simon','word']) {
@@ -70,6 +71,15 @@ for (const mode of ['snake','memory','reaction','breakout','ttt','pong','mines',
 assert.match(arcade, /addEventListener\('keydown'/);
 assert.match(arcade, /pointermove/);
 assert.match(arcade, /aria-live="polite"/);
+
+// The second original pack must expose ten unique, wired game modes.
+for (const mode of ['maze','math','color','typing','mole','target','merge','lights','connect','sequence']) {
+  assert.ok(html.includes('games/arcade-pack-2.html?game=' + mode), 'Missing registry entry for ' + mode);
+  assert.ok(arcade2.includes('function ' + mode + '('), 'Missing implementation for ' + mode);
+}
+assert.match(arcade2, /aria-live="polite"/);
+assert.match(arcade2, /addEventListener\('keydown'/);
+
 const cardRenderer = html.match(/function cardHTML\(g,i\)\{[\s\S]*?\n\}/)?.[0] || '';
 const returnStart = cardRenderer.indexOf('return `');
 const returnEnd = returnStart >= 0 ? cardRenderer.indexOf('`;', returnStart) : -1;
