@@ -61,3 +61,6 @@ Migration `20261028094514_aio_economy_policy_performance.sql` adds covering inde
 
 
 Migration `20261028094634_aio_game_reward_rules.sql` makes rewards opt-in by game ID on the server. Only seeded games can start a rewarded session; each reward is configured server-side, session time is validated in Postgres, and daily reward limits are enforced there too.
+
+
+Migration `20261028094752_aio_purchase_rebuy_after_refund.sql` allows a refunded purchase to be bought again while keeping a unique constraint on active ownership, so a normal repeat purchase still cannot double-charge an owner.
