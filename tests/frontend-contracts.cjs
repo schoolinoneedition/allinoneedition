@@ -9,6 +9,7 @@ const ux = read('ultimate-experience.js');
 const css = read('ultimate-experience.css');
 const html = read('index.html');
 const economy = read('supabase/migrations/20261028093212_aio_coin_quests_pricing_security.sql');
+const rewardRules = read('supabase/migrations/20261028094634_aio_game_reward_rules.sql');
 const counter = read('supabase/migrations/20261028102739_secure_tiktok_sticker_download_counter.sql');
 
 // Appearance choices must change the real UI and persist, not just update previews.
@@ -41,7 +42,7 @@ assert.match(html, /__aioSocialPostBusy/);
 // Database-side controls, not browser-supplied reward amounts, govern the economy.
 assert.match(economy, /auth\.uid\(\)/);
 assert.match(economy, /for update/i);
-assert.match(economy, /aio_game_reward_rules/);
+assert.match(rewardRules, /aio_game_reward_rules/);
 assert.match(counter, /primary key \(user_id, sticker_id, day_key\)/i);
 assert.match(counter, /revoke all on function public\.increment_tiktok_sticker_downloads\(uuid\) from public, anon, authenticated/i);
 assert.match(counter, /grant execute on function public\.increment_tiktok_sticker_downloads\(uuid\) to authenticated/i);
