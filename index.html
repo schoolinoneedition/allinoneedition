@@ -466,10 +466,18 @@ html.reduced-motion .cover{transition:none!important}
 .social-launch-copy h3{margin:8px 0 7px;font-size:22px;letter-spacing:-.6px}.social-launch-copy p{margin:0;max-width:650px;color:var(--muted);font-size:12px;line-height:1.6}
 .social-launch-panel a,.social-launch-inline a{text-decoration:none}.social-launch-inline{display:flex;align-items:center;justify-content:space-between;gap:12px}
 @media(max-width:600px){.social-launch-panel,.social-launch-inline{align-items:flex-start;flex-direction:column}}
+
+/* Perch Ads: quiet, responsive placement between the hero and game-progress/catalogue content. */
+.perch-ad-section{width:100%;margin:12px 0 22px;padding:9px 12px 12px;border:1px solid var(--line);border-radius:15px;background:linear-gradient(135deg,var(--panel),var(--soft));box-shadow:0 4px 14px rgba(20,30,45,.035);text-align:center;overflow:hidden}
+.perch-ad-label{font-size:9px;line-height:1.2;letter-spacing:.12em;text-transform:uppercase;font-weight:850;color:var(--muted);margin:0 0 7px}
+.perch-ad-slot{display:block;width:100%;min-width:0;min-height:90px;text-align:center;overflow:hidden}
+.perch-ad-slot>*{max-width:100%;margin-left:auto;margin-right:auto}
+@media(max-width:600px){.perch-ad-section{margin:10px 0 17px;padding:8px 7px 9px;border-radius:12px}.perch-ad-slot{min-height:70px}}
 </style>
 <link rel="stylesheet" href="./appearance.css">
 <link rel="stylesheet" href="./ultimate-experience.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://www.perchads.com" crossorigin>
 </head>
 <body>
 <div id="siteLoader" aria-live="polite">
@@ -519,6 +527,13 @@ html.reduced-motion .cover{transition:none!important}
  <div class="hero-card"><h1>One site. Games, school, tools and live info.</h1><p>A fast single-file hub. Game covers use lazy loading and a game iframe only starts after you click a card.</p><div class="chips"><button class="chip" onclick="scrollToId('games')">Browse games</button><button class="chip" onclick="scrollToId('school')">School apps</button><button class="chip" onclick="scrollToId('community')">Community</button><button class="chip" onclick="scrollToId('live')">Live info</button><button class="chip" onclick="scrollToId('tools')">Useful tools</button><button class="chip" onclick="openAssistant()">Ask smart answer</button></div><p style="margin-top:15px"><span class="kbd">Ctrl+Q</span> toggles page hiding where the browser allows the shortcut. The Hide button is always available.</p></div>
  <div class="quick"><div class="qcard"><div class="k">Hometime</div><div class="v" id="homeCountdown">--:--:--</div></div><div class="qcard"><div class="k">Current time</div><div class="v" id="clock">--:--:--</div></div><div class="qcard"><div class="k">Today</div><div class="v" id="date">Loading…</div></div><div class="qcard"><div class="k">Game count</div><div class="v" id="gameCount">—</div></div></div>
 </section>
+<section class="perch-ad-section" aria-label="Advertisement">
+  <div class="perch-ad-label">Advertisement</div>
+  <div class="perch-ad-slot">
+    <script async src="https://www.perchads.com/embed.js" data-space="tz96axf6cz"></script>
+  </div>
+</section>
+
 <section class="section" id="continueSection"><div class="section-head"><h2>Continue playing</h2><small>Your recent game progress stays on this device.</small></div><div id="resumePanel" class="resume-panel panel"><div><strong>No game started yet.</strong><span>Open a game and your last-played progress will appear here.</span></div><button class="btn mini" onclick="continueLastGame()">Continue</button></div></section>
 <section id="games" class="section"><div class="section-head"><h2>Games</h2><small>Fast games, quick search, saved progress</small></div><div class="panel catalog-info" style="margin-bottom:12px"><strong>Huge game library</strong><span><b id="librarySummary">Your games are rendered in fast batches while the browser warms images and game pages in the background</b> · fast-loading cards, saved progress and a full-screen game view.</span></div><div class="panel catalog-info" style="margin-bottom:12px"><strong>Quick picks</strong><span>Popular games are kept near the front. Use search for exact titles or filters for Racing, Sports, Platformer, Shooter, Casual, Puzzle, Idle and more.</span></div><div class="filters" id="filters"></div><div class="games" id="gameGrid"></div><div id="loadMoreWrap" style="display:none;justify-content:center;margin-top:18px"><button class="btn mini" id="loadMoreBtn" onclick="loadMoreGames()">Load more games</button></div></section>
 <section id="school" class="section"><div class="section-head"><h2>School apps</h2><small>In-page workspace with an external fallback.</small></div><div class="grid4">
