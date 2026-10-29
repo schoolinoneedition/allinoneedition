@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#10131b">
+<title>All in One Edition · Arcade</title>
+<style>
+:root{color-scheme:dark;--bg:#10131b;--panel:#191e2a;--panel2:#202737;--line:#30394b;--text:#f4f6fb;--muted:#a9b2c4;--blue:#7da2ff;--cyan:#79e3dc;--shadow:0 16px 45px #0004}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(1000px 420px at 50% -100px,#253458 0,transparent 70%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+button{font:inherit;cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}.top{max-width:1180px;margin:auto;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px}.home{color:var(--text);text-decoration:none;font-size:13px;font-weight:800;display:flex;align-items:center;gap:8px}.home:hover{color:var(--cyan)}.pill{font-size:10px;letter-spacing:.13em;font-weight:900;color:#c8d5ff;border:1px solid #53648b;border-radius:999px;padding:7px 11px;background:#202c47}
+main{max-width:1180px;margin:auto;padding:8px 22px 42px}.intro{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:8px 0 22px}.eyebrow{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);font-weight:900}h1{font-size:clamp(28px,5vw,43px);line-height:1.05;letter-spacing:-.04em;margin:8px 0 9px}.intro p{max-width:620px;color:var(--muted);font-size:13px;line-height:1.6;margin:0}.scorebox{min-width:105px;text-align:right}.scorebox small{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.1em}.scorebox strong{display:block;font-size:25px;letter-spacing:-.03em;margin-top:4px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:16px;align-items:stretch}.play-panel,.info-panel{background:linear-gradient(160deg,#1b2130,#171c27);border:1px solid var(--line);border-radius:21px;box-shadow:var(--shadow);overflow:hidden}.play-panel{min-width:0;min-height:440px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:clamp(12px,2vw,22px);gap:14px}.info-panel{padding:20px;display:flex;flex-direction:column;gap:13px}.info-panel h2{font-size:14px;margin:0}.info-panel p{font-size:12px;line-height:1.6;color:var(--muted);margin:0}.keyline{display:flex;flex-wrap:wrap;gap:6px}.key{border:1px solid #424d62;background:#222b3c;padding:5px 8px;border-radius:7px;font:700 10px ui-monospace,SFMono-Regular,monospace;color:#e5ebfa}.rule{height:1px;background:var(--line);margin:2px 0}.status{padding:10px 11px;border:1px solid #364661;border-radius:10px;background:#1d2b43;color:#d4e2ff;font-size:11px;line-height:1.5;min-height:40px}.restart{width:100%;padding:11px 13px;border:1px solid #7da2ff;background:#7da2ff;color:#101523;border-radius:11px;font-weight:900;font-size:12px;transition:transform .15s,filter .15s}.restart:hover{filter:brightness(1.07);transform:translateY(-1px)}.tip{margin-top:auto!important;font-size:10px!important}
+canvas{display:block;max-width:100%;height:auto;background:#101521;border:1px solid #343e52;border-radius:13px;touch-action:pan-y}
+#board{width:100%;display:flex;flex-direction:column;align-items:center;gap:10px}
+.grid2048{width:min(100%,390px);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;background:#282d38;border:1px solid #3b4351;padding:9px;border-radius:14px;touch-action:pan-y}.tile{aspect-ratio:1;border:0;border-radius:9px;background:#343a47;color:#e8edf6;font-size:clamp(17px,3vw,27px);font-weight:950}.tile[data-v="0"]{color:transparent;background:#232936}.tile[data-v="2"]{background:#e7e2d7;color:#353343}.tile[data-v="4"]{background:#c9e9f5;color:#223344}.tile[data-v="8"]{background:#9ad1ef;color:#122f4c}.tile[data-v="16"]{background:#8fb1ff;color:#142b59}.tile[data-v="32"]{background:#b1a4ff;color:#29204f}.tile[data-v="64"]{background:#ffb5d4;color:#4d1830}.tile[data-v="128"],.tile[data-v="256"],.tile[data-v="512"]{background:#f4db75;color:#332b10}.tile[data-v="1024"],.tile[data-v="2048"]{background:#9fe0bc;color:#123d29;font-size:clamp(14px,2.5vw,22px)}
+.small-controls{display:flex;justify-content:center;flex-wrap:wrap;gap:7px}.small-controls button{border:1px solid #46516a;color:var(--text);background:#252e40;border-radius:10px;min-width:40px;min-height:38px;padding:8px 12px;font-weight:900}.small-controls button:hover{background:#32415d}
+.memory-grid{width:min(100%,410px);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.memory-card{aspect-ratio:1;border:1px solid #465578;background:linear-gradient(145deg,#293c62,#263048);border-radius:12px;font-size:clamp(20px,4vw,34px);font-weight:900;color:#fff;box-shadow:0 4px 0 #151b29}.memory-card.open,.memory-card.matched{background:#d9e9ff;color:#15233c;border-color:#c9e0ff;box-shadow:none}.memory-card.matched{outline:2px solid var(--cyan)}
+.ttt-grid{width:min(100%,350px);display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.ttt-cell{aspect-ratio:1;border:1px solid #43526f;border-radius:14px;background:#222b3b;color:#e5ecfa;font-size:clamp(34px,7vw,54px);font-weight:950}.ttt-cell.x{color:#8fc6ff}.ttt-cell.o{color:#83e5d5}.ttt-cell:disabled{cursor:default}
+.mine-grid{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:4px;width:min(100%,410px)}.mine-cell{aspect-ratio:1;min-width:0;border:1px solid #45516a;border-radius:5px;background:#283346;color:#e8edf6;font-size:clamp(10px,2vw,15px);font-weight:900;padding:0}.mine-cell.revealed{background:#151c29;border-color:#303949}.mine-cell.flag{color:#ffce6d}.mine-cell.mine{background:#743e52;color:#fff}
+.simon-grid{width:min(100%,360px);display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.simon-btn{aspect-ratio:1;border:0;border-radius:19px;opacity:.75;filter:saturate(.8);box-shadow:inset 0 -7px 0 #0002;transition:transform .1s,opacity .1s}.simon-btn.active{opacity:1;transform:scale(.97);filter:brightness(1.4);box-shadow:0 0 0 4px #ffffff38,inset 0 -7px 0 #0002}.simon-btn:nth-child(1){background:#47c7a6}.simon-btn:nth-child(2){background:#7c9cff}.simon-btn:nth-child(3){background:#ffbd66}.simon-btn:nth-child(4){background:#d48cff}
+.dpad{display:grid;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(2,42px);gap:5px}.dpad button{border:1px solid #45516a;border-radius:9px;background:#273247;color:#fff;font-weight:900}.dpad .up{grid-column:2}.dpad .left{grid-column:1;grid-row:2}.dpad .down{grid-column:2;grid-row:2}.dpad .right{grid-column:3;grid-row:2}
+footer{max-width:1180px;margin:0 auto;padding:0 22px 24px;color:#828da2;font-size:10px;line-height:1.6}
+@media(max-width:760px){.top{padding:15px 15px}.top .pill{display:none}main{padding:6px 12px 28px}.intro{align-items:flex-start}.scorebox{min-width:75px}.layout{grid-template-columns:1fr}.play-panel{min-height:360px}.info-panel{padding:16px}.tip{margin-top:0!important}footer{padding:0 14px 20px}}
+@media(max-width:410px){.grid2048{gap:5px;padding:6px}.memory-grid{gap:6px}.ttt-grid{gap:6px}.mine-grid{gap:3px}.scorebox strong{font-size:21px}}
+</style>
+</head>
+<body>
+<header class="top"><a class="home" href="/" aria-label="Back to All in One Edition">← <span>All in One Edition</span></a><span class="pill">AIO ORIGINAL ARCADE</span></header>
+<main>
+  <section class="intro"><div><div class="eyebrow">Quick play · No downloads</div><h1 id="gameTitle">Snake</h1><p id="lead">A small collection of lightweight games made for this hub. Keyboard, mouse and touch controls are supported where appropriate.</p></div><div class="scorebox"><small id="scoreLabel">Score</small><strong id="score">0</strong></div></section>
+  <div class="layout"><section class="play-panel"><div id="board"></div><div id="controls" class="small-controls"></div></section>
+    <aside class="info-panel"><h2>How to play</h2><p id="instructions">Use the arrow keys to move. Eat the dots and avoid the walls and your own tail.</p><div class="keyline" id="keys"></div><div class="rule"></div><div id="status" class="status" role="status" aria-live="polite">Ready to play.</div><button class="restart" type="button" onclick="location.reload()">Restart game</button><p class="tip">Lightweight local games. Your progress stays inside this game while the page is open.</p></aside>
+  </div>
+</main>
+<footer>All in One Edition · Original mini-games built for quick browser play.</footer>
+<script>
+(function(){
+"use strict";
+const qs=new URLSearchParams(location.search);
+const id=(qs.get("game")||"snake").toLowerCase();
+const $=function(s){return document.getElementById(s)};
+const board=$("board"), controls=$("controls");
+function base(title,desc,keys,scoreLabel){$("gameTitle").textContent=title;$("lead").textContent=desc;$("instructions").textContent=keys;$("scoreLabel").textContent=scoreLabel||"Score"}
+function status(s){$("status").textContent=s}
+function score(s){$("score").textContent=String(s)}
+function button(label,fn){const b=document.createElement("button");b.type="button";b.textContent=label;b.addEventListener("click",fn);return b}
+function keyPills(arr){$("keys").innerHTML=arr.map(function(k){return '<span class="key">'+k+'</span>'}).join("")}
+function canvas(w,h){const c=document.createElement("canvas");c.width=w;c.height=h;c.setAttribute("aria-label","Game play area");board.appendChild(c);return [c,c.getContext("2d")]}
+function drawGrid(ctx,w,h,step){ctx.strokeStyle="#202a3a";ctx.lineWidth=1;for(let x=0;x<=w;x+=step){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke()}for(let y=0;y<=h;y+=step){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}}
+function setupSnake(){
+ base("Snake","A tiny arcade classic. Keep moving, collect dots, and try to beat your own score.","Use the arrow keys or WASD. On touch screens, use the directional pad.","Dots eaten");
+ const [c,ctx]=canvas(380,380),cell=20,units=19;let snake,dir,nextDir,food,points,timer,dead;
+ function reset(){clearInterval(timer);snake=[{x:9,y:9},{x:8,y:9},{x:7,y:9}];dir={x:1,y:0};nextDir={x:1,y:0};points=0;dead=false;foodNew();score(0);status("Collect the glowing dots. Do not hit a wall or your tail.");render();timer=setInterval(step,115)}
+ function foodNew(){let p;do{p={x:Math.floor(Math.random()*units),y:Math.floor(Math.random()*units)}}while(snake&&snake.some(s=>s.x===p.x&&s.y===p.y));food=p}
+ function render(){ctx.fillStyle="#101521";ctx.fillRect(0,0,c.width,c.height);drawGrid(ctx,c.width,c.height,cell);ctx.fillStyle="#ffcb75";ctx.beginPath();ctx.arc(food.x*cell+cell/2,food.y*cell+cell/2,cell*.32,0,Math.PI*2);ctx.fill();snake.forEach(function(p,i){ctx.fillStyle=i===0?"#9cf0da":"#58bfa9";ctx.beginPath();ctx.roundRect(p.x*cell+2,p.y*cell+2,cell-4,cell-4,5);ctx.fill()});if(dead){ctx.fillStyle="#101521c9";ctx.fillRect(0,0,c.width,c.height);ctx.fillStyle="#fff";ctx.textAlign="center";ctx.font="800 24px system-ui";ctx.fillText("Game over",c.width/2,c.height/2)}}
+ function step(){if(dead)return;dir=nextDir;const head={x:snake[0].x+dir.x,y:snake[0].y+dir.y};if(head.x<0||head.y<0||head.x>=units||head.y>=units||snake.some((p,i)=>i>0&&p.x===head.x&&p.y===head.y)){dead=true;clearInterval(timer);status("Game over. Your final score was "+points+". Press Restart game to try again.");render();return}snake.unshift(head);if(head.x===food.x&&head.y===food.y){points++;score(points);foodNew()}else snake.pop();render()}
+ function turn(x,y){if(x!==-dir.x||y!==-dir.y)nextDir={x:x,y:y}}
+ window.addEventListener("keydown",function(e){const k=e.key.toLowerCase();const m={arrowup:[0,-1],w:[0,-1],arrowdown:[0,1],s:[0,1],arrowleft:[-1,0],a:[-1,0],arrowright:[1,0],d:[1,0]};if(m[k]){e.preventDefault();turn(m[k][0],m[k][1])}});
+ controls.className="dpad";controls.appendChild(button("↑",()=>turn(0,-1))).className="up";controls.appendChild(button("←",()=>turn(-1,0))).className="left";controls.appendChild(button("↓",()=>turn(0,1))).className="down";controls.appendChild(button("→",()=>turn(1,0))).className="right";reset()
+}
+function setup2048(){
+ base("2048","Slide the tiles together to build a bigger number. Each move adds a new tile.","Use arrow keys or the direction buttons. Tiles with the same number merge once per move.","Tile score");keyPills(["←","↑","→","↓"]);
+ const dirs=["up","left","down","right"];let g,pts,ended;
+ function spawn(){const empty=[];for(let r=0;r<4;r++)for(let c=0;c<4;c++)if(!g[r][c])empty.push([r,c]);if(empty.length){const p=empty[Math.floor(Math.random()*empty.length)];g[p[0]][p[1]]=Math.random()<.9?2:4}}
+ function render(){board.innerHTML='<div class="grid2048" role="grid">'+g.flat().map(v=>'<button type="button" class="tile" data-v="'+v+'" tabindex="-1" aria-label="'+(v||"empty")+'">'+(v||"")+'</button>').join("")+'</div>';score(pts)}
+ function won(){return g.some(row=>row.includes(2048))}
+ function noMoves(){if(g.some(row=>row.includes(0)))return false;for(let r=0;r<4;r++)for(let c=0;c<4;c++)if((r<3&&g[r][c]===g[r+1][c])||(c<3&&g[r][c]===g[r][c+1]))return false;return true}
+ function move(dir){if(ended)return;const n=Array.from({length:4},()=>Array(4).fill(0));let gained=0;
+  for(let i=0;i<4;i++){const pos=[];for(let k=0;k<4;k++){if(dir==="left")pos.push([i,k]);if(dir==="right")pos.push([i,3-k]);if(dir==="up")pos.push([k,i]);if(dir==="down")pos.push([3-k,i])}
+   const line=pos.map(p=>g[p[0]][p[1]]).filter(Boolean),out=[];
+   for(let j=0;j<line.length;j++){if(line[j]===line[j+1]){out.push(line[j]*2);gained+=line[j]*2;j++}else out.push(line[j])}
+   while(out.length<4)out.push(0);pos.forEach((p,k)=>n[p[0]][p[1]]=out[k])
+  }
+  if(JSON.stringify(g)===JSON.stringify(n))return;g=n;pts+=gained;spawn();render();
+  if(won()){ended=true;status("You made 2048! Keep going or restart for a new board.");}else if(noMoves()){ended=true;status("No moves left. Final score: "+pts+". Restart for a fresh board.");}else status(gained?"Merged tiles for +"+gained+" points.":"Tile moved.")
+ }
+ function reset(){g=Array.from({length:4},()=>Array(4).fill(0));pts=0;ended=false;spawn();spawn();render();status("Make 2048. Bigger numbers need two matching tiles.");controls.innerHTML="";dirs.forEach(d=>controls.appendChild(button(({up:"↑",left:"←",down:"↓",right:"→"})[d],()=>move(d))))}
+ window.addEventListener("keydown",function(e){const m={ArrowUp:"up",ArrowLeft:"left",ArrowDown:"down",ArrowRight:"right"};if(m[e.key]){e.preventDefault();move(m[e.key])}});
+ let touchX=0,touchY=0;board.addEventListener("touchstart",function(e){if(e.changedTouches[0]){touchX=e.changedTouches[0].clientX;touchY=e.changedTouches[0].clientY}},{passive:true});board.addEventListener("touchend",function(e){if(!e.changedTouches[0])return;const dx=e.changedTouches[0].clientX-touchX,dy=e.changedTouches[0].clientY-touchY;if(Math.max(Math.abs(dx),Math.abs(dy))<25)return;move(Math.abs(dx)>Math.abs(dy)?(dx>0?"right":"left"):(dy>0?"down":"up"))},{passive:true});
+ window.aio2048Reset=reset;reset();$("restart").onclick=reset
+}
+function setupMemory(){
+ base("Memory Match","Turn over two cards at a time and find all matching pairs.","Tap or click cards. Match all eight pairs in as few moves as possible.","Moves");
+ const symbols=["🍉","🚀","🌈","🧩","🐸","🎧","🍄","⭐"];let cards,open,matches,moves,lock;
+ function render(){board.innerHTML='<div class="memory-grid">'+cards.map((v,i)=>'<button type="button" class="memory-card '+((open.includes(i)||matches.includes(i))?"open ":"")+(matches.includes(i)?"matched":"")+'" data-i="'+i+'" aria-label="Card '+(i+1)+'">'+((open.includes(i)||matches.includes(i))?v:"?")+'</button>').join("")+'</div>';score(moves)}
+ function choose(i){if(lock||open.includes(i)||matches.includes(i))return;open.push(i);render();if(open.length===2){moves++;score(moves);lock=true;const a=open[0],b=open[1];if(cards[a]===cards[b]){matches.push(a,b);open=[];lock=false;render();if(matches.length===16)status("Every pair found in "+moves+" moves. Nicely done!")}else setTimeout(function(){open=[];lock=false;render()},700)}}
+ function reset(){cards=symbols.concat(symbols).sort(()=>Math.random()-.5);open=[];matches=[];moves=0;lock=false;render();status("Find matching pairs. Try to remember where each symbol is.");}
+ board.addEventListener("click",function(e){const b=e.target.closest("[data-i]");if(b)choose(Number(b.dataset.i))});reset();$("restart").onclick=reset
+}
+function setupTicTacToe(){
+ base("Tic-Tac-Toe","Get three marks in a row before the computer does.","You are X. Click an empty square; the computer plays O right after you.","Moves");keyPills(["Click a square"]);
+ let cells,done,moves,thinking;
+ function winner(a){const lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];for(const l of lines)if(a[l[0]]&&a[l[0]]===a[l[1]]&&a[l[1]]===a[l[2]])return a[l[0]];return a.every(Boolean)?"draw":""}
+ function render(){board.innerHTML='<div class="ttt-grid">'+cells.map((v,i)=>'<button type="button" class="ttt-cell '+(v==="X"?"x":v==="O"?"o":"")+'" data-i="'+i+'" '+(v||done||thinking?"disabled":"")+'>'+v+'</button>').join("")+'</div>';score(moves)}
+ function finish(){const w=winner(cells);if(w){done=true;render();status(w==="draw"?"It is a draw. Try another round.":w==="X"?"You win. Solid moves.":"The computer wins this round. Try again.");return true}return false}
+ function cpu(){const options=[0,1,2,3,4,5,6,7,8].filter(i=>!cells[i]);function winMove(mark){for(const i of options){const a=cells.slice();a[i]=mark;if(winner(a)===mark)return i}return -1}
+  let i=winMove("O");if(i<0)i=winMove("X");if(i<0&& !cells[4])i=4;if(i<0){const corners=options.filter(x=>[0,2,6,8].includes(x));if(corners.length)i=corners[Math.floor(Math.random()*corners.length)]}if(i<0&&options.length)i=options[Math.floor(Math.random()*options.length)];if(i>=0){cells[i]="O";moves++}
+ }
+ function play(i){if(done||thinking||cells[i])return;cells[i]="X";moves++;if(finish())return;thinking=true;render();setTimeout(function(){cpu();thinking=false;if(!finish()){render();status("Your turn. Make a line of three.")}},250)}
+ function reset(){cells=Array(9).fill("");done=false;thinking=false;moves=0;render();status("Your move. You play X and the computer plays O.")}
+ board.addEventListener("click",function(e){const b=e.target.closest("[data-i]");if(b)play(Number(b.dataset.i))});reset();$("restart").onclick=reset
+}
+function setupMines(){
+ base("Minesweeper","Clear every safe square without opening a mine.","Click to reveal a square. Right-click to place or remove a flag. Number clues tell you how many mines touch a square.","Safe squares");
+ const n=9,total=10;let cells,ended,flags,revealed;
+ function init(){cells=Array.from({length:n*n},()=>({mine:false,count:0,open:false,flag:false}));ended=false;flags=0;revealed=0;let placed=0;while(placed<total){const i=Math.floor(Math.random()*cells.length);if(!cells[i].mine){cells[i].mine=true;placed++}}cells.forEach((c,i)=>{if(c.mine)return;c.count=neighbors(i).filter(j=>cells[j].mine).length});render();score(0);status("Find all safe squares. Right-click (or long-press via device context menu) to flag a suspected mine.")}
+ function neighbors(i){const r=Math.floor(i/n),c=i%n,a=[];for(let y=-1;y<=1;y++)for(let x=-1;x<=1;x++){if(!x&&!y)continue;const nr=r+y,nc=c+x;if(nr>=0&&nr<n&&nc>=0&&nc<n)a.push(nr*n+nc)}return a}
+ function reveal(i){const c=cells[i];if(ended||c.open||c.flag)return;if(c.mine){ended=true;cells.forEach(x=>{if(x.mine)x.open=true});render();status("Mine found. Restart for a new board.");return}let stack=[i];while(stack.length){const j=stack.pop(),a=cells[j];if(a.open||a.flag||a.mine)continue;a.open=true;revealed++;if(a.count===0)neighbors(j).forEach(k=>{if(!cells[k].open&&!cells[k].mine)stack.push(k)})}score(revealed);if(revealed===n*n-total){ended=true;status("Board cleared. All safe squares revealed!")}render()}
+ function toggle(i){if(ended||cells[i].open)return;cells[i].flag=!cells[i].flag;flags+=cells[i].flag?1:-1;render();status(flags+" of "+total+" flags placed.")}
+ function render(){board.innerHTML='<div class="mine-grid">'+cells.map((c,i)=>{let cls="mine-cell";if(c.open)cls+=" revealed";if(c.flag)cls+=" flag";if(c.mine&&c.open)cls+=" mine";let txt=c.flag?"⚑":c.open?(c.mine?"✹":c.count||""):"";return '<button type="button" class="'+cls+'" data-i="'+i+'" aria-label="Square '+(i+1)+(c.open?", revealed":"")+'">'+txt+'</button>'}).join("")+'</div>';score(revealed)}
+ board.addEventListener("click",function(e){const b=e.target.closest("[data-i]");if(b)reveal(Number(b.dataset.i))});board.addEventListener("contextmenu",function(e){const b=e.target.closest("[data-i]");if(b){e.preventDefault();toggle(Number(b.dataset.i))}});init();$("restart").onclick=init
+}
+function setupPong(){
+ base("Pong","A quick table-tennis duel against a simple computer opponent.","Move with W/S or ↑/↓. First to seven points wins the round.","You · CPU");keyPills(["W","S","↑","↓"]);
+ const [c,ctx]=canvas(700,420);let py=170,ay=170,by=200,bx=350,bvx=4,bvy=2,ps=0,as=0,keys={},over=false,last=0;
+ function serve(dir){bx=350;by=210;bvx=4*dir;bvy=(Math.random()*3-1.5)||1}
+ function draw(){ctx.fillStyle="#101521";ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle="#39445a";ctx.setLineDash([8,10]);ctx.beginPath();ctx.moveTo(350,0);ctx.lineTo(350,420);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle="#a8b9d9";ctx.fillRect(26,py,12,80);ctx.fillStyle="#8de1d6";ctx.fillRect(662,ay,12,80);ctx.fillStyle="#f0f4ff";ctx.beginPath();ctx.arc(bx,by,8,0,Math.PI*2);ctx.fill();ctx.fillStyle="#eaf0ff";ctx.font="800 38px system-ui";ctx.textAlign="center";ctx.fillText(ps,300,48);ctx.fillText(as,400,48)}
+ function loop(t){if(!last)last=t;const dt=Math.min(2,(t-last)/16.7);last=t;if(!over){if(keys.ArrowUp||keys.w)py-=5*dt;if(keys.ArrowDown||keys.s)py+=5*dt;py=Math.max(0,Math.min(340,py));ay+=((by-40)-ay)*.075*dt;ay=Math.max(0,Math.min(340,ay));bx+=bvx*dt;by+=bvy*dt;if(by<8||by>412)bvy*=-1;if(bx<38&&bx>20&&by>py-3&&by<py+83){bvx=Math.abs(bvx)*1.04;bvy+=(by-(py+40))*.04}if(bx>650&&bx<675&&by>ay-3&&by<ay+83){bvx=-Math.abs(bvx)*1.04;bvy+=(by-(ay+40))*.04}if(bx<0){as++;score(ps+" · "+as);if(as>=7){over=true;status("Computer wins this round. Restart to play again.")}else serve(1)}if(bx>700){ps++;score(ps+" · "+as);if(ps>=7){over=true;status("You win the round! Restart for a rematch.")}else serve(-1)}}draw();if(!over)requestAnimationFrame(loop)}
+ window.addEventListener("keydown",function(e){if(["ArrowUp","ArrowDown"].includes(e.key)){e.preventDefault()}keys[e.key]=true;keys[e.key.toLowerCase()]=true});window.addEventListener("keyup",function(e){keys[e.key]=false;keys[e.key.toLowerCase()]=false});c.addEventListener("touchmove",function(e){if(e.touches[0]){py=Math.max(0,Math.min(340,e.touches[0].clientY-c.getBoundingClientRect().top-40));e.preventDefault()}},{passive:false});
+ function reset(){py=170;ay=170;ps=0;as=0;over=false;keys={};serve(Math.random()<.5?1:-1);score("0 · 0");status("First to seven. Move your paddle to return the ball.");last=0;requestAnimationFrame(loop)}
+ controls.appendChild(button("↑",()=>py=Math.max(0,py-30)));controls.appendChild(button("↓",()=>py=Math.min(340,py+30)));reset();$("restart").onclick=reset
+}
+function setupBreakout(){
+ base("Breakout","Bounce the ball into the bricks and clear the board before your lives run out.","Move your paddle with the mouse, touch, or ←/→. Keep the ball in play.","Bricks cleared");
+ const [c,ctx]=canvas(700,420);let paddle,ball,bricks,lives,points,over,win,keys={},raf,last=0;
+ function reset(){paddle={x:300,y:384,w:100,h:12};ball={x:350,y:360,dx:3.5,dy:-4,r:7};bricks=[];for(let r=0;r<4;r++)for(let col=0;col<10;col++)bricks.push({x:22+col*66,y:34+r*25,w:56,h:15,alive:true});lives=3;points=0;over=false;win=false;score(points);status("Clear every brick. Keep the ball above your paddle.");last=0;if(raf)cancelAnimationFrame(raf);raf=requestAnimationFrame(loop)}
+ function draw(){ctx.fillStyle="#101521";ctx.fillRect(0,0,700,420);bricks.forEach((b,i)=>{if(!b.alive)return;ctx.fillStyle=["#8fb1ff","#7fdecf","#ffd280","#c7a8ff"][Math.floor(i/10)];ctx.fillRect(b.x,b.y,b.w,b.h);ctx.strokeStyle="#101521";ctx.strokeRect(b.x,b.y,b.w,b.h)});ctx.fillStyle="#eef4ff";ctx.fillRect(paddle.x,paddle.y,paddle.w,paddle.h);ctx.fillStyle="#ffcb75";ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);ctx.fill();ctx.fillStyle="#d5deee";ctx.font="12px system-ui";ctx.textAlign="left";ctx.fillText("Lives: "+lives,20,408)}
+ function loop(t){if(!last)last=t;let dt=Math.min(1.8,(t-last)/16.7||1);last=t;if(!over){if(keys.ArrowLeft||keys.a)paddle.x-=6*dt;if(keys.ArrowRight||keys.d)paddle.x+=6*dt;paddle.x=Math.max(0,Math.min(700-paddle.w,paddle.x));ball.x+=ball.dx*dt;ball.y+=ball.dy*dt;if(ball.x<ball.r||ball.x>700-ball.r)ball.dx*=-1;if(ball.y<ball.r)ball.dy=Math.abs(ball.dy)*-1;
+ if(ball.dy>0&&ball.y+ball.r>=paddle.y&&ball.x>=paddle.x&&ball.x<=paddle.x+paddle.w){ball.dy=-Math.abs(ball.dy);ball.dx=((ball.x-(paddle.x+paddle.w/2))/(paddle.w/2))*5.2}
+ for(const b of bricks){if(!b.alive)continue;if(ball.x+ball.r>b.x&&ball.x-ball.r<b.x+b.w&&ball.y+ball.r>b.y&&ball.y-ball.r<b.y+b.h){b.alive=false;points++;score(points);ball.dy*=-1;if(bricks.every(x=>!x.alive)){over=true;win=true;status("All bricks cleared. You win! Restart for another round.");}break}}
+ if(ball.y>430){lives--;if(lives<=0){over=true;status("Out of lives. Final score: "+points+". Restart to play again.")}else{ball={x:350,y:360,dx:3.5*(Math.random()<.5?-1:1),dy:-4,r:7};status(lives+" lives left. Keep going.")}}
+ }draw();if(!over)raf=requestAnimationFrame(loop)}
+ window.addEventListener("keydown",function(e){if(["ArrowLeft","ArrowRight"].includes(e.key))e.preventDefault();keys[e.key]=true;keys[e.key.toLowerCase()]=true});window.addEventListener("keyup",function(e){keys[e.key]=false;keys[e.key.toLowerCase()]=false});c.addEventListener("mousemove",function(e){const r=c.getBoundingClientRect();paddle.x=Math.max(0,Math.min(700-paddle.w,(e.clientX-r.left)*700/r.width-paddle.w/2))});c.addEventListener("touchmove",function(e){if(e.touches[0]){const r=c.getBoundingClientRect();paddle.x=Math.max(0,Math.min(700-paddle.w,(e.touches[0].clientX-r.left)*700/r.width-paddle.w/2));e.preventDefault()}},{passive:false});
+ controls.innerHTML="";controls.appendChild(button("←",()=>paddle.x=Math.max(0,paddle.x-40)));controls.appendChild(button("→",()=>paddle.x=Math.min(700-paddle.w,paddle.x+40)));reset();$("restart").onclick=reset
+}
+function setupSimon(){
+ base("Simon Says","Remember the color sequence and repeat it in the same order.","Watch the flashes, then tap the matching colored pads. Each round adds one step.","Level");let seq=[],input=[],busy=false,level=0;
+ function render(){board.innerHTML='<div class="simon-grid">'+[0,1,2,3].map(i=>'<button type="button" class="simon-btn" data-i="'+i+'" aria-label="Color pad '+(i+1)+'"></button>').join("")+'</div>';score(level)}
+ function flash(i){const b=board.querySelector('[data-i="'+i+'"]');if(!b)return;b.classList.add("active");setTimeout(()=>b.classList.remove("active"),250)}
+ const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+ async function showSeq(){busy=true;input=[];status("Watch the pattern...");await pause(350);for(const v of seq){flash(v);await pause(430)}busy=false;status("Your turn. Repeat the pattern.");}
+ function start(){seq=[];input=[];level=0;busy=false;render();next()}
+ async function next(){level++;score(level);seq.push(Math.floor(Math.random()*4));render();await showSeq()}
+ function choose(i){if(busy||!seq.length)return;flash(i);if(i!==seq[input.length]){busy=true;status("Sequence missed. You reached level "+level+". Restart to try again.");return}input.push(i);if(input.length===seq.length){busy=true;status("Correct. Next pattern coming up...");setTimeout(next,600)}}
+ board.addEventListener("click",function(e){const b=e.target.closest("[data-i]");if(b)choose(Number(b.dataset.i))});start();$("restart").onclick=start
+}
+const starts={snake:setupSnake,"2048":setup2048,memory:setupMemory,tictactoe:setupTicTacToe,minesweeper:setupMines,pong:setupPong,breakout:setupBreakout,simon:setupSimon};
+if(starts[id])starts[id]();else setupSnake();
+})();
+</script>
+</body>
+</html>
