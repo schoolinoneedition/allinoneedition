@@ -8,6 +8,7 @@ const appearance = read('appearance.js');
 const ux = read('ultimate-experience.js');
 const css = read('ultimate-experience.css');
 const html = read('index.html');
+const glassCss = read('appearance.css');
 const economy = read('supabase/migrations/20261028093212_aio_coin_quests_pricing_security.sql');
 const rewardRules = read('supabase/migrations/20261028094634_aio_game_reward_rules.sql');
 const counter = read('supabase/migrations/20261028102739_secure_tiktok_sticker_download_counter.sql');
@@ -22,6 +23,12 @@ assert.match(appearance, /aioHeadingFontToggle/);
 assert.match(appearance, /aioCursorStyleSelect/);
 assert.match(css, /html\.aio-wallpaper-hidden::before\{opacity:0!important\}/);
 assert.match(css, /html\[data-aio-theme="glass"\]/);
+assert.match(glassCss, /aio-glass-modal-in/);
+assert.match(glassCss, /prefers-reduced-motion/);
+assert.match(glassCss, /source-label.*display:none!important/s);
+for (const gameName of ['Reel League', 'Rescue the Fish', 'Fish Eat Fish', 'Count Control Legends']) {
+  assert.ok(html.includes('"name":"' + gameName + '"'), 'Missing Pizza Edition addition: ' + gameName);
+}
 assert.match(css, /data-aio-font="cherry"/);
 assert.match(css, /data-aio-cursor-style="minimal"/);
 assert.match(css, /data-aio-cursor-style="chatgpt"/);
