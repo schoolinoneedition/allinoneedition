@@ -60,3 +60,26 @@ html[data-aio-minimal-cursor="1"] :is(input[type="range"],input[type="checkbox"]
 #authSubmitBtn:disabled{opacity:.65;cursor:wait}
 @media(max-width:900px){.aio-video-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.aio-video-gallery{grid-template-columns:1fr}.aio-staff-form{grid-template-columns:1fr}.aio-staff-row{align-items:flex-start;flex-wrap:wrap}.video-gallery-toolbar .social-input{min-width:100%}}
+
+
+/* Liquid Glass OS polish: restrained depth, crisp edges, and responsive motion. */
+:root{--aio-glass-alpha:.58;--aio-glass-blur:24px;--aio-glass-edge:rgba(255,255,255,.36)}
+html[data-aio-theme="glass"] body{background-image:radial-gradient(ellipse at 12% 0%,rgba(119,163,255,.14),transparent 42%),radial-gradient(ellipse at 88% 18%,rgba(183,143,255,.12),transparent 36%);background-attachment:fixed}
+html[data-aio-theme="glass"] :is(.topbar,.hero-card,.qcard,.panel,.tool,.newsbox,.football,.modalbox,.settings-help,.filters .filter,.btn,.nav button.active,.card,.stat,.gameframe-wrap,.settings-card,.notes-card,.todo-card){border:1px solid var(--aio-glass-edge);box-shadow:0 1px 0 rgba(255,255,255,.22) inset,0 14px 38px rgba(20,30,55,.10);background-image:linear-gradient(145deg,rgba(255,255,255,.16),rgba(255,255,255,.035) 46%,rgba(255,255,255,.08));backdrop-filter:blur(var(--aio-glass-blur)) saturate(165%);-webkit-backdrop-filter:blur(var(--aio-glass-blur)) saturate(165%)}
+html.dark[data-aio-theme="glass"] :is(.topbar,.hero-card,.qcard,.panel,.tool,.newsbox,.football,.modalbox,.settings-help,.filters .filter,.btn,.nav button.active,.card,.stat,.gameframe-wrap,.settings-card,.notes-card,.todo-card){--aio-glass-edge:rgba(255,255,255,.15);box-shadow:0 1px 0 rgba(255,255,255,.075) inset,0 18px 42px rgba(0,0,0,.20);background-image:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.018) 48%,rgba(255,255,255,.045))}
+html[data-aio-theme="glass"] .topbar{position:sticky;top:8px;z-index:30;border-radius:20px;transition:background-color .24s ease,border-color .24s ease,box-shadow .24s ease}
+html[data-aio-theme="glass"] .card{overflow:hidden;transform:translateZ(0);transition:transform .22s cubic-bezier(.2,.75,.25,1),box-shadow .22s ease,border-color .22s ease}
+html[data-aio-theme="glass"] .card:hover{transform:translateY(-4px) scale(1.012);border-color:rgba(132,170,255,.58);box-shadow:0 2px 0 rgba(255,255,255,.24) inset,0 20px 42px rgba(45,75,130,.18)}
+html[data-aio-theme="glass"] :is(button,.btn,.filter,.nav button,.aio-wallpaper-option){transition:transform .18s cubic-bezier(.2,.75,.25,1),background-color .18s ease,border-color .18s ease,box-shadow .18s ease}
+html[data-aio-theme="glass"] :is(button,.btn):active{transform:scale(.975)}
+html[data-aio-theme="glass"] :is(input,textarea,select){border-color:rgba(130,155,195,.34);transition:border-color .18s ease,box-shadow .18s ease,background-color .18s ease}
+html[data-aio-theme="glass"] :is(input,textarea,select):focus-visible{outline:none;border-color:var(--accent,#7198ff);box-shadow:0 0 0 3px rgba(110,150,255,.18)}
+html[data-aio-theme="glass"] .modalbox{border-radius:24px;box-shadow:0 1px 0 rgba(255,255,255,.18) inset,0 28px 90px rgba(0,0,0,.28);animation:aio-glass-modal-in .24s cubic-bezier(.2,.8,.2,1) both}
+html[data-aio-theme="glass"] .cover img{transition:transform .4s cubic-bezier(.2,.7,.2,1),filter .3s ease}
+html[data-aio-theme="glass"] .card:hover .cover img{transform:scale(1.045);filter:saturate(1.08)}
+html[data-aio-theme="glass"] .badge{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.22)}
+/* Provider metadata stays available internally but never appears as a public badge. */
+.source-label,.source-badge,.game-source,.game-source-label,[data-source-label],.source-attribution{display:none!important}
+@keyframes aio-glass-modal-in{from{opacity:0;transform:translateY(9px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){html[data-aio-theme="glass"] *,html[data-aio-theme="glass"] *::before,html[data-aio-theme="glass"] *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+@media(max-width:700px){html[data-aio-theme="glass"] .topbar{top:4px;border-radius:15px}html[data-aio-theme="glass"] :is(.topbar,.hero-card,.qcard,.panel,.tool,.newsbox,.football,.modalbox,.card){backdrop-filter:blur(16px) saturate(145%);-webkit-backdrop-filter:blur(16px) saturate(145%)}}
