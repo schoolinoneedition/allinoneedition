@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f8fc">
+<meta name="description" content="All in One Edition Social: watch videos, share images and join the conversation.">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Social · All in One Edition</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231b5cff'/%3E%3Cpath d='M17 18h30v11H28v17H17z' fill='white'/%3E%3Cpath d='M29 18l18 13-18 13z' fill='%23ffe16a'/%3E%3C/svg%3E">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{color-scheme:light;--bg:#f5f7fb;--panel:#fff;--text:#20232b;--muted:#747b8b;--line:#e4e8f0;--soft:#f0f3f9;--accent:#1b5cff;--accent-soft:#e9efff;--mint:#baf2e4;--shadow:0 12px 36px rgba(26,35,56,.08);--header-h:68px}
+:root.dark{color-scheme:dark;--bg:#11141b;--panel:#191e28;--text:#f4f6fb;--muted:#a5adbd;--line:#2c3341;--soft:#222936;--accent:#8ba8ff;--accent-soft:#222e4c;--mint:#163b35;--shadow:0 12px 40px rgba(0,0,0,.28)}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}body{min-height:100dvh}button,input,textarea{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 65%,white);outline-offset:2px}a{color:inherit}.hidden,[hidden]{display:none!important}.social-app{min-height:100dvh;display:flex;flex-direction:column;isolation:isolate}
+.topbar{height:var(--header-h);min-height:var(--header-h);display:flex;align-items:center;gap:16px;padding:0 22px;background:color-mix(in srgb,var(--panel) 91%,transparent);border-bottom:1px solid var(--line);backdrop-filter:blur(18px);position:relative;z-index:10}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;min-width:0}.backmark{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#1b5cff,#8b5cf6);color:#fff;font-weight:950;font-size:19px;box-shadow:0 7px 16px #1b5cff28}.brand-copy{min-width:0}.brand-copy strong{display:block;font-size:15px;letter-spacing:-.3px}.brand-copy small{display:block;color:var(--muted);font-size:10px;margin-top:2px}.top-spacer{flex:1}.cloud-pill{font-size:10px;font-weight:850;color:var(--muted);border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:7px 10px;white-space:nowrap}.cloud-pill.online{color:#16805c;background:#e7faf3;border-color:#c9f0e1}.dark .cloud-pill.online{color:#92e9c5;background:#17382e;border-color:#285747}.header-actions{display:flex;gap:7px;align-items:center}.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line);background:var(--panel);color:var(--text);text-decoration:none;border-radius:11px;padding:9px 12px;font-size:11px;font-weight:850;white-space:nowrap;transition:transform .15s,border-color .15s,background .15s}.btn:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn.ghost{background:transparent}.btn.square{width:38px;height:38px;padding:0;font-size:16px}
+.content{width:min(1440px,100%);margin:0 auto;padding:16px 18px 22px;display:grid;grid-template-columns:205px minmax(0,1fr) 275px;gap:15px;flex:1;min-height:0}
+.sidebar,.rightbar{min-width:0;align-self:start;display:flex;flex-direction:column;gap:12px}.side-card{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:14px;box-shadow:0 4px 14px rgba(26,35,56,.025)}.side-title{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:950;margin:0 0 10px}.nav-list{display:grid;gap:4px}.nav-item{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 11px;border:0;border-radius:11px;background:transparent;color:var(--muted);font-size:12px;font-weight:850}.nav-item:hover,.nav-item.active{background:var(--accent-soft);color:var(--accent)}.nav-icon{width:22px;text-align:center;font-size:16px}.side-copy{font-size:11px;color:var(--muted);line-height:1.6;margin:0}.side-actions{display:grid;gap:7px;margin-top:12px}.user-line{display:flex;align-items:center;gap:9px;min-width:0}.avatar{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,var(--accent),#9a75fb);color:#fff;font-size:11px;font-weight:950;overflow:hidden}.avatar img{width:100%;height:100%;object-fit:cover}.user-details{min-width:0}.user-details strong{display:block;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.user-details small{display:block;margin-top:3px;color:var(--muted);font-size:10px;overflow-wrap:anywhere}
+.feed-column{display:flex;flex-direction:column;min-width:0;min-height:0}.feed-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:3px 3px 12px}.feed-heading h1{font-size:23px;line-height:1.05;letter-spacing:-.8px;margin:0}.feed-heading p{font-size:11px;color:var(--muted);margin:6px 0 0}.feed-heading-actions{display:flex;gap:6px}.feed-scroll{height:calc(100dvh - 157px);min-height:500px;overflow-y:auto;overscroll-behavior:contain;scroll-snap-type:y mandatory;scrollbar-width:thin;scrollbar-color:var(--line) transparent;padding:0 4px 18px;min-width:0}
+.post{position:relative;width:min(100%,620px);height:min(760px,calc(100dvh - 178px));min-height:450px;margin:0 auto 15px;scroll-snap-align:start;scroll-snap-stop:normal;border:1px solid rgba(255,255,255,.12);border-radius:20px;overflow:hidden;background:#080b12;color:#fff;isolation:isolate;box-shadow:0 15px 34px rgba(10,15,25,.16)}
+.post-media{position:absolute;inset:0;display:grid;place-items:center;background:#080b12}.post-media img,.post-media video{display:block;width:100%;height:100%;object-fit:contain;background:#080b12}.post-media img{object-fit:cover}.video-stage{position:absolute;inset:0;display:grid;place-items:center;background:#080b12}.video-stage video{width:100%;height:100%;object-fit:contain;background:#080b12}.video-play-overlay{position:absolute;z-index:3;left:50%;top:50%;transform:translate(-50%,-50%);border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(10,13,22,.68);color:#fff;box-shadow:0 8px 30px #0005;backdrop-filter:blur(12px);display:flex;align-items:center;gap:10px;padding:14px 18px;font-size:12px;font-weight:900}.video-play-overlay span:first-child{font-size:18px}.video-play-overlay:hover{background:rgba(10,13,22,.85);transform:translate(-50%,-50%) scale(1.03)}.video-play-overlay.is-playing{display:none}.media-error{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;background:#111722;color:#b9c3d6;font-size:12px;line-height:1.5}
+.post-shade{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.40) 0%,transparent 22%,transparent 47%,rgba(0,0,0,.77) 100%)}
+.post-top{position:absolute;z-index:4;top:13px;left:14px;right:14px;display:flex;align-items:center;justify-content:space-between;gap:9px}.post-pill{font-size:9px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;padding:7px 9px;border-radius:999px;background:rgba(0,0,0,.38);color:#fff;backdrop-filter:blur(9px)}.post-time{font-size:10px;color:#fff;text-shadow:0 1px 5px #000}
+.post-rail{position:absolute;z-index:4;right:11px;bottom:105px;display:flex;flex-direction:column;align-items:center;gap:5px}.rail-action{width:43px;height:43px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.14);border-radius:50%;background:rgba(0,0,0,.42);color:#fff;font-size:20px;font-weight:900;backdrop-filter:blur(10px)}.rail-action:hover{background:rgba(0,0,0,.68);transform:translateY(-1px)}.rail-action.liked{color:#ff668d}.rail-action.saved{color:#9bb5ff}.rail-count{font-size:10px;font-weight:900;color:#fff;text-shadow:0 1px 4px #000;margin:0 0 5px;min-height:11px}
+.post-bottom{position:absolute;z-index:4;left:15px;right:70px;bottom:15px;min-width:0;color:#fff;text-shadow:0 1px 5px rgba(0,0,0,.65)}.creator-row{display:flex;align-items:center;gap:9px;margin-bottom:9px}.creator-avatar{width:38px;height:38px;border:2px solid #fff;border-radius:50%;background:linear-gradient(135deg,#1b5cff,#a676ff);display:grid;place-items:center;font-size:11px;font-weight:950;overflow:hidden}.creator-avatar img{width:100%;height:100%;object-fit:cover}.creator-copy{min-width:0}.creator-copy strong{display:block;font-size:12px;overflow-wrap:anywhere}.creator-copy small{display:block;font-size:9px;color:rgba(255,255,255,.7);margin-top:3px}.follow-btn{border:1px solid rgba(255,255,255,.38);border-radius:999px;background:rgba(0,0,0,.32);padding:7px 10px;color:#fff;font-size:10px;font-weight:900}.follow-btn.following{background:rgba(255,255,255,.92);color:#171b25}.post-caption{font-size:12px;line-height:1.48;white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%;max-height:104px;overflow:auto}.post-caption:empty{display:none}.empty-state{width:min(100%,620px);min-height:420px;margin:0 auto;border:1px dashed var(--line);background:var(--panel);border-radius:18px;padding:28px;display:grid;place-items:center;text-align:center;color:var(--muted)}.empty-state strong{display:block;font-size:16px;color:var(--text);margin-bottom:7px}.empty-state p{font-size:12px;line-height:1.6;margin:0 auto 13px;max-width:330px}.error-state{width:min(100%,620px);margin:0 auto 14px;border:1px solid #ffd0d7;background:#fff3f5;color:#9b263d;padding:12px 14px;border-radius:13px;font-size:11px;line-height:1.5}.dark .error-state{background:#3b1d26;border-color:#60313c;color:#ffc8d0}
+.searchbox{width:100%;height:39px;border:1px solid var(--line);border-radius:11px;background:var(--soft);color:var(--text);padding:0 11px;outline:none;font-size:12px}.searchbox:focus{border-color:var(--accent)}.setting-row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11px;color:var(--muted);margin:9px 0}.setting-row strong{color:var(--text);font-size:12px}.note-small{font-size:10px;line-height:1.55;color:var(--muted);margin:0}.form-stack{display:grid;gap:9px}.field-label{display:block;font-size:10px;color:var(--muted);font-weight:900;margin:0 0 5px}.field,.text-field{display:block;width:100%;border:1px solid var(--line);border-radius:10px;background:var(--soft);color:var(--text);padding:10px 11px;outline:none;font-size:12px}.field{min-height:39px}.text-field{min-height:88px;resize:vertical;line-height:1.45}.field:focus,.text-field:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 14%,transparent)}.file-label{display:flex;align-items:center;justify-content:center;gap:8px;border:1px dashed var(--line);border-radius:10px;padding:11px;background:var(--soft);color:var(--muted);font-size:11px;font-weight:850;cursor:pointer}.file-label input{max-width:100%;font-size:10px}.form-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}.status-text{font-size:10px;color:var(--muted);line-height:1.5}.status-text.bad{color:#be3148}.status-text.good{color:#16805c}.dark .status-text.good{color:#92e9c5}
+.auth-panel{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}.auth-panel h3{font-size:12px;margin:0 0 6px}.auth-panel[hidden]{display:none}
+.overlay{position:fixed;inset:0;z-index:100;background:rgba(9,12,19,.62);backdrop-filter:blur(9px);display:none;align-items:flex-end;justify-content:center;padding:12px}.overlay.open{display:flex}.sheet{width:min(620px,100%);max-height:min(86dvh,760px);display:flex;flex-direction:column;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:21px;overflow:hidden;box-shadow:0 25px 90px #0005}.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}.sheet-head strong{font-size:14px}.sheet-head small{display:block;color:var(--muted);font-size:10px;margin-top:4px}.sheet-body{min-height:120px;overflow-y:auto;padding:12px 16px;overscroll-behavior:contain}.comment-item{display:grid;grid-template-columns:34px minmax(0,1fr);gap:9px;padding:12px 0;border-bottom:1px solid var(--line)}.comment-item:last-child{border-bottom:0}.comment-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:10px;font-weight:950}.comment-content{min-width:0}.comment-meta{display:flex;align-items:center;flex-wrap:wrap;gap:7px}.comment-meta strong{font-size:11px}.comment-meta small{font-size:9px;color:var(--muted)}.comment-body{font-size:12px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;margin-top:4px}.comments-empty{padding:32px 12px;text-align:center;color:var(--muted);font-size:12px;line-height:1.5}.comments-compose{display:grid;grid-template-columns:minmax(85px,125px) minmax(0,1fr) auto;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:end}.comments-compose .field{min-width:0;height:42px}.comments-compose .text-field{min-height:42px;height:42px;max-height:110px;resize:vertical;padding:11px}.compose-sheet .sheet-body{padding:16px}.compose-grid{display:grid;gap:12px}.modal-toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:500;background:#181b22;color:#fff;border-radius:12px;padding:11px 14px;box-shadow:0 12px 35px #0004;font-size:12px;max-width:min(520px,calc(100vw - 25px));display:none}.modal-toast.show{display:block}.load-more{display:flex;justify-content:center;padding:10px 0}.skeleton{height:calc(100dvh - 190px);min-height:420px;width:min(100%,620px);margin:0 auto 14px;border-radius:20px;background:linear-gradient(90deg,var(--panel),var(--soft),var(--panel));background-size:200% 100%;animation:shimmer 1.5s ease-in-out infinite}@keyframes shimmer{to{background-position:-200% 0}}
+.social-app:fullscreen{width:100%;height:100dvh;min-height:0;background:var(--bg);display:flex;flex-direction:column;overflow:hidden}.social-app:fullscreen .content{flex:1;min-height:0;overflow:hidden;padding:10px 18px 14px;grid-template-columns:minmax(0,1fr)}.social-app:fullscreen .sidebar,.social-app:fullscreen .rightbar{display:none}.social-app:fullscreen .feed-column{width:min(850px,100%);margin:0 auto;height:100%;min-height:0}.social-app:fullscreen .feed-heading{padding:3px 8px 10px}.social-app:fullscreen .feed-scroll{height:auto;min-height:0;flex:1;padding-bottom:26px}.social-app:fullscreen .post{height:calc(100dvh - 132px);min-height:420px;max-height:none;width:min(100%,780px)}
+@media(max-width:1150px){.content{grid-template-columns:175px minmax(0,1fr)}.rightbar{display:none}.feed-scroll{height:calc(100dvh - 158px)}}@media(max-width:720px){:root{--header-h:60px}.topbar{padding:0 10px;gap:8px}.brand-copy small,.cloud-pill{display:none}.brand-copy strong{font-size:13px}.backmark{width:34px;height:34px}.header-actions{gap:5px}.header-actions .btn{padding:8px 9px;font-size:10px}.header-actions .btn.square{width:34px;height:34px}.content{display:block;padding:10px 8px 12px;min-height:calc(100dvh - 60px)}.sidebar{display:none}.feed-heading h1{font-size:21px}.feed-heading{padding:3px 4px 10px}.feed-heading p{max-width:230px;line-height:1.4}.feed-scroll{height:calc(100dvh - 143px);min-height:420px;padding:0 1px 15px}.post{height:calc(100dvh - 160px);min-height:420px;border-radius:16px;margin-bottom:11px}.post-bottom{left:12px;bottom:12px;right:62px}.post-rail{right:8px;bottom:88px;gap:3px}.rail-action{width:39px;height:39px;font-size:18px}.post-caption{font-size:11px;max-height:80px}.comments-compose{grid-template-columns:minmax(0,1fr) auto}.comments-compose #commentName{grid-column:1/-1}.comments-compose .text-field{grid-column:1}.comments-compose button{grid-column:2;grid-row:2;min-height:42px}.social-app:fullscreen .content{padding:4px;display:block}.social-app:fullscreen .feed-heading{display:none}.social-app:fullscreen .feed-column{height:100%;width:100%}.social-app:fullscreen .feed-scroll{height:100%;padding:0}.social-app:fullscreen .post{height:100dvh;min-height:0;width:100%;border-radius:0;border:0;margin:0;scroll-snap-align:start}.social-app:fullscreen .post-bottom{bottom:25px}.social-app:fullscreen .post-rail{bottom:125px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="social-app" id="socialApp">
+  <header class="topbar">
+    <a class="brand" href="./index.html" aria-label="Back to All in One Edition">
+      <span class="backmark">A</span><span class="brand-copy"><strong>All in One Edition</strong><small>Social · community feed</small></span>
+    </a>
+    <div class="top-spacer"></div>
+    <span class="cloud-pill" id="cloudStatus" role="status">Connecting…</span>
+    <div class="header-actions">
+      <button class="btn primary" id="composeOpen" type="button">＋ Create</button>
+      <button class="btn" id="fullscreenToggle" type="button" aria-pressed="false">⛶ Full screen</button>
+      <button class="btn square" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">◐</button>
+    </div>
+  </header>
+
+  <main class="content">
+    <aside class="sidebar">
+      <div class="side-card">
+        <h2 class="side-title">Your feed</h2>
+        <nav class="nav-list" aria-label="Social feed filters">
+          <button class="nav-item active" type="button" data-mode="for-you"><span class="nav-icon">✦</span>For you</button>
+          <button class="nav-item" type="button" data-mode="following"><span class="nav-icon">◎</span>Following</button>
+          <button class="nav-item" type="button" data-mode="saved"><span class="nav-icon">▣</span>Saved</button>
+          <button class="nav-item" type="button" data-mode="videos"><span class="nav-icon">▷</span>Videos only</button>
+        </nav>
+      </div>
+      <div class="side-card">
+        <h2 class="side-title">Your account</h2>
+        <div class="user-line"><div class="avatar" id="accountAvatar">G</div><div class="user-details"><strong id="accountName">Guest</strong><small id="accountType">Guest mode</small></div></div>
+        <div class="side-actions"><button class="btn" id="accountManage" type="button">Sign in / account</button><a href="./index.html" class="btn ghost">← Back to hub</a></div>
+      </div>
+      <div class="side-card"><h2 class="side-title">Playback rules</h2><p class="side-copy">Videos are paused when the page opens. Press Play to start one, and the feed pauses any other video. Scroll the feed even in full-screen mode.</p></div>
+    </aside>
+
+    <section class="feed-column" aria-label="Social feed">
+      <div class="feed-heading"><div><h1>Social</h1><p>Fresh posts, short videos and real comments.</p></div><div class="feed-heading-actions"><button class="btn square" id="refreshFeed" type="button" title="Refresh feed" aria-label="Refresh feed">↻</button></div></div>
+      <div id="feedError" class="error-state" hidden></div>
+      <div id="feed" class="feed-scroll" tabindex="0" aria-label="Scrollable social posts">
+        <div class="skeleton" aria-hidden="true"></div>
+      </div>
+      <div id="emptyState" class="empty-state" hidden><div><strong id="emptyTitle">No posts yet</strong><p id="emptyCopy">When someone posts an image or video, it will show up here.</p><button class="btn primary" id="emptyCreate" type="button">Create the first post</button></div></div>
+    </section>
+
+    <aside class="rightbar">
+      <div class="side-card">
+        <h2 class="side-title">Share something</h2>
+        <p class="side-copy">Post a direct image or MP4 URL as a guest, or sign in to upload a file to the XBT media bucket.</p>
+        <div class="side-actions"><button class="btn primary" id="composeOpenSide" type="button">Create a post</button><button class="btn" id="authOpenSide" type="button">Sign in / sign up</button></div>
+      </div>
+      <div class="side-card">
+        <h2 class="side-title">Community guidelines</h2>
+        <p class="side-copy">Keep posts respectful and safe. Do not share personal contact details, passwords, or someone else's private information. Report content that should not be here to the site owner.</p>
+      </div>
+      <div class="side-card">
+        <h2 class="side-title">Feed status</h2>
+        <div class="setting-row"><span>Loaded posts</span><strong id="postCount">0</strong></div>
+        <div class="setting-row"><span>Current view</span><strong id="currentView">For you</strong></div>
+        <p class="note-small">Social uses your existing XBT Supabase project. Comments are written to the shared cloud table, not just this browser.</p>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<div class="overlay" id="composeOverlay" aria-hidden="true">
+  <section class="sheet compose-sheet" role="dialog" aria-modal="true" aria-labelledby="composeTitle">
+    <div class="sheet-head"><div><strong id="composeTitle">Create a post</strong><small>Share an image or short video with the community.</small></div><button class="btn square" type="button" data-close="composeOverlay" aria-label="Close create post">×</button></div>
+    <div class="sheet-body">
+      <form id="composeForm" class="compose-grid">
+        <div><label class="field-label" for="postName">Display name</label><input class="field" id="postName" maxlength="32" placeholder="Your name" autocomplete="nickname"></div>
+        <div><label class="field-label" for="postAvatar">Avatar image URL (optional)</label><input class="field" id="postAvatar" maxlength="500" placeholder="https://…"></div>
+        <div><label class="field-label" for="postCaption">Caption</label><textarea class="text-field" id="postCaption" maxlength="500" placeholder="Write a caption…"></textarea></div>
+        <div><label class="field-label" for="mediaUrl">Direct image or MP4 URL</label><input class="field" id="mediaUrl" maxlength="2000" placeholder="https://example.com/video.mp4"></div>
+        <div><label class="field-label" for="mediaFile">Or choose a file</label><label class="file-label">Choose image / MP4 <input id="mediaFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,.jpg,.jpeg,.png,.webp,.gif,.mp4"></label><p class="note-small" style="margin-top:7px">Images up to 15 MB; MP4 videos up to 100 MB. File uploads require your account. Direct media URLs can be posted as a guest.</p></div>
+        <div><label class="field-label" for="postStatus">Post status</label><div id="postStatus" class="status-text" role="status">Nothing has been posted yet.</div></div>
+        <div class="form-foot"><button class="btn" type="button" data-close="composeOverlay">Cancel</button><button class="btn primary" id="submitPost" type="submit">Publish post</button></div>
+      </form>
+      <section class="auth-panel" id="authPanel" hidden>
+        <h3>Sign in to upload files</h3><p class="note-small" style="margin-bottom:10px">Use your existing All in One Edition account. The same Supabase session is shared with the hub.</p>
+        <form id="authForm" class="form-stack">
+          <div><label class="field-label" for="authEmail">Email</label><input class="field" id="authEmail" type="email" autocomplete="email" required maxlength="254"></div>
+          <div><label class="field-label" for="authPassword">Password</label><input class="field" id="authPassword" type="password" autocomplete="current-password" required minlength="6" maxlength="128"></div>
+          <div class="form-foot"><button class="btn" type="button" id="authModeToggle">Create account instead</button><button class="btn primary" type="submit" id="authSubmit">Sign in</button></div>
+          <div class="status-text" id="authStatus" role="status"></div>
+        </form>
+        <button class="btn ghost" id="signOutButton" type="button" hidden style="margin-top:10px">Sign out</button>
+      </section>
+    </div>
+  </section>
+</div>
+
+<div class="overlay" id="commentsOverlay" aria-hidden="true">
+  <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="commentsTitle">
+    <div class="sheet-head"><div><strong id="commentsTitle">Comments</strong><small id="commentsSubtitle">Cloud comments</small></div><button class="btn square" type="button" data-close="commentsOverlay" aria-label="Close comments">×</button></div>
+    <div class="sheet-body" id="commentsList"><div class="comments-empty">Loading comments…</div></div>
+    <form class="comments-compose" id="commentForm">
+      <input class="field" id="commentName" maxlength="32" placeholder="Name" aria-label="Comment name">
+      <textarea class="text-field" id="commentBody" maxlength="300" placeholder="Write a comment…" aria-label="Write a comment"></textarea>
+      <button class="btn primary" id="sendComment" type="submit">Send</button>
+    </form>
+    <div class="status-text" id="commentStatus" role="status" style="padding:0 13px 12px"></div>
+  </section>
+</div>
+<div class="modal-toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  'use strict';
+  const SUPABASE_URL = 'https://btnbuchsrfllpzlypjtn.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_a1gdNTiQdF9587p5K-Sw-W_nFbvWRmp';
+  const $ = (id) => document.getElementById(id);
+  const byNorm = (value) => String(value || '').toLowerCase().trim();
+  const escapeHTML = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  })[c]);
+  const safeInitials = (name) => String(name || 'Guest').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase() || 'G';
+  const localRead = (key, fallback) => { try { const v=localStorage.getItem(key); return v===null?fallback:JSON.parse(v); } catch { return fallback; } };
+  const localWrite = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch { return false; } };
+  const timeSince = (value) => {
+    const date=new Date(value); if(Number.isNaN(date.getTime())) return 'now';
+    const sec=Math.max(0,Math.floor((Date.now()-date.getTime())/1000));
+    if(sec<60)return 'just now'; if(sec<3600)return Math.floor(sec/60)+'m ago';
+    if(sec<86400)return Math.floor(sec/3600)+'h ago'; if(sec<604800)return Math.floor(sec/86400)+'d ago';
+    return date.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  };
+  const formatCount = (v) => { const n=Number(v)||0; if(n<1000)return String(n); if(n<1000000)return (n/1000).toFixed(n<10000?1:0).replace(/\.0$/,'')+'K'; return (n/1000000).toFixed(1).replace(/\.0$/,'')+'M'; };
+  const createVisitorId = () => {
+    try { const cached=String(localStorage.getItem('aio-social-visitor-v2')||''); if(cached.length>=20)return cached; } catch {}
+    let id='visitor-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2)+'-'+Math.random().toString(36).slice(2);
+    try { if(window.crypto?.randomUUID)id=window.crypto.randomUUID(); localStorage.setItem('aio-social-visitor-v2',id); } catch {}
+    return id;
+  };
+  const GUEST_ID = createVisitorId();
+  const STORAGE_KEYS = { likes:'aio-social-likes-v4', saves:'aio-social-saves-v4', follows:'aio-social-follows-v4', theme:'aio-social-page-theme-v1', displayName:'aio-social-display-name' };
+  const client = (window.supabase && typeof window.supabase.createClient==='function')
+    ? window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})
+    : null;
+
+  let currentUser=null,currentProfile=null,mode='for-you',posts=[],postStats=new Map(),userLikes=new Set(),userFollows=new Set(),savedPosts=new Set();
+  let commentsForPost=null,commentsCache=new Map(),authMode='signin',postBusy=false,videoObserver=null;
+  let accountEmail='',feedErrorMessage='';
+
+  function setCloudStatus(message,good=false){
+    const el=$('cloudStatus');if(!el)return;el.textContent=message;el.classList.toggle('online',good);
+  }
+  function showToast(message){
+    const el=$('toast');if(!el)return;el.textContent=message;el.classList.add('show');clearTimeout(showToast.timer);
+    showToast.timer=setTimeout(()=>el.classList.remove('show'),2800);
+  }
+  function setStatus(id,message,kind=''){
+    const el=$(id);if(!el)return;el.textContent=message;el.classList.toggle('bad',kind==='bad');el.classList.toggle('good',kind==='good');
+  }
+  function visitorId(){return currentUser?.id?String(currentUser.id):GUEST_ID;}
+  function displayName(){
+    const typed=String($('postName')?.value||'').trim();
+    const cached=String(localStorage.getItem(STORAGE_KEYS.displayName)||'').trim();
+    return String(currentProfile?.username||currentUser?.user_metadata?.username||typed||cached||(currentUser?.email||'').split('@')[0]||'Guest').trim().slice(0,32)||'Guest';
+  }
+  function avatarURL(){return String(currentProfile?.avatar_url||$('postAvatar')?.value||'').trim().slice(0,500);}
+  function commentDisplayName(){
+    const typed=String($('commentName')?.value||'').trim();
+    return String(currentProfile?.username||currentUser?.user_metadata?.username||typed||localStorage.getItem(STORAGE_KEYS.displayName)||currentUser?.email?.split('@')[0]||'Guest').trim().slice(0,32)||'Guest';
+  }
+  async function refreshSession(){
+    if(!client){setCloudStatus('Cloud unavailable');return;}
+    try{
+      const {data,error}=await client.auth.getUser();
+      currentUser=data?.user||null;
+      if(error&&error.message!=='Auth session missing')console.warn('Social auth check:',error.message);
+      currentProfile=null;
+      if(currentUser?.id){
+        const profileQ=await client.from('profiles').select('id,username,avatar_url').eq('id',currentUser.id).maybeSingle();
+        if(!profileQ.error&&profileQ.data)currentProfile=profileQ.data;
+      }
+    }catch(e){console.warn('Social session check failed:',e?.message||e);currentUser=null;currentProfile=null;}
+    updateIdentity();
+  }
+  function updateIdentity(){
+    const name=currentProfile?.username||currentUser?.user_metadata?.username||currentUser?.email?.split('@')[0]||'Guest';
+    $('accountName').textContent=name;$('accountType').textContent=currentUser?'Signed in':'Guest mode';
+    $('accountAvatar').textContent=safeInitials(name);
+    $('accountAvatar').innerHTML=currentProfile?.avatar_url?'<img src="'+escapeHTML(currentProfile.avatar_url)+'" alt="">':escapeHTML(safeInitials(name));
+    $('accountManage').textContent=currentUser?'Manage account':'Sign in / account';
+    const pName=$('postName'),cName=$('commentName');
+    if(pName){
+      if(currentUser){pName.value=currentProfile?.username||currentUser.user_metadata?.username||currentUser.email?.split('@')[0]||'Member';pName.readOnly=!!currentProfile?.username||!!currentUser.user_metadata?.username;}
+      else{pName.readOnly=false;if(!pName.value)pName.value=localStorage.getItem(STORAGE_KEYS.displayName)||'';}
+    }
+    if(cName&&currentUser){cName.value=currentProfile?.username||currentUser.user_metadata?.username||currentUser.email?.split('@')[0]||'Member';cName.readOnly=true;}
+    $('signOutButton').hidden=!currentUser;
+    if(currentUser){$('authStatus').textContent='Signed in as '+(currentUser.email||'your account')+'.';}
+    updatePostIdentityControls();
+  }
+  function updatePostIdentityControls(){
+    const file=$('mediaFile'),note=document.querySelector('#composeForm .note-small');
+    if(file)file.title=currentUser?'Files upload to your account folder.':'Sign in to upload files.';
+    if(note&&currentUser)note.textContent='Images up to 15 MB; MP4 videos up to 100 MB. Your upload is stored in your own XBT media folder.';
+  }
+  function statFor(id){
+    const key=String(id);if(!postStats.has(key))postStats.set(key,{likes:0,comments:0});
+    return postStats.get(key);
+  }
+  function getLocalSet(key){return new Set(localRead(key,[]).map(String));}
+  function saveLocalSet(key,set){localWrite(key,[...set]);}
+  function mediaTypeFromURL(raw){
+    try{
+      const u=new URL(raw);if(!/^https?:$/.test(u.protocol))return '';
+      const path=u.pathname.toLowerCase();
+      if(/\.mp4$/.test(path))return 'video';
+      if(/\.(jpe?g|png|webp|gif)$/.test(path))return 'image';
+      return '';
+    }catch{return '';}
+  }
+  function visiblePosts(){
+    if(mode==='following')return posts.filter(p=>userFollows.has(String(p.username||'')));
+    if(mode==='saved')return posts.filter(p=>savedPosts.has(String(p.id)));
+    if(mode==='videos')return posts.filter(p=>p.media_type==='video');
+    return posts;
+  }
+  function renderFeed(){
+    const feed=$('feed');if(!feed)return;
+    if(videoObserver){videoObserver.disconnect();videoObserver=null;}
+    pauseAllVideos();
+    const list=visiblePosts();
+    $('postCount').textContent=String(posts.length);
+    $('currentView').textContent=({ 'for-you':'For you',following:'Following',saved:'Saved',videos:'Videos only' })[mode]||'For you';
+    document.querySelectorAll('[data-mode]').forEach(b=>{const active=b.dataset.mode===mode;b.classList.toggle('active',active);b.setAttribute('aria-current',active?'page':'false');});
+    $('feedError').hidden=!feedErrorMessage;
+    if(feedErrorMessage)$('feedError').textContent=feedErrorMessage;
+    if(!list.length){
+      feed.innerHTML='';
+      $('emptyState').hidden=false;
+      $('emptyTitle').textContent=mode==='following'?'No posts from followed creators yet':mode==='saved'?'Nothing saved yet':mode==='videos'?'No video posts yet':'No posts yet';
+      $('emptyCopy').textContent=mode==='saved'?'Tap the bookmark on a post to save it here.':mode==='following'?'Follow a creator and their posts will appear in this view.':'When someone shares a public image or video, it will appear here.';
+      $('emptyCreate').hidden=mode==='following'||mode==='saved';
+      return;
+    }
+    $('emptyState').hidden=true;
+    feed.innerHTML=list.map(renderPost).join('');
+    feed.querySelectorAll('[data-social-video]').forEach(v=>{
+      v.addEventListener('play',()=>{
+        document.querySelectorAll('[data-social-video]').forEach(other=>{if(other!==v&&!other.paused){try{other.pause();}catch{}}});
+        v.closest('.video-stage')?.querySelector('.video-play-overlay')?.classList.add('is-playing');
+      });
+      v.addEventListener('pause',()=>v.closest('.video-stage')?.querySelector('.video-play-overlay')?.classList.remove('is-playing'));
+      v.addEventListener('ended',()=>v.closest('.video-stage')?.querySelector('.video-play-overlay')?.classList.remove('is-playing'));
+      v.addEventListener('error',()=>{const msg=v.closest('.video-stage')?.querySelector('.media-error');if(msg)msg.hidden=false;});
+    });
+    feed.querySelectorAll('[data-social-post]').forEach(post=>{
+      const v=post.querySelector('[data-social-video]');
+      const img=post.querySelector('img[data-post-image]');
+      if(v){v.addEventListener('loadedmetadata',()=>{post.dataset.ratio=String(v.videoWidth&&v.videoHeight?v.videoWidth/v.videoHeight:0);},{once:true});}
+      else if(img){img.addEventListener('error',()=>{const m=post.querySelector('.media-error');if(m)m.hidden=false;},{once:true});}
+    });
+    if('IntersectionObserver'in window){
+      videoObserver=new IntersectionObserver(entries=>{
+        for(const entry of entries){
+          const v=entry.target;
+          if(entry.intersectionRatio<.22&&!v.paused){try{v.pause();}catch{}}
+        }
+      },{root:feed,threshold:[0,.22,.55]});
+      feed.querySelectorAll('[data-social-video]').forEach(v=>videoObserver.observe(v));
+    }
+  }
+  function renderPost(p){
+    const id=String(p.id),isVideo=p.media_type==='video';
+    const stat=statFor(id),liked=userLikes.has(id)||( !currentUser&&getLocalSet(STORAGE_KEYS.likes).has(id) );
+    const saved=savedPosts.has(id),followed=userFollows.has(String(p.username||''));
+    const avatar=p.avatar_url?'<img src="'+escapeHTML(p.avatar_url)+'" alt="" loading="lazy">':escapeHTML(safeInitials(p.username));
+    const media=isVideo
+      ?'<div class="video-stage"><video src="'+escapeHTML(p.media_url)+'" data-social-video data-post-id="'+escapeHTML(id)+'" playsinline webkit-playsinline controls preload="none" aria-label="Video by '+escapeHTML(p.username)+'"></video><button type="button" class="video-play-overlay" data-action="play" data-id="'+escapeHTML(id)+'" aria-label="Play video"><span>▶</span><span>Play video</span></button><div class="media-error" hidden>Could not play this video. Try another post or open the media from its source.</div></div>'
+      :'<img data-post-image src="'+escapeHTML(p.media_url)+'" alt="Image posted by '+escapeHTML(p.username)+'" loading="lazy" decoding="async"><div class="media-error" hidden>This image could not be loaded.</div>';
+    return '<article class="post" data-social-post="'+escapeHTML(id)+'"><div class="post-media">'+media+'</div><div class="post-shade"></div><div class="post-top"><span class="post-pill">'+(isVideo?'Video':'Image')+' · public post</span><span class="post-time">'+escapeHTML(timeSince(p.created_at))+'</span></div><div class="post-rail"><button type="button" class="rail-action '+(liked?'liked':'')+'" data-action="like" data-id="'+escapeHTML(id)+'" aria-label="'+(liked?'Unlike':'Like')+' post">'+(liked?'♥':'♡')+'</button><span class="rail-count" data-like-count="'+escapeHTML(id)+'">'+formatCount(stat.likes+(liked&&!currentUser?1:0))+'</span><button type="button" class="rail-action" data-action="comments" data-id="'+escapeHTML(id)+'" aria-label="Comments">▤</button><span class="rail-count" data-comment-count="'+escapeHTML(id)+'">'+formatCount(stat.comments)+'</span><button type="button" class="rail-action '+(saved?'saved':'')+'" data-action="save" data-id="'+escapeHTML(id)+'" aria-label="'+(saved?'Unsave':'Save')+' post">▣</button><span class="rail-count">'+(saved?'Saved':'')+'</span><button type="button" class="rail-action" data-action="share" data-id="'+escapeHTML(id)+'" aria-label="Share post">↗</button></div><div class="post-bottom"><div class="creator-row"><div class="creator-avatar">'+avatar+'</div><div class="creator-copy"><strong>'+escapeHTML(p.username||'Guest')+'</strong><small>'+escapeHTML(timeSince(p.created_at))+'</small></div><button type="button" class="follow-btn '+(followed?'following':'')+'" data-action="follow" data-name="'+escapeHTML(p.username||'Guest')+'">'+(followed?'Following':'Follow')+'</button></div><div class="post-caption">'+escapeHTML(p.caption||'')+'</div></div></article>';
+  }
+  async function loadFeed(){
+    if(!client){
+      setCloudStatus('Cloud unavailable');feedErrorMessage='The Supabase client did not load. Check your connection and refresh the page.';
+      renderFeed();return;
+    }
+    setCloudStatus('Loading feed…');
+    try{
+      const postsQ=await client.from('social_posts').select('id,visitor_id,username,avatar_url,caption,media_type,media_url,created_at').order('created_at',{ascending:false}).limit(250);
+      if(postsQ.error)throw postsQ.error;
+      posts=(postsQ.data||[]).filter(p=>p.media_url&&/^https?:\/\//i.test(String(p.media_url)));
+      const [commentsQ,reactionsQ,followsQ]=await Promise.all([
+        client.from('social_comments').select('post_id').limit(5000),
+        client.from('social_reactions').select('post_id,visitor_id').limit(5000),
+        currentUser?client.from('social_follows').select('username').eq('visitor_id',currentUser.id).limit(500):Promise.resolve({data:[],error:null})
+      ]);
+      postStats=new Map();
+      for(const p of posts)postStats.set(String(p.id),{likes:0,comments:0});
+      if(!commentsQ.error)for(const c of commentsQ.data||[]){const st=statFor(c.post_id);st.comments++;}
+      if(!reactionsQ.error)for(const r of reactionsQ.data||[]){const st=statFor(r.post_id);st.likes++;}
+      if(currentUser&&!reactionsQ.error)userLikes=new Set((reactionsQ.data||[]).filter(r=>String(r.visitor_id)===String(currentUser.id)).map(r=>String(r.post_id)));
+      else userLikes=getLocalSet(STORAGE_KEYS.likes);
+      if(currentUser&&!followsQ.error)userFollows=new Set((followsQ.data||[]).map(f=>String(f.username)));
+      else userFollows=getLocalSet(STORAGE_KEYS.follows);
+      savedPosts=getLocalSet(STORAGE_KEYS.saves);
+      feedErrorMessage='';
+      setCloudStatus('Cloud connected',true);
+    }catch(e){
+      console.error('Social feed load failed:',e);
+      feedErrorMessage='Could not load the cloud feed: '+String(e?.message||'connection error')+'. Refresh to retry.';
+      setCloudStatus('Connection issue');
+      posts=[];postStats=new Map();userLikes=getLocalSet(STORAGE_KEYS.likes);userFollows=getLocalSet(STORAGE_KEYS.follows);savedPosts=getLocalSet(STORAGE_KEYS.saves);
+    }
+    renderFeed();
+  }
+  function pauseAllVideos(except=null){
+    document.querySelectorAll('[data-social-video]').forEach(v=>{if(v!==except&&!v.paused){try{v.pause();}catch{}}});
+  }
+  function openOverlay(id){
+    const overlay=$(id);if(!overlay)return;overlay.classList.add('open');overlay.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';
+  }
+  function closeOverlay(id){
+    const overlay=$(id);if(!overlay)return;overlay.classList.remove('open');overlay.setAttribute('aria-hidden','true');
+    if(!document.querySelector('.overlay.open'))document.body.style.overflow='';
+  }
+  function openComments(postId){
+    commentsForPost=String(postId);pauseAllVideos();
+    $('commentsTitle').textContent='Comments';
+    $('commentsSubtitle').textContent='Loading shared comments…';
+    $('commentsList').innerHTML='<div class="comments-empty">Loading comments…</div>';
+    $('commentStatus').textContent='';
+    $('commentBody').value='';
+    const name=$('commentName');
+    if(name&&!name.value)name.value=displayName();
+    openOverlay('commentsOverlay');
+    loadComments(commentsForPost);
+    setTimeout(()=>$('commentBody')?.focus(),50);
+  }
+  async function loadComments(postId){
+    if(!client){$('commentsList').innerHTML='<div class="comments-empty">Cloud comments are unavailable right now.</div>';return;}
+    const {data,error}=await client.from('social_comments').select('id,post_id,visitor_id,username,body,created_at').eq('post_id',postId).order('created_at',{ascending:true}).limit(300);
+    if(error){
+      $('commentsList').innerHTML='<div class="comments-empty">Comments could not be loaded. Check your connection, then close and reopen comments to retry.</div>';
+      setStatus('commentStatus','Comments could not be loaded: '+error.message,'bad');
+      return;
+    }
+    commentsCache.set(String(postId),data||[]);
+    renderComments(postId);
+    $('commentsSubtitle').textContent=(data||[]).length+' comments · saved in the cloud';
+    const stat=statFor(postId);stat.comments=(data||[]).length;
+    updateCommentCount(postId);
+  }
+  function renderComments(postId){
+    const list=commentsCache.get(String(postId))||[];
+    $('commentsList').innerHTML=list.length?list.map(c=>'<div class="comment-item"><div class="comment-avatar">'+escapeHTML(safeInitials(c.username))+'</div><div class="comment-content"><div class="comment-meta"><strong>'+escapeHTML(c.username||'Guest')+'</strong><small>'+escapeHTML(timeSince(c.created_at))+'</small></div><div class="comment-body">'+escapeHTML(c.body)+'</div></div></div>').join(''):'<div class="comments-empty">No comments yet. Start the conversation.</div>';
+    $('commentsList').scrollTop=$('commentsList').scrollHeight;
+  }
+  function updateCommentCount(postId){
+    const count=statFor(postId).comments;
+    document.querySelectorAll('[data-comment-count="'+CSS.escape(String(postId))+'"]').forEach(el=>el.textContent=formatCount(count));
+  }
+  async function addComment(event){
+    event.preventDefault();
+    if(!commentsForPost)return;
+    const body=String($('commentBody').value||'').trim();
+    if(!body){setStatus('commentStatus','Write a comment first.','bad');return;}
+    const username=commentDisplayName();
+    if(username.length<1){setStatus('commentStatus','Add a display name first.','bad');return;}
+    const visitor=visitorId();
+    const btn=$('sendComment');btn.disabled=true;btn.textContent='Sending…';setStatus('commentStatus','Saving comment…');
+    try{
+      const q=await client.from('social_comments').insert({post_id:commentsForPost,visitor_id:visitor,username,body:body.slice(0,300)}).select('id,post_id,visitor_id,username,body,created_at').single();
+      if(q.error)throw q.error;
+      const arr=commentsCache.get(String(commentsForPost))||[];arr.push(q.data);commentsCache.set(String(commentsForPost),arr.slice(-300));
+      $('commentBody').value='';
+      const stat=statFor(commentsForPost);stat.comments=(commentsCache.get(String(commentsForPost))||[]).length;
+      renderComments(commentsForPost);updateCommentCount(commentsForPost);
+      $('commentsSubtitle').textContent=stat.comments+' comments · saved in the cloud';
+      setStatus('commentStatus','Comment posted.','good');
+      try{localStorage.setItem(STORAGE_KEYS.displayName,username)}catch{}
+    }catch(e){
+      console.error('Social comment insert failed:',e);
+      setStatus('commentStatus','Comment was not saved: '+String(e?.message||'connection error')+'. Try again.','bad');
+    }finally{btn.disabled=false;btn.textContent='Send';}
+  }
+  async function toggleLike(id){
+    id=String(id);
+    if(!currentUser){
+      const set=getLocalSet(STORAGE_KEYS.likes);const now=!set.has(id);now?set.add(id):set.delete(id);saveLocalSet(STORAGE_KEYS.likes,set);
+      renderFeed();return;
+    }
+    const now=!userLikes.has(id);
+    try{
+      if(now){const q=await client.from('social_reactions').insert({post_id:id,visitor_id:currentUser.id});if(q.error)throw q.error;}
+      else{const q=await client.from('social_reactions').delete().eq('post_id',id).eq('visitor_id',currentUser.id);if(q.error)throw q.error;}
+      now?userLikes.add(id):userLikes.delete(id);
+      const stat=statFor(id);stat.likes=Math.max(0,stat.likes+(now?1:-1));
+      renderFeed();
+    }catch(e){showToast('Like was not saved: '+String(e?.message||'try again'));}
+  }
+  async function toggleFollow(name){
+    name=String(name||'').trim();if(!name)return;
+    if(!currentUser){const set=getLocalSet(STORAGE_KEYS.follows);set.has(name)?set.delete(name):set.add(name);saveLocalSet(STORAGE_KEYS.follows,set);userFollows=set;renderFeed();return;}
+    const now=!userFollows.has(name);
+    try{
+      if(now){const q=await client.from('social_follows').insert({visitor_id:currentUser.id,username:name});if(q.error)throw q.error;}
+      else{const q=await client.from('social_follows').delete().eq('visitor_id',currentUser.id).eq('username',name);if(q.error)throw q.error;}
+      now?userFollows.add(name):userFollows.delete(name);renderFeed();
+    }catch(e){showToast('Follow was not saved: '+String(e?.message||'try again'));}
+  }
+  function toggleSave(id){
+    id=String(id);savedPosts.has(id)?savedPosts.delete(id):savedPosts.add(id);saveLocalSet(STORAGE_KEYS.saves,savedPosts);renderFeed();
+  }
+  async function sharePost(id){
+    const post=posts.find(p=>String(p.id)===String(id));if(!post)return;
+    const url=new URL(location.href);url.hash='post-'+encodeURIComponent(id);
+    try{
+      if(navigator.share)await navigator.share({title:post.username+' on Social',text:post.caption||'Social post',url:url.href});
+      else{await navigator.clipboard.writeText(url.href);showToast('Post link copied');}
+    }catch(e){if(e?.name!=='AbortError')showToast('Could not share this post.');}
+  }
+  function showCompose(){openOverlay('composeOverlay');setStatus('postStatus','Direct URLs can be posted as a guest. File uploads need your account.');$('mediaUrl')?.focus();}
+  async function createPost(event){
+    event.preventDefault();if(postBusy)return;
+    const file=$('mediaFile').files?.[0]||null;
+    const typed=String($('postName').value||'').trim();
+    const username=(currentProfile?.username||currentUser?.user_metadata?.username||typed||localStorage.getItem(STORAGE_KEYS.displayName)||currentUser?.email?.split('@')[0]||'Guest').slice(0,32).trim();
+    const caption=String($('postCaption').value||'').trim().slice(0,500);
+    const direct=String($('mediaUrl').value||'').trim();
+    if(!file&&!direct){setStatus('postStatus','Add a direct media URL or choose a file.','bad');return;}
+    if(file&&!currentUser){$('authPanel').hidden=false;setStatus('postStatus','Sign in first to upload a file.','bad');setStatus('authStatus','Sign in or create your existing account to upload media.');return;}
+    let mediaType='',mediaURL=direct,storagePath='';
+    if(file){
+      const isVideo=file.type==='video/mp4'||/\.mp4$/i.test(file.name);
+      const isImage=['image/jpeg','image/png','image/webp','image/gif'].includes(file.type)||/\.(jpe?g|png|webp|gif)$/i.test(file.name);
+      if(!isVideo&&!isImage){setStatus('postStatus','Use JPG, PNG, WebP, GIF or MP4.','bad');return;}
+      if(isImage&&file.size>15*1024*1024){setStatus('postStatus','Images must be 15 MB or smaller.','bad');return;}
+      if(isVideo&&file.size>100*1024*1024){setStatus('postStatus','Videos must be 100 MB or smaller.','bad');return;}
+      mediaType=isVideo?'video':'image';
+    }else{
+      mediaType=mediaTypeFromURL(direct);
+      if(!mediaType){setStatus('postStatus','Use a direct .jpg, .png, .webp, .gif or .mp4 URL.','bad');return;}
+      try{const u=new URL(direct);if(!/^https?:$/.test(u.protocol))throw new Error();}catch{setStatus('postStatus','Media URL must use http or https.','bad');return;}
+    }
+    if(!client){setStatus('postStatus','Cloud service is unavailable. Nothing was published.','bad');return;}
+    postBusy=true;const submit=$('submitPost');submit.disabled=true;submit.textContent='Publishing…';
+    setStatus('postStatus',file?'Uploading file to XBT storage…':'Publishing your post…');
+    try{
+      if(file){
+        const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');
+        storagePath='social/'+currentUser.id+'/'+(window.crypto?.randomUUID?window.crypto.randomUUID():Date.now().toString(36)+'-'+Math.random().toString(36).slice(2))+'.'+ext;
+        const up=await client.storage.from('social-media').upload(storagePath,file,{upsert:false,contentType:file.type|| (mediaType==='video'?'video/mp4':'image/jpeg'),cacheControl:'31536000'});
+        if(up.error)throw up.error;
+        mediaURL=client.storage.from('social-media').getPublicUrl(storagePath).data.publicUrl;
+      }
+      const payload={visitor_id:visitorId(),username:username||'Guest',avatar_url:avatarURL()||null,caption,media_type:mediaType,media_url:mediaURL};
+      const q=await client.from('social_posts').insert(payload).select('id,visitor_id,username,avatar_url,caption,media_type,media_url,created_at').single();
+      if(q.error)throw q.error;
+      try{localStorage.setItem(STORAGE_KEYS.displayName,payload.username)}catch{}
+      $('postCaption').value='';$('mediaUrl').value='';$('mediaFile').value='';
+      closeOverlay('composeOverlay');showToast('Post published');await loadFeed();
+      setStatus('postStatus','Post published successfully.','good');
+    }catch(e){
+      console.error('Social post create failed:',e);
+      if(storagePath){try{await client.storage.from('social-media').remove([storagePath]);}catch{}}
+      setStatus('postStatus','Post was not published: '+String(e?.message||'connection error')+'. Try again.','bad');
+    }finally{postBusy=false;submit.disabled=false;submit.textContent='Publish post';}
+  }
+  function startVideo(id,button){
+    const post=document.querySelector('[data-social-post="'+CSS.escape(String(id))+'"]');
+    const video=post?.querySelector('[data-social-video]');if(!video)return;
+    pauseAllVideos(video);
+    const play=video.play();
+    if(play?.then)play.then(()=>button?.classList.add('is-playing')).catch(()=>{
+      const stage=video.closest('.video-stage');const error=stage?.querySelector('.media-error');
+      if(error){error.hidden=false;error.textContent='This video was blocked or could not be played. Try another post.';}
+    });
+  }
+  function setMode(next){
+    mode=['for-you','following','saved','videos'].includes(next)?next:'for-you';
+    renderFeed();
+  }
+  function updateAuthMode(){
+    $('authSubmit').textContent=authMode==='signup'?'Create account':'Sign in';
+    $('authModeToggle').textContent=authMode==='signup'?'Use existing account':'Create account instead';
+    $('authPassword').autocomplete=authMode==='signup'?'new-password':'current-password';
+  }
+  async function submitAuth(event){
+    event.preventDefault();if(!client){setStatus('authStatus','Supabase is unavailable.','bad');return;}
+    const email=String($('authEmail').value||'').trim(),password=String($('authPassword').value||'');
+    const btn=$('authSubmit');btn.disabled=true;setStatus('authStatus',authMode==='signup'?'Creating account…':'Signing in…');
+    try{
+      const q=authMode==='signup'
+        ?await client.auth.signUp({email,password,options:{data:{username:email.split('@')[0].slice(0,24)}}})
+        :await client.auth.signInWithPassword({email,password});
+      if(q.error)throw q.error;
+      if(authMode==='signup'&&!q.data?.session){setStatus('authStatus','Account created. Check your email for the verification link, then sign in.','good');return;}
+      currentUser=q.data?.user||q.data?.session?.user||currentUser;
+      await refreshSession();await loadFeed();setStatus('authStatus','Signed in successfully.','good');showToast('Account connected');
+    }catch(e){setStatus('authStatus','Sign-in failed: '+String(e?.message||'try again'),'bad');}
+    finally{btn.disabled=false;updateAuthMode();}
+  }
+  async function signOut(){
+    if(!client||!currentUser)return;
+    const {error}=await client.auth.signOut();
+    if(error){showToast('Sign out failed: '+error.message);return;}
+    currentUser=null;currentProfile=null;userLikes=getLocalSet(STORAGE_KEYS.likes);userFollows=getLocalSet(STORAGE_KEYS.follows);
+    updateIdentity();await loadFeed();showToast('Signed out');
+  }
+
+  document.addEventListener('click',async(event)=>{
+    const action=event.target.closest('[data-action]');
+    if(action){
+      const act=action.dataset.action,id=action.dataset.id;
+      if(act==='play'){startVideo(id,action);return;}
+      if(act==='like'){await toggleLike(id);return;}
+      if(act==='comments'){openComments(id);return;}
+      if(act==='save'){toggleSave(id);return;}
+      if(act==='follow'){await toggleFollow(action.dataset.name);return;}
+      if(act==='share'){await sharePost(id);return;}
+    }
+    const modeButton=event.target.closest('[data-mode]');
+    if(modeButton){setMode(modeButton.dataset.mode);return;}
+    const close=event.target.closest('[data-close]');
+    if(close){closeOverlay(close.dataset.close);return;}
+    if(event.target.classList.contains('overlay'))closeOverlay(event.target.id);
+  });
+  $('feed').addEventListener('click',(event)=>{
+    const video=event.target.closest('[data-social-video]');
+    if(video){pauseAllVideos(video);}
+  });
+  $('composeOpen').addEventListener('click',showCompose);
+  $('composeOpenSide').addEventListener('click',showCompose);
+  $('emptyCreate').addEventListener('click',showCompose);
+  $('authOpenSide').addEventListener('click',()=>{showCompose();$('authPanel').hidden=false;$('authEmail').focus();});
+  $('accountManage').addEventListener('click',()=>{showCompose();$('authPanel').hidden=false;$('authEmail').focus();});
+  $('refreshFeed').addEventListener('click',loadFeed);
+  $('composeForm').addEventListener('submit',createPost);
+  $('commentForm').addEventListener('submit',addComment);
+  $('authForm').addEventListener('submit',submitAuth);
+  $('authModeToggle').addEventListener('click',()=>{authMode=authMode==='signup'?'signin':'signup';updateAuthMode();});
+  $('signOutButton').addEventListener('click',signOut);
+  $('themeToggle').addEventListener('click',()=>{
+    const dark=!document.documentElement.classList.contains('dark');
+    document.documentElement.classList.toggle('dark',dark);
+    try{localStorage.setItem(STORAGE_KEYS.theme,dark?'dark':'light')}catch{}
+  });
+  $('fullscreenToggle').addEventListener('click',async()=>{
+    const app=$('socialApp');
+    try{
+      if(document.fullscreenElement){await document.exitFullscreen();}
+      else if(app.requestFullscreen){await app.requestFullscreen();}
+      else{document.documentElement.classList.toggle('dark');showToast('Full-screen mode is not supported by this browser.');}
+    }catch(e){showToast('Full-screen could not start. Use your browser full-screen shortcut.');}
+  });
+  document.addEventListener('fullscreenchange',()=>{
+    const full=!!document.fullscreenElement;
+    $('fullscreenToggle').textContent=full?'⛶ Exit full screen':'⛶ Full screen';
+    $('fullscreenToggle').setAttribute('aria-pressed',String(full));
+    $('socialApp').classList.toggle('in-fullscreen',full);
+  });
+  document.addEventListener('keydown',(event)=>{
+    if(event.key==='Escape'){document.querySelectorAll('.overlay.open').forEach(x=>closeOverlay(x.id));pauseAllVideos();}
+    if(event.key==='Enter'&&event.target===$('commentBody')&&!event.shiftKey){event.preventDefault();$('commentForm').requestSubmit();}
+  });
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)pauseAllVideos();});
+  $('feed').addEventListener('scroll',()=>{ /* scroll-snap is handled by CSS; playback is intentionally never automatic */ },{passive:true});
+  $('postName').addEventListener('input',()=>{
+    if(!currentUser)try{localStorage.setItem(STORAGE_KEYS.displayName,String($('postName').value||'').slice(0,32))}catch{}
+  });
+  $('commentName').addEventListener('input',()=>{
+    if(!currentUser)try{localStorage.setItem(STORAGE_KEYS.displayName,String($('commentName').value||'').slice(0,32))}catch{}
+  });
+  $('mediaFile').addEventListener('change',()=>{
+    const file=$('mediaFile').files?.[0];if(!file)return;
+    if(!currentUser){$('authPanel').hidden=false;setStatus('postStatus','Sign in to upload a file; your selection is kept.');return;}
+    if(file.size>100*1024*1024){$('mediaFile').value='';setStatus('postStatus','Files must be 100 MB or smaller.','bad');return;}
+    setStatus('postStatus',file.name+' selected. It will upload when you publish.');
+  });
+  window.addEventListener('beforeunload',()=>pauseAllVideos());
+  if(localStorage.getItem(STORAGE_KEYS.theme)==='dark')document.documentElement.classList.add('dark');
+  updateAuthMode();
+
+  async function boot(){
+    if(!client){setCloudStatus('Cloud unavailable');feedErrorMessage='The Supabase browser client failed to load.';renderFeed();return;}
+    await refreshSession();
+    updateIdentity();
+    await loadFeed();
+    client.auth.onAuthStateChange((_event,session)=>{
+      window.setTimeout(async()=>{
+        currentUser=session?.user||null;
+        await refreshSession();
+        await loadFeed();
+      },0);
+    });
+  }
+  boot();
+})();
+</script>
+</body>
+</html>
