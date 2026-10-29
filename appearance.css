@@ -83,3 +83,40 @@ html[data-aio-theme="glass"] .badge{backdrop-filter:blur(14px);-webkit-backdrop-
 @keyframes aio-glass-modal-in{from{opacity:0;transform:translateY(9px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(prefers-reduced-motion:reduce){html[data-aio-theme="glass"] *,html[data-aio-theme="glass"] *::before,html[data-aio-theme="glass"] *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 @media(max-width:700px){html[data-aio-theme="glass"] .topbar{top:4px;border-radius:15px}html[data-aio-theme="glass"] :is(.topbar,.hero-card,.qcard,.panel,.tool,.newsbox,.football,.modalbox,.card){backdrop-filter:blur(16px) saturate(145%);-webkit-backdrop-filter:blur(16px) saturate(145%)}}
+
+
+/* Refined Liquid Glass OS: cleaner surfaces, stronger hierarchy, quiet motion. */
+:root{--aio-glass-alpha:.48;--aio-glass-blur:26px;--aio-glass-edge:rgba(255,255,255,.30)}
+html[data-aio-theme="glass"] body{
+ background-image:
+ radial-gradient(ellipse at 8% 2%,rgba(105,151,255,.16),transparent 36%),
+ radial-gradient(ellipse at 92% 12%,rgba(179,140,255,.13),transparent 34%),
+ radial-gradient(ellipse at 55% 100%,rgba(93,204,193,.07),transparent 42%);
+ background-attachment:fixed
+}
+html[data-aio-theme="glass"] :is(.topbar,.hero-card,.qcard,.panel,.tool,.newsbox,.football,.modalbox,.settings-help,.filters .filter,.btn,.nav button.active,.card,.stat,.gameframe-wrap,.settings-card,.notes-card,.todo-card){
+ border-color:var(--aio-glass-edge);
+ background-color:rgba(255,255,255,.44);
+ background-image:linear-gradient(145deg,rgba(255,255,255,.48),rgba(255,255,255,.16) 42%,rgba(255,255,255,.25));
+ box-shadow:0 1px 0 rgba(255,255,255,.58) inset,0 12px 34px rgba(35,48,76,.09);
+ backdrop-filter:blur(var(--aio-glass-blur)) saturate(170%);
+ -webkit-backdrop-filter:blur(var(--aio-glass-blur)) saturate(170%)
+}
+html.dark[data-aio-theme="glass"] :is(.topbar,.hero-card,.qcard,.panel,.tool,.newsbox,.football,.modalbox,.settings-help,.filters .filter,.btn,.nav button.active,.card,.stat,.gameframe-wrap,.settings-card,.notes-card,.todo-card){
+ background-color:rgba(22,27,38,.58);
+ background-image:linear-gradient(145deg,rgba(255,255,255,.085),rgba(255,255,255,.018) 46%,rgba(255,255,255,.045));
+ border-color:rgba(255,255,255,.13);
+ box-shadow:0 1px 0 rgba(255,255,255,.08) inset,0 16px 42px rgba(0,0,0,.20)
+}
+html[data-aio-theme="glass"] .topbar{background-color:rgba(247,250,255,.66);border-radius:0 0 20px 20px}
+html.dark[data-aio-theme="glass"] .topbar{background-color:rgba(16,19,27,.70)}
+html[data-aio-theme="glass"] .card{transition:transform .24s cubic-bezier(.2,.75,.25,1),box-shadow .24s ease,border-color .24s ease}
+html[data-aio-theme="glass"] .card:hover{transform:translateY(-5px) scale(1.012);border-color:rgba(120,155,255,.55);box-shadow:0 1px 0 rgba(255,255,255,.55) inset,0 20px 46px rgba(54,87,150,.16)}
+html[data-aio-theme="glass"] .card .cover img{transition:transform .42s cubic-bezier(.2,.75,.25,1),filter .3s ease}
+html[data-aio-theme="glass"] .card:hover .cover img{transform:scale(1.055);filter:saturate(1.08)}
+html[data-aio-theme="glass"] :is(.btn,.filter,.nav button,.tool){transition:transform .18s ease,background-color .18s ease,box-shadow .18s ease}
+html[data-aio-theme="glass"] :is(.btn,.filter,.nav button,.tool):hover{transform:translateY(-1px)}
+html[data-aio-theme="glass"] :is(.panel,.hero-card,.qcard,.settings-card,.notes-card,.todo-card){border-radius:20px}
+html[data-aio-theme="glass"] :is(.source-label,.source-badge,.game-source,[data-source-label]){display:none!important}
+@media(prefers-reduced-motion:reduce){html[data-aio-theme="glass"] *,html[data-aio-theme="glass"] *::before,html[data-aio-theme="glass"] *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+@media(max-width:700px){html[data-aio-theme="glass"]{--aio-glass-blur:18px}html[data-aio-theme="glass"] .card:hover{transform:translateY(-2px)}}
