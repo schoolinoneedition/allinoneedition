@@ -460,6 +460,12 @@ html.reduced-motion .cover{transition:none!important}
 .gameframe{display:block;border:0!important;outline:0!important;border-radius:0!important;box-shadow:none!important;background:#05070b}
 #gameFrame{border:0!important;outline:0!important}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
+.social-launch-panel{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:24px}
+.social-launch-copy{min-width:0}.social-launch-kicker{display:inline-block;color:var(--accent);font-size:10px;text-transform:uppercase;letter-spacing:.14em;font-weight:950}
+.social-launch-copy h3{margin:8px 0 7px;font-size:22px;letter-spacing:-.6px}.social-launch-copy p{margin:0;max-width:650px;color:var(--muted);font-size:12px;line-height:1.6}
+.social-launch-panel a,.social-launch-inline a{text-decoration:none}.social-launch-inline{display:flex;align-items:center;justify-content:space-between;gap:12px}
+@media(max-width:600px){.social-launch-panel,.social-launch-inline{align-items:flex-start;flex-direction:column}}
 </style>
 <link rel="stylesheet" href="./appearance.css">
 <link rel="stylesheet" href="./ultimate-experience.css">
@@ -506,7 +512,7 @@ html.reduced-motion .cover{transition:none!important}
   <div class="search"><input id="search" autocomplete="off" placeholder="Search games, tools, school apps...  ( / )"></div>
   <button class="btn" id="assistantBtn">Smart answer</button><button class="btn account-btn" id="accountBtn" type="button" onclick="handleAccountClick()"><span class="account-avatar" id="accountAvatar">?</span><span id="accountLabel">Account</span></button><button class="btn" id="settingsBtn">Settings</button><select class="lang-select" id="languageSelect" aria-label="Language"><option value="en">EN</option><option value="es">ES</option><option value="fr">FR</option><option value="de">DE</option><option value="pl">PL</option><option value="pt">PT</option><option value="tr">TR</option><option value="ar">AR</option><option value="it">IT</option><option value="nl">NL</option><option value="ja">JA</option><option value="ko">KO</option></select><button class="btn" id="darkBtn">Dark</button><button class="btn" id="afkBtn" title="Pause your current game and enter AFK mode">AFK</button><button class="btn" id="hideBtn">Hide</button>
  </div>
- <div class="nav"><button data-scroll="home">Home</button><button data-scroll="games">Games</button><button data-scroll="school">School</button><button data-scroll="social">Social</button><button data-scroll="videos">Videos</button><button data-scroll="community">Community</button><button data-scroll="chat">Chat</button><button data-scroll="live">Live</button><button data-scroll="tools">Tools</button><button data-scroll="notes">Notes</button><button data-scroll="music">Music</button><button data-scroll="code">Code Lab</button></div>
+ <div class="nav"><button data-scroll="home">Home</button><button data-scroll="games">Games</button><button data-scroll="school">School</button><button type="button" onclick="location.href='social.html'">Social</button><button type="button" onclick="location.href='social.html'">Videos</button><button data-scroll="community">Community</button><button data-scroll="chat">Chat</button><button data-scroll="live">Live</button><button data-scroll="tools">Tools</button><button data-scroll="notes">Notes</button><button data-scroll="music">Music</button><button data-scroll="code">Code Lab</button></div>
 </header>
 <main id="app">
 <section id="home" class="hero">
@@ -524,53 +530,15 @@ html.reduced-motion .cover{transition:none!important}
 </section>
 
 <section id="social" class="section social-section">
-  <div class="section-head social-section-head">
-    <div>
-      <h2>Social</h2>
-      <small>Scroll through public images and videos. No account is required.</small>
-    </div>
-    <div class="social-cloud-state" id="socialCloudState">Waiting for posts</div>
-  </div>
-  <div class="social-feed-tabs" role="tablist" aria-label="Social feed"><button class="btn mini primary" id="socialForYouTab" onclick="setSocialMode(0)">For you</button><button class="btn mini" id="socialFollowingTab" onclick="setSocialMode(1)">Following</button><button class="btn mini" id="socialSavedTab" onclick="setSocialMode(2)">Saved</button></div><div class="social-profile-note hidden" id="socialProfileNote"></div><div class="social-feed-shell">
-    <div class="social-feed-column">
-      <div id="socialFeed" class="social-feed" aria-live="polite"></div>
-      <div id="socialFeedEmpty" class="social-post-empty">
-        <div><strong>No posts yet</strong><span>Social is empty until someone posts an image or video in Community.</span></div>
-      </div>
-      <div id="socialScrollNote" class="social-scroll-note hidden">Scroll for more</div>
-    </div>
-  </div>
-</section>
-
-<section id="videos" class="section">
-  <div class="section-head"><div><h2>Videos</h2><small>Browse real video posts saved in the XBT Supabase project.</small></div><div class="inline" style="margin-top:0"><button class="btn mini" type="button" onclick="loadVideoGallery(true)">Refresh</button><button class="btn mini primary" type="button" onclick="openSocialManage()">My uploads</button></div></div>
-  <div class="video-gallery-toolbar"><input id="videoSearchInput" class="social-input" type="search" placeholder="Search video captions or creators…" oninput="filterVideoGallery()" aria-label="Search videos"><span id="videoGalleryStatus" class="tiny-status" role="status">Open Videos to load saved uploads.</span></div>
-  <div id="videoGallery" class="aio-video-gallery" aria-live="polite"></div>
-  <div class="inline"><button id="videoLoadMore" class="btn mini hidden" type="button" onclick="loadVideoGallery(false)">Load more videos</button></div>
+  <div class="section-head"><div><h2>Social</h2><small>Your own page for videos, images, comments and creators.</small></div><a class="btn mini primary" href="social.html">Open Social</a></div>
+  <div class="panel social-launch-panel"><div class="social-launch-copy"><span class="social-launch-kicker">A separate space</span><h3>Scroll, watch and talk.</h3><p>Social now opens in its own full-page feed. Videos stay paused until you press play, and comments are saved to the cloud so other people can see them too.</p></div><a class="btn mini primary" href="social.html">Go to Social →</a></div>
 </section>
 
 <section id="community" class="section">
   <div class="section-head"><h2>Community</h2><small id="supabaseStatus">Connect your account to use friends, parties, DMs and meetings.</small></div>
-  <div class="panel social-community-publisher">
-    <div class="social-composer-top">
-      <div><strong>Post to Social</strong><span class="social-publisher-note">Create an image or video post here. No account is required. It will appear in the Social feed.</span></div>
-      <span class="social-guest-badge" id="socialIdentityBadge">Guest posting</span>
-    </div>
-    <div class="social-publisher-grid">
-      <div class="social-publisher-row">
-        <input id="socialPostName" class="social-input" maxlength="32" placeholder="Display name (your account is used when signed in)">
-        <input id="socialPostAvatar" class="social-input" maxlength="500" placeholder="Avatar URL (optional)">
-      </div>
-      <textarea id="socialPostCaption" class="social-textarea" maxlength="500" placeholder="Write a caption…"></textarea>
-      <div class="social-media-row">
-        <input id="socialMediaUrl" class="social-input" maxlength="2000" placeholder="Direct image/video URL (JPG, PNG, WebP, GIF, MP4)">
-        <label class="social-file-label">Choose media<input id="socialMediaFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,.jpg,.jpeg,.png,.webp,.gif,.mp4" /></label>
-      </div>
-    </div>
-    <div class="social-publish-actions">
-      <span class="tiny-status" id="socialPostHint">Images (JPG, PNG, WebP, GIF) up to 15 MB or MP4 videos up to 100 MB. Posts are saved to Supabase.</span>
-      <div class="social-publish-button-row"><button class="btn mini" type="button" onclick="openSocialManage()">Manage my posts</button><button id="socialPostSubmitBtn" class="btn mini primary" type="button" onclick="createSocialPost()">Post to Social</button></div>
-    </div>
+  <div class="panel social-community-publisher social-launch-inline">
+    <div class="social-composer-top"><div><strong>Social is now its own page</strong><span class="social-publisher-note">Publish photos and videos, scroll the feed, and read or post cloud-saved comments from the dedicated Social page.</span></div></div>
+    <div class="social-actions"><a class="btn mini primary" href="social.html">Open Social</a></div>
   </div>
   <div class="social-grid">
     <div class="social-card">
@@ -765,13 +733,7 @@ html.reduced-motion .cover{transition:none!important}
 <body style="font-family:system-ui;padding:20px">
 <h1>Hello from All in One</h1>
 <button onclick="document.body.style.background='#eaf2ff'">Click me</button>
-<div class="social-comments-modal" id="socialCommentsModal" aria-modal="true" role="dialog" aria-label="Social comments">
-  <div class="social-comments-box">
-    <div class="social-comments-head"><strong id="socialCommentsTitle">Comments</strong><button class="btn mini" type="button" onclick="closeSocialComments()">Close</button></div>
-    <div id="socialCommentsList" class="social-comments-list"></div>
-    <div class="social-comment-composer"><input id="socialCommentName" maxlength="32" placeholder="Name"><textarea id="socialCommentBody" maxlength="300" placeholder="Add a comment…"></textarea><button class="btn mini primary" type="button" onclick="addSocialComment()">Send</button></div>
-  </div>
-</div>
+
 
 </body>
 </html></textarea><iframe id="codePreview" class="preview" sandbox="allow-scripts"></iframe></div></div></section>
