@@ -877,7 +877,7 @@ function cardHTML(g,i){
   const fallback=logoData(g.name,c1,c2);
   const st=gameProgress[gameKey(g)]||{};
   const pct=Math.max(0,Math.min(100,Number(st.progress)||0));
-  const sourceLikeLabel=/pizza edition|construct(?:\\s*3)?|topvaz|onlinegames(?:\\.io)?|crazygames|poki|newgrounds|itch(?:\\.io)?/i;
+  const sourceLikeLabel=/pizza edition|construct(?:\s*3)?|topvaz|onlinegames(?:\.io)?|crazygames|poki|newgrounds|itch(?:\.io)?/i;
   const badgeText=(g.tag&&!sourceLikeLabel.test(g.tag))?g.tag:g.cat;
   const priority=i<36?'eager':'lazy';
   const fp=i<36?' fetchpriority="high"':'';
@@ -1254,7 +1254,9 @@ addTopVazExtras();
 /* Keep every startup feature isolated: one optional error must not stop the rest of the hub. */
 function safeBoot(fn){try{return fn()}catch(e){console.error('All in One boot:',e);return null}}
 if(typeof imagePreloadStarted==='undefined'){var imagePreloadStarted=false,gameWarmStarted=false,imageWarmDone=0,gameWarmDone=0}
-safeBoot(renderFilters);safeBoot(initSettings);if($('previewTitle'))$('previewTitle').textContent='No preview playing';safeBoot(initExtraTools);safeBoot(renderNotes);safeBoot(renderTodos);safeBoot(renderCalc);safeBoot(renderChatBoot);safeBoot(updateStudyProgress);safeBoot(updateWorldClock);safeBoot(initSpotifyBridge);setTimeout(()=>safeBoot(initSpotifyBridge),1200);setTimeout(()=>{safeBoot(renderIntroCutscene);safeBoot(renderGames)},80);\n// Load the provider's public game catalogue after the initial UI is responsive.\nsetTimeout(()=>safeBoot(loadOnlineGamesCatalog),650);
+safeBoot(renderFilters);safeBoot(initSettings);if($('previewTitle'))$('previewTitle').textContent='No preview playing';safeBoot(initExtraTools);safeBoot(renderNotes);safeBoot(renderTodos);safeBoot(renderCalc);safeBoot(renderChatBoot);safeBoot(updateStudyProgress);safeBoot(updateWorldClock);safeBoot(initSpotifyBridge);setTimeout(()=>safeBoot(initSpotifyBridge),1200);setTimeout(()=>{safeBoot(renderIntroCutscene);safeBoot(renderGames)},80);
+// Load the provider's public game catalogue after the initial UI is responsive.
+setTimeout(()=>safeBoot(loadOnlineGamesCatalog),650);
 
 setInterval(updateWorldClock,1000);updateWorldClock();
 $('todoInput').addEventListener('keydown',e=>{if(e.key==='Enter')addTodo()});$('assistantInput').addEventListener('keydown',e=>{if(e.key==='Enter')answerQuestion()});$('assistantModal').addEventListener('click',e=>{if(e.target.id==='assistantModal')closeAssistant()});
