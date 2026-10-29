@@ -435,6 +435,30 @@ html.reduced-motion .cover{transition:none!important}
 .party-wheel-pointer{position:absolute;top:-3px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-top:0;border-bottom:24px solid #17191f;z-index:12;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25))}
 @media(max-width:700px){.party-wheel-stage{width:220px;height:220px}.party-wheel-rotor{left:5px;top:5px}.party-wheel{width:210px;height:210px}.party-wheel-labels{width:210px;height:210px}}
 
+
+/* Polished OS glass + calmer game cards */
+:root{--glass-bg:rgba(248,251,255,.72);--glass-edge:rgba(255,255,255,.58);--glass-shadow:0 18px 50px rgba(27,42,70,.12)}
+.topbar{background:var(--glass-bg)!important;border-bottom:1px solid rgba(255,255,255,.42)!important;box-shadow:0 10px 35px rgba(34,55,84,.08);backdrop-filter:blur(28px) saturate(1.55)!important;-webkit-backdrop-filter:blur(28px) saturate(1.55)!important}
+.dark .topbar{background:rgba(16,20,30,.72)!important;border-bottom-color:rgba(255,255,255,.10)!important}
+.panel,.qcard,.tool,.social-card,.resume-panel{backdrop-filter:blur(22px) saturate(1.25);-webkit-backdrop-filter:blur(22px) saturate(1.25)}
+.card{border:0!important;outline:0!important;background:transparent!important;box-shadow:none!important;overflow:visible;border-radius:0;transition:transform .28s cubic-bezier(.2,.8,.2,1),filter .28s ease;will-change:transform}
+.card:hover{transform:translateY(-4px);filter:saturate(1.04)}
+.cover{border:0!important;outline:0!important;border-radius:18px!important;box-shadow:0 8px 24px rgba(18,30,52,.13)!important;isolation:isolate;transition:transform .32s cubic-bezier(.2,.8,.2,1),box-shadow .32s ease!important}
+.card:hover .cover{transform:translateY(-1px) scale(1.012)!important;box-shadow:0 16px 36px rgba(18,30,52,.22)!important}
+.cover img,.cover .image-loading{border:0!important;outline:0!important;border-radius:inherit!important}
+.card-title{background:transparent!important;border:0!important;box-shadow:none!important;padding-left:2px;padding-right:2px}
+.card-meta{border:0!important;background:transparent!important}
+.cardShimmer,.cover::after{pointer-events:none}
+.card:hover .cover::after{animation:cardShimmer .9s cubic-bezier(.16,1,.3,1) both}
+@keyframes cardRise{0%{opacity:0;transform:translateY(14px) scale(.985);filter:blur(3px)}100%{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
+@keyframes cardShimmer{0%{transform:translateX(-130%);opacity:0}20%{opacity:.45}100%{transform:translateX(130%);opacity:0}}
+.btn,.chip,.nav-link,.game-float-btn{transition:transform .2s cubic-bezier(.2,.8,.2,1),background-color .2s ease,box-shadow .2s ease,border-color .2s ease}
+.btn:hover,.chip:hover{transform:translateY(-1px);box-shadow:0 7px 18px rgba(30,48,80,.12)}
+.modalbox{border:1px solid rgba(255,255,255,.16);box-shadow:0 30px 100px rgba(0,0,0,.32);overflow:hidden}
+.game-stage{border:0!important;outline:0!important;border-radius:0!important;box-shadow:none!important;overflow:hidden;background:#05070b}
+.gameframe{display:block;border:0!important;outline:0!important;border-radius:0!important;box-shadow:none!important;background:#05070b}
+#gameFrame{border:0!important;outline:0!important}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 </style>
 <link rel="stylesheet" href="./appearance.css">
 <link rel="stylesheet" href="./ultimate-experience.css">
