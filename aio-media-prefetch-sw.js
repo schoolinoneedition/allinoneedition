@@ -28,7 +28,6 @@ async function aioCacheSize(cache){
 async function aioPruneCache(cache,neededBytes,limitBytes){
   let total=await aioCacheSize(cache);
   if(total+neededBytes<=limitBytes)return total;
-  // Cache.keys() preserves insertion order, so evict the oldest warmed media first.
   for(const request of await cache.keys()){
     if(total+neededBytes<=limitBytes)break;
     const response=await cache.match(request);
@@ -39,6 +38,28 @@ async function aioPruneCache(cache,neededBytes,limitBytes){
   return total;
 }
 
+async function aioReadLimitedBlob(response,maxBytes){
+  if(response.body?.getReader){
+    const reader=response.body.getReader();
+    const chunks=[];
+    let size=0;
+    while(true){
+      const part=await reader.read();
+      if(part.done)break;
+      const chunk=part.value;
+      size+=chunk?.byteLength||0;
+      if(size>maxBytes){
+        try{await reader.cancel()}catch{}
+        return null;
+      }
+      chunks.push(chunk);
+    }
+    return size?new Blob(chunks,{type:response.headers.get('content-type')||'video/mp4'}):null;
+  }
+  const blob=await response.blob();
+  return blob.size&&blob.size<=maxBytes?blob:null;
+}
+
 async function aioStoreMedia(cache,url,response,maxFileBytes,remainingBytes,limitBytes){
   if(!response?.ok||response.type==='opaque')return 0;
   const declared=Number(response.headers.get('content-length')||0);
@@ -46,8 +67,9 @@ async function aioStoreMedia(cache,url,response,maxFileBytes,remainingBytes,limi
     try{await response.body?.cancel()}catch{}
     return 0;
   }
-  const blob=await response.blob();
-  if(!blob.size||blob.size>maxFileBytes||blob.size>remainingBytes)return 0;
+  const cap=Math.min(maxFileBytes,remainingBytes);
+  const blob=await aioReadLimitedBlob(response,cap);
+  if(!blob||blob.size>cap)return 0;
   await aioPruneCache(cache,blob.size,limitBytes);
   if(await aioCacheSize(cache)+blob.size>limitBytes)return 0;
 
@@ -76,14 +98,7 @@ async function aioWarmBatch(event){
     if(downloadedBytes>=maxBatch)break;
     if(await cache.match(url)){skipped++;continue;}
     try{
-      // HEAD avoids fetching a large upload just to discover that it exceeds the warm-up cap.
-      let declared=0;
-      try{
-        const head=await fetch(url,{method:'HEAD',mode:'cors',credentials:'omit',cache:'force-cache'});
-        if(head.ok)declared=Number(head.headers.get('content-length')||0);
-      }catch{}
-      if(declared>maxFile||declared>maxBatch-downloadedBytes){skipped++;continue;}
-
+      // GET once: response headers let us reject large media before reading the body.
       const response=await fetch(url,{method:'GET',mode:'cors',credentials:'omit',cache:'force-cache'});
       const size=await aioStoreMedia(cache,url,response,maxFile,maxBatch-downloadedBytes,maxCache);
       if(size){downloadedBytes+=size;warmed++}else skipped++;
@@ -111,12 +126,12 @@ async function aioServeCachedMedia(request,proxyUrl){
     }
   }
 
-  const range=request.headers.get('range');
   if(request.method==='HEAD')return new Response(null,{status:200,headers:cached.headers});
+  const range=request.headers.get('range');
   if(!range)return cached;
 
-  const bytes=await cached.arrayBuffer();
-  const total=bytes.byteLength;
+  const blob=await cached.blob();
+  const total=blob.size;
   const match=/^bytes=(\d*)-(\d*)$/i.exec(range.trim());
   if(!match)return new Response(null,{status:416,headers:{'content-range':'bytes */'+total}});
   let start=match[1]?Number(match[1]):null;
@@ -125,17 +140,15 @@ async function aioServeCachedMedia(request,proxyUrl){
     const suffix=end||0;
     if(!suffix)return new Response(null,{status:416,headers:{'content-range':'bytes */'+total}});
     start=Math.max(0,total-suffix);end=total-1;
-  }else{
-    if(end===null||end>=total)end=total-1;
-  }
+  }else if(end===null||end>=total)end=total-1;
   if(!Number.isSafeInteger(start)||!Number.isSafeInteger(end)||start<0||start>=total||end<start){
     return new Response(null,{status:416,headers:{'content-range':'bytes */'+total}});
   }
-  const part=bytes.slice(start,end+1);
+  const part=blob.slice(start,end+1,blob.type);
   const headers=new Headers(cached.headers);
   headers.set('accept-ranges','bytes');
   headers.set('content-range','bytes '+start+'-'+end+'/'+total);
-  headers.set('content-length',String(part.byteLength));
+  headers.set('content-length',String(end-start+1));
   return new Response(part,{status:206,statusText:'Partial Content',headers});
 }
 
@@ -144,7 +157,9 @@ self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
 
 self.addEventListener('message',event=>{
   if(event.data?.type==='AIO_SOCIAL_MEDIA_WARM'){
-    event.waitUntil(aioWarmBatch(event));
+    event.waitUntil(aioWarmBatch(event).catch(error=>{
+      try{event.source?.postMessage({type:'AIO_SOCIAL_MEDIA_WARM_DONE',downloadedBytes:0,warmed:0,skipped:0,error:String(error?.message||error)})}catch{}
+    }));
   }
 });
 
