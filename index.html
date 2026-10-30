@@ -3037,6 +3037,8 @@ function socialQueueBackgroundVideoPrefetch(videos){
   socialBindBackgroundPrefetchEvents();
   for(const video of videos||[]){
     if(video.dataset.sourceAttached==='1')continue;
+    const rect=video.getBoundingClientRect();
+    if(rect.top<window.innerHeight&&rect.bottom>0)continue;
     const url=socialBackgroundPrefetchUrl(video.dataset.videoSrc);
     if(!url||aioSocialPrefetchRequested.has(url))continue;
     aioSocialPrefetchRequested.add(url);
