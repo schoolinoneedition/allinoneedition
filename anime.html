@@ -202,6 +202,8 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
  </section>
  <footer class="footer"><span>Anime Zone · All in One Edition</span><span>Episode information checked October 2026 · availability can change</span></footer>
 </main>
+<link rel="preconnect" href="https://btnbuchsrfllpzlypjtn.supabase.co" crossorigin>
+<link rel="dns-prefetch" href="https://btnbuchsrfllpzlypjtn.supabase.co">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (()=>{
@@ -389,7 +391,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   const safeName=selectedEpisode.seriesId+'/'+(selectedEpisode.seasonIndex+1)+'/'+String(selectedEpisode.episodeNumber).padStart(3,'0')+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+extension;
   let uploadedPath=null;
   try{
-   const upload=await ownerClient.storage.from('anime-episodes').upload(safeName,file,{contentType:file.type,cacheControl:'3600',upsert:false});
+   const upload=await ownerClient.storage.from('anime-episodes').upload(safeName,file,{contentType:file.type,cacheControl:'31536000',upsert:false});
    if(upload.error)throw upload.error;
    uploadedPath=safeName;
    const siteUrl='https://allinoneedition.vercel.app/videos/'+safeName.split('/').map(encodeURIComponent).join('/');
@@ -462,9 +464,9 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
    return;
   }
   const frame=document.createElement('div');frame.className='watch-video-stage';
-  const video=document.createElement('video');video.className='watch-video';video.src=saved.watch_url;video.preload='metadata';video.playsInline=true;video.controls=false;video.tabIndex=0;video.setAttribute('aria-label',s.title+' '+ep.title);
+  const video=document.createElement('video');video.className='watch-video';video.dataset.videoSrc=saved.watch_url;video.preload='none';video.playsInline=true;video.controls=false;video.tabIndex=0;video.width=1280;video.height=720;video.setAttribute('aria-label',s.title+' '+ep.title);
   const overlay=document.createElement('button');overlay.type='button';overlay.className='watch-video-overlay';overlay.setAttribute('aria-label','Play episode');const overlayIcon=document.createElement('span');overlayIcon.textContent='▶';overlay.append(overlayIcon);
-  const toggle=async()=>{if(video.paused){try{await video.play()}catch{$('playerNote').textContent='Playback could not start. Check that the video URL is reachable and supports MP4/WebM streaming.'}}else video.pause()};
+  const toggle=async()=>{if(video.paused){if(video.dataset.sourceAttached!=='1'){video.preload='metadata';video.src=video.dataset.videoSrc;video.dataset.sourceAttached='1';video.load()}try{await video.play()}catch{$('playerNote').textContent='Playback could not start. Check that the video URL is reachable and supports MP4/WebM streaming.'}}else video.pause()};
   video.addEventListener('click',toggle);
   video.addEventListener('keydown',event=>{if(event.code==='Space'||event.code==='Enter'){event.preventDefault();toggle()}});
   overlay.addEventListener('click',event=>{event.stopPropagation();toggle()});
