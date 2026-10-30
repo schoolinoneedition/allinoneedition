@@ -1286,7 +1286,7 @@
       else{await navigator.clipboard.writeText(url.href);showToast('Post link copied');}
     }catch(e){if(e?.name!=='AbortError')showToast('Could not share this post.');}
   }
-  let socialFFmpeg=null,socialFFmpegPromise=null,socialFFmpegCoreUrls=[];
+  let socialFFmpeg=null,socialFFmpegPromise=null,socialFFmpegCoreUrls=[],socialFFmpegLogs=[];
   const SOCIAL_FFMPEG_VERSION='0.12.15';
   const SOCIAL_FFMPEG_CORE_BASE='https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm';
   async function socialFFmpegBlobURL(url,type){
@@ -1308,7 +1308,7 @@
           if(typeof library.FFmpeg!=='function')throw new Error('The video converter library did not load correctly.');
           engine=new library.FFmpeg();
           socialFFmpeg=engine;
-          engine.on('log',({message})=>{if(message)console.debug('[Social video converter]',message);});
+          engine.on('log',({message})=>{if(message){socialFFmpegLogs.push(String(message));if(socialFFmpegLogs.length>160)socialFFmpegLogs.splice(0,socialFFmpegLogs.length-160);console.debug('[Social video converter]',message);}});
           const coreURL=await socialFFmpegBlobURL(SOCIAL_FFMPEG_CORE_BASE+'/ffmpeg-core.js','text/javascript');
           socialFFmpegCoreUrls.push(coreURL);
           const wasmURL=await socialFFmpegBlobURL(SOCIAL_FFMPEG_CORE_BASE+'/ffmpeg-core.wasm','application/wasm');
@@ -1377,20 +1377,32 @@
 
       // FFprobe reads the codecs inside the file. The extension and MIME type
       // alone cannot tell H.264 apart from HEVC inside an MP4 container.
+      const probeLogStart=socialFFmpegLogs.length;
       const probeExit=await ffmpeg.ffprobe([
         '-v','error',
         '-show_entries','format=format_name:stream=codec_type,codec_name,profile,pix_fmt,width,height',
         '-of','json',inputPath,'-o',probePath
       ]);
-      if(probeExit!==0)throw new Error('Could not inspect this video file. It may be damaged or use an unsupported container.');
-      const probeRaw=await ffmpeg.readFile(probePath,'utf8');
-      const probeText=typeof probeRaw==='string'?probeRaw:new TextDecoder().decode(probeRaw);
+      // FFmpeg.wasm core 0.12.10 can return -1 from ffprobe even when it
+      // successfully writes its output file (upstream issue #817). The JSON
+      // report is authoritative; do not reject a valid report from the exit code.
+      let probeText='';
+      try{
+        const probeRaw=await ffmpeg.readFile(probePath,'utf8');
+        probeText=typeof probeRaw==='string'?probeRaw:new TextDecoder().decode(probeRaw);
+      }catch{}
+      if(!probeText.trim()){
+        const diagnostic=socialFFmpegLogs.slice(probeLogStart).filter(Boolean).slice(-5).join(' | ');
+        throw new Error('FFprobe did not create a codec report (exit '+probeExit+'). '+(diagnostic||'The file may be damaged or its container may not be supported by this FFmpeg build.'));
+      }
       let metadata;
-      try{metadata=JSON.parse(probeText);}catch{throw new Error('The video codec report was not valid. Choose a different video file.');}
+      try{metadata=JSON.parse(probeText);}catch(error){
+        throw new Error('FFprobe created an invalid codec report (exit '+probeExit+'): '+String(error?.message||error));
+      }
       const streams=Array.isArray(metadata.streams)?metadata.streams:[];
       const videoStream=streams.find(stream=>stream.codec_type==='video');
       const audioStreams=streams.filter(stream=>stream.codec_type==='audio');
-      if(!videoStream)throw new Error('This file does not contain a video stream.');
+      if(!videoStream)throw new Error('FFprobe did not find a video stream in this file.');
       const videoCodec=String(videoStream.codec_name||'').toLowerCase();
       const pixelFormat=String(videoStream.pix_fmt||'').toLowerCase();
       const audioCompatible=audioStreams.every(stream=>String(stream.codec_name||'').toLowerCase()==='aac');
