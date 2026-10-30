@@ -106,6 +106,13 @@ assert.match(html, /favourite-toggle/);
 assert.match(html, /Favourites/);
 assert.ok(social.includes("event.key==='ArrowDown'"));
 assert.ok(social.includes("event.key==='ArrowUp'"));
+assert.ok(social.includes('id="feedSearch"'));
+assert.ok(social.includes('id="feedSort"'));
+assert.ok(social.includes('function renderCreatorSuggestions()'));
+assert.ok(social.includes('data-action="edit-post"'));
+assert.ok(social.includes('data-action="delete-post"'));
+assert.ok(social.includes('async function editOwnPost('));
+assert.ok(social.includes('async function deleteOwnPost('));
 for (const mode of ['reaction','math','pairs','sequence','scramble','typing','color','odd','order','aim','lights','maze','timing','wordpick','count','pattern','keyreflex','ttt','connect','merge']) {
   assert.ok(arcade3.includes('function ' + mode + '('), 'Missing game engine: ' + mode);
 }
