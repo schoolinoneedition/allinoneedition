@@ -1408,11 +1408,24 @@
     const overlayOpen=!!document.querySelector('.overlay.open');
     if(!isEditing&&!isMediaControl&&!overlayOpen&&!event.altKey&&!event.ctrlKey&&!event.metaKey&&(event.key==='ArrowDown'||event.key==='ArrowUp')){
       const feed=$('feed');
-      if(feed&&feed.scrollHeight>feed.clientHeight){
-        const distance=Math.max(220,Math.round(feed.clientHeight*.72));
-        const direction=event.key==='ArrowDown'?1:-1;
-        const next=Math.max(0,Math.min(feed.scrollHeight-feed.clientHeight,feed.scrollTop+direction*distance));
-        feed.scrollTo({top:next,behavior:'smooth'});
+      const cards=feed?[...feed.querySelectorAll(':scope > .post')]:[];
+      if(feed&&cards.length){
+        const feedRect=feed.getBoundingClientRect();
+        const feedCenter=feedRect.top+feed.clientHeight/2;
+        let currentIndex=0,bestDistance=Infinity;
+        cards.forEach((card,index)=>{
+          const rect=card.getBoundingClientRect();
+          const distance=Math.abs((rect.top+rect.height/2)-feedCenter);
+          if(distance<bestDistance){bestDistance=distance;currentIndex=index;}
+        });
+        const step=event.key==='ArrowDown'?1:-1;
+        const target=cards[Math.max(0,Math.min(cards.length-1,currentIndex+step))];
+        if(target&&target!==cards[currentIndex]){
+          const targetRect=target.getBoundingClientRect();
+          const centeredTop=feed.scrollTop+(targetRect.top-feedRect.top)-(feed.clientHeight-targetRect.height)/2;
+          const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+          feed.scrollTo({top:Math.max(0,Math.min(feed.scrollHeight-feed.clientHeight,centeredTop)),behavior:reducedMotion?'auto':'smooth'});
+        }
         event.preventDefault();
       }
     }
