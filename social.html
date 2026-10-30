@@ -99,7 +99,7 @@
         <p class="side-copy suggestion-intro">Find creators from the posts already in your feed.</p>
         <div id="creatorSuggestions" class="creator-suggestions" aria-live="polite"><p class="suggestion-empty">Discovering creators…</p></div>
       </div>
-      <div class="side-card"><h2 class="side-title">Playback</h2><p class="side-copy">Videos play muted when they enter view and pause when you scroll away. Use the video controls to unmute or pause. Turn on Auto-scroll to move to the next video when one ends.</p></div>
+      <div class="side-card"><h2 class="side-title">Playback</h2><p class="side-copy">Videos try to play with sound when they enter view and pause when you scroll away. Use the custom player to play, pause or seek. Sound stays on. Turn on Auto-scroll to move to the next video when one ends.</p></div>
     </aside>
 
     <section class="feed-column" aria-label="Social feed">
@@ -677,8 +677,6 @@
       video.dataset.autoplayBlocked='true';
       const overlay=post.querySelector('.video-play-overlay');
       if(overlay){overlay.classList.remove('is-playing');const label=overlay.querySelector('span:last-child');if(label)label.textContent='Tap to play with sound';}
-      const error=post.querySelector('.media-error');
-      if(error){error.hidden=false;error.textContent='Your browser blocked automatic playback with sound. Tap the player to start the video.';}
     });
   }
   function formatVideoTime(value){
