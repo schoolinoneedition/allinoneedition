@@ -114,6 +114,20 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
 .owner-link-panel .owner-terms{font-size:9px;color:var(--muted);line-height:1.55;margin-top:10px}
 .owner-access-link{display:inline-flex;margin-top:4px;color:var(--accent);font-size:10px;font-weight:850;text-decoration:underline;text-underline-offset:3px}
 .owner-link-panel .owner-link-editor{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.episode-drop-zone{border:1.5px dashed var(--line);border-radius:14px;padding:18px 14px;text-align:center;background:var(--panel2);transition:border-color .15s,background .15s}
+.episode-drop-zone.dragover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,var(--panel2))}
+.episode-drop-zone .drop-icon{width:42px;height:42px;margin:0 auto 9px;display:grid;place-items:center;border-radius:13px;background:var(--soft);font-size:22px;color:var(--accent)}
+.episode-drop-zone strong{display:block;font-size:12px}
+.episode-drop-zone small{display:block;margin-top:5px;color:var(--muted);font-size:9px;line-height:1.5}
+.episode-drop-zone input[type=file]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.episode-upload-meta{margin-top:9px;color:var(--muted);font-size:10px;overflow-wrap:anywhere}
+.episode-upload-progress{width:100%;height:6px;margin-top:10px;accent-color:var(--accent)}
+.owner-hosted-result{margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:11px;background:var(--panel2)}
+.owner-hosted-result[hidden]{display:none}
+.owner-hosted-result label{margin:0 0 6px}
+.owner-hosted-result .hosted-url-row{display:flex;gap:6px;align-items:center}
+.owner-hosted-result input{min-width:0;flex:1}
+.owner-hosted-result button,.owner-hosted-result a{border:1px solid var(--line);border-radius:9px;padding:8px 9px;background:var(--soft);color:var(--text);font:inherit;font-size:9px;font-weight:850;text-decoration:none;white-space:nowrap;cursor:pointer}
 .watch-video{display:block;width:100%;max-height:68vh;aspect-ratio:16/9;object-fit:contain;background:#05080f;cursor:pointer}
 .watch-video-stage{position:relative;width:100%;background:#05080f;display:grid;place-items:center}
 .watch-video-overlay{position:absolute;inset:0;display:grid;place-items:center;border:0;background:transparent;color:#fff;cursor:pointer}
@@ -157,19 +171,30 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   </div>
   <aside class="side-stack">
    <section class="side-panel owner-link-panel" id="ownerLinkPanel">
-    <h3>Episode video manager</h3>
-    <p id="ownerAccessText">Owner-only controls. Sign in to the hub with the site owner account to add episode videos.</p>
+    <h3>Video Upload Zone</h3>
+    <p id="ownerAccessText">Sign in with the site owner account to upload and host episode videos on All in One Edition.</p>
     <a class="owner-access-link" href="./index.html">Open All in One Edition account</a>
     <div class="owner-link-editor" id="ownerLinkEditor" hidden>
-     <div class="owner-target" id="ownerEpisodeTarget">Choose an episode from the list first.</div>
-     <label for="episodeVideoFile">Upload an MP4 or WebM to XBT Storage (max 50 MB)</label>
-     <input id="episodeVideoFile" type="file" accept="video/mp4,video/webm,.mp4,.webm">
-     <div class="owner-form-actions"><button class="primary" id="uploadEpisodeVideo" type="button">Upload episode video</button></div>
-     <label for="episodeWatchUrl">Or paste a direct MP4/WebM URL hosted on All in One Edition</label>
+     <div class="owner-target" id="ownerEpisodeTarget">Choose a series and episode first.</div>
+     <div class="episode-drop-zone" id="episodeDropZone">
+      <div class="drop-icon">↑</div>
+      <strong>Drop your video file here</strong>
+      <small>Or choose a file from your device. MP4 and WebM only, up to 50 MB.</small>
+      <div class="owner-form-actions" style="justify-content:center"><button class="primary" id="chooseEpisodeVideo" type="button">Choose video file</button></div>
+      <input id="episodeVideoFile" type="file" accept="video/mp4,video/webm,.mp4,.webm">
+      <div class="episode-upload-meta" id="episodeUploadMeta">No file selected</div>
+      <progress class="episode-upload-progress" id="episodeUploadProgress" hidden></progress>
+      <div class="owner-form-actions" style="justify-content:center"><button class="primary" id="uploadEpisodeVideo" type="button" disabled>Upload and host on All in One Edition</button></div>
+     </div>
+     <div class="owner-hosted-result" id="hostedVideoResult" hidden>
+      <label for="hostedVideoUrl">Your hosted All in One Edition video URL</label>
+      <div class="hosted-url-row"><input id="hostedVideoUrl" type="url" readonly><button id="copyHostedVideoUrl" type="button">Copy URL</button><a id="openHostedVideoUrl" href="#" target="_blank" rel="noopener noreferrer">Open</a></div>
+     </div>
+     <label for="episodeWatchUrl">Or attach an existing video already hosted on All in One Edition</label>
      <input id="episodeWatchUrl" type="url" inputmode="url" maxlength="2048" placeholder="https://allinoneedition.vercel.app/videos/episode.mp4">
-     <div class="owner-form-actions"><button class="primary" id="saveEpisodeLink" type="button">Save direct video URL</button><button id="removeEpisodeLink" type="button" disabled>Remove video</button></div>
+     <div class="owner-form-actions"><button class="primary" id="saveEpisodeLink" type="button">Save hosted video URL</button><button id="removeEpisodeLink" type="button" disabled>Remove video</button></div>
      <div class="owner-link-status" id="ownerLinkStatus" role="status" aria-live="polite"></div>
-     <p class="owner-terms">Only videos you own or are authorised to distribute. Uploads are limited to 50 MB on the current XBT Free plan. Direct URLs must be hosted on your own All in One Edition site; third-party streaming links are rejected.</p>
+     <p class="owner-terms">Uploaded videos are stored in XBT Storage and served through your All in One Edition /videos/ address. The current XBT Free plan allows up to 50 MB per file. Only upload videos you own or are authorised to distribute.</p>
     </div>
    </section>
    <section class="side-panel"><h3>Progress controls</h3><p>Watched ticks are stored only in this browser. You can export a backup or clear the watch history at any time.</p><div class="watch-links"><button class="watch-link" id="exportProgress" type="button">Export watch progress <span>↓</span></button><button class="watch-link" id="clearProgress" type="button">Clear watch progress <span>↺</span></button></div><p id="saveStatus" class="stat-caption" aria-live="polite" style="margin-top:9px">Progress saves automatically.</p></section>
@@ -260,17 +285,21 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   let url;try{url=new URL(String(raw||'').trim())}catch{throw new Error('Enter a valid direct video URL.')}
   if(url.protocol!=='https:'||url.username||url.password||url.port)throw new Error('Use a secure https:// video URL without login details or a custom port.');
   const host=url.hostname.toLowerCase(),path=url.pathname.toLowerCase();
-  const onVercel=host==='allinoneedition.vercel.app';
-  const onGithubPages=host==='schoolinoneedition.github.io'&&path.startsWith('/allinoneedition/');
-  if(!onVercel&&!onGithubPages)throw new Error('Direct URLs must be hosted on your All in One Edition website. For other files, use the XBT upload.');
-  if(!/\.(mp4|webm)$/i.test(url.pathname))throw new Error('The direct URL must end in .mp4 or .webm.');
+  const onVercel=host==='allinoneedition.vercel.app'&&path.startsWith('/videos/');
+  if(!onVercel)throw new Error('Use a video URL under https://allinoneedition.vercel.app/videos/. Upload your file in the Video Upload Zone to create one.');
+  if(!/\.(mp4|webm)$/i.test(url.pathname))throw new Error('The hosted video URL must end in .mp4 or .webm.');
   return url.href;
  }
  function videoObjectPath(url){
   try{
-   const parsed=new URL(url),prefix='/storage/v1/object/public/anime-episodes/';
-   if(parsed.hostname!=='btnbuchsrfllpzlypjtn.supabase.co'||!parsed.pathname.startsWith(prefix))return null;
-   return decodeURIComponent(parsed.pathname.slice(prefix.length));
+   const parsed=new URL(url);
+   const sitePrefix='/videos/';
+   if(parsed.hostname==='allinoneedition.vercel.app'&&parsed.pathname.startsWith(sitePrefix))
+    return decodeURIComponent(parsed.pathname.slice(sitePrefix.length));
+   const storagePrefix='/storage/v1/object/public/anime-episodes/';
+   if(parsed.hostname==='btnbuchsrfllpzlypjtn.supabase.co'&&parsed.pathname.startsWith(storagePrefix))
+    return decodeURIComponent(parsed.pathname.slice(storagePrefix.length));
+   return null;
   }catch{return null}
  }
  function updateOwnerEditor(s,si,ep){
@@ -279,8 +308,12 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   $('ownerEpisodeTarget').textContent=s.title+' · '+s.seasons[si].name+' · Episode '+ep.number+' — '+ep.title;
   if($('episodeWatchUrl'))$('episodeWatchUrl').value=saved?.provider==='Self-hosted video'?saved.watch_url:'';
   if($('episodeVideoFile'))$('episodeVideoFile').value='';
+  if($('episodeUploadMeta'))$('episodeUploadMeta').textContent='No file selected';
+  if($('uploadEpisodeVideo'))$('uploadEpisodeVideo').disabled=true;
+  if($('hostedVideoResult'))$('hostedVideoResult').hidden=!saved;
+  if(saved){$('hostedVideoUrl').value=saved.watch_url;$('openHostedVideoUrl').href=saved.watch_url}
   if($('removeEpisodeLink'))$('removeEpisodeLink').disabled=!saved;
-  if($('ownerLinkStatus'))$('ownerLinkStatus').textContent=saved?(saved.provider==='XBT Storage'?'Video uploaded to XBT Storage.':'Direct video URL saved.'):'No video saved for this episode yet.';
+  if($('ownerLinkStatus'))$('ownerLinkStatus').textContent=saved?'Hosted video URL is saved for this episode.':'No video saved for this episode yet.';
  }
  async function loadEpisodeLinks(){
   if(!ownerClient)return;
@@ -350,21 +383,29 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   if(!mimeOk){$('ownerLinkStatus').textContent='Choose a valid MP4 or WebM video file.';return}
   if(file.size>50*1024*1024){$('ownerLinkStatus').textContent='This XBT Free-plan upload is over the 50 MB file limit. Host the file on your All in One Edition site and paste its direct URL instead.';return}
   const button=$('uploadEpisodeVideo');button.disabled=true;
-  $('ownerLinkStatus').textContent='Uploading '+file.name+'…';
+  $('episodeUploadProgress').hidden=false;
+  $('episodeUploadProgress').removeAttribute('value');
+  $('ownerLinkStatus').textContent='Uploading '+file.name+' to XBT Storage, then serving it through All in One Edition…';
   const safeName=selectedEpisode.seriesId+'/'+(selectedEpisode.seasonIndex+1)+'/'+String(selectedEpisode.episodeNumber).padStart(3,'0')+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+extension;
   let uploadedPath=null;
   try{
    const upload=await ownerClient.storage.from('anime-episodes').upload(safeName,file,{contentType:file.type,cacheControl:'3600',upsert:false});
    if(upload.error)throw upload.error;
    uploadedPath=safeName;
-   const publicUrl=ownerClient.storage.from('anime-episodes').getPublicUrl(safeName).data.publicUrl;
-   await saveEpisodeVideoRow('XBT Storage',publicUrl);
-   $('ownerLinkStatus').textContent='Uploaded and saved. This episode now plays inside Anime Zone.';
+   const siteUrl='https://allinoneedition.vercel.app/videos/'+safeName.split('/').map(encodeURIComponent).join('/');
+   await saveEpisodeVideoRow('Self-hosted video',siteUrl);
+   $('episodeWatchUrl').value=siteUrl;
+   $('hostedVideoUrl').value=siteUrl;
+   $('openHostedVideoUrl').href=siteUrl;
+   $('hostedVideoResult').hidden=false;
+   $('ownerLinkStatus').textContent='Uploaded. Your video is now hosted at your All in One Edition /videos/ address.';
    $('episodeVideoFile').value='';
+   $('episodeUploadMeta').textContent='Upload complete · '+file.name;
+   $('uploadEpisodeVideo').disabled=true;
   }catch(error){
    if(uploadedPath){try{await ownerClient.storage.from('anime-episodes').remove([uploadedPath])}catch{}}
    $('ownerLinkStatus').textContent='Upload failed: '+(error?.message||'Storage error.');
-  }finally{button.disabled=false}
+  }finally{$('episodeUploadProgress').hidden=true;button.disabled=!$('episodeVideoFile').files?.[0]}
  }
  async function removeOwnerEpisodeLink(){
   if(!siteOwner||!currentSession?.user||!selectedEpisode)return;
@@ -375,7 +416,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
    const result=await ownerClient.from('anime_episode_watch_links').delete().eq('series_id',selectedEpisode.seriesId).eq('season_index',selectedEpisode.seasonIndex).eq('episode_number',selectedEpisode.episodeNumber);
    if(result.error)throw result.error;
    episodeLinks.delete(mapKey);
-   const objectPath=existing?.provider==='XBT Storage'?videoObjectPath(existing.watch_url):null;
+   const objectPath=existing?.provider==='Self-hosted video'?videoObjectPath(existing.watch_url):null;
    if(objectPath){const removed=await ownerClient.storage.from('anime-episodes').remove([objectPath]);if(removed.error)throw removed.error}
    $('episodeWatchUrl').value='';$('ownerLinkStatus').textContent='Episode video removed.';
    renderCatalog();
@@ -481,6 +522,25 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
  $('saveEpisodeLink').addEventListener('click',saveOwnerEpisodeLink);
  $('uploadEpisodeVideo').addEventListener('click',uploadOwnerEpisodeVideo);
  $('removeEpisodeLink').addEventListener('click',removeOwnerEpisodeLink);
+ $('chooseEpisodeVideo').addEventListener('click',()=>$('episodeVideoFile').click());
+ $('episodeVideoFile').addEventListener('change',()=>{
+  const file=$('episodeVideoFile').files?.[0];
+  $('episodeUploadMeta').textContent=file?file.name+' · '+(file.size/1024/1024).toFixed(1)+' MB':'No file selected';
+  $('uploadEpisodeVideo').disabled=!file;
+ });
+ $('episodeDropZone').addEventListener('dragover',event=>{event.preventDefault();$('episodeDropZone').classList.add('dragover')});
+ $('episodeDropZone').addEventListener('dragleave',event=>{if(!$('episodeDropZone').contains(event.relatedTarget))$('episodeDropZone').classList.remove('dragover')});
+ $('episodeDropZone').addEventListener('drop',event=>{
+  event.preventDefault();$('episodeDropZone').classList.remove('dragover');
+  const file=event.dataTransfer?.files?.[0];if(!file)return;
+  const transfer=new DataTransfer();transfer.items.add(file);$('episodeVideoFile').files=transfer.files;
+  $('episodeVideoFile').dispatchEvent(new Event('change',{bubbles:true}));
+ });
+ $('copyHostedVideoUrl').addEventListener('click',async()=>{
+  const value=$('hostedVideoUrl').value;if(!value)return;
+  try{await navigator.clipboard.writeText(value);$('ownerLinkStatus').textContent='Hosted video URL copied.'}
+  catch{$('ownerLinkStatus').textContent='Clipboard unavailable. Select and copy the hosted URL manually.'}
+ });
  $('exportProgress').addEventListener('click',()=>{
   const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),watched},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='all-in-one-anime-progress.json';a.click();URL.revokeObjectURL(url);$('saveStatus').textContent='Progress backup exported.';
  });
