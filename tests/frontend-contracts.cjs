@@ -210,4 +210,18 @@ assert.ok(ux.includes("discoveryFilter==='favourites'") && ux.includes('favourit
 assert.ok(html.includes("const priority=i<12?'eager':'lazy'"), 'Only the first twelve game covers should be eager-loaded');
 assert.ok(ux.includes('60000-(Date.now()%60000)'), 'The minute-only clock should align updates to minute boundaries');
 
-console.log('Frontend contract checks passed: appearance persistence, context menu/game freeze wiring, auth/video safeguards, and economy/security migration contracts.');
+
+ // The hub should never bulk-download artwork or game pages while idle.
+ assert.ok(!html.includes('cacheGameImagesInBackground')&&!html.includes('warmGamePagesInBackground')&&!html.includes('addEarlyPrefetchHints'),'Game artwork and game pages must not be prefetched in the background');
+ assert.ok(!html.includes("link.rel='prefetch'"),'The homepage must not inject game-page prefetch links');
+ assert.ok(html.includes('let visibleLimit=48;')&&html.includes('visibleLimit+=48'),'The initial game grid and load-more batches should stay bounded');
+ assert.ok(html.includes('let gameSearchTimer=0;')&&html.includes('renderGames()},100)'),'Game search should debounce rapid keystrokes');
+ assert.ok(html.includes('loading="lazy" fetchpriority="low"')&&html.includes('slice(0,18)'),'The intro should lazy-load a smaller set of game covers');
+ assert.ok(html.includes('if(!homeClockTimer)homeClockTimer=setInterval(updateClock,1000)'),'The home clock should only tick while the document is visible');
+ assert.ok(html.includes('if(!worldClockTimer)worldClockTimer=setInterval(updateWorldClock,60000)'),'World clocks should refresh once per minute');
+ assert.ok(html.includes('setInterval(updateCountdown,1000)')&&html.includes('if(swRunning&&!stopwatchTimer)'),'Countdown and stopwatch redraw loops should run only while active');
+ assert.ok(html.includes('setInterval(pomoTick,1000)')&&html.includes('clearInterval(pomodoroTimer)'),'Pomodoro should use one-second visible updates');
+ assert.ok(!html.includes('socialFitOnScrollTimer')&&!html.includes("if(location.hash.includes('social')"),'Social should not repeatedly scan posts or recreate observers during scrolling');
+ assert.ok(html.includes("v.dataset.socialSetupBound==='1'"),'Social player event handlers must be idempotent');
+
+ console.log('Frontend contract checks passed: appearance persistence, context menu/game freeze wiring, auth/video safeguards, and economy/security migration contracts.');
