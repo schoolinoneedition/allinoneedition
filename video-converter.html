@@ -85,7 +85,7 @@ input.addEventListener('change',()=>{
   const file=input.files?.[0];convertButton.disabled=!file||busy;
   if(!file){$('fileDetails').textContent='No file selected.';setStatus('Select a video to begin.');return;}
   const limit=memoryLimit();
-  $('fileDetails').textContent=file.name+' · '+sizeLabel(file.size)+' · '+(file.type||'file type not reported')+'\\nThis device limit: '+sizeLabel(limit);
+  $('fileDetails').textContent=file.name+' · '+sizeLabel(file.size)+' · '+(file.type||'file type not reported')+'\nThis device limit: '+sizeLabel(limit);
   if(file.size>limit)setStatus('This file is larger than the suggested '+sizeLabel(limit)+' limit for this device. Choose a smaller clip to avoid running out of memory.','bad');
   else setStatus('Ready. Press Convert to create an H.264/AAC MP4.');
 });
@@ -97,7 +97,7 @@ convertButton.addEventListener('click',async()=>{
   let inputPath='',outputPath='',progressHandler=null;
   try{
     const ff=await loadEngine();
-    const match=String(file.name||'video.bin').toLowerCase().match(/\\.([a-z0-9]{1,8})$/);
+    const match=String(file.name||'video.bin').toLowerCase().match(/[.]([a-z0-9]{1,8})$/);
     const ext=match?.[1]||'bin',suffix=Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
     inputPath='tool_input_'+suffix+'.'+ext;outputPath='tool_output_'+suffix+'.mp4';
     setStatus('Loading your selected file into the converter…');
@@ -124,13 +124,13 @@ convertButton.addEventListener('click',async()=>{
     if(bytes.byteLength<12||String.fromCharCode(...bytes.slice(4,8))!=='ftyp')throw new Error('The output did not look like a valid MP4 file.');
     const blob=new Blob([bytes],{type:'video/mp4'});
     downloadURL=URL.createObjectURL(blob);
-    const outputName=String(file.name||'video').replace(/\\.[^.]*$/,'')+'.mp4';
+    const outputName=String(file.name||'video').replace(/[.][^.]*$/,'')+'.mp4';
     downloadLink.href=downloadURL;downloadLink.download=outputName;downloadLink.hidden=false;
     progressBar.style.width='100%';
-    setStatus('Converted successfully: '+outputName+' · '+sizeLabel(blob.size)+(blob.size>100*1024*1024?'\\nThis file is larger than Social’s 100 MB upload limit.':'\\nYou can now use this MP4 when creating a Social post.'),'good');
+    setStatus('Converted successfully: '+outputName+' · '+sizeLabel(blob.size)+(blob.size>100*1024*1024?'\nThis file is larger than Social’s 100 MB upload limit.':'\nYou can now use this MP4 when creating a Social post.'),'good');
   }catch(error){
     const diagnostic=logs.slice(-5).join(' | ');
-    setStatus('Conversion failed: '+String(error?.message||error)+(diagnostic?'\\nFFmpeg: '+diagnostic:''),'bad');
+    setStatus('Conversion failed: '+String(error?.message||error)+(diagnostic?'\nFFmpeg: '+diagnostic:''),'bad');
   }finally{
     if(progressHandler&&engine)try{engine.off('progress',progressHandler);}catch{}
     if(inputPath&&engine)try{await engine.deleteFile(inputPath);}catch{}
