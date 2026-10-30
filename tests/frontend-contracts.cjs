@@ -113,6 +113,11 @@ assert.ok(social.includes('data-action="edit-post"'));
 assert.ok(social.includes('data-action="delete-post"'));
 assert.ok(social.includes('async function editOwnPost('));
 assert.ok(social.includes('async function deleteOwnPost('));
+assert.ok(social.includes('creator-suggestions-card'));
+assert.ok(social.indexOf('id="creatorSuggestions"') < social.indexOf('</aside>'), 'Creator suggestions should stay in the visible sidebar');
+assert.ok(social.includes('height:calc(100dvh - 210px)'), 'Feed height should account for the new search toolbar');
+assert.ok(social.includes("from('social_posts').delete()"));
+assert.ok(social.includes("from('social_posts').update({caption}"));
 for (const mode of ['reaction','math','pairs','sequence','scramble','typing','color','odd','order','aim','lights','maze','timing','wordpick','count','pattern','keyreflex','ttt','connect','merge']) {
   assert.ok(arcade3.includes('function ' + mode + '('), 'Missing game engine: ' + mode);
 }
