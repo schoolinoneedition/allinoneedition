@@ -1005,8 +1005,8 @@ function cardHTML(g,i){
   const badgeText=(g.tag&&!sourceLikeLabel.test(g.tag))?g.tag:g.cat;
   const isFavourite=favouriteGames.has(gameKey(g));
   const favouriteMarkup=`<button class="favourite-toggle${isFavourite?' active':''}" type="button" aria-label="${isFavourite?'Remove':'Add'} ${esc(g.name)} ${isFavourite?'from':'to'} favourites" aria-pressed="${isFavourite}" onclick="toggleFavourite(event,${i})">${isFavourite?'★':'☆'}</button>`;
-  const priority=i<36?'eager':'lazy';
-  const fp=i<36?' fetchpriority="high"':'';
+  const priority=i<12?'eager':'lazy';
+  const fp=i<12?' fetchpriority="high"':'';
   const base=String(g.img||'').trim();
   const candidates=[];
   if(base)candidates.push(base);
