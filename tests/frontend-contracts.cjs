@@ -193,7 +193,7 @@ assert.ok(html.includes("socialPreloadNextVideos(){") && html.includes("socialAt
 assert.ok(!html.includes('autoplay loop preload="auto" data-social-video'), 'Main hub Social videos must not all auto-download on render');
 assert.ok(social.includes('videoPreloadObserver') && social.includes("rootMargin:'650px 0px'"), 'Separate Social page should prepare videos shortly before they enter view');
 assert.ok(social.includes('function prepareSocialVideo(video)'), 'Separate Social page should attach video URLs only when needed');
-assert.ok(social.includes('data-video-src=') && !social.includes('<video src="'+escapeHTML(p.media_url)+'" data-social-video'), 'Separate Social feed should not attach every video source during rendering');
+assert.ok(social.includes('data-video-src=') && !social.includes("'<video src=\"'+escapeHTML(p.media_url)+'\" data-social-video"), 'Separate Social feed should not attach every video source during rendering');
 assert.ok(anime.includes("video.dataset.videoSrc=saved.watch_url;video.preload='none'"), 'Anime episodes should not request video bytes merely when selected');
 assert.ok(anime.includes("cacheControl:'31536000'"), 'Unique Anime episode uploads should receive long-lived cache headers');
 assert.ok(html.includes('href="https://btnbuchsrfllpzlypjtn.supabase.co" crossorigin') && social.includes('href="https://btnbuchsrfllpzlypjtn.supabase.co" crossorigin') && anime.includes('href="https://btnbuchsrfllpzlypjtn.supabase.co" crossorigin'), 'Video pages should preconnect to their storage API');
