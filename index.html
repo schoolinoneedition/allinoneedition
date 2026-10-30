@@ -32,15 +32,10 @@ window.onSpotifyIframeApiReady=api=>{window.aioSpotifyAPI=api;};
 </script>
 <script async src="https://open.spotify.com/embed/iframe-api/v1"></script>
 
+<!-- Keep only the backend connection warm on first paint. Game and music
+     providers are preconnected only when the visitor approaches that content. -->
 <link rel="preconnect" href="https://btnbuchsrfllpzlypjtn.supabase.co" crossorigin>
 <link rel="dns-prefetch" href="https://btnbuchsrfllpzlypjtn.supabase.co">
-<link rel="preconnect" href="https://pizzaedition.com">
-<link rel="preconnect" href="https://games.construct.net">
-<link rel="preconnect" href="https://topvaz.com">
-<link rel="preconnect" href="https://hfmanor.com">
-<link rel="preconnect" href="https://class811.github.io">
-<link rel="preconnect" href="https://open.spotify.com">
-<link rel="preconnect" href="https://i.scdn.co">
 <style>
 :root{--bg:#f7f7f8;--panel:#fff;--text:#1d1d20;--muted:#737780;--line:#e5e6ea;--soft:#f1f3f7;--accent:#1b5cff;--accent2:#7048e8;--shadow:0 7px 18px rgba(24,28,38,.10)}
 :root.dark{--bg:#111318;--panel:#191c22;--text:#f2f3f5;--muted:#a1a6b1;--line:#2a2e37;--soft:#20242c;--shadow:0 9px 24px rgba(0,0,0,.28)}
@@ -1007,8 +1002,9 @@ function cardHTML(g,i){
   const badgeText=(g.tag&&!sourceLikeLabel.test(g.tag))?g.tag:g.cat;
   const isFavourite=favouriteGames.has(gameKey(g));
   const favouriteMarkup=`<button class="favourite-toggle${isFavourite?' active':''}" type="button" aria-label="${isFavourite?'Remove':'Add'} ${esc(g.name)} ${isFavourite?'from':'to'} favourites" aria-pressed="${isFavourite}" onclick="toggleFavourite(event,${i})">${isFavourite?'★':'☆'}</button>`;
-  const priority=i<12?'eager':'lazy';
-  const fp=i<12?' fetchpriority="high"':'';
+  // Keep the first viewport responsive; let the remaining cards decode lazily.
+  const priority=i<6?'eager':'lazy';
+  const fp=i<3?' fetchpriority="high"':'';
   const base=String(g.img||'').trim();
   const candidates=[];
   if(base)candidates.push(base);
@@ -1030,7 +1026,7 @@ function cardHTML(g,i){
   const progressMarkup=progressCardsEnabled&&pct>0?`<div class="cover-progress"><span style="width:${pct}%"></span></div>`:'';
   const pctMarkup=progressCardsEnabled&&pct>0?`<span class="progress-chip">${pct}%</span>`:'';
   const img=`<img loading="${priority}" decoding="async"${fp} class="image-loading" src="${esc(primary)}" data-candidates="${candidateAttr}" data-candidate-index="0" data-fallback="${esc(fallback)}" alt="${esc(g.name)}" onerror="useCardFallback(this)" onload="imageLoaded(this)">`;
-  return `<article class="card" style="--card-i:${Math.min(i,24)}" onclick="openGame(${i})"><div class="cover" style="--c1:${c1};--c2:${c2}">${img}<div class="fallback" style="display:none">${initials(g.name)}</div><div class="badge">${esc(badgeText)}</div>${favouriteMarkup}<div class="playhint">PLAY</div>${progressMarkup}</div><div class="card-title" title="${esc(g.name)}">${esc(g.name)}</div><div class="card-meta"><span>${esc(g.cat)}</span>${pctMarkup}</div></article>`;
+  return `<article class="card" data-game-index="${i}" style="--card-i:${Math.min(i,24)}" onclick="openGame(${i})"><div class="cover" style="--c1:${c1};--c2:${c2}">${img}<div class="fallback" style="display:none">${initials(g.name)}</div><div class="badge">${esc(badgeText)}</div>${favouriteMarkup}<div class="playhint">PLAY</div>${progressMarkup}</div><div class="card-title" title="${esc(g.name)}">${esc(g.name)}</div><div class="card-meta"><span>${esc(g.cat)}</span>${pctMarkup}</div></article>`;
 }
 
 const MUSIC_TITLES={en:'Music streamer',es:'Reproductor de música',fr:'Lecteur de musique',de:'Musik-Player',pl:'Odtwarzacz muzyki',pt:'Leitor de música',tr:'Müzik oynatıcı',ar:'مشغل الموسيقى',it:'Lettore musicale',nl:'Muziekspeler',ja:'音楽プレーヤー',ko:'음악 플레이어'};
@@ -1051,7 +1047,7 @@ const I18N={
 function applyLanguage(lang){const t=I18N[lang]||I18N.en;storage.setItem('aio-lang',lang);document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';const set=(id,key)=>{const e=$(id);if(e&&t[key]!=null)e.textContent=t[key]};set('assistantBtn','assistant');set('settingsBtn','settings');set('darkBtn',document.documentElement.classList.contains('dark')?'light':'dark');set('hideBtn',hidden?'show':'hide');document.querySelectorAll('.nav button').forEach((b,i)=>{const k=['home','games','school','social','community','chat','live','tools','notes','music','code'][i];if(t[k])b.textContent=t[k];else if(k==='music')b.textContent='Music'});const h=document.querySelector('#home h1');if(h)h.textContent=t.hero;const hp=document.querySelector('#home .hero-card p');if(hp)hp.textContent=t.heroSub;const chips=document.querySelectorAll('#home .chip');if(chips[0])chips[0].textContent=t.browse;if(chips[1])chips[1].textContent=t.schoolApps;if(chips[2])chips[2].textContent=t.liveInfo;if(chips[3])chips[3].textContent=t.useful;if(chips[4])chips[4].textContent=t.ask;const hs=document.querySelector('#continueSection h2');if(hs)hs.textContent=t.continueTitle;const hss=document.querySelector('#continueSection small');if(hss)hss.textContent=t.continueSub;const gs=document.querySelector('#games h2');if(gs)gs.textContent=t.games;const gss=document.querySelector('#games .section-head small');if(gss)gss.textContent=t.gamesSub;const sh=document.querySelector('#school h2');if(sh)sh.textContent=t.schoolApps;const liveh=document.querySelector('#live h2');if(liveh)liveh.textContent=t.liveTitle;const th=document.querySelector('#tools h2');if(th)th.textContent=t.toolsTitle;const nh=document.querySelector('#notes h2');if(nh)nh.textContent=t.notesTitle;const ch=document.querySelector('#code h2');if(ch)ch.textContent=t.codeTitle;const mh=document.querySelector('#music h2');if(mh)mh.textContent=MUSIC_TITLES[lang]||'Music streamer';const search=$('search');if(search)search.placeholder=t.games+', '+t.tools+', '+t.schoolApps+'...  ( / )';const sel=$('languageSelect');if(sel)sel.value=lang}function initLanguage(){const lang=storage.getItem('aio-lang')||'en';applyLanguage(lang);$('languageSelect')?.addEventListener('change',e=>applyLanguage(e.target.value))}
 let visibleLimit=48;let currentFiltered=[];function renderFilters(){const filters=['All','New','Favourites',...CATEGORIES.filter(c=>c!=='All')];const favouriteCount=GAMES.filter(g=>favouriteGames.has(gameKey(g))).length;$('filters').innerHTML=filters.map(c=>{const label=c==='Favourites'?'★ Favourites ('+favouriteCount+')':esc(c);return `<button class="filter ${c===activeCat?'active':''}" onclick='setCat(${JSON.stringify(c)})'>${label}</button>`}).join('')}
 function filteredGames(){let q=$('search').value.trim().toLowerCase();let list=GAMES.map((g,i)=>({g,i})).filter(x=>{const matchesCategory=activeCat==='All'||(activeCat==='New'?x.g.source==='Mashukui Web Games':activeCat==='Favourites'?favouriteGames.has(gameKey(x.g)):x.g.cat===activeCat);return matchesCategory&&(!safeMode||!['Horror','Adventure'].includes(x.g.cat))&&(!q||x.g.name.toLowerCase().includes(q)||x.g.cat.toLowerCase().includes(q))});if(activeCat==='All'&&!q)list.sort((a,b)=>{const rank=x=>/featured/i.test(x.g.tag)?0:/popular/i.test(x.g.tag)?1:2;return rank(a)-rank(b)||a.i-b.i});return list;}
-function renderGames(){currentFiltered=filteredGames();if(visibleLimit>currentFiltered.length)visibleLimit=currentFiltered.length;const shown=currentFiltered.slice(0,visibleLimit);$('gameGrid').innerHTML=shown.length?shown.map(x=>cardHTML(x.g,x.i)).join(''):`<div class="panel" style="grid-column:1/-1">No games match that search.</div>`;$('gameCount').textContent=String(GAMES.length);$('librarySummary').textContent=`${GAMES.length} games ready`;const wrap=$('loadMoreWrap'),btn=$('loadMoreBtn');if(wrap&&btn){wrap.style.display=currentFiltered.length>visibleLimit?'flex':'none';btn.textContent=`Load more games (${Math.min(48,currentFiltered.length-visibleLimit)} more)`}hydrateImages();}
+function renderGames(){currentFiltered=filteredGames();if(visibleLimit>currentFiltered.length)visibleLimit=currentFiltered.length;const shown=currentFiltered.slice(0,visibleLimit);$('gameGrid').innerHTML=shown.length?shown.map(x=>cardHTML(x.g,x.i)).join(''):`<div class="panel" style="grid-column:1/-1">No games match that search.</div>`;$('gameCount').textContent=String(GAMES.length);$('librarySummary').textContent=`${GAMES.length} games ready`;const wrap=$('loadMoreWrap'),btn=$('loadMoreBtn');if(wrap&&btn){wrap.style.display=currentFiltered.length>visibleLimit?'flex':'none';btn.textContent=`Load more games (${Math.min(48,currentFiltered.length-visibleLimit)} more)`}hydrateImages();setupGameConnectionWarmup();}
 function loadMoreGames(){visibleLimit+=48;renderGames();window.scrollBy({top:140,behavior:'smooth'})}
 function setCat(c){activeCat=c;visibleLimit=48;renderFilters();renderGames()}
 function toggleFavourite(event,index){if(event){event.preventDefault();event.stopPropagation()}const game=GAMES[index];if(!game)return;const key=gameKey(game);if(favouriteGames.has(key)){favouriteGames.delete(key);showToast('Removed from favourites')}else{favouriteGames.add(key);showToast('Added to favourites')}storage.setItem(FAVOURITES_KEY,JSON.stringify([...favouriteGames]));renderFilters();renderGames()}
@@ -1103,10 +1099,64 @@ async function loadOnlineGamesCatalog(){
 
 function scrollToId(id){$(id)?.scrollIntoView({behavior:'smooth',block:'start'})}
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');scrollToId(b.dataset.scroll)}));
+/* Pizza Edition-style game startup: a light library, one active game frame,
+   and a just-in-time connection warm-up for games near the visitor. */
+const AIO_GAME_WARM_ORIGIN_LIMIT=3;
+const aioGameWarmOrigins=new Map();
+let aioGameWarmObserver=null;
+function aioCanWarmConnections(){
+  const connection=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+  return navigator.onLine&&!connection?.saveData&&!['slow-2g','2g'].includes(String(connection?.effectiveType||''));
+}
+function warmGameConnection(rawUrl){
+  if(!aioCanWarmConnections())return;
+  let origin='';
+  try{const u=new URL(String(rawUrl||''),location.href);if(u.protocol!=='https:'||u.origin===location.origin)return;origin=u.origin}catch{return}
+  if(aioGameWarmOrigins.has(origin))return;
+  const link=document.createElement('link');
+  link.rel='preconnect';link.href=origin;link.crossOrigin='anonymous';
+  link.dataset.aioGameWarmOrigin=origin;
+  document.head.appendChild(link);
+  aioGameWarmOrigins.set(origin,link);
+  while(aioGameWarmOrigins.size>AIO_GAME_WARM_ORIGIN_LIMIT){
+    const oldest=aioGameWarmOrigins.keys().next().value;
+    const oldLink=aioGameWarmOrigins.get(oldest);
+    oldLink?.remove();
+    aioGameWarmOrigins.delete(oldest);
+  }
+}
+function setupGameConnectionWarmup(){
+  const grid=$('gameGrid');if(!grid)return;
+  if(aioGameWarmObserver){aioGameWarmObserver.disconnect();aioGameWarmObserver=null;}
+  const cards=[...grid.querySelectorAll('.card[data-game-index]')];
+  if('IntersectionObserver'in window){
+    aioGameWarmObserver=new IntersectionObserver(entries=>{
+      for(const entry of entries){
+        if(!entry.isIntersecting)continue;
+        const card=entry.target,game=GAMES[Number(card.dataset.gameIndex)];
+        if(game)warmGameConnection(game.url);
+        aioGameWarmObserver.unobserve(card);
+      }
+    },{rootMargin:'450px 0px',threshold:0});
+    cards.forEach(card=>aioGameWarmObserver.observe(card));
+  }
+  if(!grid.dataset.aioWarmBound){
+    const warmFromEvent=event=>{
+      const card=event.target?.closest?.('.card[data-game-index]');
+      if(!card||!grid.contains(card))return;
+      const game=GAMES[Number(card.dataset.gameIndex)];
+      if(game)warmGameConnection(game.url);
+    };
+    grid.addEventListener('pointerover',event=>{if(event.pointerType!=='touch')warmFromEvent(event)},{passive:true});
+    grid.addEventListener('focusin',warmFromEvent,{passive:true});
+    grid.dataset.aioWarmBound='1';
+  }
+}
+
 function gameShell(g){return String(g.url||'')}
 let gameLoadTimer=0;
-function loadGameIntoFrame(g){clearTimeout(gameLoadTimer);$('gameLoading').style.display='grid';$('gameError').classList.remove('show');$('gameLoadStatus').textContent='Loading…';$('gameFrame').src=gameShell(g);gameLoadTimer=setTimeout(()=>{if(currentGame===g){$('gameLoading').style.display='none';$('gameError').classList.add('show');$('gameLoadStatus').textContent='Check the game link'}},12000)}
-function openGame(i){let g=GAMES[i];if(!g)return;currentGame=g;gameMuted=false;updateGameMuteButton();let k=gameKey(g),st=gameProgress[k]||{progress:0,plays:0};st.plays=(st.plays||0)+1;st.lastPlayed=Date.now();gameProgress[k]=st;storage.setItem(GAME_PROGRESS_KEY,JSON.stringify(gameProgress));$('modalTitle').textContent=g.name;$('progressRange').value=st.progress||0;$('progressLabel').textContent=(st.progress||0)+'%';$('playCountLabel').textContent=(st.plays||0)+' play'+(st.plays===1?'':'s');$('modalNote').textContent='Hub progress is saved locally on this device. The game itself may have its own separate save system.';document.querySelectorAll('.progressbarbox').forEach(e=>e.classList.toggle('progress-visible',progressControlsEnabled));$('gameFrame').src='about:blank';$('gameLoading').style.display='grid';$('gameError').classList.remove('show');$('gameModal').classList.add('open');updateResumeCard();setTimeout(()=>loadGameIntoFrame(g),40)}
+function loadGameIntoFrame(g){clearTimeout(gameLoadTimer);const frame=$('gameFrame');if(!frame)return;$('gameLoading').style.display='grid';$('gameError').classList.remove('show');$('gameLoadStatus').textContent='Loading…';frame.loading='eager';try{if('fetchPriority'in frame)frame.fetchPriority='high'}catch{}frame.src=gameShell(g);gameLoadTimer=setTimeout(()=>{if(currentGame===g){$('gameLoading').style.display='none';$('gameError').classList.add('show');$('gameLoadStatus').textContent='Check the game link'}},12000)}
+function openGame(i){let g=GAMES[i];if(!g)return;currentGame=g;warmGameConnection(g.url);gameMuted=false;updateGameMuteButton();let k=gameKey(g),st=gameProgress[k]||{progress:0,plays:0};st.plays=(st.plays||0)+1;st.lastPlayed=Date.now();gameProgress[k]=st;storage.setItem(GAME_PROGRESS_KEY,JSON.stringify(gameProgress));$('modalTitle').textContent=g.name;$('progressRange').value=st.progress||0;$('progressLabel').textContent=(st.progress||0)+'%';$('playCountLabel').textContent=(st.plays||0)+' play'+(st.plays===1?'':'s');$('modalNote').textContent='Hub progress is saved locally on this device. The game itself may have its own separate save system.';document.querySelectorAll('.progressbarbox').forEach(e=>e.classList.toggle('progress-visible',progressControlsEnabled));$('gameLoading').style.display='grid';$('gameError').classList.remove('show');$('gameModal').classList.add('open');updateResumeCard();loadGameIntoFrame(g)}
 function reloadGame(){if(!currentGame)return;$('gameError').classList.remove('show');loadGameIntoFrame(currentGame)}function openCurrentGameNewTab(){if(currentGame)window.open(currentGame.url,'_blank','noopener,noreferrer')}
 $('gameFrame').addEventListener('load',()=>{if(currentGame){clearTimeout(gameLoadTimer);$('gameLoading').style.display='none';$('gameError').classList.remove('show');$('gameLoadStatus').textContent='Loaded';applyGameMute()}});
 $('gameFrame').addEventListener('error',()=>{if(currentGame){$('gameLoading').style.display='none';$('gameError').classList.add('show');$('gameLoadStatus').textContent='Could not load'}})
