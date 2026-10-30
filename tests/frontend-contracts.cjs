@@ -19,6 +19,7 @@ const eventPolicy = read('supabase/migrations/20261028103352_deny_client_access_
 const eventIndex = read('supabase/migrations/20261028103427_index_tiktok_sticker_download_events_sticker_id.sql');
 const staffRls = read('supabase/migrations/20261028103528_optimize_tiktok_sticker_staff_rls_policies.sql');
 const animeStorage = read('supabase/migrations/20261030125800_anime_episode_storage_manager.sql');
+const vercel = read('vercel.json');
 
 // Appearance choices must change the real UI and persist, not just update previews.
 assert.match(appearance, /function selectWallpaper\(id\)[\s\S]*?state\.wallpaper=id;delete state\.pendingWallpaper;save\(\);applyWallpaper\(\)/);
@@ -154,9 +155,15 @@ assert.match(html, /function filteredGames\(\)/);
  assert.ok(anime.includes("ownerClient.from('staff_roles').select('role')"),'Episode editing must verify the signed-in site owner role');
  assert.ok(anime.includes("ownerClient.from('anime_episode_watch_links').upsert"),'The owner must be able to save episode videos to Supabase');
  assert.ok(anime.includes("ownerClient.storage.from('anime-episodes').upload"),'The owner must be able to upload videos to XBT Storage');
- assert.ok(anime.includes("ownerClient.storage.from('anime-episodes').getPublicUrl"),'Uploaded videos must get a playable public URL');
+ assert.ok(anime.includes("const siteUrl='https://allinoneedition.vercel.app/videos/'"),'Uploaded videos must be saved under the All in One Edition /videos/ route');
  assert.ok(anime.includes('validateSelfHostedVideoUrl'),'Direct video URLs must be validated');
- assert.ok(anime.includes('Direct URLs must be hosted on your All in One Edition website.'),'Direct video URLs must be limited to the site domain');
+ assert.ok(anime.includes("path.startsWith('/videos/')"),'Direct video URLs must use the dedicated AIO videos path');
+ assert.ok(anime.includes('Drop your video file here'),'The owner must have a dedicated video upload drop zone');
+ assert.ok(anime.includes('Upload and host on All in One Edition'),'The upload action must publish the video through the hub domain');
+ assert.ok(anime.includes("navigator.clipboard.writeText(value)"),'The hosted episode URL must be copyable');
+ assert.ok(vercel.includes('"source": "/videos/:series/:season/:filename"'),'Vercel must proxy uploaded video paths');
+ assert.ok(vercel.includes('https://btnbuchsrfllpzlypjtn.supabase.co/storage/v1/object/public/anime-episodes/:series/:season/:filename'),'The AIO video route must proxy the Anime Storage bucket');
+ assert.ok(vercel.includes('"source": "/videos"')&&vercel.includes('"destination": "/social.html"'),'The existing Videos social page route must remain intact');
  assert.ok(anime.includes('file.size>50*1024*1024'),'Uploads must respect the current 50 MB Free-plan limit');
  assert.ok(anime.includes('video.controls=false'),'The player must hide native volume controls');
  assert.ok(anime.includes("video.addEventListener('click',toggle)"),'Clicking the video must play or pause');
@@ -165,6 +172,7 @@ assert.match(html, /function filteredGames\(\)/);
  assert.ok(!anime.includes('watchLinks')&&!anime.includes('sourceLinks'),'The old external provider and episode-source panels should stay removed');
  assert.ok(animeStorage.includes("create policy \"Site owner can upload anime episodes\""),'Anime videos must have owner-only Storage upload permissions');
  assert.ok(animeStorage.includes("create policy \"Site owner can delete anime episodes\""),'Anime videos must have owner-only Storage delete permissions');
+ assert.ok(animeStorage.includes("allinoneedition\\\\.vercel\\\\.app/videos/"),'Database validation must only accept direct videos on the AIO /videos/ route');
  assert.ok(animeStorage.includes("file_size_limit, allowed_mime_types"),'The Anime episode bucket must restrict upload size and media types');
  assert.ok(animeStorage.includes("grant select on table public.anime_episode_watch_links to anon, authenticated"),'The episode video catalogue must be readable by visitors');
  assert.ok(animeStorage.includes("grant insert, update, delete on table public.anime_episode_watch_links to authenticated"),'Only signed-in clients may reach write operations, with owner-only RLS enforcement');
