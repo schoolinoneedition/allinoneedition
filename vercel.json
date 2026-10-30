@@ -7,7 +7,8 @@
     { "source": "/party", "destination": "/index.html" },
     { "source": "/draw", "destination": "/index.html" },
     { "source": "/community", "destination": "/index.html" },
-    { "source": "/social", "destination": "/index.html" },
-    { "source": "/videos", "destination": "/index.html" }
+    { "source": "/social", "destination": "/social.html" },
+    { "source": "/videos", "destination": "/social.html" },
+    { "source": "/study", "destination": "/study.html" }
   ]
 }
