@@ -125,19 +125,24 @@
   .post{width:min(100%,680px)}
 }
 
-/* Media-sized feed cards: preserve each image/video's real aspect ratio. */
+/* Media-sized feed cards: the frame hugs the media and clips to its corners. */
 .social-app .feed-column{min-width:0;min-height:0;height:100%}
 .social-app .feed-scroll{min-height:0;max-height:none;overscroll-behavior:contain}
 .social-app .post{
   --media-ratio:16 / 9;
   --media-ratio-value:1.77778;
   display:block;
+  position:relative;
   width:min(100%,860px,calc((100dvh - 190px)*var(--media-ratio-value)));
   height:auto;
   min-height:0;
   max-height:none;
   aspect-ratio:var(--media-ratio);
   margin:0 auto 14px;
+  overflow:hidden;
+  isolation:isolate;
+  border-radius:20px;
+  background:#080b12;
 }
 .social-app .post-media,
 .social-app .video-stage{
@@ -145,6 +150,9 @@
   inset:0;
   width:100%;
   height:100%;
+  overflow:hidden;
+  border-radius:inherit;
+  background:#080b12;
 }
 .social-app .post-media video,
 .social-app .video-stage video,
@@ -152,12 +160,13 @@
   display:block;
   width:100%;
   height:100%;
-  min-width:0;
-  min-height:0;
-  max-width:100%;
-  max-height:100%;
-  object-fit:contain;
+  min-width:100%;
+  min-height:100%;
+  max-width:none;
+  max-height:none;
+  object-fit:cover;
   object-position:center;
+  border-radius:inherit;
 }
 @media(min-width:721px){
   .social-app .content{align-items:stretch}
@@ -168,7 +177,11 @@
   .social-app .content{height:calc(100dvh - var(--header-h));padding:8px 6px 10px}
   .social-app .feed-column{height:100%;min-height:0}
   .social-app .feed-scroll{height:auto;flex:1 1 0;min-height:0;padding:0 0 10px}
-  .social-app .post{width:min(100%,calc((100dvh - 190px)*var(--media-ratio-value)));margin:0 auto 10px;border-radius:14px}
+  .social-app .post{
+    width:min(100%,calc((100dvh - 190px)*var(--media-ratio-value)));
+    margin:0 auto 10px;
+    border-radius:14px;
+  }
 }
 </style>
 </head>
