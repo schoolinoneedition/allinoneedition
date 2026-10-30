@@ -1331,6 +1331,31 @@
     const memory=Number(navigator.deviceMemory)||4;
     return (memory<=2?40:memory<=4?70:100)*1024*1024;
   }
+  async function browserSupportsSocialOutput(videoStream,audioStreams){
+    const probe=document.createElement('video');
+    const audioSuffix=audioStreams.length?', mp4a.40.2':'';
+    const contentType='video/mp4; codecs="avc1.42E01E'+audioSuffix+'"';
+    if(!probe.canPlayType(contentType))return false;
+    if(navigator.mediaCapabilities?.decodingInfo){
+      try{
+        const width=Math.max(2,Math.min(1920,Number(videoStream.width)||1280));
+        const height=Math.max(2,Math.min(1080,Number(videoStream.height)||720));
+        const configuration={
+          type:'file',
+          video:{contentType,width,height,bitrate:2500000,framerate:30}
+        };
+        if(audioStreams.length){
+          configuration.audio={
+            contentType:'audio/mp4; codecs="mp4a.40.2"',
+            channels:'2',bitrate:128000,samplerate:48000
+          };
+        }
+        const capability=await navigator.mediaCapabilities.decodingInfo(configuration);
+        return !!capability.supported;
+      }catch{return true;}
+    }
+    return true;
+  }
   async function transcodeSocialVideoNow(file,onStatus=()=>{}){
     const limit=socialTranscodeLimit();
     if(file.size>limit){
@@ -1343,6 +1368,7 @@
     const inputPath='social_input_'+suffix+'.'+ext;
     const probePath='social_probe_'+suffix+'.json';
     const outputPath='social_output_'+suffix+'.mp4';
+    const verifyPath='social_verify_'+suffix+'.json';
     let progressHandler=null;
     try{
       onStatus('Checking the actual video and audio codecs…');
@@ -1369,9 +1395,7 @@
       const pixelFormat=String(videoStream.pix_fmt||'').toLowerCase();
       const audioCompatible=audioStreams.every(stream=>String(stream.codec_name||'').toLowerCase()==='aac');
       const videoCompatible=videoCodec==='h264'&&['yuv420p','yuvj420p'].includes(pixelFormat);
-      const h264Probe=document.createElement('video');
-      const audioPart=audioStreams.length?', mp4a.40.2':'';
-      const browserCanPlayH264=!!h264Probe.canPlayType('video/mp4; codecs="avc1.42E01E'+audioPart+'"');
+      const browserCanPlayH264=await browserSupportsSocialOutput(videoStream,audioStreams);
       const isMp4File=['mp4','m4v'].includes(ext);
       const codecsAlreadyCompatible=videoCompatible&&audioCompatible&&browserCanPlayH264;
 
@@ -1412,7 +1436,21 @@
         ]);
         if(encodeExit!==0)throw new Error('The converter could not decode this source video. It may be damaged or use a codec that is not included in this build.');
       }
-      onStatus('Finishing compatible MP4…');
+      onStatus('Verifying the output codecs…');
+      const outputProbeExit=await ffmpeg.ffprobe([
+        '-v','error',
+        '-show_entries','stream=codec_type,codec_name,pix_fmt',
+        '-of','json',outputPath,'-o',verifyPath
+      ]);
+      if(outputProbeExit!==0)throw new Error('The converted file could not be verified. Nothing was uploaded.');
+      const outputProbeRaw=await ffmpeg.readFile(verifyPath,'utf8');
+      const outputProbeText=typeof outputProbeRaw==='string'?outputProbeRaw:new TextDecoder().decode(outputProbeRaw);
+      const outputStreams=JSON.parse(outputProbeText).streams||[];
+      const outputVideo=outputStreams.find(stream=>stream.codec_type==='video');
+      const outputAudio=outputStreams.filter(stream=>stream.codec_type==='audio');
+      if(String(outputVideo?.codec_name||'').toLowerCase()!=='h264'||!['yuv420p','yuvj420p'].includes(String(outputVideo?.pix_fmt||'').toLowerCase())||outputAudio.some(stream=>String(stream.codec_name||'').toLowerCase()!=='aac')){
+        throw new Error('The converted file did not pass H.264/AAC verification. Nothing was uploaded.');
+      }
       const output=await ffmpeg.readFile(outputPath);
       if(!(output instanceof Uint8Array)||!output.byteLength)throw new Error('The converter produced an empty video.');
       const converted=new File([output],String(file.name||'video').replace(/\.[^.]*$/,'')+'.mp4',{type:'video/mp4',lastModified:Date.now()});
@@ -1423,6 +1461,7 @@
       try{await ffmpeg.deleteFile(inputPath);}catch{}
       try{await ffmpeg.deleteFile(probePath);}catch{}
       try{await ffmpeg.deleteFile(outputPath);}catch{}
+      try{await ffmpeg.deleteFile(verifyPath);}catch{}
     }
   }
   let socialFFmpegQueue=Promise.resolve();
