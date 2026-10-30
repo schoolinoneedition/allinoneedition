@@ -1497,7 +1497,7 @@ function renderIntroCutscene(){
   setTimeout(()=>loader.classList.add('intro-ready'),500);
   setTimeout(()=>{if(!loader.classList.contains('done'))skipIntro()},4200);
 }
-setInterval(()=>{if(hidden&&$('studyClock'))$('studyClock').textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})},1000);
+setInterval(()=>{if(hidden&&$('studyClock'))$('studyClock').textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})},60000);
 safeBoot(updateResumeCard);safeBoot(renderChatHistory);safeBoot(renderAudioTracks);safeBoot(initLanguage);safeBoot(initSpotify);safeBoot(initMusicSearch);safeBoot(runCode);safeBoot(updateCacheStatus);safeBoot(renderAfkShuffle);safeBoot(refreshLive);
 setTimeout(()=>safeBoot(loadOnlineGamesCatalog),650);
 
@@ -2952,7 +2952,7 @@ function socialTryAudibleAutoplay(v){
 function setupSocialVideoObserver(){
   const videos=[...document.querySelectorAll('[data-social-video]')];
   if(window.aioSocialVideoObserver)window.aioSocialVideoObserver.disconnect();
-  videos.forEach(v=>{
+  videos.forEach(v=>{if(v.dataset.socialSetupBound==='1')return;v.dataset.socialSetupBound='1';
     v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.removeAttribute('controls');v.preload='none';
     socialCustomPlayerInit(v);
     v.addEventListener('loadedmetadata',()=>socialFitPostToMedia(v), {once:true});
