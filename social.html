@@ -87,6 +87,11 @@
   .social-app .post-caption{max-height:58px}
   .social-app .custom-video-controls{bottom:54px}
 }
+
+/* Social player: the video surface is the only playback control. */
+.video-stage{cursor:pointer;touch-action:pan-y}
+.video-stage:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+.custom-video-controls,.video-play-overlay{display:none!important}
 </style>
 </head>
 <body>
@@ -384,45 +389,45 @@
     feed.innerHTML=list.map(renderPost).join('');
     feed.querySelectorAll('[data-social-video]').forEach(v=>{
       const stage=v.closest('.video-stage');
-      const centerPlay=stage?.querySelector('.video-play-overlay');
-      const controlPlay=stage?.querySelector('[data-video-toggle]');
-      const seek=stage?.querySelector('[data-video-seek]');
-      const back=stage?.querySelector('[data-video-back]');
-      const forward=stage?.querySelector('[data-video-forward]');
-      const speed=stage?.querySelector('[data-video-speed]');
-      const fullscreen=stage?.querySelector('[data-video-fullscreen]');
-      const timeLabel=stage?.querySelector('[data-video-time]');
-      const updatePlayer=()=>{
-        const playing=!v.paused&&!v.ended;
-        if(controlPlay){controlPlay.textContent=playing?'Ⅱ':'▶';controlPlay.setAttribute('aria-label',playing?'Pause video':'Play video');}
-        if(seek){const duration=Number.isFinite(v.duration)&&v.duration>0?v.duration:0;seek.value=String(duration?Math.round((v.currentTime/duration)*1000):0);}
-        if(timeLabel)timeLabel.textContent=formatVideoTime(v.currentTime)+' / '+formatVideoTime(v.duration);
+      if(!stage)return;
+      stage.setAttribute('role','button');
+      stage.setAttribute('tabindex','0');
+      stage.setAttribute('aria-label','Play video');
+      stage.setAttribute('aria-pressed','false');
+      const togglePlayback=()=>{
+        if(v.paused||v.ended)startVideo(v.dataset.postId);
+        else v.pause();
       };
-      controlPlay?.addEventListener('click',()=>{if(v.paused||v.ended)startVideo(v.dataset.postId);else v.pause();});
-      back?.addEventListener('click',()=>{v.currentTime=Math.max(0,(v.currentTime||0)-10)});
-      forward?.addEventListener('click',()=>{v.currentTime=Math.min(Number.isFinite(v.duration)?v.duration:Infinity,(v.currentTime||0)+10)});
-      const speeds=[1,1.25,1.5,1.75,2];
-      speed?.addEventListener('click',()=>{const current=speeds.indexOf(v.playbackRate),next=speeds[(current+1+speeds.length)%speeds.length];v.playbackRate=next;speed.textContent=String(next)+'×';});
-      fullscreen?.addEventListener('click',()=>{if(document.fullscreenElement===stage){document.exitFullscreen?.().catch?.(()=>{});return;}if(stage?.requestFullscreen)stage.requestFullscreen().catch(()=>{});else if(v.webkitEnterFullscreen)v.webkitEnterFullscreen();});
-      seek?.addEventListener('input',()=>{const duration=Number.isFinite(v.duration)?v.duration:0;if(duration)v.currentTime=(Number(seek.value)/1000)*duration;});
-      v.addEventListener('timeupdate',updatePlayer);
-      v.addEventListener('durationchange',updatePlayer);
-      v.addEventListener('loadedmetadata',updatePlayer,{once:true});
-      v.addEventListener('volumechange',()=>{if(v.muted||v.volume!==1){v.muted=false;v.volume=1;}});
-      updatePlayer();
-      v.addEventListener('play',()=>{
-        document.querySelectorAll('[data-social-video]').forEach(other=>{if(other!==v&&!other.paused){try{other.pause();}catch{}}});
-        v.muted=false;v.volume=1;
-        centerPlay?.classList.add('is-playing');
-        updatePlayer();
+      stage.addEventListener('click',event=>{
+        if(event.target.closest('a,button,input,textarea,select,[contenteditable="true"]'))return;
+        togglePlayback();
       });
-      v.addEventListener('pause',()=>{centerPlay?.classList.remove('is-playing');updatePlayer();});
+      stage.addEventListener('keydown',event=>{
+        if(event.target!==stage||![' ','Enter'].includes(event.key))return;
+        event.preventDefault();
+        togglePlayback();
+      });
+      v.addEventListener('play',()=>{
+        pauseAllVideos(v);
+        v.muted=false;
+        v.defaultMuted=false;
+        v.volume=1;
+        stage.setAttribute('aria-label','Pause video');
+        stage.setAttribute('aria-pressed','true');
+      });
+      v.addEventListener('pause',()=>{
+        stage.setAttribute('aria-label','Play video');
+        stage.setAttribute('aria-pressed','false');
+      });
       v.addEventListener('ended',()=>{
-        centerPlay?.classList.remove('is-playing');
-        updatePlayer();
+        stage.setAttribute('aria-label','Replay video');
+        stage.setAttribute('aria-pressed','false');
         if(autoScrollEnabled)scrollToNextVideo(v);
       });
-      v.addEventListener('error',()=>{const msg=v.closest('.video-stage')?.querySelector('.media-error');if(msg)msg.hidden=false;});
+      v.addEventListener('error',()=>{
+        const msg=stage.querySelector('.media-error');
+        if(msg)msg.hidden=false;
+      });
     });
     feed.querySelectorAll('[data-social-post]').forEach(post=>{
       const v=post.querySelector('[data-social-video]');
@@ -510,7 +515,7 @@
     const ownerTools=isOwner?'<div class="post-owner-tools"><button type="button" data-action="edit-post" data-id="'+escapeHTML(id)+'">Edit caption</button><button type="button" class="owner-delete" data-action="delete-post" data-id="'+escapeHTML(id)+'">Delete</button></div>':'';
     const avatar=p.avatar_url?'<img src="'+escapeHTML(p.avatar_url)+'" alt="" loading="lazy">':escapeHTML(safeInitials(p.username));
     const media=isVideo
-      ?'<div class="video-stage"><video src="'+escapeHTML(p.media_url)+'" data-social-video data-post-id="'+escapeHTML(id)+'" playsinline webkit-playsinline preload="none" disablepictureinpicture disableremoteplayback aria-label="Video by '+escapeHTML(p.username)+'"></video><button type="button" class="video-play-overlay" data-action="play" data-id="'+escapeHTML(id)+'" aria-label="Play video with sound"><span>▶</span><span>Play with sound</span></button><div class="custom-video-controls" aria-label="Custom video controls"><button type="button" data-video-toggle aria-label="Play video">▶</button><button type="button" data-video-back aria-label="Back 10 seconds" title="Back 10 seconds">↶10</button><input class="video-seek" type="range" min="0" max="1000" value="0" step="1" data-video-seek aria-label="Seek video"><span class="video-time" data-video-time>00:00 / 00:00</span><button type="button" data-video-forward aria-label="Forward 10 seconds" title="Forward 10 seconds">10↷</button><button type="button" class="video-speed" data-video-speed aria-label="Playback speed">1×</button><span class="sound-lock" aria-label="Sound is always on">🔊</span><button type="button" data-video-fullscreen aria-label="Full screen" title="Full screen">⛶</button></div><div class="media-error" hidden>Could not play this video. Try another post or open the media from its source.</div></div>'
+      ?'<div class="video-stage" role="button" tabindex="0" aria-label="Play video" aria-pressed="false"><video src="'+escapeHTML(p.media_url)+'" data-social-video data-post-id="'+escapeHTML(id)+'" playsinline webkit-playsinline preload="none" disablepictureinpicture disableremoteplayback aria-label="Tap the video to play or pause" tabindex="-1"></video><div class="media-error" hidden>Could not play this video. Try another post or open the media from its source.</div></div>'
       :'<img data-post-image src="'+escapeHTML(p.media_url)+'" alt="Image posted by '+escapeHTML(p.username)+'" loading="lazy" decoding="async"><div class="media-error" hidden>This image could not be loaded.</div>';
     return '<article class="post" data-social-post="'+escapeHTML(id)+'"><div class="post-media">'+media+'</div><div class="post-shade"></div><div class="post-top"><span class="post-pill">'+(isVideo?'Video':'Image')+' · public post</span><span class="post-time">'+escapeHTML(timeSince(p.created_at))+'</span>'+ownerTools+'</div><div class="post-rail"><button type="button" class="rail-action '+(liked?'liked':'')+'" data-action="like" data-id="'+escapeHTML(id)+'" aria-label="'+(liked?'Unlike':'Like')+' post">'+(liked?'♥':'♡')+'</button><span class="rail-count" data-like-count="'+escapeHTML(id)+'">'+formatCount(stat.likes+(liked&&!currentUser?1:0))+'</span><button type="button" class="rail-action" data-action="comments" data-id="'+escapeHTML(id)+'" aria-label="Comments">▤</button><span class="rail-count" data-comment-count="'+escapeHTML(id)+'">'+formatCount(stat.comments)+'</span><button type="button" class="rail-action '+(saved?'saved':'')+'" data-action="save" data-id="'+escapeHTML(id)+'" aria-label="'+(saved?'Unsave':'Save')+' post">▣</button><span class="rail-count">'+(saved?'Saved':'')+'</span><button type="button" class="rail-action" data-action="share" data-id="'+escapeHTML(id)+'" aria-label="Share post">↗</button></div><div class="post-bottom"><div class="creator-row"><div class="creator-avatar">'+avatar+'</div><div class="creator-copy"><strong>'+escapeHTML(p.username||'Guest')+'</strong><small>'+escapeHTML(timeSince(p.created_at))+'</small></div><button type="button" class="follow-btn '+(followed?'following':'')+'" data-action="follow" data-name="'+escapeHTML(p.username||'Guest')+'">'+(followed?'Following':'Follow')+'</button></div><div class="post-caption">'+escapeHTML(p.caption||'')+'</div></div></article>';
   }
@@ -755,22 +760,21 @@
       showToast(mediaCleanupFailed?'Post deleted. Its uploaded file could not be cleaned up.':'Post deleted');
     }catch(e){showToast('Could not delete post: '+String(e?.message||'try again'));}
   }
-  function startVideo(id,button){
+  function startVideo(id){
     const post=document.querySelector('[data-social-post="'+CSS.escape(String(id))+'"]');
-    const video=post?.querySelector('[data-social-video]');if(!video)return;
+    const video=post?.querySelector('[data-social-video]');
+    if(!video)return;
     pauseAllVideos(video);
     video.dataset.autoplayBlocked='false';
-    video.muted=false;video.defaultMuted=false;video.volume=1;
-    const play=video.play();
-    if(play?.then)play.then(()=>{
-      const overlay=post.querySelector('.video-play-overlay');
-      overlay?.classList.add('is-playing');
-      video.dataset.autoplayBlocked='false';
-    }).catch(()=>{
+    video.muted=false;
+    video.defaultMuted=false;
+    video.volume=1;
+    try{
+      const play=video.play();
+      if(play?.catch)play.catch(()=>{video.dataset.autoplayBlocked='true';});
+    }catch{
       video.dataset.autoplayBlocked='true';
-      const overlay=post.querySelector('.video-play-overlay');
-      if(overlay){overlay.classList.remove('is-playing');const label=overlay.querySelector('span:last-child');if(label)label.textContent='Tap to play with sound';}
-    });
+    }
   }
   function formatVideoTime(value){
     const seconds=Number(value);
