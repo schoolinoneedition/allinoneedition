@@ -68,7 +68,7 @@
     </aside>
 
     <section class="feed-column" aria-label="Social feed">
-      <div class="feed-heading"><div><h1>Social</h1><p>Fresh posts, short videos and real comments.</p></div><div class="feed-heading-actions"><button class="btn square" id="refreshFeed" type="button" title="Refresh feed" aria-label="Refresh feed">↻</button></div></div>
+      <div class="feed-heading"><div><h1>Social</h1><p>Fresh posts, short videos and real comments. Use ↑ and ↓ to scroll.</p></div><div class="feed-heading-actions"><button class="btn square" id="refreshFeed" type="button" title="Refresh feed" aria-label="Refresh feed">↻</button></div></div>
       <div id="feedError" class="error-state" hidden></div>
       <div id="feed" class="feed-scroll" tabindex="0" aria-label="Scrollable social posts">
         <div class="skeleton" aria-hidden="true"></div>
@@ -589,6 +589,20 @@
     $('socialApp').classList.toggle('in-fullscreen',full);
   });
   document.addEventListener('keydown',(event)=>{
+    const target=event.target;
+    const isEditing=target instanceof HTMLElement&&(target.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
+    const isMediaControl=target instanceof HTMLMediaElement;
+    const overlayOpen=!!document.querySelector('.overlay.open');
+    if(!isEditing&&!isMediaControl&&!overlayOpen&&!event.altKey&&!event.ctrlKey&&!event.metaKey&&(event.key==='ArrowDown'||event.key==='ArrowUp')){
+      const feed=$('feed');
+      if(feed&&feed.scrollHeight>feed.clientHeight){
+        const distance=Math.max(220,Math.round(feed.clientHeight*.72));
+        const direction=event.key==='ArrowDown'?1:-1;
+        const next=Math.max(0,Math.min(feed.scrollHeight-feed.clientHeight,feed.scrollTop+direction*distance));
+        feed.scrollTo({top:next,behavior:'smooth'});
+        event.preventDefault();
+      }
+    }
     if(event.key==='Escape'){document.querySelectorAll('.overlay.open').forEach(x=>closeOverlay(x.id));pauseAllVideos();}
     if(event.key==='Enter'&&event.target===$('commentBody')&&!event.shiftKey){event.preventDefault();$('commentForm').requestSubmit();}
   });
