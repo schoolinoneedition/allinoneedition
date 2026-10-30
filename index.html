@@ -2990,117 +2990,6 @@ function socialAttachVideoSource(video,preload='metadata'){
   return true;
 }
 
-/* Background Social video warm-up.
-   Downloads small/medium MP4s into the browser's HTTP cache while the page is idle
-   or hidden. The service worker owns the fetch so it can keep running after tab switches. */
-const AIO_SOCIAL_PREFETCH_SESSION_LIMIT=180*1024*1024;
-const AIO_SOCIAL_PREFETCH_BATCH_LIMIT=70*1024*1024;
-let aioSocialPrefetchQueue=[];
-let aioSocialPrefetchRequested=new Set();
-let aioSocialPrefetchUsedBytes=0;
-let aioSocialPrefetchBusy=false;
-let aioSocialPrefetchTimer=0;
-let aioSocialPrefetchLastActivity=Date.now();
-let aioSocialPrefetchRegistration=null;
-let aioSocialPrefetchEventsBound=false;
-function socialBackgroundPrefetchUrl(raw){
-  try{
-    const u=new URL(String(raw||''),location.href);
-    const expectedOrigin=new URL(SUPABASE_URL).origin;
-    if(u.protocol!=='https:'||u.origin!==expectedOrigin||!u.pathname.startsWith('/storage/v1/object/public/social-media/'))return '';
-    return u.href;
-  }catch{return ''}
-}
-function socialBackgroundPrefetchAllowed(){
-  if(!navigator.onLine)return false;
-  const connection=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
-  if(connection?.saveData||['slow-2g','2g'].includes(String(connection?.effectiveType||'')))return false;
-  return true;
-}
-function socialBindBackgroundPrefetchEvents(){
-  if(aioSocialPrefetchEventsBound)return;
-  aioSocialPrefetchEventsBound=true;
-  const activity=()=>{aioSocialPrefetchLastActivity=Date.now()};
-  ['pointerdown','keydown','wheel','touchstart'].forEach(type=>window.addEventListener(type,activity,{passive:true,capture:true}));
-  document.addEventListener('visibilitychange',()=>{
-    if(document.hidden){
-      clearTimeout(aioSocialPrefetchTimer);aioSocialPrefetchTimer=0;
-      socialRunBackgroundVideoPrefetch();
-    }else socialScheduleBackgroundVideoPrefetch();
-  });
-  if('serviceWorker'in navigator){
-    navigator.serviceWorker.addEventListener('message',event=>{
-      const data=event.data||{};
-      if(data.type!=='AIO_PREFETCH_SOCIAL_DONE')return;
-      aioSocialPrefetchBusy=false;
-      aioSocialPrefetchUsedBytes+=Math.max(0,Number(data.downloadedBytes)||0);
-      if(!aioSocialPrefetchQueue.length||aioSocialPrefetchUsedBytes>=AIO_SOCIAL_PREFETCH_SESSION_LIMIT)return;
-      if(document.hidden||Date.now()-aioSocialPrefetchLastActivity>=5500)socialRunBackgroundVideoPrefetch();
-      else socialScheduleBackgroundVideoPrefetch();
-    });
-  }
-}
-function socialScheduleBackgroundVideoPrefetch(){
-  if(!aioSocialPrefetchQueue.length||aioSocialPrefetchBusy)return;
-  clearTimeout(aioSocialPrefetchTimer);
-  const wait=Math.max(700,5500-(Date.now()-aioSocialPrefetchLastActivity));
-  aioSocialPrefetchTimer=setTimeout(()=>{
-    if(document.hidden||Date.now()-aioSocialPrefetchLastActivity>=5000)socialRunBackgroundVideoPrefetch();
-    else socialScheduleBackgroundVideoPrefetch();
-  },Math.min(wait,6500));
-}
-async function socialRunBackgroundVideoPrefetch(){
-  if(!aioSocialPrefetchQueue.length||aioSocialPrefetchBusy)return;
-  if(!socialBackgroundPrefetchAllowed()||aioSocialPrefetchUsedBytes>=AIO_SOCIAL_PREFETCH_SESSION_LIMIT){aioSocialPrefetchQueue.length=0;return;}
-  try{
-    if(navigator.storage?.estimate){
-      const estimate=await navigator.storage.estimate();
-      if(estimate.quota&&estimate.usage/estimate.quota>.88){aioSocialPrefetchQueue.length=0;return;}
-    }
-    if(!aioSocialPrefetchRegistration){
-      aioSocialPrefetchRegistration=navigator.serviceWorker.register('/aio-media-prefetch-sw.js',{scope:'/'}).then(()=>navigator.serviceWorker.ready);
-    }
-    const registration=await aioSocialPrefetchRegistration;
-    const worker=registration.active||navigator.serviceWorker.controller;
-    if(!worker)throw new Error('Background media worker is not active');
-    const batch=aioSocialPrefetchQueue.splice(0,5);
-    if(!batch.length)return;
-    aioSocialPrefetchBusy=true;
-    worker.postMessage({
-      type:'AIO_PREFETCH_SOCIAL_VIDEOS',
-      urls:batch,
-      batchLimitBytes:Math.min(AIO_SOCIAL_PREFETCH_BATCH_LIMIT,AIO_SOCIAL_PREFETCH_SESSION_LIMIT-aioSocialPrefetchUsedBytes)
-    });
-  }catch(error){
-    console.warn('Social background prefetch unavailable:',error);
-    aioSocialPrefetchBusy=false;
-    const fallback=new Set(aioSocialPrefetchQueue.splice(0,2));
-    document.querySelectorAll('[data-social-video]').forEach(video=>{
-      const url=socialBackgroundPrefetchUrl(video.dataset.videoSrc);
-      if(fallback.has(url)){video.preload='auto';socialAttachVideoSource(video,'auto');}
-    });
-    aioSocialPrefetchQueue.length=0;
-  }
-}
-function socialQueueBackgroundVideoPrefetch(videos){
-  if(!('serviceWorker'in navigator)||!window.isSecureContext||!socialBackgroundPrefetchAllowed())return;
-  socialBindBackgroundPrefetchEvents();
-  for(const video of videos||[]){
-    if(video.dataset.sourceAttached==='1')continue;
-    const rect=video.getBoundingClientRect();
-    if(rect.top<window.innerHeight&&rect.bottom>0)continue;
-    const url=socialBackgroundPrefetchUrl(video.dataset.videoSrc);
-    if(!url||aioSocialPrefetchRequested.has(url))continue;
-    aioSocialPrefetchRequested.add(url);
-    aioSocialPrefetchQueue.push(url);
-  }
-  if(!aioSocialPrefetchQueue.length)return;
-  if(document.hidden){
-    clearTimeout(aioSocialPrefetchTimer);aioSocialPrefetchTimer=0;
-    socialRunBackgroundVideoPrefetch();
-  }else socialScheduleBackgroundVideoPrefetch();
-}
-
 function socialMarkAudioUnlocked(){
   try{sessionStorage.setItem('aio-social-audio-unlocked','1')}catch{}
 }
@@ -3169,7 +3058,6 @@ function setupSocialVideoObserver(){
     videos.forEach(v=>window.aioSocialVideoObserver.observe(v));
   }
   socialFitAllPosts();
-  socialQueueBackgroundVideoPrefetch(videos);
 }
 if(!window.aioSocialAudioGestureBound){
   window.aioSocialAudioGestureBound=true;
