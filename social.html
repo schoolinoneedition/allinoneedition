@@ -672,7 +672,7 @@
   function updatePostIdentityControls(){
     const file=$('mediaFile'),note=document.querySelector('#composeForm .note-small');
     if(file)file.title=currentUser?'Files upload to your account folder.':'Sign in to upload files.';
-    if(note)note.textContent='Images up to 15 MB; videos up to 100 MB. Every uploaded video is converted to H.264/AAC MP4 before saving, so formats such as HEVC and MOV play on more devices. First conversion downloads the video engine.';
+    if(note)note.textContent='Images up to 15 MB; videos up to 100 MB. Every video is checked for its real codecs before upload. Compatible H.264/AAC MP4 files stay untouched; unsupported codecs are converted automatically.';
   }
   function statFor(id){
     const key=String(id);if(!postStats.has(key))postStats.set(key,{likes:0,comments:0});
@@ -1288,7 +1288,7 @@
   }
   let socialFFmpeg=null,socialFFmpegPromise=null,socialFFmpegCoreUrls=[];
   const SOCIAL_FFMPEG_VERSION='0.12.15';
-  const SOCIAL_FFMPEG_CORE_BASE='https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd';
+  const SOCIAL_FFMPEG_CORE_BASE='https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm';
   async function socialFFmpegBlobURL(url,type){
     const response=await fetch(url,{mode:'cors',credentials:'omit',cache:'force-cache'});
     if(!response.ok)throw new Error('The video converter engine could not be downloaded (HTTP '+response.status+').');
@@ -1313,7 +1313,8 @@
           socialFFmpegCoreUrls.push(coreURL);
           const wasmURL=await socialFFmpegBlobURL(SOCIAL_FFMPEG_CORE_BASE+'/ffmpeg-core.wasm','application/wasm');
           socialFFmpegCoreUrls.push(wasmURL);
-          await engine.load({coreURL,wasmURL});
+          const classWorkerURL=new URL('./ffmpeg-local-worker.js',location.href).href;
+          await engine.load({coreURL,wasmURL,classWorkerURL});
           onStatus('Video converter ready.');
           return engine;
         }catch(error){
@@ -1334,42 +1335,93 @@
     const limit=socialTranscodeLimit();
     if(file.size>limit){
       const mb=Math.floor(limit/1024/1024);
-      throw new Error('This device is limiting browser conversion to '+mb+' MB to avoid running out of memory. This file is '+Math.ceil(file.size/1024/1024)+' MB. Use a smaller video or a server-side encoder.');
+      throw new Error('This device is limiting video inspection/conversion to '+mb+' MB to protect memory. This file is '+Math.ceil(file.size/1024/1024)+' MB. Use a smaller clip.');
     }
     const ffmpeg=await ensureSocialFFmpeg(onStatus);
     const ext=(String(file.name||'video.bin').toLowerCase().match(/\.([a-z0-9]{1,8})$/)||[])[1]||'bin';
     const suffix=Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
     const inputPath='social_input_'+suffix+'.'+ext;
+    const probePath='social_probe_'+suffix+'.json';
     const outputPath='social_output_'+suffix+'.mp4';
     let progressHandler=null;
     try{
-      onStatus('Preparing video…');
+      onStatus('Checking the actual video and audio codecs…');
       const inputBytes=new Uint8Array(await file.arrayBuffer());
       await ffmpeg.writeFile(inputPath,inputBytes);
+
+      // FFprobe reads the codecs inside the file. The extension and MIME type
+      // alone cannot tell H.264 apart from HEVC inside an MP4 container.
+      const probeExit=await ffmpeg.ffprobe([
+        '-v','error',
+        '-show_entries','format=format_name:stream=codec_type,codec_name,profile,pix_fmt,width,height',
+        '-of','json',inputPath,'-o',probePath
+      ]);
+      if(probeExit!==0)throw new Error('Could not inspect this video file. It may be damaged or use an unsupported container.');
+      const probeRaw=await ffmpeg.readFile(probePath,'utf8');
+      const probeText=typeof probeRaw==='string'?probeRaw:new TextDecoder().decode(probeRaw);
+      let metadata;
+      try{metadata=JSON.parse(probeText);}catch{throw new Error('The video codec report was not valid. Choose a different video file.');}
+      const streams=Array.isArray(metadata.streams)?metadata.streams:[];
+      const videoStream=streams.find(stream=>stream.codec_type==='video');
+      const audioStreams=streams.filter(stream=>stream.codec_type==='audio');
+      if(!videoStream)throw new Error('This file does not contain a video stream.');
+      const videoCodec=String(videoStream.codec_name||'').toLowerCase();
+      const pixelFormat=String(videoStream.pix_fmt||'').toLowerCase();
+      const audioCompatible=audioStreams.every(stream=>String(stream.codec_name||'').toLowerCase()==='aac');
+      const videoCompatible=videoCodec==='h264'&&['yuv420p','yuvj420p'].includes(pixelFormat);
+      const h264Probe=document.createElement('video');
+      const audioPart=audioStreams.length?', mp4a.40.2':'';
+      const browserCanPlayH264=!!h264Probe.canPlayType('video/mp4; codecs="avc1.42E01E'+audioPart+'"');
+      const isMp4File=['mp4','m4v'].includes(ext);
+      const codecsAlreadyCompatible=videoCompatible&&audioCompatible&&browserCanPlayH264;
+
+      onStatus('Detected video: '+videoCodec.toUpperCase()+' · audio: '+(audioStreams.length?audioStreams.map(stream=>String(stream.codec_name||'unknown').toUpperCase()).join(', '):'none'));
+      if(!browserCanPlayH264){
+        throw new Error('This browser does not report H.264 MP4 playback support, so an H.264 conversion would not fix playback on this device.');
+      }
+
+      // Already-good MP4 files do not get re-encoded. Compatible codecs in
+      // other containers are remuxed into MP4 without quality loss.
+      if(codecsAlreadyCompatible&&isMp4File){
+        onStatus('H.264/AAC codecs already supported. Skipping conversion.');
+        return file;
+      }
+
       progressHandler=({progress})=>{
         const percent=Number(progress);
-        if(Number.isFinite(percent))onStatus('Converting to browser-friendly MP4… '+Math.max(0,Math.min(99,Math.round(percent*100)))+'%');
+        if(Number.isFinite(percent))onStatus('Preparing browser-friendly MP4… '+Math.max(0,Math.min(99,Math.round(percent*100)))+'%');
       };
       ffmpeg.on('progress',progressHandler);
-      onStatus('Converting to H.264 video and AAC audio…');
-      const exitCode=await ffmpeg.exec([
-        '-hide_banner','-y','-i',inputPath,
-        '-map','0:v:0','-map','0:a?',
-        '-vf',"scale='min(1920,iw)':'min(1920,ih)':force_original_aspect_ratio=decrease:force_divisible_by=2,fps=30",
-        '-c:v','libx264','-preset','ultrafast','-crf','24','-pix_fmt','yuv420p','-profile:v','high','-tag:v','avc1',
-        '-c:a','aac','-b:a','128k','-ac','2',
-        '-movflags','+faststart','-threads','1',outputPath
-      ]);
-      if(exitCode!==0)throw new Error('The converter could not decode this source video. It may be damaged or use a codec that is not included.');
-      onStatus('Preparing the converted MP4…');
+      if(codecsAlreadyCompatible){
+        onStatus('Codecs are supported. Repackaging into MP4 without re-encoding…');
+        const remuxExit=await ffmpeg.exec([
+          '-hide_banner','-y','-i',inputPath,
+          '-map','0:v:0','-map','0:a?',
+          '-c','copy','-movflags','+faststart',outputPath
+        ]);
+        if(remuxExit!==0)throw new Error('The H.264 video could not be repackaged into MP4. Try a different file.');
+      }else{
+        onStatus('Unsupported codec detected. Converting to H.264 video and AAC audio…');
+        const encodeExit=await ffmpeg.exec([
+          '-hide_banner','-y','-i',inputPath,
+          '-map','0:v:0','-map','0:a?',
+          '-vf',"scale='min(1920,iw)':'min(1920,ih)':force_original_aspect_ratio=decrease:force_divisible_by=2,fps=30",
+          '-c:v','libx264','-preset','ultrafast','-crf','24','-pix_fmt','yuv420p','-profile:v','high','-tag:v','avc1',
+          '-c:a','aac','-b:a','128k','-ac','2',
+          '-movflags','+faststart','-threads','1',outputPath
+        ]);
+        if(encodeExit!==0)throw new Error('The converter could not decode this source video. It may be damaged or use a codec that is not included in this build.');
+      }
+      onStatus('Finishing compatible MP4…');
       const output=await ffmpeg.readFile(outputPath);
       if(!(output instanceof Uint8Array)||!output.byteLength)throw new Error('The converter produced an empty video.');
-      const converted=new Blob([output],{type:'video/mp4'});
+      const converted=new File([output],String(file.name||'video').replace(/\.[^.]*$/,'')+'.mp4',{type:'video/mp4',lastModified:Date.now()});
       if(converted.size>100*1024*1024)throw new Error('The converted MP4 is larger than the 100 MB upload limit. Try a shorter video.');
       return converted;
     }finally{
       if(progressHandler)ffmpeg.off('progress',progressHandler);
       try{await ffmpeg.deleteFile(inputPath);}catch{}
+      try{await ffmpeg.deleteFile(probePath);}catch{}
       try{await ffmpeg.deleteFile(outputPath);}catch{}
     }
   }
@@ -1465,7 +1517,7 @@
     }
     if(!client){setStatus('postStatus','Cloud service is unavailable. Nothing was published.','bad');return;}
     postBusy=true;const submit=$('submitPost');submit.disabled=true;submit.textContent='Publishing…';
-    setStatus('postStatus',file?(mediaType==='video'?'Preparing video conversion…':'Uploading image to XBT storage…'):'Publishing your post…');
+    setStatus('postStatus',file?(mediaType==='video'?'Checking video codecs…':'Uploading image to XBT storage…'):'Publishing your post…');
     try{
       if(file){
         let uploadFile=file;
