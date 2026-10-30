@@ -5,6 +5,7 @@
   let videoOffset = 0;
   let videoHasMore = true;
   let videoBusy = false;
+  let videoGalleryObserver = null;
 
   function byId(id){ return document.getElementById(id); }
   function toast(message){ if(typeof showToast === 'function') showToast(message); else console.info(message); }
@@ -116,12 +117,22 @@
     await window.loadAioStaffList();
   };
 
+  function prepareGalleryVideo(video){
+    if(!video||video.dataset.sourceAttached==='1')return;
+    const src=String(video.dataset.videoSrc||'').trim();
+    if(!src)return;
+    video.preload='metadata';
+    video.src=src;
+    video.dataset.sourceAttached='1';
+    video.load();
+  }
+
   window.loadVideoGallery = async function(reset=true){
     const box=byId('videoGallery'),status=byId('videoGalleryStatus'),more=byId('videoLoadMore');
     if(!box||videoBusy)return;
     if(typeof supabaseClient==='undefined'||!supabaseClient){if(status)status.textContent='Cloud service is not ready. Refresh to retry; no demo videos are shown.';return;}
     videoBusy=true;
-    if(reset){videoOffset=0;videoHasMore=true;box.replaceChildren();box.dataset.loaded='1';if(status)status.textContent='Loading saved videos…';}
+    if(reset){videoOffset=0;videoHasMore=true;if(videoGalleryObserver){videoGalleryObserver.disconnect();videoGalleryObserver=null;}box.replaceChildren();box.dataset.loaded='1';if(status)status.textContent='Loading saved videos…';}
     else if(status)status.textContent='Loading more videos…';
     try{
       const query=await supabaseClient.from('social_posts').select('id,visitor_id,username,caption,media_url,created_at').eq('media_type','video').order('created_at',{ascending:false}).range(videoOffset,videoOffset+23);
@@ -130,13 +141,29 @@
       rows.forEach(post=>{
         const card=document.createElement('article');card.className='aio-video-card';
         card.dataset.search=((post.caption||'')+' '+(post.username||'')).toLowerCase();
-        const player=document.createElement('video');player.controls=true;player.preload='metadata';player.playsInline=true;player.src=post.media_url;player.setAttribute('aria-label','Video by '+(post.username||'community member'));
+        const player=document.createElement('video');player.controls=true;player.preload='none';player.playsInline=true;player.dataset.videoSrc=post.media_url;player.setAttribute('aria-label','Video by '+(post.username||'community member'));
         player.addEventListener('error',()=>{if(!card.querySelector('.aio-video-error')){const err=document.createElement('div');err.className='aio-video-error';err.textContent='This video is unavailable. Refresh the gallery to retry.';card.append(err);}}, {once:true});
         const details=document.createElement('div');details.className='aio-video-details';
         const title=document.createElement('strong');title.textContent=post.caption||'Community video';
         const meta=document.createElement('span');const date=new Date(post.created_at);meta.textContent=(post.username||'Community member')+' · '+(Number.isNaN(date.getTime())?'Recently uploaded':date.toLocaleDateString());
         details.append(title,meta);card.append(player,details);box.append(card);
       });
+      if('IntersectionObserver'in window){
+        if(!videoGalleryObserver)videoGalleryObserver=new IntersectionObserver(entries=>{
+          for(const entry of entries){
+            if(entry.isIntersecting){
+              prepareGalleryVideo(entry.target);
+              videoGalleryObserver.unobserve(entry.target);
+            }
+          }
+        },{rootMargin:'0px',threshold:0.01});
+        box.querySelectorAll('video[data-video-src]:not([data-source-attached])').forEach(video=>videoGalleryObserver.observe(video));
+      }else{
+        box.querySelectorAll('video[data-video-src]:not([data-source-attached])').forEach(video=>{
+          const rect=video.getBoundingClientRect();
+          if(rect.bottom>=0&&rect.top<=window.innerHeight)prepareGalleryVideo(video);
+        });
+      }
       if(reset&&!rows.length){const empty=document.createElement('div');empty.className='aio-video-empty';empty.textContent='No videos have been uploaded yet. Sign in and post an MP4 in Community to get started.';box.append(empty);}
       if(status)status.textContent=videoOffset?'Showing '+videoOffset+' saved video'+(videoOffset===1?'':'s'):'No videos found.';
       if(more)more.classList.toggle('hidden',!videoHasMore);
