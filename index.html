@@ -220,7 +220,7 @@ html.reduced-motion .cover{transition:none!important}
 .social-post-media img,.social-post-media video{width:100%;height:100%;display:block;background:#000}.social-post-media img{object-fit:cover}.social-post-media video{object-fit:contain!important}
 .social-post-media video{cursor:pointer;user-select:none;-webkit-user-select:none}
 .social-video-wrap{position:absolute;inset:0}
-.social-video-wrap video{position:absolute;inset:0}
+.social-video-wrap video{position:absolute;inset:0}.social-video-wrap:fullscreen{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:999999!important;background:#000!important}.social-video-wrap:fullscreen video{object-fit:contain!important}.social-video-wrap:fullscreen .social-player-controls{left:16px;right:16px;bottom:max(14px,env(safe-area-inset-bottom));opacity:1;transform:none}
 .social-video-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:58px;height:58px;border:0;border-radius:50%;background:rgba(0,0,0,.58);color:#fff;display:grid;place-items:center;font-size:25px;font-weight:900;z-index:3;backdrop-filter:blur(8px);box-shadow:0 8px 25px rgba(0,0,0,.3);opacity:.96}
 .social-video-play.hidden{display:none}
 .social-video-play:hover{transform:translate(-50%,-50%) scale(1.06);background:rgba(0,0,0,.72)}
@@ -2578,7 +2578,7 @@ function initSocial(){socialBind();setTimeout(()=>{try{socialSync();socialPreloa
 function socialFmtTime(sec){
   sec=Number(sec)||0;
   const m=Math.floor(sec/60),s=Math.floor(sec%60);
-  return `${m}:${String(s).padStart(2,'0')}`;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 function socialCustomPlayerInit(v){
   if(!v||v.dataset.playerBound==='1')return;
