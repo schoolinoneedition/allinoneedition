@@ -8,6 +8,7 @@ const appearance = read('appearance.js');
 const ux = read('ultimate-experience.js');
 const css = read('ultimate-experience.css');
 const html = read('index.html');
+const social = read('social.html');
 const glassCss = read('appearance.css');
 const economy = read('supabase/migrations/20261028093212_aio_coin_quests_pricing_security.sql');
 const rewardRules = read('supabase/migrations/20261028094634_aio_game_reward_rules.sql');
@@ -96,6 +97,15 @@ const pack3 = registeredGames.filter(g => String(g.url || '').startsWith('games/
 assert.equal(pack3.length, 100, 'Third pack should add exactly 100 registry entries');
 assert.equal(new Set(pack3.map(g => g.url)).size, 100, 'Third pack URLs must be unique');
 assert.equal(new Set(pack3.map(g => g.name.trim().toLowerCase())).size, 100, 'Third pack titles must be unique');
+const mashukuiPack = registeredGames.filter(g => g.source === 'Mashukui Web Games');
+assert.equal(mashukuiPack.length, 22, 'Open-source pack should add 22 unique games');
+assert.equal(new Set(mashukuiPack.map(g => g.url)).size, 22, 'Open-source game URLs must be unique');
+assert.equal(new Set(mashukuiPack.map(g => g.name.trim().toLowerCase())).size, 22, 'Open-source game titles must be unique');
+assert.match(html, /function toggleFavourite\\(/);
+assert.match(html, /favourite-toggle/);
+assert.match(html, /Favourites/);
+assert.match(social, /event\\.key===\'ArrowDown\'/);
+assert.match(social, /event\\.key===\'ArrowUp\'/);
 for (const mode of ['reaction','math','pairs','sequence','scramble','typing','color','odd','order','aim','lights','maze','timing','wordpick','count','pattern','keyreflex','ttt','connect','merge']) {
   assert.ok(arcade3.includes('function ' + mode + '('), 'Missing game engine: ' + mode);
 }
