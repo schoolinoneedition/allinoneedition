@@ -74,6 +74,13 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
 .watch-player-placeholder strong{display:block;font-size:13px}.watch-player-placeholder p{margin:7px auto 13px;max-width:390px;color:#aab6cd;font-size:10px;line-height:1.6}
 .watch-player-actions{display:flex;justify-content:center;gap:7px;flex-wrap:wrap}
 .watch-player-note{padding:10px 13px;color:#b8c3d8;background:rgba(255,255,255,.04);font-size:9px;line-height:1.6}.watch-player-note a{color:#afc3ff;text-decoration:underline;text-underline-offset:3px;font-weight:900}
+/* Honest playback state: accessible provider actions, no dead video frame. */
+.watch-player-stage{min-height:230px;height:auto;aspect-ratio:auto;max-height:none;padding:14px}
+.watch-player-placeholder{width:min(640px,100%);padding:18px}
+.watch-player-placeholder p{max-width:560px}
+.watch-player-actions .action{display:inline-flex;align-items:center;justify-content:center;min-height:38px;text-decoration:none}
+#playerTitle{overflow-wrap:anywhere}
+
 .episode-row{grid-template-columns:45px minmax(0,1fr) auto auto}
 .ep-play{border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));border-radius:9px;background:color-mix(in srgb,var(--accent) 10%,var(--panel));color:var(--accent);padding:8px 10px;font-size:9px;font-weight:950;white-space:nowrap}
 .ep-play:hover{background:var(--accent);color:white}
@@ -118,9 +125,9 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
    <div class="toolbar"><input class="field" type="search" id="episodeSearch" placeholder="Search this series' episodes…" aria-label="Search episodes"><select class="field" id="progressFilter" aria-label="Episode progress filter"><option value="all">All episodes</option><option value="unwatched">Not watched</option><option value="watched">Watched</option></select></div>
    <div class="season-tabs" id="seasonTabs" role="group" aria-label="Seasons"></div>
    <section class="watch-player" aria-label="Anime episode player">
-    <div class="watch-player-head"><div><strong id="playerTitle">Select an episode to watch</strong><small id="playerSubtitle">Official episode embeds appear here when the distributor provides one.</small></div><span class="pill">PLAYER</span></div>
-    <div class="watch-player-stage" id="playerStage"><div class="watch-player-placeholder"><span class="player-mark">▶</span><strong>Choose an episode</strong><p>Pick an episode below. Official playable videos will load here; otherwise you’ll get direct links to licensed UK services.</p></div></div>
-    <div class="watch-player-note" id="playerNote">Only distributor-authorised embeds are played inside this page. Other streaming services keep playback on their own site or app.</div>
+    <div class="watch-player-head"><div><strong id="playerTitle">Select an episode to watch</strong><small id="playerSubtitle">Official viewing options for this episode</small></div><span class="pill">PLAYER</span></div>
+    <div class="watch-player-stage" id="playerStage"><div class="watch-player-placeholder"><span class="player-mark">▶</span><strong>Choose an episode</strong><p>Choose an episode below to see its official viewing options. In-site playback is only available where a distributor explicitly permits embedding.</p></div></div>
+    <div class="watch-player-note" id="playerNote">No third-party streams are copied or proxied. Licensed providers control playback, subtitles and regional availability.</div>
    </section>
    <div class="episode-list" id="episodeList"></div>
   </div>
@@ -205,11 +212,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   ],watch:[{label:'Crunchyroll · BLUE LOCK',url:'https://www.crunchyroll.com/search?q=BLUE%20LOCK',hint:'Licensed UK streaming listing'},{label:'Netflix UK',url:'https://www.netflix.com/search?q=BLUE%20LOCK',hint:'Check current UK catalogue'},{label:'JustWatch UK',url:'https://www.justwatch.com/uk/tv-series/bluelock',hint:'UK availability and episode count'}],sources:[{label:'JustWatch UK episode guide',url:'https://www.justwatch.com/uk/tv-series/bluelock'},{label:'Official Blue Lock production website',url:'https://bluelock-pr.com/'}],note:'UK listing currently shows 15. Check the age rating and provider listing before watching.'}
  ];
  const key=(sid,season,ep)=>sid+':'+season+':'+ep;
- const officialEmbeds={
-  'pokemon:0:1':{videoId:'z3hMX65Khtg',title:'Pokémon! I Choose You!',source:'Official Pokémon TV YouTube channel'},
-  'quint:0:1':{videoId:'IJ6gOKkgXX4',title:'The Quintessential Quintuplets · Episode 1',source:'Verified Crunchyroll YouTube channel'}
- };
- function current(){return series.find(s=>s.id===activeId)||series[0]}
+  function current(){return series.find(s=>s.id===activeId)||series[0]}
  function updateSpotlight(){
   const s=current(),banner=$('spotlightBanner');
   banner.style.setProperty('--spotlight',s.tone);banner.dataset.kanji=s.jp;
@@ -222,32 +225,26 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   else{image.removeAttribute('src');image.alt='';image.hidden=true}
  }
  function renderPlayer(s,si,ep){
-  const embed=officialEmbeds[key(s.id,si,ep.number)];
   $('playerTitle').textContent=s.title+' · '+ep.title;
-  $('playerSubtitle').textContent=s.seasons[si].name+' · Episode '+ep.number;
+  $('playerSubtitle').textContent=s.seasons[si].name+' · Episode '+ep.number+' · Official viewing options';
   const stage=$('playerStage');stage.replaceChildren();
-  if(embed){
-   const frame=document.createElement('iframe');
-   frame.src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(embed.videoId)+'?autoplay=1&rel=0';
-   frame.title=embed.title+' · Official full episode';
-   frame.loading='lazy';frame.referrerPolicy='strict-origin-when-cross-origin';
-   frame.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-   frame.allowFullscreen=true;stage.append(frame);
-   const note=$('playerNote');note.replaceChildren(document.createTextNode('Playing an officially published full episode from '+embed.source+'. YouTube controls and advertising are handled by YouTube. '));
-   const sourceLink=document.createElement('a');sourceLink.href='https://www.youtube.com/watch?v='+encodeURIComponent(embed.videoId);sourceLink.target='_blank';sourceLink.rel='noopener noreferrer';sourceLink.textContent='Open on YouTube';note.append(sourceLink);
-   return;
-  }
   const box=document.createElement('div');box.className='watch-player-placeholder';
   const mark=document.createElement('div');mark.className='player-mark';mark.textContent='↗';
-  const title=document.createElement('strong');title.textContent='Continue with an official service';
-  const description=document.createElement('p');description.textContent='This distributor does not provide a public embedded player for this episode. Use one of the official UK services below; playback stays with the licensed provider.';
+  const title=document.createElement('strong');title.textContent='Choose an official place to watch';
+  const description=document.createElement('p');
+  description.textContent='This episode does not have a distributor-authorised in-page player. Open a licensed service below to check whether it is available in your UK region. Anime Zone will not show a fake player or an unlicensed copy.';
   const actions=document.createElement('div');actions.className='watch-player-actions';
-  const provider=s.watch.find(x=>/Crunchyroll/i.test(x.label))||s.watch[0];
-  if(provider){const a=document.createElement('a');a.className='action primary';a.textContent='Open '+provider.label;a.href=provider.url;a.target='_blank';a.rel='noopener noreferrer';actions.append(a)}
-  const guide=s.watch.find(x=>/JustWatch/i.test(x.label));
-  if(guide){const a=document.createElement('a');a.className='action';a.textContent='Check UK availability';a.href=guide.url;a.target='_blank';a.rel='noopener noreferrer';actions.append(a)}
+  s.watch.forEach((link,index)=>{
+   const a=document.createElement('a');
+   a.className='action'+(index===0?' primary':'');
+   a.href=link.url;a.target='_blank';a.rel='noopener noreferrer';
+   a.textContent=/justwatch/i.test(link.label)?'Check UK availability':link.label;
+   a.title=link.hint||link.label;
+   actions.append(a);
+  });
   box.append(mark,title,description,actions);stage.append(box);
-  $('playerNote').textContent='No stream is copied or proxied by Anime Zone. The official provider controls playback, subtitles, account access and availability.';
+  const note=$('playerNote');
+  note.textContent='In-site playback requires an authorised video embed from the distributor. These links open the providers directly; their own player handles sign-in, subtitles and playback.';
  }
  function seriesProgress(s){let all=0,done=0;s.seasons.forEach((season,si)=>season.episodes.forEach(ep=>{all++;if(watched[key(s.id,si,ep.number)])done++}));return {all,done,pct:all?Math.round(done/all*100):0}}
  function renderStats(){let all=0,done=0;series.forEach(s=>{const p=seriesProgress(s);all+=p.all;done+=p.done});$('watchedCount').textContent=done.toLocaleString('en-GB');$('watchedCaption').textContent='of '+all.toLocaleString('en-GB')+' listed episodes marked watched';$('progressPct').textContent=(all?Math.round(done/all*100):0)+'%';$('overallBar').style.width=(all?done/all*100:0)+'%'}
@@ -286,7 +283,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
    const row=document.createElement('label');row.className='episode-row'+(done?' watched':'');
    const num=document.createElement('span');num.className='ep-num';num.textContent='EP '+String(ep.number).padStart(2,'0');
    const copy=document.createElement('span');copy.className='ep-copy';const title=document.createElement('strong');title.textContent=ep.title;const meta=document.createElement('small');meta.textContent=season.name;copy.append(title,meta);
-   const play=document.createElement('button');play.type='button';play.className='ep-play';play.textContent='▶ Watch';play.setAttribute('aria-label','Watch or open '+ep.title);play.addEventListener('click',()=>{renderPlayer(s,activeSeason,ep);$('playerTitle').scrollIntoView({behavior:'smooth',block:'nearest'})});
+   const play=document.createElement('button');play.type='button';play.className='ep-play';play.textContent='Viewing options';play.setAttribute('aria-label','Watch or open '+ep.title);play.addEventListener('click',()=>{renderPlayer(s,activeSeason,ep);$('playerTitle').scrollIntoView({behavior:'smooth',block:'nearest'})});
    const checkWrap=document.createElement('span');checkWrap.className='ep-check';const check=document.createElement('input');check.type='checkbox';check.checked=done;check.setAttribute('aria-label','Mark '+ep.title+' watched');check.addEventListener('change',()=>{if(check.checked)watched[epKey]=true;else delete watched[epKey];save();renderEpisodesOnly()});checkWrap.append(check,document.createTextNode('Watched'));row.append(num,copy,play,checkWrap);list.append(row);shown++;
   });
   if(!shown){const empty=document.createElement('div');empty.className='no-results';empty.textContent='No episodes match those filters.';list.append(empty)}
@@ -307,6 +304,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
  window.addEventListener('storage',event=>{if(event.key===STORE){watched=readStore();renderStats();renderSeries();renderCatalog()}});
  updateSpotlight();renderStats();renderSeries();renderCatalog();
  $('spotlightBrowse').addEventListener('click',()=> $('episodeCatalog').scrollIntoView({behavior:'smooth',block:'start'}));
+ $('spotlightWatch').textContent='View episode options ↗';
  $('spotlightWatch').addEventListener('click',()=>{const s=current(),ep=s.seasons[0].episodes[0];renderPlayer(s,0,ep);$('playerTitle').scrollIntoView({behavior:'smooth',block:'nearest'})});
 })();
 </script>
