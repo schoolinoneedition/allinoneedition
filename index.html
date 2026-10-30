@@ -1131,10 +1131,64 @@ let pseudoGameFullscreen=false;async function fullscreenGame(){const stage=$('ga
 $('gameModal').addEventListener('click',e=>{if(e.target.id==='gameModal')closeGame()});
 let schoolUrl='';function openSchool(n,u){schoolUrl=u;$('schoolTitle').textContent=n;$('schoolFrame').src=u;$('schoolModal').classList.add('open')}function closeSchool(){$('schoolModal').classList.remove('open');$('schoolFrame').src='about:blank'}function schoolExternal(){if(schoolUrl)window.open(schoolUrl,'_blank','noopener,noreferrer')}$('schoolModal').addEventListener('click',e=>{if(e.target.id==='schoolModal')closeSchool()});
 function updateClock(){let now=new Date();$('clock').textContent=now.toLocaleTimeString('en-GB');$('date').textContent=now.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});let t=new Date(now);t.setHours(15,30,0,0);if(now.getDay()===0||now.getDay()===6||now>=t){do{t.setDate(t.getDate()+1)}while(t.getDay()===0||t.getDay()===6);t.setHours(15,30,0,0)}let d=Math.max(0,t-now);$('homeCountdown').textContent=`${String(Math.floor(d/3600000)).padStart(2,'0')}:${String(Math.floor(d%3600000/60000)).padStart(2,'0')}:${String(Math.floor(d%60000/1000)).padStart(2,'0')}`}
-setInterval(updateClock,1000);updateClock();
-let countdownEnd=0;function startCountdown(){countdownEnd=Date.now()+Math.max(1,Number($('timerMin').value)||1)*60000;showToast('Countdown started')}function resetCountdown(){countdownEnd=0;$('countdown').textContent='00:00:00'}setInterval(()=>{let d=countdownEnd?Math.max(0,countdownEnd-Date.now()):0;$('countdown').textContent=new Date(d).toISOString().slice(11,19);if(countdownEnd&&d===0){countdownEnd=0;showToast('Countdown finished')}},200);
-let swStart=0,swElapsed=0,swRunning=false;function toggleStopwatch(){if(swRunning){swElapsed+=Date.now()-swStart;swRunning=false}else{swStart=Date.now();swRunning=true}}function resetStopwatch(){swStart=swElapsed=0;swRunning=false;$('stopwatch').textContent='00:00.0'}setInterval(()=>{let ms=swElapsed+(swRunning?Date.now()-swStart:0),sec=Math.floor(ms/1000);$('stopwatch').textContent=`${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}.${Math.floor(ms%1000/100)}`},100);
-let calcExpr='';
+let homeClockTimer=0;
+function syncHomeClock(){
+  if(document.hidden){clearInterval(homeClockTimer);homeClockTimer=0;return;}
+  updateClock();
+  if(!homeClockTimer)homeClockTimer=setInterval(updateClock,1000);
+}
+document.addEventListener('visibilitychange',syncHomeClock);
+syncHomeClock();
+
+let countdownEnd=0,countdownTimer=0;
+function updateCountdown(){
+  const d=countdownEnd?Math.max(0,countdownEnd-Date.now()):0;
+  $('countdown').textContent=new Date(d).toISOString().slice(11,19);
+  if(countdownEnd&&d===0){
+    countdownEnd=0;clearInterval(countdownTimer);countdownTimer=0;
+    showToast('Countdown finished');
+  }
+}
+function startCountdown(){
+  countdownEnd=Date.now()+Math.max(1,Number($('timerMin').value)||1)*60000;
+  clearInterval(countdownTimer);countdownTimer=0;
+  updateCountdown();
+  if(!document.hidden)countdownTimer=setInterval(updateCountdown,1000);
+  showToast('Countdown started');
+}
+function resetCountdown(){
+  countdownEnd=0;clearInterval(countdownTimer);countdownTimer=0;
+  $('countdown').textContent='00:00:00';
+}
+let swStart=0,swElapsed=0,swRunning=false,stopwatchTimer=0;
+function renderStopwatch(){
+  const ms=swElapsed+(swRunning?Date.now()-swStart:0),sec=Math.floor(ms/1000);
+  $('stopwatch').textContent=`${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}.${Math.floor(ms%1000/100)}`;
+}
+function toggleStopwatch(){
+  if(swRunning){
+    swElapsed+=Date.now()-swStart;swRunning=false;
+    clearInterval(stopwatchTimer);stopwatchTimer=0;renderStopwatch();
+  }else{
+    swStart=Date.now();swRunning=true;renderStopwatch();
+    if(!document.hidden)stopwatchTimer=setInterval(renderStopwatch,100);
+  }
+}
+function resetStopwatch(){
+  swStart=swElapsed=0;swRunning=false;
+  clearInterval(stopwatchTimer);stopwatchTimer=0;renderStopwatch();
+}
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){
+    clearInterval(countdownTimer);countdownTimer=0;
+    clearInterval(stopwatchTimer);stopwatchTimer=0;
+    return;
+  }
+  if(countdownEnd){updateCountdown();if(countdownEnd&&!countdownTimer)countdownTimer=setInterval(updateCountdown,1000);}
+  renderStopwatch();
+  if(swRunning&&!stopwatchTimer)stopwatchTimer=setInterval(renderStopwatch,100);
+});
+let calcExpr='';let calcExpr='';
 function normalizeCalcExpression(raw){return String(raw||'').replace(/×/g,'*').replace(/÷/g,'/').replace(/\s+/g,'').replace(/[^0-9+\-*/().%]/g,'');}
 function evaluateCalc(expr){const x=normalizeCalcExpression(expr);if(!x||!/[0-9]/.test(x)||!/^[0-9+\-*/().%]+$/.test(x))return null;const tokens=x.match(/\d+(?:\.\d+)?|[()+\-*/%]/g)||[];if(tokens.join('')!==x)return null;let p=0;const pk=()=>tokens[p];const eat=v=>pk()===v?(p++,true):false;function primary(){if(eat('+'))return primary();if(eat('-'))return -primary();if(eat('(')){const v=addSub();if(!eat(')'))throw Error();return v;}const n=Number(pk());if(!Number.isFinite(n))throw Error();p++;return n;}function percent(v){while(eat('%'))v/=100;return v;}function mulDiv(){let v=percent(primary());while(pk()==='*'||pk()==='/'){const op=tokens[p++],r=percent(primary());if(op==='/'&&r===0)throw Error();v=op==='*'?v*r:v/r;}return v;}function addSub(){let v=mulDiv();while(pk()==='+'||pk()==='-'){const op=tokens[p++],r=mulDiv();v=op==='+'?v+r:v-r;}return v;}const out=addSub();if(p!==tokens.length||!Number.isFinite(out))throw Error();return out;}
 function calcKey(v){calcExpr+=v;if($('calcInput'))$('calcInput').value=calcExpr;renderCalc();}
@@ -1360,7 +1414,7 @@ function rollDice(){const count=Math.min(20,Math.max(1,Number($('diceCount')?.va
 function copyColor(){navigator.clipboard?.writeText(($('colorInput')?.value||'').toUpperCase()).then(()=>showToast('Colour copied')).catch(()=>showToast('Clipboard blocked'));}
 $('colorInput')?.addEventListener('input',()=>{if($('colorHex'))$('colorHex').value=($('colorInput').value||'').toUpperCase()});
 let pomodoroEnd=0,pomodoroTimer=0;function pomodoroStart(){if(pomodoroEnd>0)return;pomodoroEnd=Date.now()+25*60000;pomoTick();pomodoroTimer=setInterval(pomoTick,1000);}function pomodoroReset(){pomodoroEnd=0;clearInterval(pomodoroTimer);pomodoroTimer=0;if($('pomodoro'))$('pomodoro').textContent='25:00'}function pomoTick(){const d=Math.max(0,pomodoroEnd-Date.now()),m=Math.floor(d/60000),s=Math.floor(d%60000/1000);if($('pomodoro'))$('pomodoro').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;if(pomodoroEnd&&d===0){pomodoroEnd=0;clearInterval(pomodoroTimer);pomodoroTimer=0;showToast('Focus session finished')}}
-function quickGameSearch(){const q=($('quickGameSearch')?.value||'').trim();if(!q)return; if($('search')){$('search').value=q;$('search').dispatchEvent(new Event('input'));} scrollToId('games');}
+document.addEventListener('visibilitychange',()=>{if(document.hidden){clearInterval(pomodoroTimer);pomodoroTimer=0;}else if(pomodoroEnd>0){pomoTick();if(pomodoroEnd&&!pomodoroTimer)pomodoroTimer=setInterval(pomoTick,1000);}}); function quickGameSearch(){const q=($('quickGameSearch')?.value||'').trim();if(!q)return; if($('search')){$('search').value=q;$('search').dispatchEvent(new Event('input'));} scrollToId('games');}
 function initExtraTools(){const c=$('counterInput');if(c&&!c.dataset.bound){c.addEventListener('input',()=>{const v=c.value,w=v.trim()?v.trim().split(/\s+/).length:0;if($('counterResult'))$('counterResult').textContent=`${v.length} characters · ${w} words`});c.dataset.bound='1';}}
 function studyNewQuestion(){let a=2+Math.floor(Math.random()*11),b=2+Math.floor(Math.random()*11),answer=a*b,choices=new Set([answer]);while(choices.size<4){const delta=[-3,-2,-1,1,2,3][Math.floor(Math.random()*6)];if(answer+delta>0)choices.add(answer+delta);}window.studyQuestion={a,b,answer,choices:[...choices].sort(()=>Math.random()-.5)};renderStudyQuestion();}
 let studyQuestion=window.studyQuestion||{a:7,b:8,answer:56,choices:[54,56,58,64]},studyStats=loadJSON('aio-study-stats',{streak:0,score:0,done:0});
@@ -1383,7 +1437,14 @@ safeBoot(renderFilters);safeBoot(initSettings);if($('previewTitle'))$('previewTi
 // Load the provider's public game catalogue after the initial UI is responsive.
 
 
-updateWorldClock();
+let worldClockTimer=0;
+function syncWorldClock(){
+  if(document.hidden){clearInterval(worldClockTimer);worldClockTimer=0;return;}
+  updateWorldClock();
+  if(!worldClockTimer)worldClockTimer=setInterval(updateWorldClock,60000);
+}
+document.addEventListener('visibilitychange',syncWorldClock);
+syncWorldClock();
 $('todoInput').addEventListener('keydown',e=>{if(e.key==='Enter')addTodo()});$('assistantInput').addEventListener('keydown',e=>{if(e.key==='Enter')answerQuestion()});$('assistantModal').addEventListener('click',e=>{if(e.target.id==='assistantModal')closeAssistant()});
 function updateCacheStatus(){const box=$('cacheStatus');if(box)box.textContent='On-demand loading is active. Game artwork loads as cards appear; game pages load only when opened.'} function rememberPersistentStorage(){try{navigator.storage?.persist?.().then(ok=>{if(ok)showToast('Persistent browser storage enabled')}).catch(()=>{})}catch{}}
 function requestPersistentStorage(){rememberPersistentStorage()}
