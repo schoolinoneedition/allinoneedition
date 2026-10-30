@@ -595,7 +595,7 @@
     ? window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})
     : null;
 
-  let currentUser=null,currentProfile=null,mode='for-you',posts=[],postStats=new Map(),userLikes=new Set(),userFollows=new Set(),savedPosts=new Set(),
+  let currentUser=null,currentProfile=null,mode='for-you',posts=[],postStats=new Map(),userLikes=new Set(),userFollows=new Set(),savedPosts=new Set();
   let feedQuery='';
   let autoScrollEnabled=localRead(STORAGE_KEYS.autoScroll,false)===true;
   let commentsForPost=null,commentsCache=new Map(),authMode='signin',postBusy=false,videoObserver=null,videoWarmObserver=null;
