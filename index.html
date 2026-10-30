@@ -1089,7 +1089,13 @@ function mergeOnlineGames(list){
 async function loadOnlineGamesCatalog(){
   try{
     const r=await fetchWithTimeout(ONLINE_GAMES_FEED,{cache:'force-cache',credentials:'omit'},9000);
-    if(r.ok){const list=await r.json();mergeOnlineGames(list);return;}
+    if(r.ok){
+      const list=await r.clone().json();
+      // Keep a local copy so a later visit can show the extra catalogue immediately offline.
+      if('caches'in window)caches.open('aio-catalog-v1').then(cache=>cache.put(ONLINE_GAMES_FEED,r.clone())).catch(()=>{});
+      mergeOnlineGames(list);
+      return;
+    }
   }catch{}
   try{
     if('caches' in window){const c=await caches.open('aio-catalog-v1');const r=await c.match(ONLINE_GAMES_FEED);if(r){mergeOnlineGames(await r.json());return;}}
