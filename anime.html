@@ -256,13 +256,6 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
  ];
  const key=(sid,season,ep)=>sid+':'+season+':'+ep;
  const watchLinkKey=(sid,season,ep)=>sid+':'+season+':'+ep;
- const providerDomains={
-  'Crunchyroll':['crunchyroll.com'],'Netflix':['netflix.com'],
-  'Prime Video':['primevideo.com','amazon.co.uk','amazon.com'],
-  'Disney+':['disneyplus.com'],'HIDIVE':['hidive.com'],
-  'BBC iPlayer':['bbc.co.uk'],'ITVX':['itv.com'],
-  'Channel 4':['channel4.com'],'My5':['my5.tv'],'JustWatch':['justwatch.com']
- };
  function validateSelfHostedVideoUrl(raw){
   let url;try{url=new URL(String(raw||'').trim())}catch{throw new Error('Enter a valid direct video URL.')}
   if(url.protocol!=='https:'||url.username||url.password)throw new Error('Use a secure https:// video URL.');
@@ -424,7 +417,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
    return;
   }
   const frame=document.createElement('div');frame.className='watch-video-stage';
-  const video=document.createElement('video');video.className='watch-video';video.src=saved.watch_url;video.preload='metadata';video.playsInline=true;video.controls=false;video.setAttribute('aria-label',s.title+' '+ep.title);
+  const video=document.createElement('video');video.className='watch-video';video.src=saved.watch_url;video.preload='metadata';video.playsInline=true;video.controls=false;video.tabIndex=0;video.setAttribute('aria-label',s.title+' '+ep.title);
   const overlay=document.createElement('button');overlay.type='button';overlay.className='watch-video-overlay';overlay.setAttribute('aria-label','Play episode');const overlayIcon=document.createElement('span');overlayIcon.textContent='▶';overlay.append(overlayIcon);
   const toggle=async()=>{if(video.paused){try{await video.play()}catch{$('playerNote').textContent='Playback could not start. Check that the video URL is reachable and supports MP4/WebM streaming.'}}else video.pause()};
   video.addEventListener('click',toggle);
@@ -473,7 +466,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
    if(filter==='watched'&&!done)return;if(filter==='unwatched'&&done)return;
    const row=document.createElement('label');row.className='episode-row'+(done?' watched':'');
    const num=document.createElement('span');num.className='ep-num';num.textContent='EP '+String(ep.number).padStart(2,'0');
-   const copy=document.createElement('span');copy.className='ep-copy';const title=document.createElement('strong');title.textContent=ep.title;const meta=document.createElement('small');const savedLink=episodeLinks.get(watchLinkKey(s.id,activeSeason,ep.number));meta.textContent=season.name+(savedLink?' · '+savedLink.provider+' link added':'');copy.append(title,meta);
+   const copy=document.createElement('span');copy.className='ep-copy';const title=document.createElement('strong');title.textContent=ep.title;const meta=document.createElement('small');const savedLink=episodeLinks.get(watchLinkKey(s.id,activeSeason,ep.number));meta.textContent=season.name+(savedLink?' · video added':'');copy.append(title,meta);
    const play=document.createElement('button');play.type='button';play.className='ep-play';play.textContent=savedLink?'Play episode':'Add video';play.setAttribute('aria-label','Play or add video for '+ep.title);play.addEventListener('click',()=>{renderPlayer(s,activeSeason,ep);$('playerTitle').scrollIntoView({behavior:'smooth',block:'nearest'})});
    const checkWrap=document.createElement('span');checkWrap.className='ep-check';const check=document.createElement('input');check.type='checkbox';check.checked=done;check.setAttribute('aria-label','Mark '+ep.title+' watched');check.addEventListener('change',()=>{if(check.checked)watched[epKey]=true;else delete watched[epKey];save();renderEpisodesOnly()});checkWrap.append(check,document.createTextNode('Watched'));row.append(num,copy,play,checkWrap);list.append(row);shown++;
   });
@@ -498,7 +491,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
  window.addEventListener('storage',event=>{if(event.key===STORE){watched=readStore();renderStats();renderSeries();renderCatalog()}});
  updateSpotlight();renderStats();renderSeries();renderCatalog();initOwnerLinks();
  $('spotlightBrowse').addEventListener('click',()=> $('episodeCatalog').scrollIntoView({behavior:'smooth',block:'start'}));
- $('spotlightWatch').textContent='View episode options ↗';
+ $('spotlightWatch').textContent='Play featured episode ▶';
  $('spotlightWatch').addEventListener('click',()=>{const s=current(),ep=s.seasons[0].episodes[0];renderPlayer(s,0,ep);$('playerTitle').scrollIntoView({behavior:'smooth',block:'nearest'})});
 })();
 </script>
