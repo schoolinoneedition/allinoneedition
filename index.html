@@ -44,7 +44,7 @@ window.onSpotifyIframeApiReady=api=>{window.aioSpotifyAPI=api;};
 :root.dark{--bg:#111318;--panel:#191c22;--text:#f2f3f5;--muted:#a1a6b1;--line:#2a2e37;--soft:#20242c;--shadow:0 9px 24px rgba(0,0,0,.28)}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}body{min-height:100vh}button,input,textarea,select{font:inherit}button{cursor:pointer}a{color:inherit}
 .topbar{position:sticky;top:0;z-index:60;background:rgba(255,255,255,.93);backdrop-filter:blur(15px);border-bottom:1px solid var(--line)}.dark .topbar{background:rgba(17,19,24,.90)}
-.top{max-width:1600px;margin:auto;display:flex;align-items:center;gap:10px;padding:10px 18px;flex-wrap:wrap}.brand{display:flex;align-items:center;gap:9px;min-width:max-content}.brandmark{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),#8d5cf5);box-shadow:0 4px 12px rgba(27,92,255,.23)}.brandmark svg{width:24px;height:24px}.brandtext{font-size:19px;font-weight:900;letter-spacing:-.5px}.owner{font-size:12px;font-weight:850;color:var(--muted);border-left:1px solid var(--line);padding-left:10px;white-space:nowrap}
+.top{max-width:1600px;margin:auto;display:flex;align-items:center;gap:10px;padding:10px 18px;flex-wrap:wrap}.aio-live-clock{font-variant-numeric:tabular-nums;min-width:58px;text-align:center;padding:9px 11px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.58);backdrop-filter:blur(14px);font-size:12px;font-weight:900;letter-spacing:.05em;color:var(--text)}.dark .aio-live-clock{background:rgba(20,24,32,.58)}@media(max-width:650px){.aio-live-clock{min-width:50px;padding:8px;font-size:11px}}.brand{display:flex;align-items:center;gap:9px;min-width:max-content}.brandmark{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),#8d5cf5);box-shadow:0 4px 12px rgba(27,92,255,.23)}.brandmark svg{width:24px;height:24px}.brandtext{font-size:19px;font-weight:900;letter-spacing:-.5px}.owner{font-size:12px;font-weight:850;color:var(--muted);border-left:1px solid var(--line);padding-left:10px;white-space:nowrap}
 .search{flex:1;min-width:180px}.search input{width:100%;height:40px;border:1px solid var(--line);border-radius:12px;background:var(--soft);color:var(--text);padding:0 15px;outline:none}.search input:focus{border-color:#9db5ff;box-shadow:0 0 0 3px rgba(27,92,255,.10)}
 .btn{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:11px;height:40px;padding:0 12px;font-weight:800;white-space:nowrap}.btn:hover{background:var(--soft)}.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
 .nav{max-width:1600px;margin:auto;display:flex;gap:7px;padding:0 18px 11px;overflow:auto}.nav button{border:0;background:transparent;color:var(--muted);font-weight:800;padding:6px 9px;border-radius:9px;white-space:nowrap}.nav button:hover,.nav button.active{background:var(--soft);color:var(--text)}
@@ -217,10 +217,10 @@ html.reduced-motion .cover{transition:none!important}
 .social-feed::-webkit-scrollbar{display:none}
 .social-post{position:relative;height:calc(100vh - 185px);min-height:560px;margin:0 auto 16px;border:1px solid rgba(255,255,255,.12);border-radius:16px;overflow:hidden;background:#080a0e;box-shadow:0 12px 35px rgba(0,0,0,.24);scroll-snap-align:start;isolation:isolate}
 .social-post-media{position:absolute;inset:0;background:#0a0c10;display:grid;place-items:center}
-.social-post-media img,.social-post-media video{width:100%;height:100%;object-fit:cover;display:block;background:#000}
+.social-post-media img,.social-post-media video{width:100%;height:100%;display:block;background:#000}.social-post-media img{object-fit:cover}.social-post-media video{object-fit:contain!important}
 .social-post-media video{cursor:pointer;user-select:none;-webkit-user-select:none}
 .social-video-wrap{position:absolute;inset:0}
-.social-video-wrap video{position:absolute;inset:0}
+.social-video-wrap video{position:absolute;inset:0}.social-video-wrap:fullscreen{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:999999!important;background:#000!important}.social-video-wrap:fullscreen video{object-fit:contain!important}.social-video-wrap:fullscreen .social-player-controls{left:16px;right:16px;bottom:max(14px,env(safe-area-inset-bottom));opacity:1;transform:none}
 .social-video-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:58px;height:58px;border:0;border-radius:50%;background:rgba(0,0,0,.58);color:#fff;display:grid;place-items:center;font-size:25px;font-weight:900;z-index:3;backdrop-filter:blur(8px);box-shadow:0 8px 25px rgba(0,0,0,.3);opacity:.96}
 .social-video-play.hidden{display:none}
 .social-video-play:hover{transform:translate(-50%,-50%) scale(1.06);background:rgba(0,0,0,.72)}
@@ -281,13 +281,13 @@ html.reduced-motion .cover{transition:none!important}
 .social-video-wrap video{object-fit:cover;width:100%;height:100%;background:#000}
 .social-video-play{transition:opacity .18s ease,transform .18s ease}
 .social-video-play.hidden{opacity:0;pointer-events:none;transform:translate(-50%,-50%) scale(.92)}
-.social-player-controls{position:absolute;left:10px;right:10px;bottom:10px;z-index:6;display:flex;align-items:center;gap:7px;padding:8px 9px;border-radius:12px;background:linear-gradient(180deg,rgba(7,9,12,.20),rgba(7,9,12,.80));backdrop-filter:blur(9px);opacity:0;transform:translateY(5px);transition:.18s}
+.social-player-controls{position:absolute;left:12px;right:66px;bottom:12px;z-index:6;display:flex;align-items:center;justify-content:center;gap:7px;padding:7px 9px;min-height:47px;border:1px solid rgba(255,255,255,.14);border-radius:15px;background:rgba(7,9,12,.48);backdrop-filter:blur(17px) saturate(135%);box-shadow:0 8px 26px rgba(0,0,0,.2);opacity:0;transform:translateY(5px);transition:.18s}
 .social-video-wrap:hover .social-player-controls,.social-video-wrap.player-active .social-player-controls{opacity:1;transform:none}
-.social-player-btn{width:32px;height:32px;border:0;border-radius:9px;background:rgba(255,255,255,.12);color:#fff;display:grid;place-items:center;font-size:14px;font-weight:900;flex:0 0 auto}
+.social-player-btn{width:31px;height:31px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(255,255,255,.10);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:900;flex:0 0 auto}.social-player-btn:hover{background:rgba(255,255,255,.22)}[data-sp-speed]{min-width:39px;padding:0 5px}
 .social-player-btn:hover{background:rgba(255,255,255,.22)}
 .social-player-range{flex:1;min-width:60px;accent-color:#fff;height:4px;cursor:pointer}
-.social-player-time{font-size:9px;color:#fff;min-width:30px;text-align:center;font-weight:850}
-.social-player-controls input:focus-visible,.social-player-btn:focus-visible,.social-video-play:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.social-player-time{font-size:10px;color:#fff;min-width:36px;text-align:center;font-weight:850;font-variant-numeric:tabular-nums;white-space:nowrap}
+.social-player-controls input:focus-visible,.social-player-btn:focus-visible,.social-video-play:focus-visible{outline:2px solid #fff;outline-offset:2px}@media(max-width:650px){.social-player-controls{left:8px;right:58px;bottom:8px;gap:4px;padding:6px}.social-player-btn{width:27px;height:28px;flex-basis:27px;font-size:9px}.social-player-time{min-width:31px;font-size:9px}.social-player-range{min-width:35px}}
 
 /* Party fun tools */
 .party-page-grid.party-fun{grid-template-columns:1fr 1fr}
@@ -518,7 +518,7 @@ html.reduced-motion .cover{transition:none!important}
    <div class="brandtext">All in One Edition</div><div class="owner">Roy owner</div>
   </div>
   <div class="search"><input id="search" autocomplete="off" placeholder="Search games, tools, school apps...  ( / )"></div>
-  <button class="btn" id="assistantBtn">Smart answer</button><button class="btn account-btn" id="accountBtn" type="button" onclick="handleAccountClick()"><span class="account-avatar" id="accountAvatar">?</span><span id="accountLabel">Account</span></button><button class="btn" id="settingsBtn">Settings</button><select class="lang-select" id="languageSelect" aria-label="Language"><option value="en">EN</option><option value="es">ES</option><option value="fr">FR</option><option value="de">DE</option><option value="pl">PL</option><option value="pt">PT</option><option value="tr">TR</option><option value="ar">AR</option><option value="it">IT</option><option value="nl">NL</option><option value="ja">JA</option><option value="ko">KO</option></select><button class="btn" id="darkBtn">Dark</button><button class="btn" id="afkBtn" title="Pause your current game and enter AFK mode">AFK</button><button class="btn" id="hideBtn">Hide</button>
+  <button class="btn" id="assistantBtn">Smart answer</button><button class="btn account-btn" id="accountBtn" type="button" onclick="handleAccountClick()"><span class="account-avatar" id="accountAvatar">?</span><span id="accountLabel">Account</span></button><span class="aio-live-clock" id="aioLiveClock" aria-label="Current local time">00:00</span><button class="btn" id="settingsBtn">Settings</button><select class="lang-select" id="languageSelect" aria-label="Language"><option value="en">EN</option><option value="es">ES</option><option value="fr">FR</option><option value="de">DE</option><option value="pl">PL</option><option value="pt">PT</option><option value="tr">TR</option><option value="ar">AR</option><option value="it">IT</option><option value="nl">NL</option><option value="ja">JA</option><option value="ko">KO</option></select><button class="btn" id="darkBtn">Dark</button><button class="btn" id="afkBtn" title="Pause your current game and enter AFK mode">AFK</button><button class="btn" id="hideBtn">Hide</button>
  </div>
  <div class="nav"><button data-scroll="home">Home</button><button data-scroll="games">Games</button><button data-scroll="school">School</button><button type="button" onclick="location.href='social.html'">Social</button><button type="button" onclick="location.href='social.html'">Videos</button><button data-scroll="community">Community</button><button data-scroll="chat">Chat</button><button data-scroll="live">Live</button><button data-scroll="tools">Tools</button><button data-scroll="notes">Notes</button><button data-scroll="music">Music</button><button data-scroll="code">Code Lab</button></div>
 </header>
@@ -2101,7 +2101,7 @@ function renderSocialPost(p,i){
   const stat=socialStat(p.id),commentCount=stat.comments||socialCommentMap()[p.id]?.length||0;
   const likeCount=Math.max(stat.likes||0,0)+(liked&&!socialCloudReady?1:0);
   const media=p.media_type==='video'
-    ?`<div class="social-video-wrap"><video src="${socialEsc(p.media_url)}" playsinline webkit-playsinline autoplay loop preload="auto" data-social-video></video><button type="button" class="social-video-play" aria-label="Play video" onclick="toggleSocialVideo(event,this)">▶</button><div class="social-video-status" data-social-video-status>Click play to start with sound</div><div class="social-player-controls" data-social-player-controls><button type="button" class="social-player-btn" data-sp-play aria-label="Play or pause">▶</button><div class="social-player-time" data-sp-time>0:00</div><input class="social-player-range" data-sp-range type="range" min="0" max="100" value="0" step="0.1" aria-label="Video progress"><div class="social-player-time" data-sp-duration>0:00</div><button type="button" class="social-player-btn" data-sp-fullscreen aria-label="Fullscreen">⛶</button></div></div>`
+    ?`<div class="social-video-wrap"><video src="${socialEsc(p.media_url)}" playsinline webkit-playsinline autoplay loop preload="auto" data-social-video></video><button type="button" class="social-video-play" aria-label="Play video" onclick="toggleSocialVideo(event,this)">▶</button><div class="social-video-status" data-social-video-status>Click play to start with sound</div><div class="social-player-controls" data-social-player-controls><button type="button" class="social-player-btn" data-sp-play aria-label="Play or pause">▶</button><button type="button" class="social-player-btn" data-sp-back aria-label="Back 10 seconds" title="Back 10 seconds">↶10</button><div class="social-player-time" data-sp-time>00:00</div><input class="social-player-range" data-sp-range type="range" min="0" max="100" value="0" step="0.1" aria-label="Video progress"><div class="social-player-time" data-sp-duration>00:00</div><button type="button" class="social-player-btn" data-sp-forward aria-label="Forward 10 seconds" title="Forward 10 seconds">10↷</button><button type="button" class="social-player-btn" data-sp-speed aria-label="Playback speed">1×</button><button type="button" class="social-player-btn" data-sp-fullscreen aria-label="Fullscreen">⛶</button></div></div>`
     :`<img src="${socialEsc(p.media_url)}" alt="" loading="${i<2?'eager':'lazy'}" decoding="async" onerror="socialMediaError(this)">`;
   return `<article class="social-post" data-social-post="${socialEsc(p.id)}">
     <div class="social-post-media">${media}<div class="social-media-shade"></div></div>
@@ -2271,10 +2271,9 @@ function socialTryPlayVideo(v){
       }).catch(()=>{
         /* Browser autoplay policy can block sound. Keep the video available and
            let the first real pointer/keyboard gesture unlock it. */
-        v.muted=true;v.defaultMuted=true;
-        const mutedPlay=v.play();
-        if(mutedPlay?.then)mutedPlay.then(()=>{center?.classList.add('hidden');}).catch(()=>center?.classList.remove('hidden'));
-        if(status){status.textContent='Sound will start after your first click.';status.classList.add('show');}
+        try{v.pause()}catch{}
+        center?.classList.remove('hidden');
+        if(status){status.textContent='Tap Play to start this video with sound.';status.classList.add('show');}
       });
     }
   };
@@ -2579,7 +2578,7 @@ function initSocial(){socialBind();setTimeout(()=>{try{socialSync();socialPreloa
 function socialFmtTime(sec){
   sec=Number(sec)||0;
   const m=Math.floor(sec/60),s=Math.floor(sec%60);
-  return `${m}:${String(s).padStart(2,'0')}`;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 function socialCustomPlayerInit(v){
   if(!v||v.dataset.playerBound==='1')return;
@@ -2590,6 +2589,9 @@ function socialCustomPlayerInit(v){
   const time=wrap?.querySelector('[data-sp-time]');
   const duration=wrap?.querySelector('[data-sp-duration]');
   const full=wrap?.querySelector('[data-sp-fullscreen]');
+  const back=wrap?.querySelector('[data-sp-back]');
+  const forward=wrap?.querySelector('[data-sp-forward]');
+  const speed=wrap?.querySelector('[data-sp-speed]');
   const center=wrap?.querySelector('.social-video-play');
   const status=wrap?.querySelector('[data-social-video-status]');
   const setPlay=()=>{
@@ -2612,16 +2614,18 @@ function socialCustomPlayerInit(v){
       center?.classList.add('hidden');
       status?.classList.remove('show');
     }).catch(()=>{
-      // Some browsers still require a second direct gesture for sound.
-      v.muted=true;
-      v.defaultMuted=true;
-      const q=v.play();
-      if(q?.catch)q.catch(()=>{});
-      if(status){status.textContent='Click play to enable sound';status.classList.add('show');}
+      // Browser policy can block audible playback; never switch to silent playback.
+      try{v.pause()}catch{}
+      center?.classList.remove('hidden');
+      if(status){status.textContent='Your browser blocked autoplay with sound. Tap Play to start.';status.classList.add('show');}
     });
   };
   const toggle=()=>v.paused?startWithUserGesture():v.pause();
+  const speeds=[1,1.25,1.5,1.75,2];
   play?.addEventListener('click',e=>{e.stopPropagation();toggle()});
+  back?.addEventListener('click',e=>{e.stopPropagation();v.currentTime=Math.max(0,(v.currentTime||0)-10)});
+  forward?.addEventListener('click',e=>{e.stopPropagation();v.currentTime=Math.min(Number.isFinite(v.duration)?v.duration:Infinity,(v.currentTime||0)+10)});
+  speed?.addEventListener('click',e=>{e.stopPropagation();const at=speeds.indexOf(v.playbackRate),next=speeds[(at+1+speeds.length)%speeds.length];v.playbackRate=next;speed.textContent=String(next)+'×';});
   center?.addEventListener('click',e=>{e.stopPropagation();startWithUserGesture()});
   range?.addEventListener('input',()=>{if(Number.isFinite(v.duration)&&v.duration>0)v.currentTime=(Number(range.value)/100)*v.duration});
   full?.addEventListener('click',e=>{e.stopPropagation();const target=wrap;if(target?.requestFullscreen)target.requestFullscreen().catch(()=>{});else if(v.webkitEnterFullscreen)v.webkitEnterFullscreen()});
@@ -2670,13 +2674,19 @@ function socialTryAudibleAutoplay(v){
 }
 function socialPostFitRatio(post,ratio){
   if(!post||!Number.isFinite(ratio)||ratio<=0)return;
-  const maxW=Math.min(520,Math.max(240,window.innerWidth-24));
-  const maxH=Math.max(300,window.innerHeight-175);
-  let w=maxW,h=w/ratio;
-  if(h>maxH){h=maxH;w=h*ratio;}
-  post.style.width=Math.round(w)+'px';
-  post.style.height=Math.round(h)+'px';
-  post.style.aspectRatio=ratio;
+  const feed=post.parentElement;
+  const parentWidth=feed?.clientWidth||window.innerWidth;
+  const parentHeight=feed?.clientHeight||window.innerHeight-150;
+  const maxW=Math.max(180,Math.min(620,parentWidth-12,window.innerWidth-24));
+  const maxH=Math.max(180,Math.min(window.innerHeight-150,parentHeight-18));
+  const width=Math.max(1,Math.min(maxW,maxH*ratio));
+  const height=width/ratio;
+  post.style.width=Math.round(width)+'px';
+  post.style.height=Math.round(height)+'px';
+  post.style.maxWidth='100%';
+  post.style.maxHeight='100%';
+  post.style.aspectRatio=String(ratio);
+  post.style.boxSizing='border-box';
   post.dataset.mediaRatio='1';
   post.style.setProperty('--social-ratio',String(ratio));
 }
@@ -2809,10 +2819,15 @@ if(!window.aioSocialAudioGestureBound){
   window.addEventListener('pointerdown',unlock,{capture:true,passive:true});
   window.addEventListener('keydown',unlock,{capture:true,passive:true});
 }
-window.addEventListener('resize',()=>socialFitAllPosts(),{passive:true});
+let socialResizeFitTimer=0;
+window.addEventListener('resize',()=>{clearTimeout(socialResizeFitTimer);socialResizeFitTimer=setTimeout(socialFitAllPosts,80)},{passive:true});
+let socialFitOnScrollTimer=0;
 window.addEventListener('scroll',()=>{
   const sec=document.getElementById('social');
-  if(sec&&sec.getBoundingClientRect().top<window.innerHeight){scheduleSocialVideoPreload();}
+  if(sec&&sec.getBoundingClientRect().top<window.innerHeight){
+    scheduleSocialVideoPreload();
+    if(!socialFitOnScrollTimer)socialFitOnScrollTimer=setTimeout(()=>{socialFitOnScrollTimer=0;socialFitAllPosts();},120);
+  }
 },{passive:true});
 
 /* =========================
