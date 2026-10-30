@@ -117,7 +117,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
 .watch-video{display:block;width:100%;max-height:68vh;aspect-ratio:16/9;object-fit:contain;background:#05080f;cursor:pointer}
 .watch-video-stage{position:relative;width:100%;background:#05080f;display:grid;place-items:center}
 .watch-video-overlay{position:absolute;inset:0;display:grid;place-items:center;border:0;background:transparent;color:#fff;cursor:pointer}
-.watch-video-overlay span{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;background:rgba(7,12,22,.72);border:1px solid rgba(255,255,255,.3);font-size:25px;backdrop-filter:blur(10px)}
+.watch-video-overlay[hidden]{display:none}.watch-video-overlay span{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;background:rgba(7,12,22,.72);border:1px solid rgba(255,255,255,.3);font-size:25px;backdrop-filter:blur(10px)}
 .watch-video-actions{display:flex;justify-content:flex-end;gap:8px;padding:9px;background:#101827}
 .watch-video-actions button{border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(255,255,255,.08);color:#fff;padding:8px 11px;font:inherit;font-size:10px;font-weight:850;cursor:pointer}
 .watch-video-stage:fullscreen{height:100vh;padding:0}
@@ -258,7 +258,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
  const watchLinkKey=(sid,season,ep)=>sid+':'+season+':'+ep;
  function validateSelfHostedVideoUrl(raw){
   let url;try{url=new URL(String(raw||'').trim())}catch{throw new Error('Enter a valid direct video URL.')}
-  if(url.protocol!=='https:'||url.username||url.password)throw new Error('Use a secure https:// video URL.');
+  if(url.protocol!=='https:'||url.username||url.password||url.port)throw new Error('Use a secure https:// video URL without login details or a custom port.');
   const host=url.hostname.toLowerCase(),path=url.pathname.toLowerCase();
   const onVercel=host==='allinoneedition.vercel.app';
   const onGithubPages=host==='schoolinoneedition.github.io'&&path.startsWith('/allinoneedition/');
@@ -318,10 +318,14 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   }catch(error){siteOwner=false;editor.hidden=true;access.textContent='Could not verify owner permissions. '+(error?.message||'Try signing in again from the main hub.')}
  }
  async function saveEpisodeVideoRow(provider,watchUrl){
+  const mapKey=watchLinkKey(selectedEpisode.seriesId,selectedEpisode.seasonIndex,selectedEpisode.episodeNumber);
+  const previous=episodeLinks.get(mapKey);
   const row={...selectedEpisode,provider,watch_url:watchUrl,updated_by:currentSession.user.id,updated_at:new Date().toISOString()};
   const result=await ownerClient.from('anime_episode_watch_links').upsert(row,{onConflict:'series_id,season_index,episode_number'});
   if(result.error)throw result.error;
-  episodeLinks.set(watchLinkKey(row.series_id,row.season_index,row.episode_number),row);
+  episodeLinks.set(mapKey,row);
+  const oldObject=previous?.provider==='XBT Storage'&&previous.watch_url!==watchUrl?videoObjectPath(previous.watch_url):null;
+  if(oldObject){try{await ownerClient.storage.from('anime-episodes').remove([oldObject])}catch{}}
   renderCatalog();
   const s=series.find(item=>item.id===row.series_id),ep=s?.seasons[row.season_index]?.episodes.find(item=>item.number===row.episode_number);
   if(s&&ep)renderPlayer(s,row.season_index,ep);
