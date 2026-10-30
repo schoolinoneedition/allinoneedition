@@ -73,7 +73,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
 .watch-player-placeholder .player-mark{width:50px;height:50px;margin:0 auto 13px;border:1px solid rgba(255,255,255,.18);border-radius:16px;background:rgba(255,255,255,.09);display:grid;place-items:center;font-size:22px}
 .watch-player-placeholder strong{display:block;font-size:13px}.watch-player-placeholder p{margin:7px auto 13px;max-width:390px;color:#aab6cd;font-size:10px;line-height:1.6}
 .watch-player-actions{display:flex;justify-content:center;gap:7px;flex-wrap:wrap}
-.watch-player-note{padding:10px 13px;color:#b8c3d8;background:rgba(255,255,255,.04);font-size:9px;line-height:1.6}
+.watch-player-note{padding:10px 13px;color:#b8c3d8;background:rgba(255,255,255,.04);font-size:9px;line-height:1.6}.watch-player-note a{color:#afc3ff;text-decoration:underline;text-underline-offset:3px;font-weight:900}
 .episode-row{grid-template-columns:45px minmax(0,1fr) auto auto}
 .ep-play{border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));border-radius:9px;background:color-mix(in srgb,var(--accent) 10%,var(--panel));color:var(--accent);padding:8px 10px;font-size:9px;font-weight:950;white-space:nowrap}
 .ep-play:hover{background:var(--accent);color:white}
@@ -110,7 +110,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   <div class="spotlight-copy"><span class="spotlight-kicker" id="spotlightKicker">FEATURED SERIES · ANIME ZONE</span><h2 id="spotlightTitle">Pokémon</h2><p id="spotlightDescription">Pick a series, choose an episode and track your watch progress.</p><div class="spotlight-meta"><span class="pill rating" id="spotlightRating">UK U</span><span class="pill" id="spotlightMeta">Episode guide and watch tracker</span></div><div class="spotlight-actions"><button class="action primary" id="spotlightBrowse" type="button">Browse episodes ↓</button><button class="action" id="spotlightWatch" type="button">Watch available episode ▶</button></div></div>
   <div class="spotlight-art" aria-hidden="true"><img id="spotlightImage" alt="" loading="lazy" decoding="async"><span class="spotlight-symbol" id="spotlightSymbol">◉</span></div>
  </section>
- <div class="section-title"><div><h2>Choose a series</h2><p>Six titles with episode lists, official viewing options and progress tracking.</p></div></div>
+ <div class="section-title"><div><h2>Choose a series</h2><p>Ten titles with episode lists, official viewing options and progress tracking.</p></div></div>
  <section class="series-grid" id="seriesGrid" aria-label="Anime series"></section>
  <section class="catalog" id="episodeCatalog" aria-label="Episode catalogue">
   <div class="episode-panel">
@@ -190,7 +190,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
    {name:'Season 1 · 2023–24',episodes:numbered(28)},
    {name:'Season 2 · 2026',episodes:numbered(10)}
   ],watch:[{label:'Crunchyroll · Frieren',url:'https://www.crunchyroll.com/search?q=Frieren',hint:'Licensed UK streaming listing'},{label:'Netflix UK',url:'https://www.netflix.com/search?q=Frieren',hint:'Check current UK catalogue'},{label:'JustWatch UK',url:'https://www.justwatch.com/uk/tv-series/frieren-beyond-journeys-end',hint:'UK availability, seasons and age rating'}],sources:[{label:'JustWatch UK episode guide',url:'https://www.justwatch.com/uk/tv-series/frieren-beyond-journeys-end'}],note:'UK listing currently shows 15. Check the age rating and provider listing before watching.'},
-  {id:'myhero',title:'My Hero Academia',jp:'僕のヒーロー',symbol:'★',tone:'#5b9c74',banner:'https://m.media-amazon.com/images/M/MV5BY2QzODA5OTQtYWJlNi00ZjIzLThhNTItMDMwODhlYzYzMjA2XkEyXkFqcGc%40._V1_.jpg',type:'Superhero · Action',rating:'15',meta:'8 seasons · 180 episodes',description:'A student with no powers dreams of becoming a hero. UK listings currently show eight seasons, with episode totals of 13, 25, 25, 25, 25, 25, 21 and 11.',seasons:[
+  {id:'myhero',title:'My Hero Academia',jp:'僕のヒーロー',symbol:'★',tone:'#5b9c74',banner:'https://m.media-amazon.com/images/M/MV5BY2QzODA5OTQtYWJlNi00ZjIzLThhNTItMDMwODhlYzYzMjA2XkEyXkFqcGc%40._V1_.jpg',type:'Superhero · Action',rating:'15',meta:'8 seasons · 170 episodes',description:'A student with no powers dreams of becoming a hero. UK listings currently show eight seasons, with episode totals of 13, 25, 25, 25, 25, 25, 21 and 11.',seasons:[
    {name:'Season 1 · 2016',episodes:numbered(13)},
    {name:'Season 2 · 2017',episodes:numbered(25)},
    {name:'Season 3 · 2018',episodes:numbered(25)},
@@ -217,7 +217,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   $('spotlightRating').textContent='UK '+s.rating;$('spotlightMeta').textContent=s.meta;
   $('spotlightSymbol').textContent=s.symbol;
   const image=$('spotlightImage');
-  if(s.banner){image.src=s.banner;image.alt=s.title+' anime banner';image.hidden=false}
+  if(s.banner){image.hidden=false;image.onload=()=>{image.hidden=false};image.onerror=()=>{image.hidden=true};image.src=s.banner;image.alt=s.title+' anime banner'}
   else{image.removeAttribute('src');image.alt='';image.hidden=true}
  }
  function renderPlayer(s,si,ep){
@@ -232,7 +232,8 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
    frame.loading='lazy';frame.referrerPolicy='strict-origin-when-cross-origin';
    frame.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
    frame.allowFullscreen=true;stage.append(frame);
-   $('playerNote').textContent='Playing an officially published full episode from '+embed.source+'. YouTube controls and advertising are handled by YouTube.';
+   const note=$('playerNote');note.replaceChildren(document.createTextNode('Playing an officially published full episode from '+embed.source+'. YouTube controls and advertising are handled by YouTube. '));
+   const sourceLink=document.createElement('a');sourceLink.href='https://www.youtube.com/watch?v='+encodeURIComponent(embed.videoId);sourceLink.target='_blank';sourceLink.rel='noopener noreferrer';sourceLink.textContent='Open on YouTube';note.append(sourceLink);
    return;
   }
   const box=document.createElement('div');box.className='watch-player-placeholder';
