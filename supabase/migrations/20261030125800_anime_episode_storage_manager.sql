@@ -40,7 +40,92 @@ alter table public.anime_episode_watch_links
     and (
       (
         provider = 'Self-hosted video'
-        and watch_url ~* '^https://allinone\\.vercel\\.app/videos/.+\\.(mp4|webm)(\\?.*)?$'
+        and watch_url ~* '^https://allinoneedition\\.vercel\\.app/videos/.+\\.(mp4|webm)(\\?.*)?
+      )
+      or
+      (
+        provider = 'XBT Storage'
+        and watch_url ~* '^https://btnbuchsrfllpzlypjtn\\.supabase\\.co/storage/v1/object/public/anime-episodes/.+\\.(mp4|webm)(\\?.*)?$'
+      )
+      or
+      (
+        provider not in ('Self-hosted video','XBT Storage')
+        and provider in (
+          'Crunchyroll','Netflix','Prime Video','Disney+','HIDIVE',
+          'BBC iPlayer','ITVX','Channel 4','My5','JustWatch'
+        )
+        and watch_url ~* '^https://([a-z0-9-]+\\.)*(crunchyroll\\.com|netflix\\.com|primevideo\\.com|amazon\\.co\\.uk|amazon\\.com|disneyplus\\.com|hidive\\.com|bbc\\.co\\.uk|itv\\.com|channel4\\.com|my5\\.tv|justwatch\\.com)(/|[?#])'
+        and watch_url !~* '\\.(mp4|m3u8|mpd|webm|mkv)([?#]|$)'
+      )
+    )
+  );
+
+drop policy if exists "Public can read anime episode watch links" on public.anime_episode_watch_links;
+create policy "Public can read anime episode watch links"
+  on public.anime_episode_watch_links
+  for select to anon, authenticated
+  using (true);
+
+drop policy if exists "Site owner can add anime episode watch links" on public.anime_episode_watch_links;
+create policy "Site owner can add anime episode watch links"
+  on public.anime_episode_watch_links
+  for insert to authenticated
+  with check (
+    (select private.is_aio_site_owner())
+    and updated_by = (select auth.uid())
+  );
+
+drop policy if exists "Site owner can update anime episode watch links" on public.anime_episode_watch_links;
+create policy "Site owner can update anime episode watch links"
+  on public.anime_episode_watch_links
+  for update to authenticated
+  using ((select private.is_aio_site_owner()))
+  with check (
+    (select private.is_aio_site_owner())
+    and updated_by = (select auth.uid())
+  );
+
+drop policy if exists "Site owner can delete anime episode watch links" on public.anime_episode_watch_links;
+create policy "Site owner can delete anime episode watch links"
+  on public.anime_episode_watch_links
+  for delete to authenticated
+  using ((select private.is_aio_site_owner()));
+
+revoke all privileges on table public.anime_episode_watch_links from anon, authenticated;
+grant select on table public.anime_episode_watch_links to anon, authenticated;
+grant insert, update, delete on table public.anime_episode_watch_links to authenticated;
+
+create index if not exists anime_episode_watch_links_updated_by_idx
+  on public.anime_episode_watch_links (updated_by);
+
+-- The current XBT project is on Supabase Free, so its per-file cap is 50 MB.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('anime-episodes', 'anime-episodes', true, 52428800, array['video/mp4','video/webm'])
+on conflict (id) do update
+set public = true,
+    file_size_limit = 52428800,
+    allowed_mime_types = array['video/mp4','video/webm'];
+
+-- Public buckets serve known object URLs without a SELECT policy, so clients cannot list the whole bucket.
+drop policy if exists "Public can download anime episodes" on storage.objects;
+drop policy if exists "Site owner can upload anime episodes" on storage.objects;
+create policy "Site owner can upload anime episodes"
+  on storage.objects for insert
+  to authenticated
+  with check (
+    bucket_id = 'anime-episodes'
+    and (select private.is_aio_site_owner())
+  );
+
+drop policy if exists "Site owner can delete anime episodes" on storage.objects;
+create policy "Site owner can delete anime episodes"
+  on storage.objects for delete
+  to authenticated
+  using (
+    bucket_id = 'anime-episodes'
+    and (select private.is_aio_site_owner())
+  );
+
       )
       or
       (
