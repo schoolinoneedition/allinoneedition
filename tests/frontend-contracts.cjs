@@ -147,10 +147,12 @@ assert.match(html, /function filteredGames\(\)/);
    assert.ok(anime.includes("id:'"+animeId+"'"), 'Missing Anime Zone series: '+animeId);
  }
  assert.equal((anime.match(/banner:'https:\/\//g)||[]).length,10,'Each Anime Zone title should have banner art');
- assert.ok(anime.includes("videoId:'z3hMX65Khtg'"),'Official Pokémon episode embed should stay available');
- assert.ok(anime.includes("videoId:'IJ6gOKkgXX4'"),'Official Quintuplets episode embed should stay available');
- assert.ok(anime.includes('youtube-nocookie.com/embed/'),'In-site playback should use privacy-enhanced official YouTube embeds');
- assert.ok(anime.includes('Open on YouTube'),'An official YouTube fallback link should stay available');
+ assert.ok(!anime.includes('youtube-nocookie.com'),'Anime Zone must not depend on YouTube embeds');
+ assert.ok(!anime.includes('videoId:'),'Anime Zone must not contain broken hard-coded video IDs');
+ assert.ok(anime.includes('Choose an official place to watch'),'Episode selection must show a clear official provider state');
+ assert.ok(anime.includes('s.watch.forEach((link,index)=>'),'Each episode must show the series viewing options');
+ assert.ok(anime.includes('Check UK availability'),'Availability aggregator links must be clearly labelled');
+ assert.ok(anime.includes('distributor-authorised in-page player'),'The page must not claim unsupported in-site playback');
  assert.ok(anime.includes('image.onerror=()=>{image.hidden=true}'),'Spotlight banner should have a broken-image fallback');
  assert.ok(anime.includes('counts=[102,37,41,52,65,40,52,54,47,52,52,55,34,48,49,45,49,49,49,44,62,54,48,42,58,11]'), 'Pokémon season episode catalogue is incomplete');
  assert.ok(anime.includes("const STORE='aio.anime.watch.v1'"), 'Anime watch progress must have a stable local key');
