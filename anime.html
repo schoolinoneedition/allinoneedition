@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101522">
+<meta name="description" content="Anime Zone: episode guides and a personal watch tracker for Pokémon, The Quintessential Quintuplets, My Dress-Up Darling and Demon Slayer.">
+<title>Anime Zone · All in One Edition</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23365dff'/%3E%3Cpath d='M17 18h30v11H28v17H17z' fill='white'/%3E%3Cpath d='M29 18l18 13-18 13z' fill='%23ffe16a'/%3E%3C/svg%3E">
+<style>
+:root{color-scheme:dark;--bg:#0d1220;--panel:#151d2d;--panel2:#1a2539;--text:#f5f7fc;--muted:#a2aec3;--line:#2b3850;--soft:#202b40;--accent:#89a2ff;--accent2:#b18cff;--good:#7de1bc;--shadow:0 20px 60px rgba(0,0,0,.22)}
+:root.light{color-scheme:light;--bg:#f4f6fb;--panel:#fff;--panel2:#f9faff;--text:#202738;--muted:#707d92;--line:#e4e9f2;--soft:#eef2fa;--accent:#365dff;--accent2:#9364ed;--good:#16805c;--shadow:0 18px 48px rgba(30,43,75,.08)}
+*{box-sizing:border-box}html{min-height:100%;scroll-behavior:smooth}body{margin:0;min-height:100dvh;background:radial-gradient(ellipse at 78% 0%,color-mix(in srgb,var(--accent) 13%,transparent),transparent 30rem),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}button,input,select{font:inherit}button,a{-webkit-tap-highlight-color:transparent}button{cursor:pointer}a{color:inherit;text-decoration:none}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 65%,white);outline-offset:3px}
+.topbar{height:66px;position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;padding:0 max(18px,calc((100vw - 1260px)/2));background:color-mix(in srgb,var(--panel) 87%,transparent);border-bottom:1px solid var(--line);backdrop-filter:blur(18px)}
+.brand{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:950;letter-spacing:-.25px}.mark{width:36px;height:36px;display:grid;place-items:center;border-radius:12px;background:linear-gradient(140deg,#365dff,#9866ee);color:#fff;font-size:17px;box-shadow:0 8px 22px #365dff32}.brand small{display:block;margin-top:2px;color:var(--muted);font-size:9px;font-weight:700;letter-spacing:0}.spacer{flex:1}.toplink,.theme{height:36px;display:inline-flex;align-items:center;justify-content:center;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text);font-size:10px;font-weight:900}.toplink.primary{background:var(--accent);border-color:var(--accent);color:#fff}.theme{width:36px;padding:0;font-size:14px}
+main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
+.hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(230px,.7fr);gap:18px;align-items:stretch;margin:5px 0 22px}
+.hero-copy,.hero-stat{border:1px solid var(--line);border-radius:23px;background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 11%,var(--panel)),var(--panel));box-shadow:var(--shadow)}
+.hero-copy{padding:clamp(20px,4vw,34px);position:relative;overflow:hidden}.hero-copy:after{content:"アニメ";position:absolute;right:18px;bottom:-21px;font-size:clamp(72px,13vw,150px);font-weight:1000;letter-spacing:-.1em;color:color-mix(in srgb,var(--accent) 9%,transparent);pointer-events:none}
+.eyebrow{display:inline-flex;align-items:center;gap:7px;color:var(--accent);font-size:9px;font-weight:950;letter-spacing:.15em;text-transform:uppercase}
+.hero h1{position:relative;z-index:1;font-size:clamp(34px,5.2vw,58px);letter-spacing:-2.5px;line-height:.98;margin:15px 0 11px}.hero p{position:relative;z-index:1;max-width:630px;color:var(--muted);font-size:12px;line-height:1.7;margin:0}
+.hero-stat{padding:19px;display:flex;flex-direction:column;justify-content:space-between;gap:16px;background:var(--panel)}.stat-top{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.stat-number{font-size:44px;font-weight:1000;letter-spacing:-2px}.stat-caption{color:var(--muted);font-size:10px;line-height:1.5}.stat-progress{height:8px;background:var(--soft);border-radius:99px;overflow:hidden}.stat-progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .2s}
+.section-title{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:26px 0 12px}.section-title h2{font-size:16px;letter-spacing:-.3px;margin:0}.section-title p{font-size:10px;color:var(--muted);margin:4px 0 0;line-height:1.5}
+.series-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.series-card{--tone:#365dff;position:relative;display:flex;flex-direction:column;min-height:220px;overflow:hidden;text-align:left;border:1px solid var(--line);border-radius:19px;padding:0;background:var(--panel);color:var(--text);transition:transform .18s,border-color .18s,box-shadow .18s}
+.series-card:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--tone) 55%,var(--line));box-shadow:0 18px 38px rgba(0,0,0,.13)}
+.series-art{height:118px;display:flex;align-items:end;justify-content:space-between;gap:10px;padding:15px;background:radial-gradient(circle at 75% 18%,rgba(255,255,255,.29),transparent 30%),linear-gradient(135deg,var(--tone),color-mix(in srgb,var(--tone) 30%,#111827));position:relative;overflow:hidden}
+.series-art:after{content:attr(data-jp);position:absolute;right:7px;top:-20px;color:rgba(255,255,255,.15);font-weight:1000;font-size:84px;letter-spacing:-.1em;line-height:1}
+.series-symbol{position:relative;z-index:1;width:48px;height:48px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.44);border-radius:15px;background:rgba(0,0,0,.16);color:#fff;font-size:23px;backdrop-filter:blur(10px)}
+.series-type{position:relative;z-index:1;color:rgba(255,255,255,.88);font-size:9px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}
+.series-info{padding:13px 14px;display:flex;flex-direction:column;gap:7px;flex:1}.series-info h3{font-size:13px;line-height:1.3;letter-spacing:-.2px;margin:0}.series-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:var(--muted);font-size:9px}.pill{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:4px 7px;font-size:8px;font-weight:900;color:var(--muted)}.pill.rating{color:var(--text)}.series-progress{height:5px;border-radius:99px;background:var(--soft);overflow:hidden;margin-top:auto}.series-progress span{height:100%;display:block;background:var(--tone);width:0}.series-progress-label{display:flex;justify-content:space-between;color:var(--muted);font-size:8px;margin-top:1px}
+.catalog{display:grid;grid-template-columns:minmax(0,1fr) 285px;gap:14px;align-items:start;margin-top:24px}
+.episode-panel,.side-panel{border:1px solid var(--line);border-radius:20px;background:var(--panel);box-shadow:var(--shadow);min-width:0}
+.episode-panel{padding:18px}.side-stack{display:grid;gap:12px}.side-panel{padding:15px}
+.catalog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-bottom:15px;border-bottom:1px solid var(--line)}.catalog-head h2{font-size:19px;line-height:1.2;letter-spacing:-.5px;margin:0}.catalog-head p{font-size:10px;color:var(--muted);line-height:1.5;margin:5px 0 0}.catalog-head .pill{flex-shrink:0}
+.toolbar{display:grid;grid-template-columns:minmax(0,1fr) 180px;gap:8px;margin:14px 0}
+.field{height:40px;min-width:0;width:100%;border:1px solid var(--line);border-radius:11px;background:var(--soft);color:var(--text);padding:0 11px;font-size:10px}
+.season-tabs{display:flex;gap:7px;overflow:auto;padding:2px 0 10px;scrollbar-width:thin}.season-tab{flex:0 0 auto;border:1px solid var(--line);background:var(--panel2);color:var(--muted);border-radius:10px;padding:8px 10px;font-size:9px;font-weight:900;white-space:nowrap}.season-tab[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+.episode-list{display:grid;gap:7px}.episode-row{display:grid;grid-template-columns:45px minmax(0,1fr) auto;align-items:center;gap:10px;min-width:0;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);transition:background .15s,border-color .15s}.episode-row:hover{border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}.episode-row.watched{background:color-mix(in srgb,var(--good) 7%,var(--panel2))}
+.ep-num{width:42px;height:36px;display:grid;place-items:center;border:1px solid var(--line);border-radius:9px;background:var(--soft);font-size:10px;font-weight:950;color:var(--accent);font-variant-numeric:tabular-nums}
+.ep-copy{min-width:0}.ep-copy strong{display:block;font-size:10px;line-height:1.4;overflow-wrap:anywhere}.ep-copy small{display:block;margin-top:3px;color:var(--muted);font-size:8px}.ep-check{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:8px;font-weight:850;white-space:nowrap}.ep-check input{width:16px;height:16px;accent-color:var(--good)}
+.no-results{padding:22px;text-align:center;color:var(--muted);font-size:10px;border:1px dashed var(--line);border-radius:12px}
+.side-panel h3{font-size:11px;margin:0 0 8px}.side-panel p{font-size:10px;line-height:1.6;color:var(--muted);margin:0}.watch-links{display:grid;gap:7px;margin-top:11px}.watch-link{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);font-size:9px;font-weight:900}.watch-link span:last-child{color:var(--muted)}
+.notice{border:1px solid color-mix(in srgb,#e5a84c 45%,var(--line));background:color-mix(in srgb,#e5a84c 10%,var(--panel));color:var(--text);border-radius:12px;padding:10px;font-size:9px;line-height:1.55;margin-top:10px}
+.source-links{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.source-links a{font-size:9px;font-weight:850;color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+.empty-episode{padding:18px;border:1px dashed var(--line);border-radius:12px;color:var(--muted);font-size:10px;line-height:1.6}
+.footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:25px;padding:14px 2px;color:var(--muted);font-size:9px}
+@media(max-width:980px){.series-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.catalog{grid-template-columns:minmax(0,1fr) 255px}}
+@media(max-width:720px){.hero{grid-template-columns:1fr}.hero-stat{display:grid;grid-template-columns:1fr 1fr;align-items:center}.catalog{grid-template-columns:1fr}.side-stack{grid-template-columns:repeat(2,minmax(0,1fr))}.topbar{padding:0 12px}.hero-stat .stat-number{font-size:36px}}
+@media(max-width:520px){.topbar{height:60px;gap:6px}.brand{font-size:11px}.mark{width:33px;height:33px}.toplink{height:33px;padding:0 8px;font-size:9px}.theme{width:33px;height:33px}main{padding:22px 12px 40px}.series-grid{gap:8px}.series-card{min-height:196px;border-radius:15px}.series-art{height:94px;padding:11px}.series-symbol{width:39px;height:39px;font-size:18px}.series-info{padding:10px}.series-info h3{font-size:11px}.catalog{margin-top:18px}.episode-panel{padding:12px}.side-stack{grid-template-columns:1fr}.toolbar{grid-template-columns:1fr}.episode-row{grid-template-columns:37px minmax(0,1fr) auto;gap:7px;padding:8px}.ep-num{width:35px;height:34px;font-size:9px}.ep-check{font-size:7px}.ep-copy strong{font-size:9px}.hero h1{letter-spacing:-1.3px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="topbar">
+ <a class="brand" href="./index.html"><span class="mark">A</span><span>All in One Edition<small>Anime Zone · series and episodes</small></span></a>
+ <span class="spacer"></span>
+ <a class="toplink" href="./study.html">Study Hub</a>
+ <a class="toplink primary" href="./index.html">← Hub</a>
+ <button class="theme" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">◐</button>
+</header>
+<main>
+ <section class="hero">
+  <div class="hero-copy"><span class="eyebrow">✦ All in One · Anime Zone</span><h1>Your anime list.<br>One tidy place.</h1><p>Pick a series, browse its seasons and tick off episodes as you go. Your watch progress stays saved in this browser, so the list remembers where you left off.</p></div>
+  <div class="hero-stat"><div><div class="stat-top"><span>Your watch progress</span><span>LOCAL</span></div><div class="stat-number" id="watchedCount">0</div><div class="stat-caption" id="watchedCaption">Episodes marked watched</div></div><div><div class="stat-top"><span>Overall progress</span><span id="progressPct">0%</span></div><div class="stat-progress"><span id="overallBar"></span></div><div class="stat-caption" style="margin-top:8px">Tick an episode to update your progress.</div></div></div>
+ </section>
+ <div class="section-title"><div><h2>Choose a series</h2><p>Four titles are loaded into the first Anime Zone collection.</p></div></div>
+ <section class="series-grid" id="seriesGrid" aria-label="Anime series"></section>
+ <section class="catalog" id="episodeCatalog" aria-label="Episode catalogue">
+  <div class="episode-panel">
+   <div class="catalog-head"><div><h2 id="catalogTitle">Pokémon</h2><p id="catalogDescription">Choose a season to browse episodes.</p></div><span class="pill rating" id="catalogRating">U</span></div>
+   <div class="toolbar"><input class="field" type="search" id="episodeSearch" placeholder="Search this series' episodes…" aria-label="Search episodes"><select class="field" id="progressFilter" aria-label="Episode progress filter"><option value="all">All episodes</option><option value="unwatched">Not watched</option><option value="watched">Watched</option></select></div>
+   <div class="season-tabs" id="seasonTabs" role="group" aria-label="Seasons"></div>
+   <div class="episode-list" id="episodeList"></div>
+  </div>
+  <aside class="side-stack">
+   <section class="side-panel"><h3>Where to watch legally</h3><p id="watchNote">Availability differs by country and changes over time. These buttons open official show pages or a UK availability guide.</p><div class="watch-links" id="watchLinks"></div><p class="notice">This page is an episode guide and watch tracker. It does not host or copy copyrighted episodes. Check each service's current UK catalogue and the show's age rating before watching.</p></section>
+   <section class="side-panel"><h3>Episode guide sources</h3><p>Episode names and season structure are based on publisher, official series and episode-guide references. Some very large catalogues have their own complete external index.</p><div class="source-links" id="sourceLinks"></div></section>
+   <section class="side-panel"><h3>Progress controls</h3><p>Watched ticks are stored only in this browser. You can export a backup or clear the watch history at any time.</p><div class="watch-links"><button class="watch-link" id="exportProgress" type="button">Export watch progress <span>↓</span></button><button class="watch-link" id="clearProgress" type="button">Clear watch progress <span>↺</span></button></div><p id="saveStatus" class="stat-caption" aria-live="polite" style="margin-top:9px">Progress saves automatically.</p></section>
+  </aside>
+ </section>
+ <footer class="footer"><span>Anime Zone · All in One Edition</span><span>Episode information checked October 2026 · availability can change</span></footer>
+</main>
+<script>
+(()=>{
+ 'use strict';
+ const $=id=>document.getElementById(id);
+ const STORE='aio.anime.watch.v1',THEME='aio.anime.theme.v1';
+ let watched=readStore(),activeId='pokemon',activeSeason=0;
+ function readStore(){try{const x=JSON.parse(localStorage.getItem(STORE)||'{}');return x&&typeof x==='object'?x:{}}catch{return {}}}
+ function save(){try{localStorage.setItem(STORE,JSON.stringify(watched));$('saveStatus').textContent='Saved automatically on this device.'}catch{$('saveStatus').textContent='Browser storage is full or unavailable.'}renderStats();renderSeries()}
+ const makeEpisodes=(names,prefix='Episode')=>names.map((name,i)=>({number:i+1,title:name||prefix+' '+String(i+1).padStart(2,'0')}));
+ const numbered=(count,prefix='Episode')=>Array.from({length:count},(_,i)=>({number:i+1,title:prefix+' '+String(i+1).padStart(2,'0')}));
+ const series=[
+  {id:'pokemon',title:'Pokémon',jp:'ポケモン',symbol:'◉',tone:'#e8a52d',type:'Adventure · Animation',rating:'U',meta:'27 seasons listed · ongoing franchise',description:'A huge animated world with multiple series, regions and generations. Start with the original Indigo League episode guide or jump to the current Horizons series.',seasons:[
+   {name:'Indigo League · opening episodes',episodes:makeEpisodes(['Pokémon! I Choose You!','Pokémon Emergency','Ash Catches a Pokémon','Challenge of the Samurai','Showdown in Pewter City','Clefairy and the Moon Stone','Water Flowers of Cerulean City','The Path to the Pokémon League','The School of Hard Knocks','Bulbasaur and the Hidden Village','Charmander the Stray Pokémon','Here Comes the Squirtle Squad','Mystery at the Lighthouse','Electric Shock Showdown','Battle Aboard the St. Anne','Pokémon Shipwreck'])},
+   {name:'Pokémon Horizons · current series',episodes:numbered(3,'Season 3 episode')},
+  ],watch:[{label:'Official Pokémon animation hub',url:'https://www.pokemon.com/uk/pokemon-episodes',hint:'Official episode encyclopedia and where-to-watch details'},{label:'BBC iPlayer',url:'https://www.bbc.co.uk/iplayer',hint:'UK home for Pokémon Horizons episodes where available'}],sources:[{label:'Official Pokémon episode hub',url:'https://www.pokemon.com/uk/pokemon-episodes'},{label:'Full episode guide · Serebii',url:'https://www.serebii.net/anime/epiguide/'},{label:'Pokémon episode encyclopedia',url:'https://bulbapedia.bulbagarden.net/wiki/List_of_animated_series_episodes'}],note:'Pokémon TV closed in March 2024. Pokémon lists current distribution options on its official animation page; older seasons have changing UK availability.'},
+  {id:'quint',title:'The Quintessential Quintuplets',jp:'五等分',symbol:'五',tone:'#dd7eaa',type:'Romance · Comedy',rating:'15',meta:'2 seasons · 24 TV episodes + specials and film',description:'The main television story has two seasons of 12 episodes each. The special releases and movie are listed separately so the watch order stays tidy.',seasons:[
+   {name:'Season 1 · 2019',episodes:makeEpisodes(['The Quintessential Quintuplets','Rooftop Confession','A Mountain of Problems','A Day Off','Five Fifths',"What's Been Built Up",'Liar McLieface','The Photo That Started It All','Legend of Fate Day 1','Legend of Fate Day 2','Legend of Fate Day 3','Legend of Fate Day 2000'])},
+   {name:'Season 2 · 2021',episodes:makeEpisodes(['Quite the Crappy Kyoto Quagmire','Seven Goodbyes (1)','Seven Goodbyes (2)','Seven Goodbyes (3)','Good Work Today','The Last Exam','Begin the Offensive','Scrambled Eggs','Welcome to Class 3-1','Five Cranes in Return','Sisters War (1)','Sisters War (2)'])},
+   {name:'Specials · 2023–2024',episodes:makeEpisodes(['The Quintessential Quintuplets∽','The Quintessential Quintuplets＊'],'Special')},
+   {name:'Movie · 2022',episodes:makeEpisodes(['The Quintessential Quintuplets Movie'],'Film')},
+  ],watch:[{label:'Crunchyroll · series and specials',url:'https://www.crunchyroll.com/search?q=The%20Quintessential%20Quintuplets',hint:'Check UK season and special availability'},{label:'JustWatch UK',url:'https://www.justwatch.com/uk/tv-series/the-quintessential-quintuplets',hint:'Current UK streaming and purchase options'}],sources:[{label:'Full episode and season list',url:'https://kaidomi.com/en/title/the-quintessential-quintuplets--manga-103851/watch'},{label:'Season 2 episode guide',url:'https://www.justwatch.com/uk/tv-series/the-quintessential-quintuplets/season-2'},{label:'Official specials announcement',url:'https://www.crunchyroll.com/news/announcements/2026/4/22/the-quintessential-quintuplets-anime-specials-stream-crunchyroll'}],note:'UK listings show a 15 rating. Streaming rights vary by season and special; check the service page before starting.'},
+  {id:'dressup',title:'My Dress-Up Darling',jp:'着せ恋',symbol:'✿',tone:'#d97a9d',type:'Romance · Slice of life',rating:'15',meta:'2 seasons · 24 episodes',description:'Two complete seasons, with 12 episodes in each. The episode guide includes the English titles where listed.',seasons:[
+   {name:'Season 1 · 2022',episodes:makeEpisodes(['Someone Who Lives in the Exact Opposite World as Me','Wanna Hurry Up, and Do It?','Then Why Don’t We?','Are These Your Girlfriend’s?','Episode 5','For Real?!','A Home Date With the Guy I Wuv Is the Best','Backlighting Is the Best','A Lot Happened After I Saw That Photo','We’ve All Got Struggles','Episode 11','My Dress-Up Darling'])},
+   {name:'Season 2 · 2025',episodes:makeEpisodes(['Wakana Gojo, 15 Years Old, Teenager','Episode 2','I Wuuuuv Slice-of-Life Scenes!','Has All My Measurements Memorized','800 Million','I’ll Make It Happen, No Matter What with These Two Hands','Capture Those Delicious Memories!','The Only Way I Can Think of to Express That Gratitude Is with Money','Because I Don’t Intend to Sleep Tonight','So We’re Gonna Do It All Right Now?!','I Didn’t Think Anything Good Would Ever Happen to Me','Dear My Dress-Up Darling'])},
+  ],watch:[{label:'Crunchyroll · series',url:'https://www.crunchyroll.com/search?q=My%20Dress-Up%20Darling',hint:'Check seasons, languages and subtitles'},{label:'JustWatch UK',url:'https://www.justwatch.com/uk/tv-series/my-dress-up-darling',hint:'Current UK streaming and purchase options'}],sources:[{label:'Season 1 episode guide',url:'https://www.justwatch.com/uk/tv-series/my-dress-up-darling/season-1'},{label:'Season 2 episode guide',url:'https://www.tvmaze.com/shows/59412/my-dress-up-darling/episodeguide'},{label:'Apple TV UK · Season 2 finale',url:'https://tv.apple.com/gb/episode/dear-my-dress-up-darling/umc.cmc.3d36zgqot9i2m005v2f0bikyu?showId=umc.cmc.2okl89pm42qe246klo7rtttu4'}],note:'UK episode listings show a 15 rating. Some episode titles contain suggestive jokes, so a few are displayed simply as episode numbers.'},
+  {id:'demon',title:'Demon Slayer: Kimetsu no Yaiba',jp:'鬼滅の刃',symbol:'刃',tone:'#548d9c',type:'Action · Fantasy',rating:'15',meta:'4 TV arcs · 63 episodes + films',description:'Watch the TV arcs in story order. The Mugen Train film retells the same central story as the seven-episode TV arc, so choose one version rather than counting both.',seasons:[
+   {name:'Unwavering Resolve · 2019',episodes:numbered(26)},
+   {name:'Mugen Train TV Arc · 2021',episodes:numbered(7)},
+   {name:'Entertainment District · 2021',episodes:numbered(11)},
+   {name:'Swordsmith Village · 2023',episodes:numbered(11)},
+   {name:'Hashira Training · 2024',episodes:numbered(8)},
+   {name:'Infinity Castle · films',episodes:makeEpisodes(['Infinity Castle · Part 1'],'Film')},
+  ],watch:[{label:'Crunchyroll · series search',url:'https://www.crunchyroll.com/search?q=Demon%20Slayer',hint:'Check UK series and film availability'},{label:'Netflix UK',url:'https://www.netflix.com/search?q=Demon%20Slayer',hint:'Check the current UK catalogue'},{label:'JustWatch UK',url:'https://www.justwatch.com/uk/tv-series/demon-slayer-kimetsu-no-yaiba',hint:'Current legal UK streaming options'}],sources:[{label:'Official Demon Slayer series portal',url:'https://demonslayer-anime.com/'},{label:'UK viewing order and episode counts',url:'https://guides.justwatch.com/uk/how-to-watch-demon-slayer-in-order'},{label:'Official episode story index',url:'https://kimetsu.com/anime/story/'}],note:'UK listings show a 15 rating. This series contains sustained fantasy violence. The Infinity Castle story is a film trilogy, not another TV season.'}
+ ];
+ const key=(sid,season,ep)=>sid+':'+season+':'+ep;
+ function current(){return series.find(s=>s.id===activeId)||series[0]}
+ function seriesProgress(s){let all=0,done=0;s.seasons.forEach((season,si)=>season.episodes.forEach(ep=>{all++;if(watched[key(s.id,si,ep.number)])done++}));return {all,done,pct:all?Math.round(done/all*100):0}}
+ function renderStats(){let all=0,done=0;series.forEach(s=>{const p=seriesProgress(s);all+=p.all;done+=p.done});$('watchedCount').textContent=done.toLocaleString('en-GB');$('watchedCaption').textContent='of '+all.toLocaleString('en-GB')+' listed episodes marked watched';$('progressPct').textContent=(all?Math.round(done/all*100):0)+'%';$('overallBar').style.width=(all?done/all*100:0)+'%'}
+ function renderSeries(){
+  const grid=$('seriesGrid');grid.replaceChildren();
+  series.forEach(s=>{
+   const p=seriesProgress(s),button=document.createElement('button');button.type='button';button.className='series-card';button.style.setProperty('--tone',s.tone);button.setAttribute('aria-pressed',String(s.id===activeId));
+   const art=document.createElement('div');art.className='series-art';art.dataset.jp=s.jp;
+   const symbol=document.createElement('span');symbol.className='series-symbol';symbol.textContent=s.symbol;
+   const type=document.createElement('span');type.className='series-type';type.textContent=s.type;art.append(type,symbol);
+   const info=document.createElement('div');info.className='series-info';
+   const h=document.createElement('h3');h.textContent=s.title;
+   const meta=document.createElement('div');meta.className='series-meta';meta.textContent=s.meta;
+   const pills=document.createElement('div');pills.className='series-meta';const rating=document.createElement('span');rating.className='pill rating';rating.textContent='UK rating · '+s.rating;const episodeCount=document.createElement('span');episodeCount.className='pill';episodeCount.textContent=p.done+'/'+p.all+' tracked';pills.append(rating,episodeCount);
+   const progress=document.createElement('div');progress.className='series-progress';const fill=document.createElement('span');fill.style.width=p.pct+'%';progress.append(fill);
+   const label=document.createElement('div');label.className='series-progress-label';const a=document.createElement('span');a.textContent='Watch progress';const b=document.createElement('span');b.textContent=p.pct+'%';label.append(a,b);
+   info.append(h,meta,pills,progress,label);button.append(art,info);button.addEventListener('click',()=>selectSeries(s.id,true));grid.append(button);
+  });
+ }
+ function selectSeries(id,scroll){activeId=id;activeSeason=0;$('episodeSearch').value='';$('progressFilter').value='all';renderCatalog();renderSeries();if(scroll)$('episodeCatalog').scrollIntoView({behavior:'smooth',block:'start'})}
+ function renderCatalog(){
+  const s=current(),p=seriesProgress(s);$('catalogTitle').textContent=s.title;$('catalogDescription').textContent=s.description+' · '+p.done+'/'+p.all+' tracked.';$('catalogRating').textContent='UK '+s.rating;
+  const tabs=$('seasonTabs');tabs.replaceChildren();
+  s.seasons.forEach((season,index)=>{const b=document.createElement('button');b.type='button';b.className='season-tab';b.textContent=season.name;b.setAttribute('aria-pressed',String(index===activeSeason));b.addEventListener('click',()=>{activeSeason=index;renderCatalog()});tabs.append(b)});
+  const watch=$('watchLinks');watch.replaceChildren();s.watch.forEach(link=>{const a=document.createElement('a');a.className='watch-link';a.href=link.url;a.target='_blank';a.rel='noopener noreferrer';const title=document.createElement('span');title.textContent=link.label;const arrow=document.createElement('span');arrow.textContent='↗';a.title=link.hint;a.append(title,arrow);watch.append(a)});
+  const sources=$('sourceLinks');sources.replaceChildren();s.sources.forEach(link=>{const a=document.createElement('a');a.href=link.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=link.label;sources.append(a)});
+  $('watchNote').textContent=s.note;
+  const list=$('episodeList'),season=s.seasons[activeSeason];list.replaceChildren();
+  const query=$('episodeSearch').value.trim().toLowerCase(),filter=$('progressFilter').value;
+  let shown=0;
+  season.episodes.forEach(ep=>{
+   const epKey=key(s.id,activeSeason,ep.number),done=!!watched[epKey];
+   if(query&&!('episode '+ep.number+' '+ep.title).toLowerCase().includes(query))return;
+   if(filter==='watched'&&!done)return;if(filter==='unwatched'&&done)return;
+   const row=document.createElement('label');row.className='episode-row'+(done?' watched':'');
+   const num=document.createElement('span');num.className='ep-num';num.textContent='EP '+String(ep.number).padStart(2,'0');
+   const copy=document.createElement('span');copy.className='ep-copy';const title=document.createElement('strong');title.textContent=ep.title;const meta=document.createElement('small');meta.textContent=season.name;copy.append(title,meta);
+   const checkWrap=document.createElement('span');checkWrap.className='ep-check';const check=document.createElement('input');check.type='checkbox';check.checked=done;check.setAttribute('aria-label','Mark '+ep.title+' watched');check.addEventListener('change',()=>{if(check.checked)watched[epKey]=true;else delete watched[epKey];save();renderEpisodesOnly()});checkWrap.append(check,document.createTextNode('Watched'));row.append(num,copy,checkWrap);list.append(row);shown++;
+  });
+  if(!shown){const empty=document.createElement('div');empty.className='no-results';empty.textContent='No episodes match those filters.';list.append(empty)}
+ }
+ function renderEpisodesOnly(){renderCatalog();renderStats()}
+ $('episodeSearch').addEventListener('input',renderCatalog);$('progressFilter').addEventListener('change',renderCatalog);
+ $('exportProgress').addEventListener('click',()=>{
+  const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),watched},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='all-in-one-anime-progress.json';a.click();URL.revokeObjectURL(url);$('saveStatus').textContent='Progress backup exported.';
+ });
+ $('clearProgress').addEventListener('click',()=>{
+  if(!confirm('Clear every watched tick in this browser?'))return;
+  watched={};save();renderCatalog();$('saveStatus').textContent='Watch progress cleared.';
+ });
+ $('themeToggle').addEventListener('click',()=>{
+  const light=!document.documentElement.classList.contains('light');document.documentElement.classList.toggle('light',light);try{localStorage.setItem(THEME,light?'light':'dark')}catch{}
+ });
+ try{if(localStorage.getItem(THEME)==='light')document.documentElement.classList.add('light')}catch{}
+ window.addEventListener('storage',event=>{if(event.key===STORE){watched=readStore();renderStats();renderSeries();renderCatalog()}});
+ renderStats();renderSeries();renderCatalog();
+})();
+</script>
+</body>
+</html>
