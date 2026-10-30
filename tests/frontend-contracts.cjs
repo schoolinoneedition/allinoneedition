@@ -101,11 +101,11 @@ const mashukuiPack = registeredGames.filter(g => g.source === 'Mashukui Web Game
 assert.equal(mashukuiPack.length, 22, 'Open-source pack should add 22 unique games');
 assert.equal(new Set(mashukuiPack.map(g => g.url)).size, 22, 'Open-source game URLs must be unique');
 assert.equal(new Set(mashukuiPack.map(g => g.name.trim().toLowerCase())).size, 22, 'Open-source game titles must be unique');
-assert.match(html, /function toggleFavourite\\(/);
+assert.ok(html.includes('function toggleFavourite('));
 assert.match(html, /favourite-toggle/);
 assert.match(html, /Favourites/);
-assert.match(social, /event\\.key===\'ArrowDown\'/);
-assert.match(social, /event\\.key===\'ArrowUp\'/);
+assert.ok(social.includes("event.key==='ArrowDown'"));
+assert.ok(social.includes("event.key==='ArrowUp'"));
 for (const mode of ['reaction','math','pairs','sequence','scramble','typing','color','odd','order','aim','lights','maze','timing','wordpick','count','pattern','keyreflex','ttt','connect','merge']) {
   assert.ok(arcade3.includes('function ' + mode + '('), 'Missing game engine: ' + mode);
 }
