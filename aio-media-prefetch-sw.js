@@ -12,7 +12,7 @@ function aioSafeMediaUrl(value){
   try{
     const url=new URL(String(value||''));
     return url.protocol==='https:'&&url.origin===AIO_MEDIA_ORIGIN&&
-      url.pathname.startsWith(AIO_MEDIA_PREFIX)&&/\.mp4$/i.test(url.pathname)?url.href:'';
+      url.pathname.startsWith(AIO_MEDIA_PREFIX)&&/\.(mp4|m4v|webm|ogv|ogg|mov|3gp|mkv|avi|wmv|flv|mpeg|mpg)$/i.test(url.pathname)?url.href:'';
   }catch{return ''}
 }
 
