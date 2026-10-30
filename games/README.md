@@ -33,3 +33,7 @@ The catalogue continues to contain older third-party game links and embeds. Thos
 - Word Scramble: enter the word and submit or press Enter.
 
 All games are loaded only when the selected game card is launched.
+
+## External open-source games
+
+The main catalogue also links to selected self-contained browser games from [mashukui/web-games](https://github.com/mashukui/web-games), hosted on that project's [GitHub Pages site](https://mashukui.github.io/web-games/). The upstream project is released under the MIT License. All catalogue entries retain the original hosted game URLs and an internal source attribution; the hub does not copy or rehost those game files.
