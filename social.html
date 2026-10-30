@@ -461,6 +461,7 @@
       },{root:feed,threshold:[0,.22,.58,.72]});
       feed.querySelectorAll('[data-social-video]').forEach(v=>videoObserver.observe(v));
     }
+    queueSocialMediaWarmup();
   }
   function fitSocialPost(post,naturalWidth,naturalHeight){
     if(!post||!post.isConnected||!naturalWidth||!naturalHeight)return;
@@ -555,6 +556,141 @@
     }
     renderFeed();
   }
+  /* Background video preparation for Social.
+     Downloads are limited to the site's own public MP4 bucket and stored in Cache Storage.
+     Videos still play through the same custom player and remain user-controlled. */
+  const AIO_SOCIAL_CACHE_SESSION_LIMIT=160*1024*1024;
+  const AIO_SOCIAL_CACHE_FILE_LIMIT=32*1024*1024;
+  const AIO_SOCIAL_CACHE_BATCH_LIMIT=64*1024*1024;
+  let aioSocialWarmQueue=[];
+  let aioSocialWarmRequested=new Set();
+  let aioSocialWarmBytes=0;
+  let aioSocialWarmBusy=false;
+  let aioSocialWarmTimer=0;
+  let aioSocialWarmLastActivity=Date.now();
+  let aioSocialWarmRegistration=null;
+  let aioSocialWarmEventsBound=false;
+
+  function safeSocialMediaURL(raw){
+    try{
+      const url=new URL(String(raw||''),location.href);
+      const base=new URL(SUPABASE_URL);
+      if(url.protocol!=='https:'||url.origin!==base.origin)return '';
+      if(!url.pathname.startsWith('/storage/v1/object/public/social-media/'))return '';
+      if(!/\.mp4$/i.test(url.pathname))return '';
+      return url.href;
+    }catch{return ''}
+  }
+  function socialMediaPlaybackURL(raw){
+    const source=safeSocialMediaURL(raw);
+    if(!source||!navigator.serviceWorker?.controller)return raw;
+    const proxy=new URL('./__aio_social_media_cache',location.href);
+    proxy.searchParams.set('src',source);
+    return proxy.href;
+  }
+  function socialWarmAllowed(){
+    if(!navigator.onLine)return false;
+    const connection=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+    return !connection?.saveData&&!['slow-2g','2g'].includes(String(connection?.effectiveType||''));
+  }
+  function bindSocialWarmEvents(){
+    if(aioSocialWarmEventsBound)return;
+    aioSocialWarmEventsBound=true;
+    const markActivity=()=>{aioSocialWarmLastActivity=Date.now()};
+    ['pointerdown','keydown','wheel','touchstart'].forEach(type=>window.addEventListener(type,markActivity,{passive:true,capture:true}));
+    document.addEventListener('visibilitychange',()=>{
+      if(document.hidden){
+        clearTimeout(aioSocialWarmTimer);aioSocialWarmTimer=0;
+        runSocialMediaWarmup();
+      }else scheduleSocialMediaWarmup();
+    });
+    if('serviceWorker'in navigator){
+      navigator.serviceWorker.addEventListener('message',event=>{
+        const data=event.data||{};
+        if(data.type!=='AIO_SOCIAL_MEDIA_WARM_DONE')return;
+        aioSocialWarmBusy=false;
+        aioSocialWarmBytes+=Math.max(0,Number(data.downloadedBytes)||0);
+        if(aioSocialWarmQueue.length&&aioSocialWarmBytes<AIO_SOCIAL_CACHE_SESSION_LIMIT){
+          if(document.hidden||Date.now()-aioSocialWarmLastActivity>5500)runSocialMediaWarmup();
+          else scheduleSocialMediaWarmup();
+        }
+      });
+      navigator.serviceWorker.addEventListener('controllerchange',()=>{
+        // Future video sources will use the same-origin cache proxy after control is active.
+        if(aioSocialWarmQueue.length)runSocialMediaWarmup();
+      });
+    }
+  }
+  async function ensureSocialMediaWorker(){
+    if(!('serviceWorker'in navigator)||!window.isSecureContext)return null;
+    if(!aioSocialWarmRegistration){
+      const script=new URL('./aio-media-prefetch-sw.js',location.href);
+      const scope=new URL('./',location.href).pathname;
+      aioSocialWarmRegistration=navigator.serviceWorker.register(script.href,{scope}).then(()=>navigator.serviceWorker.ready);
+    }
+    return aioSocialWarmRegistration;
+  }
+  function scheduleSocialMediaWarmup(){
+    if(!aioSocialWarmQueue.length||aioSocialWarmBusy||aioSocialWarmBytes>=AIO_SOCIAL_CACHE_SESSION_LIMIT)return;
+    clearTimeout(aioSocialWarmTimer);
+    const wait=Math.max(900,5600-(Date.now()-aioSocialWarmLastActivity));
+    aioSocialWarmTimer=setTimeout(()=>{
+      if(document.hidden||Date.now()-aioSocialWarmLastActivity>=5200)runSocialMediaWarmup();
+      else scheduleSocialMediaWarmup();
+    },Math.min(wait,6500));
+  }
+  async function runSocialMediaWarmup(){
+    if(!aioSocialWarmQueue.length||aioSocialWarmBusy||aioSocialWarmBytes>=AIO_SOCIAL_CACHE_SESSION_LIMIT)return;
+    if(!socialWarmAllowed()){aioSocialWarmQueue.length=0;return;}
+    try{
+      if(navigator.storage?.estimate){
+        const estimate=await navigator.storage.estimate();
+        if(estimate.quota&&estimate.usage/estimate.quota>.88){aioSocialWarmQueue.length=0;return;}
+      }
+      const registration=await ensureSocialMediaWorker();
+      const worker=registration?.active||navigator.serviceWorker.controller;
+      if(!worker)return;
+      const urls=aioSocialWarmQueue.splice(0,50);
+      if(!urls.length)return;
+      aioSocialWarmBusy=true;
+      worker.postMessage({
+        type:'AIO_SOCIAL_MEDIA_WARM',
+        urls,
+        maxFileBytes:AIO_SOCIAL_CACHE_FILE_LIMIT,
+        maxBatchBytes:Math.min(AIO_SOCIAL_CACHE_BATCH_LIMIT,AIO_SOCIAL_CACHE_SESSION_LIMIT-aioSocialWarmBytes),
+        maxCacheBytes:AIO_SOCIAL_CACHE_SESSION_LIMIT
+      });
+    }catch(error){
+      aioSocialWarmBusy=false;
+      console.warn('Social background video preparation unavailable:',error);
+      aioSocialWarmQueue.length=0;
+    }
+  }
+  function queueSocialMediaWarmup(){
+    if(!socialWarmAllowed())return;
+    bindSocialWarmEvents();
+    const feed=$('feed'),feedRect=feed?.getBoundingClientRect();
+    const videos=[...document.querySelectorAll('[data-social-video]')];
+    for(const video of videos){
+      if(video.dataset.sourceReady==='1')continue;
+      const source=safeSocialMediaURL(video.dataset.videoSrc);
+      if(!source||aioSocialWarmRequested.has(source))continue;
+      const rect=video.getBoundingClientRect();
+      const currentlyVisible=feedRect&&rect.bottom>feedRect.top&&rect.top<feedRect.bottom;
+      if(currentlyVisible)continue;
+      aioSocialWarmRequested.add(source);
+      aioSocialWarmQueue.push(source);
+    }
+    if(!aioSocialWarmQueue.length)return;
+    if(document.hidden){
+      clearTimeout(aioSocialWarmTimer);aioSocialWarmTimer=0;
+      runSocialMediaWarmup();
+    }else scheduleSocialMediaWarmup();
+  }
+  // Register early so an initial feed render can use the cache-backed player route.
+  ensureSocialMediaWorker().catch(error=>console.warn('Social media worker registration failed:',error));
+  bindSocialWarmEvents();
+
   function pauseAllVideos(except=null){
     document.querySelectorAll('[data-social-video]').forEach(v=>{if(v!==except&&!v.paused){try{v.pause();}catch{}}});
   }
@@ -767,7 +903,7 @@
     const src=String(video.dataset.videoSrc||'').trim();
     if(!src)return false;
     video.preload='metadata';
-    video.src=src;
+    video.src=socialMediaPlaybackURL(src);
     video.dataset.sourceReady='1';
     video.load();
     return true;
@@ -911,7 +1047,10 @@
     if(event.key==='Escape'){document.querySelectorAll('.overlay.open').forEach(x=>closeOverlay(x.id));pauseAllVideos();}
     if(event.key==='Enter'&&event.target===$('commentBody')&&!event.shiftKey){event.preventDefault();$('commentForm').requestSubmit();}
   });
-  document.addEventListener('visibilitychange',()=>{if(document.hidden)pauseAllVideos();});
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden){pauseAllVideos();runSocialMediaWarmup();}
+    else if(aioSocialWarmQueue.length)scheduleSocialMediaWarmup();
+  });
   $('feed').addEventListener('scroll',()=>{ /* scroll-snap is handled by CSS; playback is intentionally never automatic */ },{passive:true});
   $('postName').addEventListener('input',()=>{
     if(!currentUser)try{localStorage.setItem(STORAGE_KEYS.displayName,String($('postName').value||'').slice(0,32))}catch{}
