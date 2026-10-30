@@ -9,6 +9,8 @@ const ux = read('ultimate-experience.js');
 const css = read('ultimate-experience.css');
 const html = read('index.html');
 const social = read('social.html');
+const anime = read('anime.html');
+const study = read('study.html');
 const glassCss = read('appearance.css');
 const economy = read('supabase/migrations/20261028093212_aio_coin_quests_pricing_security.sql');
 const rewardRules = read('supabase/migrations/20261028094634_aio_game_reward_rules.sql');
@@ -130,5 +132,26 @@ const cardMarkup = returnStart >= 0 && returnEnd >= 0 ? cardRenderer.slice(retur
 assert.ok(cardMarkup, 'Game card renderer should return consistent markup');
 assert.doesNotMatch(cardMarkup, /source\s*:|source\s*\}|powered by/i, 'Provider labels must not appear on ordinary game cards');
 assert.match(html, /function filteredGames\(\)/);
+
+
+ // New pages and player behaviour must stay wired, keyboard-accessible and responsive.
+ assert.ok(html.includes("location.href='anime.html'"), 'Anime Zone must be reachable from the main hub');
+ assert.ok(html.includes('id="aioQuickLaunch"'), 'Quick Launch dialog must exist');
+ assert.ok(html.includes("event.key.toLowerCase()==='k'"), 'Quick Launch Ctrl/Cmd+K shortcut must be wired');
+ assert.ok(html.includes("{label:'Anime Zone'"), 'Anime Zone must be registered in Quick Launch');
+ assert.ok(!social.includes('class="custom-video-controls"'), 'Visible custom video strip should stay removed');
+ assert.ok(!social.includes('class="video-play-overlay"'), 'Floating video play overlay should stay removed');
+ assert.ok(social.includes('const togglePlayback=()=>'), 'Social videos must toggle from the video surface');
+ assert.ok(social.includes("stage.addEventListener('click'"), 'Social video surface must have click playback');
+ for (const animeId of ['pokemon','quint','dressup','demon']) {
+   assert.ok(anime.includes("id:'"+animeId+"'"), 'Missing Anime Zone series: '+animeId);
+ }
+ assert.ok(anime.includes('counts=[102,37,41,52,65,40,52,54,47,52,52,55,34,48,49,45,49,49,49,44,62,54,48,42,58,11]'), 'Pokémon season episode catalogue is incomplete');
+ assert.ok(anime.includes("const STORE='aio.anime.watch.v1'"), 'Anime watch progress must have a stable local key');
+ assert.ok(anime.includes('exportProgress'), 'Anime progress export must stay available');
+ assert.ok(anime.includes('demonslayer-anime.com'), 'Demon Slayer official series source must be linked');
+ assert.ok(study.includes('id="timerStart"'), 'Study Hub focus timer must stay available');
+ assert.ok(study.includes('id="taskForm"'), 'Study Hub revision planner must stay available');
+ assert.ok(study.includes('id="flashForm"'), 'Study Hub flashcards must stay available');
 
 console.log('Frontend contract checks passed: appearance persistence, context menu/game freeze wiring, auth/video safeguards, and economy/security migration contracts.');
