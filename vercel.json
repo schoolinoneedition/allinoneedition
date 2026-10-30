@@ -9,6 +9,7 @@
     { "source": "/community", "destination": "/index.html" },
     { "source": "/social", "destination": "/social.html" },
     { "source": "/videos", "destination": "/social.html" },
-    { "source": "/study", "destination": "/study.html" }
+    { "source": "/study", "destination": "/study.html" },
+    { "source": "/anime", "destination": "/anime.html" }
   ]
 }
