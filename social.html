@@ -17,7 +17,38 @@
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;min-width:0}.backmark{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#1b5cff,#8b5cf6);color:#fff;font-weight:950;font-size:19px;box-shadow:0 7px 16px #1b5cff28}.brand-copy{min-width:0}.brand-copy strong{display:block;font-size:15px;letter-spacing:-.3px}.brand-copy small{display:block;color:var(--muted);font-size:10px;margin-top:2px}.top-spacer{flex:1}.cloud-pill{font-size:10px;font-weight:850;color:var(--muted);border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:7px 10px;white-space:nowrap}.cloud-pill.online{color:#16805c;background:#e7faf3;border-color:#c9f0e1}.dark .cloud-pill.online{color:#92e9c5;background:#17382e;border-color:#285747}.header-actions{display:flex;gap:7px;align-items:center}.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line);background:var(--panel);color:var(--text);text-decoration:none;border-radius:11px;padding:9px 12px;font-size:11px;font-weight:850;white-space:nowrap;transition:transform .15s,border-color .15s,background .15s}.btn:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn.ghost{background:transparent}.btn.square{width:38px;height:38px;padding:0;font-size:16px}
 .content{width:min(1440px,100%);margin:0 auto;padding:16px 18px 22px;display:grid;grid-template-columns:205px minmax(0,1fr) 275px;gap:15px;flex:1;min-height:0}
 .sidebar,.rightbar{min-width:0;align-self:start;display:flex;flex-direction:column;gap:12px}.side-card{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:14px;box-shadow:0 4px 14px rgba(26,35,56,.025)}.side-title{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:950;margin:0 0 10px}.nav-list{display:grid;gap:4px}.nav-item{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 11px;border:0;border-radius:11px;background:transparent;color:var(--muted);font-size:12px;font-weight:850}.nav-item:hover,.nav-item.active{background:var(--accent-soft);color:var(--accent)}.nav-icon{width:22px;text-align:center;font-size:16px}.side-copy{font-size:11px;color:var(--muted);line-height:1.6;margin:0}.side-actions{display:grid;gap:7px;margin-top:12px}.user-line{display:flex;align-items:center;gap:9px;min-width:0}.avatar{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,var(--accent),#9a75fb);color:#fff;font-size:11px;font-weight:950;overflow:hidden}.avatar img{width:100%;height:100%;object-fit:cover}.user-details{min-width:0}.user-details strong{display:block;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.user-details small{display:block;margin-top:3px;color:var(--muted);font-size:10px;overflow-wrap:anywhere}
-.feed-column{display:flex;flex-direction:column;min-width:0;min-height:0}.feed-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:3px 3px 12px}.feed-heading h1{font-size:23px;line-height:1.05;letter-spacing:-.8px;margin:0}.feed-heading p{font-size:11px;color:var(--muted);margin:6px 0 0}.feed-heading-actions{display:flex;gap:6px}.feed-scroll{height:calc(100dvh - 157px);min-height:500px;overflow-y:auto;overscroll-behavior:contain;scroll-snap-type:y mandatory;scrollbar-width:thin;scrollbar-color:var(--line) transparent;padding:0 4px 18px;min-width:0}
+.feed-column{display:flex;flex-direction:column;min-width:0;min-height:0}.feed-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:3px 3px 12px}.feed-heading h1{font-size:23px;line-height:1.05;letter-spacing:-.8px;margin:0}.feed-heading p{font-size:11px;color:var(--muted);margin:6px 0 0}.feed-heading-actions{display:flex;gap:6px}
+.feed-tools{width:min(100%,620px);margin:0 auto 11px;display:flex;align-items:center;gap:7px}
+.feed-search-wrap{position:relative;display:flex;align-items:center;flex:1;min-width:0}
+.feed-search-wrap>span{position:absolute;left:12px;color:var(--muted);font-size:19px;line-height:1;pointer-events:none}
+.feed-search{height:42px;padding-left:34px;background:var(--panel);min-width:0}
+.feed-sort-wrap{width:132px;flex:0 0 132px}
+.feed-sort{height:42px;width:100%;background:var(--panel);padding:0 9px}
+.feed-clear{height:42px;padding:0 11px}
+.feed-clear:disabled{opacity:.48;cursor:default;transform:none}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.creator-suggestions-card{overflow:hidden}
+.suggestion-heading{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.suggestion-heading .side-title{margin:0 0 8px}
+.suggestion-live{font-size:8px;font-weight:950;letter-spacing:.1em;color:var(--accent);background:var(--accent-soft);padding:5px 7px;border-radius:999px;margin-bottom:8px}
+.suggestion-intro{margin-bottom:10px}
+.creator-suggestions{display:grid;gap:10px}
+.suggestion-row{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;gap:8px;min-width:0}
+.suggestion-avatar{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;overflow:hidden;background:var(--accent-soft);color:var(--accent);font-size:10px;font-weight:950}
+.suggestion-avatar img{width:100%;height:100%;object-fit:cover}
+.suggestion-copy{min-width:0}
+.suggestion-copy strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
+.suggestion-copy small{display:block;margin-top:3px;font-size:9px;color:var(--muted)}
+.suggestion-follow{min-height:30px;padding:0 9px;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--accent);font-size:10px;font-weight:900}
+.suggestion-follow:hover{background:var(--accent-soft)}
+.suggestion-empty{font-size:10px;line-height:1.5;color:var(--muted);margin:0}
+.post-owner-tools{position:absolute;top:43px;right:14px;z-index:5;display:flex;gap:5px}
+.post-owner-tools button{border:1px solid rgba(255,255,255,.24);border-radius:8px;padding:6px 8px;background:rgba(0,0,0,.52);color:#fff;font-size:9px;font-weight:900;backdrop-filter:blur(8px)}
+.post-owner-tools button:hover{background:rgba(0,0,0,.78)}
+.post-owner-tools .owner-delete{color:#ffc5ce}
+@media(max-width:1150px){.creator-suggestions-card{display:none}}
+@media(max-width:650px){.feed-tools{gap:5px}.feed-sort-wrap{width:105px;flex-basis:105px}.feed-sort{font-size:10px}.feed-clear{padding:0 8px;font-size:10px}.feed-search{font-size:11px}}
+.feed-scroll{height:calc(100dvh - 157px);min-height:500px;overflow-y:auto;overscroll-behavior:contain;scroll-snap-type:y mandatory;scrollbar-width:thin;scrollbar-color:var(--line) transparent;padding:0 4px 18px;min-width:0}
 .post{position:relative;width:min(100%,620px);height:min(760px,calc(100dvh - 178px));min-height:450px;margin:0 auto 15px;scroll-snap-align:start;scroll-snap-stop:normal;border:1px solid rgba(255,255,255,.12);border-radius:20px;overflow:hidden;background:#080b12;color:#fff;isolation:isolate;box-shadow:0 15px 34px rgba(10,15,25,.16)}
 .post-media{position:absolute;inset:0;display:grid;place-items:center;background:#080b12}.post-media img,.post-media video{display:block;width:100%;height:100%;object-fit:contain;background:#080b12}.post-media img{object-fit:cover}.video-stage{position:absolute;inset:0;display:grid;place-items:center;background:#080b12}.video-stage video{width:100%;height:100%;object-fit:contain;background:#080b12}.video-play-overlay{position:absolute;z-index:3;left:50%;top:50%;transform:translate(-50%,-50%);border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(10,13,22,.68);color:#fff;box-shadow:0 8px 30px #0005;backdrop-filter:blur(12px);display:flex;align-items:center;gap:10px;padding:14px 18px;font-size:12px;font-weight:900}.video-play-overlay span:first-child{font-size:18px}.video-play-overlay:hover{background:rgba(10,13,22,.85);transform:translate(-50%,-50%) scale(1.03)}.video-play-overlay.is-playing{display:none}.media-error{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;background:#111722;color:#b9c3d6;font-size:12px;line-height:1.5}
 .post-shade{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.40) 0%,transparent 22%,transparent 47%,rgba(0,0,0,.77) 100%)}
@@ -69,6 +100,11 @@
 
     <section class="feed-column" aria-label="Social feed">
       <div class="feed-heading"><div><h1>Social</h1><p>Fresh posts, short videos and real comments. Use ↑ and ↓ to scroll.</p></div><div class="feed-heading-actions"><button class="btn square" id="refreshFeed" type="button" title="Refresh feed" aria-label="Refresh feed">↻</button></div></div>
+      <div class="feed-tools" role="search" aria-label="Search social posts">
+        <label class="feed-search-wrap"><span aria-hidden="true">⌕</span><input id="feedSearch" type="search" class="searchbox feed-search" placeholder="Search captions or creators…" autocomplete="off" aria-label="Search captions or creators"></label>
+        <label class="feed-sort-wrap"><span class="sr-only">Sort posts</span><select id="feedSort" class="searchbox feed-sort" aria-label="Sort posts"><option value="newest">Latest</option><option value="popular">Most liked</option></select></label>
+        <button class="btn feed-clear" id="clearFeedSearch" type="button" disabled>Clear</button>
+      </div>
       <div id="feedError" class="error-state" hidden></div>
       <div id="feed" class="feed-scroll" tabindex="0" aria-label="Scrollable social posts">
         <div class="skeleton" aria-hidden="true"></div>
@@ -81,6 +117,11 @@
         <h2 class="side-title">Share something</h2>
         <p class="side-copy">Post a direct image or MP4 URL as a guest, or sign in to upload a file to the XBT media bucket.</p>
         <div class="side-actions"><button class="btn primary" id="composeOpenSide" type="button">Create a post</button><button class="btn" id="authOpenSide" type="button">Sign in / sign up</button></div>
+      </div>
+      <div class="side-card creator-suggestions-card">
+        <div class="suggestion-heading"><h2 class="side-title">People to follow</h2><span class="suggestion-live">DISCOVER</span></div>
+        <p class="side-copy suggestion-intro">Find creators from the posts already in your feed.</p>
+        <div id="creatorSuggestions" class="creator-suggestions" aria-live="polite"><p class="suggestion-empty">Discovering creators…</p></div>
       </div>
       <div class="side-card">
         <h2 class="side-title">Community guidelines</h2>
@@ -172,6 +213,7 @@
     : null;
 
   let currentUser=null,currentProfile=null,mode='for-you',posts=[],postStats=new Map(),userLikes=new Set(),userFollows=new Set(),savedPosts=new Set();
+  let feedQuery='',feedSort='newest';
   let commentsForPost=null,commentsCache=new Map(),authMode='signin',postBusy=false,videoObserver=null;
   let accountEmail='',feedErrorMessage='';
 
@@ -247,16 +289,47 @@
     }catch{return '';}
   }
   function visiblePosts(){
-    if(mode==='following')return posts.filter(p=>userFollows.has(String(p.username||'')));
-    if(mode==='saved')return posts.filter(p=>savedPosts.has(String(p.id)));
-    if(mode==='videos')return posts.filter(p=>p.media_type==='video');
-    return posts;
+    let list=posts;
+    if(mode==='following')list=list.filter(p=>userFollows.has(String(p.username||'')));
+    else if(mode==='saved')list=list.filter(p=>savedPosts.has(String(p.id)));
+    else if(mode==='videos')list=list.filter(p=>p.media_type==='video');
+    const query=feedQuery.trim().toLocaleLowerCase();
+    if(query)list=list.filter(p=>String(p.username||'').toLocaleLowerCase().includes(query)||String(p.caption||'').toLocaleLowerCase().includes(query)||(query==='video'&&p.media_type==='video')||(query==='image'&&p.media_type==='image'));
+    list=[...list];
+    if(feedSort==='popular')list.sort((a,b)=>{const A=statFor(a.id),B=statFor(b.id);return (B.likes*2+B.comments)-(A.likes*2+A.comments)||new Date(b.created_at)-new Date(a.created_at)});
+    else list.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+    return list;
+  }
+  function renderCreatorSuggestions(){
+    const root=$('creatorSuggestions');if(!root)return;
+    const mine=String(currentProfile?.username||currentUser?.user_metadata?.username||currentUser?.email?.split('@')[0]||'').toLocaleLowerCase();
+    const creators=new Map();
+    for(const post of posts){
+      const name=String(post.username||'Guest').trim(),key=name.toLocaleLowerCase();
+      if(!name||key===mine)continue;
+      const item=creators.get(key)||{name,avatar:post.avatar_url||'',count:0,last:post.created_at};
+      item.count++;
+      if(new Date(post.created_at)>new Date(item.last))item.last=post.created_at;
+      if(!item.avatar&&post.avatar_url)item.avatar=post.avatar_url;
+      creators.set(key,item);
+    }
+    const ranked=[...creators.values()].filter(x=>!userFollows.has(x.name)).sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name)).slice(0,5);
+    if(!ranked.length){root.innerHTML='<p class="suggestion-empty">'+(creators.size?'You are following everyone in this feed.':'New creators will appear here when posts are shared.')+'</p>';return;}
+    root.innerHTML=ranked.map(item=>'<div class="suggestion-row"><div class="suggestion-avatar">'+(item.avatar?'<img src="'+escapeHTML(item.avatar)+'" alt="" loading="lazy">':escapeHTML(safeInitials(item.name)))+'</div><div class="suggestion-copy"><strong>'+escapeHTML(item.name)+'</strong><small>'+item.count+' post'+(item.count===1?'':'s')+'</small></div><button type="button" class="suggestion-follow" data-action="follow" data-name="'+escapeHTML(item.name)+'">Follow</button></div>').join('');
+  }
+  function updateFeedToolbar(){
+    const input=$('feedSearch'),sort=$('feedSort');
+    if(input&&input.value!==feedQuery)input.value=feedQuery;
+    if(sort&&sort.value!==feedSort)sort.value=feedSort;
+    const clear=$('clearFeedSearch');if(clear)clear.disabled=!feedQuery;
   }
   function renderFeed(){
     const feed=$('feed');if(!feed)return;
     if(videoObserver){videoObserver.disconnect();videoObserver=null;}
     pauseAllVideos();
     const list=visiblePosts();
+    renderCreatorSuggestions();
+    updateFeedToolbar();
     $('postCount').textContent=String(posts.length);
     $('currentView').textContent=({ 'for-you':'For you',following:'Following',saved:'Saved',videos:'Videos only' })[mode]||'For you';
     document.querySelectorAll('[data-mode]').forEach(b=>{const active=b.dataset.mode===mode;b.classList.toggle('active',active);b.setAttribute('aria-current',active?'page':'false');});
@@ -265,8 +338,8 @@
     if(!list.length){
       feed.innerHTML='';
       $('emptyState').hidden=false;
-      $('emptyTitle').textContent=mode==='following'?'No posts from followed creators yet':mode==='saved'?'Nothing saved yet':mode==='videos'?'No video posts yet':'No posts yet';
-      $('emptyCopy').textContent=mode==='saved'?'Tap the bookmark on a post to save it here.':mode==='following'?'Follow a creator and their posts will appear in this view.':'When someone shares a public image or video, it will appear here.';
+      $('emptyTitle').textContent=feedQuery?'No matching posts':mode==='following'?'No posts from followed creators yet':mode==='saved'?'Nothing saved yet':mode==='videos'?'No video posts yet':'No posts yet';
+      $('emptyCopy').textContent=feedQuery?'Try a different creator name or caption search.':mode==='saved'?'Tap the bookmark on a post to save it here.':mode==='following'?'Follow a creator and their posts will appear in this view.':'When someone shares a public image or video, it will appear here.';
       $('emptyCreate').hidden=mode==='following'||mode==='saved';
       return;
     }
@@ -301,11 +374,13 @@
     const id=String(p.id),isVideo=p.media_type==='video';
     const stat=statFor(id),liked=userLikes.has(id)||( !currentUser&&getLocalSet(STORAGE_KEYS.likes).has(id) );
     const saved=savedPosts.has(id),followed=userFollows.has(String(p.username||''));
+    const isOwner=!!currentUser&&String(p.visitor_id)===String(currentUser.id);
+    const ownerTools=isOwner?'<div class="post-owner-tools"><button type="button" data-action="edit-post" data-id="'+escapeHTML(id)+'">Edit caption</button><button type="button" class="owner-delete" data-action="delete-post" data-id="'+escapeHTML(id)+'">Delete</button></div>':'';
     const avatar=p.avatar_url?'<img src="'+escapeHTML(p.avatar_url)+'" alt="" loading="lazy">':escapeHTML(safeInitials(p.username));
     const media=isVideo
       ?'<div class="video-stage"><video src="'+escapeHTML(p.media_url)+'" data-social-video data-post-id="'+escapeHTML(id)+'" playsinline webkit-playsinline controls preload="none" aria-label="Video by '+escapeHTML(p.username)+'"></video><button type="button" class="video-play-overlay" data-action="play" data-id="'+escapeHTML(id)+'" aria-label="Play video"><span>▶</span><span>Play video</span></button><div class="media-error" hidden>Could not play this video. Try another post or open the media from its source.</div></div>'
       :'<img data-post-image src="'+escapeHTML(p.media_url)+'" alt="Image posted by '+escapeHTML(p.username)+'" loading="lazy" decoding="async"><div class="media-error" hidden>This image could not be loaded.</div>';
-    return '<article class="post" data-social-post="'+escapeHTML(id)+'"><div class="post-media">'+media+'</div><div class="post-shade"></div><div class="post-top"><span class="post-pill">'+(isVideo?'Video':'Image')+' · public post</span><span class="post-time">'+escapeHTML(timeSince(p.created_at))+'</span></div><div class="post-rail"><button type="button" class="rail-action '+(liked?'liked':'')+'" data-action="like" data-id="'+escapeHTML(id)+'" aria-label="'+(liked?'Unlike':'Like')+' post">'+(liked?'♥':'♡')+'</button><span class="rail-count" data-like-count="'+escapeHTML(id)+'">'+formatCount(stat.likes+(liked&&!currentUser?1:0))+'</span><button type="button" class="rail-action" data-action="comments" data-id="'+escapeHTML(id)+'" aria-label="Comments">▤</button><span class="rail-count" data-comment-count="'+escapeHTML(id)+'">'+formatCount(stat.comments)+'</span><button type="button" class="rail-action '+(saved?'saved':'')+'" data-action="save" data-id="'+escapeHTML(id)+'" aria-label="'+(saved?'Unsave':'Save')+' post">▣</button><span class="rail-count">'+(saved?'Saved':'')+'</span><button type="button" class="rail-action" data-action="share" data-id="'+escapeHTML(id)+'" aria-label="Share post">↗</button></div><div class="post-bottom"><div class="creator-row"><div class="creator-avatar">'+avatar+'</div><div class="creator-copy"><strong>'+escapeHTML(p.username||'Guest')+'</strong><small>'+escapeHTML(timeSince(p.created_at))+'</small></div><button type="button" class="follow-btn '+(followed?'following':'')+'" data-action="follow" data-name="'+escapeHTML(p.username||'Guest')+'">'+(followed?'Following':'Follow')+'</button></div><div class="post-caption">'+escapeHTML(p.caption||'')+'</div></div></article>';
+    return '<article class="post" data-social-post="'+escapeHTML(id)+'"><div class="post-media">'+media+'</div><div class="post-shade"></div><div class="post-top"><span class="post-pill">'+(isVideo?'Video':'Image')+' · public post</span><span class="post-time">'+escapeHTML(timeSince(p.created_at))+'</span>'+ownerTools+'</div><div class="post-rail"><button type="button" class="rail-action '+(liked?'liked':'')+'" data-action="like" data-id="'+escapeHTML(id)+'" aria-label="'+(liked?'Unlike':'Like')+' post">'+(liked?'♥':'♡')+'</button><span class="rail-count" data-like-count="'+escapeHTML(id)+'">'+formatCount(stat.likes+(liked&&!currentUser?1:0))+'</span><button type="button" class="rail-action" data-action="comments" data-id="'+escapeHTML(id)+'" aria-label="Comments">▤</button><span class="rail-count" data-comment-count="'+escapeHTML(id)+'">'+formatCount(stat.comments)+'</span><button type="button" class="rail-action '+(saved?'saved':'')+'" data-action="save" data-id="'+escapeHTML(id)+'" aria-label="'+(saved?'Unsave':'Save')+' post">▣</button><span class="rail-count">'+(saved?'Saved':'')+'</span><button type="button" class="rail-action" data-action="share" data-id="'+escapeHTML(id)+'" aria-label="Share post">↗</button></div><div class="post-bottom"><div class="creator-row"><div class="creator-avatar">'+avatar+'</div><div class="creator-copy"><strong>'+escapeHTML(p.username||'Guest')+'</strong><small>'+escapeHTML(timeSince(p.created_at))+'</small></div><button type="button" class="follow-btn '+(followed?'following':'')+'" data-action="follow" data-name="'+escapeHTML(p.username||'Guest')+'">'+(followed?'Following':'Follow')+'</button></div><div class="post-caption">'+escapeHTML(p.caption||'')+'</div></div></article>';
   }
   async function loadFeed(){
     if(!client){
@@ -495,6 +570,47 @@
       setStatus('postStatus','Post was not published: '+String(e?.message||'connection error')+'. Try again.','bad');
     }finally{postBusy=false;submit.disabled=false;submit.textContent='Publish post';}
   }
+  async function editOwnPost(id){
+    const post=posts.find(p=>String(p.id)===String(id));
+    if(!currentUser||!post||String(post.visitor_id)!==String(currentUser.id)){showToast('You can only edit your own signed-in posts.');return;}
+    const value=window.prompt('Edit your caption (up to 500 characters):',String(post.caption||''));
+    if(value===null)return;
+    const caption=String(value).trim();
+    if(caption.length>500){showToast('Captions can be up to 500 characters.');return;}
+    try{
+      const q=await client.from('social_posts').update({caption}).eq('id',String(id)).eq('visitor_id',String(currentUser.id)).select('id,caption').maybeSingle();
+      if(q.error)throw q.error;
+      if(!q.data)throw new Error('The post could not be updated. Check that you still own it.');
+      post.caption=q.data.caption;
+      renderFeed();
+      showToast('Caption updated');
+    }catch(e){showToast('Could not update post: '+String(e?.message||'try again'));}
+  }
+  async function deleteOwnPost(id){
+    const post=posts.find(p=>String(p.id)===String(id));
+    if(!currentUser||!post||String(post.visitor_id)!==String(currentUser.id)){showToast('You can only delete your own signed-in posts.');return;}
+    if(!window.confirm('Delete this post? This cannot be undone.'))return;
+    try{
+      const q=await client.from('social_posts').delete().eq('id',String(id)).eq('visitor_id',String(currentUser.id)).select('id').maybeSingle();
+      if(q.error)throw q.error;
+      if(!q.data)throw new Error('The post could not be deleted. Check that you still own it.');
+      posts=posts.filter(p=>String(p.id)!==String(id));
+      let mediaCleanupFailed=false;
+      try{
+        const media=new URL(String(post.media_url||''));
+        const marker='/storage/v1/object/public/social-media/';
+        if(media.origin===new URL(SUPABASE_URL).origin&&media.pathname.includes(marker)){
+          const path=decodeURIComponent(media.pathname.split(marker)[1]||'');
+          if(path.startsWith('social/'+String(currentUser.id)+'/')){
+            const removal=await client.storage.from('social-media').remove([path]);
+            if(removal.error)mediaCleanupFailed=true;
+          }
+        }
+      }catch{mediaCleanupFailed=true;}
+      renderFeed();
+      showToast(mediaCleanupFailed?'Post deleted. Its uploaded file could not be cleaned up.':'Post deleted');
+    }catch(e){showToast('Could not delete post: '+String(e?.message||'try again'));}
+  }
   function startVideo(id,button){
     const post=document.querySelector('[data-social-post="'+CSS.escape(String(id))+'"]');
     const video=post?.querySelector('[data-social-video]');if(!video)return;
@@ -507,6 +623,10 @@
   }
   function setMode(next){
     mode=['for-you','following','saved','videos'].includes(next)?next:'for-you';
+    renderFeed();
+  }
+  function updateFeedSearch(){
+    feedQuery=String($('feedSearch')?.value||'').slice(0,120);
     renderFeed();
   }
   function updateAuthMode(){
@@ -547,6 +667,8 @@
       if(act==='save'){toggleSave(id);return;}
       if(act==='follow'){await toggleFollow(action.dataset.name);return;}
       if(act==='share'){await sharePost(id);return;}
+      if(act==='edit-post'){await editOwnPost(id);return;}
+      if(act==='delete-post'){await deleteOwnPost(id);return;}
     }
     const modeButton=event.target.closest('[data-mode]');
     if(modeButton){setMode(modeButton.dataset.mode);return;}
@@ -564,6 +686,9 @@
   $('authOpenSide').addEventListener('click',()=>{showCompose();$('authPanel').hidden=false;$('authEmail').focus();});
   $('accountManage').addEventListener('click',()=>{showCompose();$('authPanel').hidden=false;$('authEmail').focus();});
   $('refreshFeed').addEventListener('click',loadFeed);
+  $('feedSearch').addEventListener('input',updateFeedSearch);
+  $('feedSort').addEventListener('change',()=>{feedSort=$('feedSort').value==='popular'?'popular':'newest';renderFeed();});
+  $('clearFeedSearch').addEventListener('click',()=>{feedQuery='';$('feedSearch').value='';renderFeed();$('feedSearch').focus();});
   $('composeForm').addEventListener('submit',createPost);
   $('commentForm').addEventListener('submit',addComment);
   $('authForm').addEventListener('submit',submitAuth);
