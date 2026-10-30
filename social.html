@@ -184,6 +184,21 @@
   }
 }
 
+/* Small codec capability readout in the upload panel. */
+.codec-support{
+  display:grid;
+  gap:4px;
+  margin-top:8px;
+  padding:9px 10px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--soft);
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.5;
+}
+.codec-support strong{color:var(--text);font-size:10px}
+.codec-support-detail{display:block;font-size:9px;color:var(--muted)}
 /* One compact toolbar for every feed control. */
 .social-app .feed-heading{width:100%;max-width:900px;margin:0 auto;padding:1px 2px 9px}
 .social-app .feed-heading h1{font-size:23px;letter-spacing:-.75px}
@@ -528,7 +543,7 @@
         <div><label class="field-label" for="postAvatar">Avatar image URL (optional)</label><input class="field" id="postAvatar" maxlength="500" placeholder="https://…"></div>
         <div><label class="field-label" for="postCaption">Caption</label><textarea class="text-field" id="postCaption" maxlength="500" placeholder="Write a caption…"></textarea></div>
         <div><label class="field-label" for="mediaUrl">Direct image or MP4 URL</label><input class="field" id="mediaUrl" maxlength="2000" placeholder="https://example.com/video.mp4"></div>
-        <div><label class="field-label" for="mediaFile">Or choose a file</label><label class="file-label">Choose image / video <input id="mediaFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/*,.jpg,.jpeg,.png,.webp,.gif,.mp4,.m4v,.webm,.ogv,.ogg,.mov,.3gp,.mkv,.avi,.wmv,.flv,.mpeg,.mpg"></label><p class="note-small" style="margin-top:7px">Images up to 15 MB; videos up to 100 MB. Supports common MP4, WebM, Ogg and other browser-playable video files. Some codecs depend on your browser/device. File uploads require your account.</p></div>
+        <div><label class="field-label" for="mediaFile">Or choose a file</label><label class="file-label">Choose image / video <input id="mediaFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/*,.jpg,.jpeg,.png,.webp,.gif,.mp4,.m4v,.webm,.ogv,.ogg,.mov,.3gp,.mkv,.avi,.wmv,.flv,.mpeg,.mpg,.hevc,.h265,.h264,.264,.av1,.ivf,.m2v,.ts,.mts,.m2ts"></label><p class="note-small" style="margin-top:7px">Images up to 15 MB; videos up to 100 MB. Browser-playable codecs depend on your device. File uploads require your account.</p><p class="codec-support" id="codecSupportStatus" role="status" aria-live="polite">Checking this device's video decoders…</p></div>
         <div><label class="field-label" for="postStatus">Post status</label><div id="postStatus" class="status-text" role="status">Nothing has been posted yet.</div></div>
         <div class="form-foot"><button class="btn" type="button" data-close="composeOverlay">Cancel</button><button class="btn primary" id="submitPost" type="submit">Publish post</button></div>
       </form>
@@ -690,13 +705,62 @@
       return '';
     }catch{return '';}
   }
+  const SOCIAL_CODEC_PROBES=[
+    {label:'H.264 / AVC',types:['video/mp4; codecs="avc1.42E01E, mp4a.40.2"']},
+    {label:'HEVC / H.265',types:['video/mp4; codecs="hvc1.1.6.L120.B0, mp4a.40.2"','video/mp4; codecs="hev1.1.6.L120.B0, mp4a.40.2"']},
+    {label:'AV1',types:['video/mp4; codecs="av01.0.05M.08, mp4a.40.2"','video/webm; codecs="av01.0.05M.08, opus"']},
+    {label:'VP9',types:['video/webm; codecs="vp09.00.10.08, opus"']},
+    {label:'VP8',types:['video/webm; codecs="vp8, vorbis"']},
+    {label:'Apple ProRes',types:['video/quicktime; codecs="apcn"','video/quicktime; codecs="apch"']},
+    {label:'MPEG-2',types:['video/mpeg; codecs="mp2v"']},
+    {label:'MPEG-4 Part 2',types:['video/mp4; codecs="mp4v.20.8"']},
+    {label:'Theora',types:['video/ogg; codecs="theora, vorbis"']},
+    {label:'H.263',types:['video/3gpp; codecs="s263"']}
+  ];
+  async function inspectSocialCodecSupport(){
+    const target=$('codecSupportStatus');if(!target)return;
+    const nativeVideo=document.createElement('video');
+    const results=await Promise.all(SOCIAL_CODEC_PROBES.map(async probe=>{
+      for(const contentType of probe.types){
+        try{
+          let result=null;
+          if(navigator.mediaCapabilities?.decodingInfo){
+            result=await navigator.mediaCapabilities.decodingInfo({
+              type:'file',
+              video:{contentType,width:1280,height:720,bitrate:2500000,framerate:30}
+            });
+            if(result.supported)return {...probe,supported:true,smooth:!!result.smooth,powerEfficient:!!result.powerEfficient};
+          }
+          if(nativeVideo.canPlayType(contentType))return {...probe,supported:true,smooth:null,powerEfficient:null};
+        }catch{}
+      }
+      return {...probe,supported:false,smooth:false,powerEfficient:false};
+    }));
+    const yes=results.filter(item=>item.supported);
+    const hevc=results.find(item=>item.label==='HEVC / H.265');
+    const smoothCount=yes.filter(item=>item.smooth===true).length;
+    target.replaceChildren();
+    const heading=document.createElement('strong');
+    heading.textContent='This device can decode: ';
+    target.appendChild(heading);
+    const summary=document.createElement('span');
+    summary.textContent=yes.length?yes.map(item=>item.label).join(' · '):'No tested video codecs were confirmed';
+    target.appendChild(summary);
+    const detail=document.createElement('span');
+    detail.className='codec-support-detail';
+    detail.textContent='HEVC / H.265: '+(hevc?.supported?'available on this device':'not reported as supported')+
+      ' · '+smoothCount+' tested codecs report smooth decoding. Actual support can vary by profile, bit depth, resolution and audio codec.';
+    target.appendChild(detail);
+    target.dataset.hevcSupported=String(!!hevc?.supported);
+    target.dataset.checked='true';
+  }
   function videoPlaybackErrorMessage(video){
     const mime=videoMimeType(video?.dataset?.videoSrc||'');
     const support=mime?document.createElement('video').canPlayType(mime):'';
     if(mime&&!support){
       return 'This video format is not supported by your browser. Try MP4 (H.264/AAC), WebM (VP8/VP9) or convert the file to a browser-compatible format.';
     }
-    return 'This video could not be loaded. Check the media URL, file permissions and connection, then try again.';
+    return 'This video could not be decoded or loaded. The codec inside the file may not be supported by this device (for example HEVC / H.265 or ProRes). A missing decoder cannot be installed by renaming the file; the video needs a compatible transcode such as H.264 MP4.';
   }
   function visiblePosts(){
     let list=posts;
@@ -1478,6 +1542,7 @@
   if(localStorage.getItem(STORAGE_KEYS.theme)==='dark')document.documentElement.classList.add('dark');
   updateAuthMode();
   updateAutoScrollToggle();
+  inspectSocialCodecSupport().catch(error=>console.warn('Video codec capability check unavailable:',error));
 
   async function boot(){
     if(!client){setCloudStatus('Cloud unavailable');feedErrorMessage='The Supabase browser client failed to load.';renderFeed();return;}
