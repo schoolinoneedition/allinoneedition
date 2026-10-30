@@ -1,15 +1,52 @@
 {
   "rewrites": [
-    { "source": "/login", "destination": "/index.html" },
-    { "source": "/signup", "destination": "/index.html" },
-    { "source": "/meeting", "destination": "/index.html" },
-    { "source": "/chat", "destination": "/index.html" },
-    { "source": "/party", "destination": "/index.html" },
-    { "source": "/draw", "destination": "/index.html" },
-    { "source": "/community", "destination": "/index.html" },
-    { "source": "/social", "destination": "/social.html" },
-    { "source": "/videos", "destination": "/social.html" },
-    { "source": "/study", "destination": "/study.html" },
-    { "source": "/anime", "destination": "/anime.html" }
+    {
+      "source": "/videos/:series/:season/:filename",
+      "destination": "https://btnbuchsrfllpzlypjtn.supabase.co/storage/v1/object/public/anime-episodes/:series/:season/:filename"
+    },
+    {
+      "source": "/login",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/signup",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/meeting",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/chat",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/party",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/draw",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/community",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/social",
+      "destination": "/social.html"
+    },
+    {
+      "source": "/videos",
+      "destination": "/social.html"
+    },
+    {
+      "source": "/study",
+      "destination": "/study.html"
+    },
+    {
+      "source": "/anime",
+      "destination": "/anime.html"
+    }
   ]
 }
