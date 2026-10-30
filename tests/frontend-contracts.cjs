@@ -221,6 +221,7 @@ assert.ok(ux.includes('60000-(Date.now()%60000)'), 'The minute-only clock should
  assert.ok(html.includes('if(!worldClockTimer)worldClockTimer=setInterval(updateWorldClock,60000)'),'World clocks should refresh once per minute');
  assert.ok(html.includes('setInterval(updateCountdown,1000)')&&html.includes('if(swRunning&&!stopwatchTimer)'),'Countdown and stopwatch redraw loops should run only while active');
  assert.ok(html.includes('setInterval(pomoTick,1000)')&&html.includes('clearInterval(pomodoroTimer)'),'Pomodoro should use one-second visible updates');
+ assert.equal(html.split("let calcExpr='").length-1,1,'The calculator state must be declared only once');
  assert.ok(!html.includes('socialFitOnScrollTimer')&&!html.includes("if(location.hash.includes('social')"),'Social should not repeatedly scan posts or recreate observers during scrolling');
  assert.ok(html.includes("v.dataset.socialSetupBound==='1'"),'Social player event handlers must be idempotent');
 
