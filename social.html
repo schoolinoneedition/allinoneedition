@@ -94,6 +94,36 @@
 .video-stage{cursor:pointer;touch-action:pan-y}
 .video-stage:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
 .custom-video-controls,.video-play-overlay{display:none!important}
+
+/* Social layout refinement: give the feed room and stop the side panels crowding it. */
+.content{
+  width:min(1560px,100%);
+  grid-template-columns:minmax(205px,225px) minmax(0,1fr) minmax(245px,285px);
+  gap:22px;
+  padding:22px clamp(16px,2vw,30px) 26px;
+  align-items:start;
+}
+.sidebar,.rightbar{gap:16px}
+.side-card{padding:16px}
+.feed-tools{width:min(100%,700px);margin-bottom:14px}
+.feed-scroll{padding-left:8px;padding-right:8px}
+.post{width:min(100%,680px);margin-bottom:18px}
+.empty-state,.error-state,.skeleton{width:min(100%,680px)}
+@media(max-width:1150px){
+  .content{grid-template-columns:190px minmax(0,1fr);gap:18px;padding-left:18px;padding-right:18px}
+  .rightbar{display:none}
+}
+@media(max-width:720px){
+  .content{display:flex;flex-direction:column;gap:0;padding:10px 8px 12px}
+  .sidebar,.rightbar{display:none}
+  .feed-column{width:100%;height:100%;min-height:0}
+  .feed-scroll{width:100%;padding-left:1px;padding-right:1px}
+  .post{width:100%;margin-bottom:12px}
+  .empty-state,.error-state,.skeleton{width:100%}
+}
+@media(min-width:721px) and (max-width:1150px){
+  .post{width:min(100%,680px)}
+}
 </style>
 </head>
 <body>
@@ -472,7 +502,7 @@
     const viewportHeight=Math.max(1,Math.round(window.visualViewport?.height||window.innerHeight||1));
     const feedWidth=feed?.clientWidth||viewportWidth;
     const feedHeight=feed?.clientHeight||Math.max(1,viewportHeight-160);
-    const maxWidth=Math.max(1,Math.min(620,feedWidth-16,viewportWidth-16));
+    const maxWidth=Math.max(1,Math.min(680,feedWidth-24,viewportWidth-24));
     const maxHeight=Math.max(1,Math.min(feedHeight-18,viewportHeight-16));
     const width=Math.max(1,Math.min(maxWidth,maxHeight*ratio));
     const height=Math.max(1,Math.min(maxHeight,width/ratio));
@@ -559,9 +589,10 @@
   /* Background video preparation for Social.
      Downloads are limited to the site's own public MP4 bucket and stored in Cache Storage.
      Videos still play through the same custom player and remain user-controlled. */
-  const AIO_SOCIAL_CACHE_SESSION_LIMIT=160*1024*1024;
-  const AIO_SOCIAL_CACHE_FILE_LIMIT=32*1024*1024;
-  const AIO_SOCIAL_CACHE_BATCH_LIMIT=64*1024*1024;
+  const AIO_SOCIAL_DEVICE_MEMORY_GB=Number(navigator.deviceMemory)||4;
+  const AIO_SOCIAL_CACHE_SESSION_LIMIT=(AIO_SOCIAL_DEVICE_MEMORY_GB<=2?48:AIO_SOCIAL_DEVICE_MEMORY_GB<=4?96:160)*1024*1024;
+  const AIO_SOCIAL_CACHE_FILE_LIMIT=24*1024*1024;
+  const AIO_SOCIAL_CACHE_BATCH_LIMIT=(AIO_SOCIAL_DEVICE_MEMORY_GB<=2?24:48)*1024*1024;
   let aioSocialWarmQueue=[];
   let aioSocialWarmRequested=new Set();
   let aioSocialWarmBytes=0;
@@ -610,6 +641,12 @@
         if(data.type!=='AIO_SOCIAL_MEDIA_WARM_DONE')return;
         aioSocialWarmBusy=false;
         aioSocialWarmBytes+=Math.max(0,Number(data.downloadedBytes)||0);
+        // The worker returns anything not attempted because its byte budget was reached.
+        // Put those URLs back so later batches can warm them instead of silently losing them.
+        if(Array.isArray(data.pendingUrls)&&data.pendingUrls.length){
+          const queued=new Set(aioSocialWarmQueue);
+          for(const url of data.pendingUrls){if(typeof url==='string'&&!queued.has(url)){queued.add(url);aioSocialWarmQueue.push(url);}}
+        }
         if(aioSocialWarmQueue.length&&aioSocialWarmBytes<AIO_SOCIAL_CACHE_SESSION_LIMIT){
           if(document.hidden||Date.now()-aioSocialWarmLastActivity>5500)runSocialMediaWarmup();
           else scheduleSocialMediaWarmup();
