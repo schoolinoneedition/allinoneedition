@@ -189,8 +189,8 @@ assert.match(html, /function filteredGames\(\)/);
 // Keep one source of truth for favourites and avoid eager-fetching dozens of covers.
 assert.ok(!ux.includes('addFavouriteButtons'), 'Discovery must not inject a duplicate favourites button system');
 assert.ok(!ux.includes('aio-favourite-button'), 'Each game card should keep only its native favourite control');
-assert.match(ux, /discoveryFilter==='favourites'[\\s\\S]*?favouriteGames\\.has\\(gameKey\\(x\\.g\\)\\)/);
-assert.match(html, /const priority=i<12\\?'eager':'lazy'/, 'Only the first twelve game covers should be eager-loaded');
-assert.match(ux, /60000-\\(Date\\.now\\(\\)%60000\\)/, 'The minute-only clock should align updates to minute boundaries');
+assert.ok(ux.includes("discoveryFilter==='favourites'") && ux.includes('favouriteGames.has(gameKey(x.g))'), 'The discovery favourites filter must use the existing saved favourites');
+assert.ok(html.includes("const priority=i<12?'eager':'lazy'"), 'Only the first twelve game covers should be eager-loaded');
+assert.ok(ux.includes('60000-(Date.now()%60000)'), 'The minute-only clock should align updates to minute boundaries');
 
 console.log('Frontend contract checks passed: appearance persistence, context menu/game freeze wiring, auth/video safeguards, and economy/security migration contracts.');
