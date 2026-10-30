@@ -99,13 +99,13 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
 .spotlight-art:after{z-index:1}
 .spotlight-symbol{z-index:2;text-shadow:0 4px 16px rgba(0,0,0,.65)}
 
-/* Owner-managed official episode links */
+/* Owner-managed self-hosted episode videos */
 .owner-link-panel[hidden],.owner-link-editor[hidden]{display:none!important}
 .owner-link-panel h3{margin:0 0 7px;font-size:14px}
 .owner-link-panel p{font-size:11px;line-height:1.55;color:var(--muted);margin:0 0 11px}
 .owner-link-panel .owner-target{padding:10px 11px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);font-size:11px;color:var(--text);margin:10px 0}
 .owner-link-panel label{display:block;font-size:10px;font-weight:850;color:var(--muted);margin:10px 0 5px}
-.owner-link-panel input,.owner-link-panel select{width:100%;min-height:40px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--text);padding:9px 10px;font:inherit;font-size:11px}
+.owner-link-panel input{width:100%;min-height:40px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--text);padding:9px 10px;font:inherit;font-size:11px}
 .owner-link-panel .owner-form-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
 .owner-link-panel .owner-form-actions button{border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--soft);color:var(--text);font:inherit;font-size:10px;font-weight:850;cursor:pointer}
 .owner-link-panel .owner-form-actions button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -114,6 +114,14 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
 .owner-link-panel .owner-terms{font-size:9px;color:var(--muted);line-height:1.55;margin-top:10px}
 .owner-access-link{display:inline-flex;margin-top:4px;color:var(--accent);font-size:10px;font-weight:850;text-decoration:underline;text-underline-offset:3px}
 .owner-link-panel .owner-link-editor{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.watch-video{display:block;width:100%;max-height:68vh;aspect-ratio:16/9;object-fit:contain;background:#05080f;cursor:pointer}
+.watch-video-stage{position:relative;width:100%;background:#05080f;display:grid;place-items:center}
+.watch-video-overlay{position:absolute;inset:0;display:grid;place-items:center;border:0;background:transparent;color:#fff;cursor:pointer}
+.watch-video-overlay span{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;background:rgba(7,12,22,.72);border:1px solid rgba(255,255,255,.3);font-size:25px;backdrop-filter:blur(10px)}
+.watch-video-actions{display:flex;justify-content:flex-end;gap:8px;padding:9px;background:#101827}
+.watch-video-actions button{border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(255,255,255,.08);color:#fff;padding:8px 11px;font:inherit;font-size:10px;font-weight:850;cursor:pointer}
+.watch-video-stage:fullscreen{height:100vh;padding:0}
+.watch-video-stage:fullscreen .watch-video{width:100%;height:100%;max-height:100vh;aspect-ratio:auto}
 </style>
 </head>
 <body>
@@ -142,29 +150,26 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
    <div class="season-tabs" id="seasonTabs" role="group" aria-label="Seasons"></div>
    <section class="watch-player" aria-label="Anime episode player">
     <div class="watch-player-head"><div><strong id="playerTitle">Select an episode to watch</strong><small id="playerSubtitle">Official viewing options for this episode</small></div><span class="pill">PLAYER</span></div>
-    <div class="watch-player-stage" id="playerStage"><div class="watch-player-placeholder"><span class="player-mark">▶</span><strong>Choose an episode</strong><p>Choose an episode below to see its official viewing options. In-site playback is only available where a distributor explicitly permits embedding.</p></div></div>
-    <div class="watch-player-note" id="playerNote">No third-party streams are copied or proxied. Licensed providers control playback, subtitles and regional availability.</div>
+    <div class="watch-player-stage" id="playerStage"><div class="watch-player-placeholder"><span class="player-mark">▶</span><strong>Choose an episode</strong><p>Pick an episode below. The owner can add a rights-cleared MP4/WebM video for in-page playback.</p></div></div>
+    <div class="watch-player-note" id="playerNote">Episode videos play directly in Anime Zone. Click the video to play or pause; use Fullscreen for a larger view.</div>
    </section>
    <div class="episode-list" id="episodeList"></div>
   </div>
   <aside class="side-stack">
-   <section class="side-panel"><h3>Where to watch legally</h3><p id="watchNote">Availability differs by country and changes over time. These buttons open official show pages or a UK availability guide.</p><div class="watch-links" id="watchLinks"></div><p class="notice">This page is an episode guide and watch tracker. It does not host or copy copyrighted episodes. Check each service's current UK catalogue and the show's age rating before watching.</p></section>
-
    <section class="side-panel owner-link-panel" id="ownerLinkPanel">
-    <h3>Episode link manager</h3>
-    <p id="ownerAccessText">Owner-only controls. Sign in to the hub with the site owner account to manage episode watch links.</p>
+    <h3>Episode video manager</h3>
+    <p id="ownerAccessText">Owner-only controls. Sign in to the hub with the site owner account to add episode videos.</p>
     <a class="owner-access-link" href="./index.html">Open All in One Edition account</a>
     <div class="owner-link-editor" id="ownerLinkEditor" hidden>
      <div class="owner-target" id="ownerEpisodeTarget">Choose an episode from the list first.</div>
-     <label for="episodeProvider">Official provider</label>
-     <select id="episodeProvider">
-      <option>Crunchyroll</option><option>Netflix</option><option>Prime Video</option><option>Disney+</option><option>HIDIVE</option><option>BBC iPlayer</option><option>ITVX</option><option>Channel 4</option><option>My5</option><option>JustWatch</option>
-     </select>
-     <label for="episodeWatchUrl">Official episode or series page URL</label>
-     <input id="episodeWatchUrl" type="url" inputmode="url" maxlength="2048" placeholder="https://www.crunchyroll.com/...">
-     <div class="owner-form-actions"><button class="primary" id="saveEpisodeLink" type="button">Save episode link</button><button id="removeEpisodeLink" type="button" disabled>Remove link</button></div>
+     <label for="episodeVideoFile">Upload an MP4 or WebM to XBT Storage (max 50 MB)</label>
+     <input id="episodeVideoFile" type="file" accept="video/mp4,video/webm,.mp4,.webm">
+     <div class="owner-form-actions"><button class="primary" id="uploadEpisodeVideo" type="button">Upload episode video</button></div>
+     <label for="episodeWatchUrl">Or paste a direct MP4/WebM URL hosted on All in One Edition</label>
+     <input id="episodeWatchUrl" type="url" inputmode="url" maxlength="2048" placeholder="https://allinoneedition.vercel.app/videos/episode.mp4">
+     <div class="owner-form-actions"><button class="primary" id="saveEpisodeLink" type="button">Save direct video URL</button><button id="removeEpisodeLink" type="button" disabled>Remove video</button></div>
      <div class="owner-link-status" id="ownerLinkStatus" role="status" aria-live="polite"></div>
-     <p class="owner-terms">Only approved streaming-service or availability-guide pages are accepted. Direct video files and unapproved streaming hosts are blocked. Links open on the provider's own website.</p>
+     <p class="owner-terms">Only videos you own or are authorised to distribute. Uploads are limited to 50 MB on the current XBT Free plan. Direct URLs must be hosted on your own All in One Edition site; third-party streaming links are rejected.</p>
     </div>
    </section>
    <section class="side-panel"><h3>Progress controls</h3><p>Watched ticks are stored only in this browser. You can export a backup or clear the watch history at any time.</p><div class="watch-links"><button class="watch-link" id="exportProgress" type="button">Export watch progress <span>↓</span></button><button class="watch-link" id="clearProgress" type="button">Clear watch progress <span>↺</span></button></div><p id="saveStatus" class="stat-caption" aria-live="polite" style="margin-top:9px">Progress saves automatically.</p></section>
@@ -258,23 +263,31 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   'BBC iPlayer':['bbc.co.uk'],'ITVX':['itv.com'],
   'Channel 4':['channel4.com'],'My5':['my5.tv'],'JustWatch':['justwatch.com']
  };
- function validateOfficialWatchUrl(raw,provider){
-  let url;try{url=new URL(String(raw||'').trim())}catch{throw new Error('Enter a valid provider page URL.')}
-  if(url.protocol!=='https:'||url.username||url.password)throw new Error('Use a secure https:// provider page URL.');
-  const host=url.hostname.toLowerCase(),allowed=providerDomains[provider]||[];
-  if(!allowed.some(domain=>host===domain||host.endsWith('.'+domain)))throw new Error('That URL does not match the selected approved provider.');
-  if(/\.(mp4|m3u8|mpd|webm|mkv)$/i.test(url.pathname))throw new Error('Direct video-file links are not accepted. Use the provider’s official watch page.');
-  if(!url.pathname||url.pathname==='/')throw new Error('Use the actual episode or series page, not just the provider homepage.');
+ function validateSelfHostedVideoUrl(raw){
+  let url;try{url=new URL(String(raw||'').trim())}catch{throw new Error('Enter a valid direct video URL.')}
+  if(url.protocol!=='https:'||url.username||url.password)throw new Error('Use a secure https:// video URL.');
+  const host=url.hostname.toLowerCase(),path=url.pathname.toLowerCase();
+  const onVercel=host==='allinoneedition.vercel.app';
+  const onGithubPages=host==='schoolinoneedition.github.io'&&path.startsWith('/allinoneedition/');
+  if(!onVercel&&!onGithubPages)throw new Error('Direct URLs must be hosted on your All in One Edition website. For other files, use the XBT upload.');
+  if(!/\.(mp4|webm)$/i.test(url.pathname))throw new Error('The direct URL must end in .mp4 or .webm.');
   return url.href;
+ }
+ function videoObjectPath(url){
+  try{
+   const parsed=new URL(url),prefix='/storage/v1/object/public/anime-episodes/';
+   if(parsed.hostname!=='btnbuchsrfllpzlypjtn.supabase.co'||!parsed.pathname.startsWith(prefix))return null;
+   return decodeURIComponent(parsed.pathname.slice(prefix.length));
+  }catch{return null}
  }
  function updateOwnerEditor(s,si,ep){
   selectedEpisode={seriesId:s.id,seasonIndex:si,episodeNumber:ep.number};
   const saved=episodeLinks.get(watchLinkKey(s.id,si,ep.number));
   $('ownerEpisodeTarget').textContent=s.title+' · '+s.seasons[si].name+' · Episode '+ep.number+' — '+ep.title;
-  if($('episodeProvider'))$('episodeProvider').value=saved?.provider||'Crunchyroll';
-  if($('episodeWatchUrl'))$('episodeWatchUrl').value=saved?.watch_url||'';
+  if($('episodeWatchUrl'))$('episodeWatchUrl').value=saved?.provider==='Self-hosted video'?saved.watch_url:'';
+  if($('episodeVideoFile'))$('episodeVideoFile').value='';
   if($('removeEpisodeLink'))$('removeEpisodeLink').disabled=!saved;
-  if($('ownerLinkStatus'))$('ownerLinkStatus').textContent=saved?'Saved link: '+saved.provider:'No owner link saved for this episode yet.';
+  if($('ownerLinkStatus'))$('ownerLinkStatus').textContent=saved?(saved.provider==='XBT Storage'?'Video uploaded to XBT Storage.':'Direct video URL saved.'):'No video saved for this episode yet.';
  }
  async function loadEpisodeLinks(){
   if(!ownerClient)return;
@@ -304,39 +317,70 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
    if(result.error)throw result.error;
    siteOwner=result.data?.role==='owner';
    editor.hidden=!siteOwner;
-   access.textContent=siteOwner?'Owner verified. You can add or remove approved watch-page links for any listed episode.': 'This editor is restricted to the site owner account.';
+   access.textContent=siteOwner?'Owner verified. You can upload or link rights-cleared MP4/WebM videos for any listed episode.': 'This editor is restricted to the site owner account.';
    if(siteOwner&&selectedEpisode){
     const s=series.find(item=>item.id===selectedEpisode.seriesId),ep=s?.seasons[selectedEpisode.seasonIndex]?.episodes.find(item=>item.number===selectedEpisode.episodeNumber);
     if(s&&ep)updateOwnerEditor(s,selectedEpisode.seasonIndex,ep);
    }
   }catch(error){siteOwner=false;editor.hidden=true;access.textContent='Could not verify owner permissions. '+(error?.message||'Try signing in again from the main hub.')}
  }
- async function saveOwnerEpisodeLink(){
-  if(!siteOwner||!currentSession?.user||!selectedEpisode){$('ownerLinkStatus').textContent='Only the verified site owner can save a link. Select an episode first.';return}
-  let watchUrl;
-  const provider=$('episodeProvider').value;
-  try{watchUrl=validateOfficialWatchUrl($('episodeWatchUrl').value,provider)}catch(error){$('ownerLinkStatus').textContent=error.message;return}
-  const button=$('saveEpisodeLink');button.disabled=true;
+ async function saveEpisodeVideoRow(provider,watchUrl){
   const row={...selectedEpisode,provider,watch_url:watchUrl,updated_by:currentSession.user.id,updated_at:new Date().toISOString()};
+  const result=await ownerClient.from('anime_episode_watch_links').upsert(row,{onConflict:'series_id,season_index,episode_number'});
+  if(result.error)throw result.error;
+  episodeLinks.set(watchLinkKey(row.series_id,row.season_index,row.episode_number),row);
+  renderCatalog();
+  const s=series.find(item=>item.id===row.series_id),ep=s?.seasons[row.season_index]?.episodes.find(item=>item.number===row.episode_number);
+  if(s&&ep)renderPlayer(s,row.season_index,ep);
+ }
+ async function saveOwnerEpisodeLink(){
+  if(!siteOwner||!currentSession?.user||!selectedEpisode){$('ownerLinkStatus').textContent='Only the verified site owner can save a video. Select an episode first.';return}
+  let watchUrl;
+  try{watchUrl=validateSelfHostedVideoUrl($('episodeWatchUrl').value)}catch(error){$('ownerLinkStatus').textContent=error.message;return}
+  const button=$('saveEpisodeLink');button.disabled=true;
   try{
-   const result=await ownerClient.from('anime_episode_watch_links').upsert(row,{onConflict:'series_id,season_index,episode_number'});
-   if(result.error)throw result.error;
-   episodeLinks.set(watchLinkKey(row.series_id,row.season_index,row.episode_number),row);
-   $('ownerLinkStatus').textContent='Saved. This episode now has an official provider link.';
-   renderCatalog();
-   const s=series.find(item=>item.id===row.series_id),ep=s?.seasons[row.season_index]?.episodes.find(item=>item.number===row.episode_number);
-   if(s&&ep)renderPlayer(s,row.season_index,ep);
+   await saveEpisodeVideoRow('Self-hosted video',watchUrl);
+   $('ownerLinkStatus').textContent='Direct video URL saved. The episode is ready to play in Anime Zone.';
   }catch(error){$('ownerLinkStatus').textContent='Could not save: '+(error?.message||'Database error.')}
   finally{button.disabled=false}
+ }
+ async function uploadOwnerEpisodeVideo(){
+  if(!siteOwner||!currentSession?.user||!selectedEpisode){$('ownerLinkStatus').textContent='Only the verified site owner can upload a video. Select an episode first.';return}
+  const file=$('episodeVideoFile').files?.[0];
+  if(!file){$('ownerLinkStatus').textContent='Choose an MP4 or WebM file first.';return}
+  const extension=(file.name.split('.').pop()||'').toLowerCase();
+  const mimeOk=(extension==='mp4'&&file.type==='video/mp4')||(extension==='webm'&&file.type==='video/webm');
+  if(!mimeOk){$('ownerLinkStatus').textContent='Choose a valid MP4 or WebM video file.';return}
+  if(file.size>50*1024*1024){$('ownerLinkStatus').textContent='This XBT Free-plan upload is over the 50 MB file limit. Host the file on your All in One Edition site and paste its direct URL instead.';return}
+  const button=$('uploadEpisodeVideo');button.disabled=true;
+  $('ownerLinkStatus').textContent='Uploading '+file.name+'…';
+  const safeName=selectedEpisode.seriesId+'/'+(selectedEpisode.seasonIndex+1)+'/'+String(selectedEpisode.episodeNumber).padStart(3,'0')+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+extension;
+  let uploadedPath=null;
+  try{
+   const upload=await ownerClient.storage.from('anime-episodes').upload(safeName,file,{contentType:file.type,cacheControl:'3600',upsert:false});
+   if(upload.error)throw upload.error;
+   uploadedPath=safeName;
+   const publicUrl=ownerClient.storage.from('anime-episodes').getPublicUrl(safeName).data.publicUrl;
+   await saveEpisodeVideoRow('XBT Storage',publicUrl);
+   $('ownerLinkStatus').textContent='Uploaded and saved. This episode now plays inside Anime Zone.';
+   $('episodeVideoFile').value='';
+  }catch(error){
+   if(uploadedPath){try{await ownerClient.storage.from('anime-episodes').remove([uploadedPath])}catch{}}
+   $('ownerLinkStatus').textContent='Upload failed: '+(error?.message||'Storage error.');
+  }finally{button.disabled=false}
  }
  async function removeOwnerEpisodeLink(){
   if(!siteOwner||!currentSession?.user||!selectedEpisode)return;
   const button=$('removeEpisodeLink');button.disabled=true;
   try{
+   const mapKey=watchLinkKey(selectedEpisode.seriesId,selectedEpisode.seasonIndex,selectedEpisode.episodeNumber);
+   const existing=episodeLinks.get(mapKey);
    const result=await ownerClient.from('anime_episode_watch_links').delete().eq('series_id',selectedEpisode.seriesId).eq('season_index',selectedEpisode.seasonIndex).eq('episode_number',selectedEpisode.episodeNumber);
    if(result.error)throw result.error;
-   episodeLinks.delete(watchLinkKey(selectedEpisode.seriesId,selectedEpisode.seasonIndex,selectedEpisode.episodeNumber));
-   $('episodeWatchUrl').value='';$('ownerLinkStatus').textContent='Episode link removed.';
+   episodeLinks.delete(mapKey);
+   const objectPath=existing?.provider==='XBT Storage'?videoObjectPath(existing.watch_url):null;
+   if(objectPath){const removed=await ownerClient.storage.from('anime-episodes').remove([objectPath]);if(removed.error)throw removed.error}
+   $('episodeWatchUrl').value='';$('ownerLinkStatus').textContent='Episode video removed.';
    renderCatalog();
    const s=series.find(item=>item.id===selectedEpisode.seriesId),ep=s?.seasons[selectedEpisode.seasonIndex]?.episodes.find(item=>item.number===selectedEpisode.episodeNumber);
    if(s&&ep)renderPlayer(s,selectedEpisode.seasonIndex,ep);
@@ -365,30 +409,36 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
  }
  function renderPlayer(s,si,ep){
   $('playerTitle').textContent=s.title+' · '+ep.title;
-  $('playerSubtitle').textContent=s.seasons[si].name+' · Episode '+ep.number+' · Official provider page';
+  $('playerSubtitle').textContent=s.seasons[si].name+' · Episode '+ep.number;
   updateOwnerEditor(s,si,ep);
   const stage=$('playerStage');stage.replaceChildren();
-  const box=document.createElement('div');box.className='watch-player-placeholder';
   const saved=episodeLinks.get(watchLinkKey(s.id,si,ep.number));
-  const mark=document.createElement('div');mark.className='player-mark';mark.textContent='↗';
-  const title=document.createElement('strong');title.textContent=saved?'Episode link added':'Choose an official place to watch';
-  const description=document.createElement('p');
-  description.textContent=saved
-   ?'The site owner added an official '+saved.provider+' page for this episode. Playback opens on the provider’s own website.'
-   :'No episode-specific provider page has been added yet. Use one of the official service pages below to check availability in your region.';
-  const actions=document.createElement('div');actions.className='watch-player-actions';
-  const links=saved?[{label:'Open '+saved.provider+' page',url:saved.watch_url,hint:'Opens the provider website in a new tab'}]:s.watch;
-  links.forEach((link,index)=>{
-   const a=document.createElement('a');
-   a.className='action'+(index===0?' primary':'');
-   a.href=link.url;a.target='_blank';a.rel='noopener noreferrer';
-   a.textContent=saved?link.label:(/justwatch/i.test(link.label)?'Check UK availability':link.label);
-   a.title=link.hint||link.label;
-   actions.append(a);
-  });
-  box.append(mark,title,description,actions);stage.append(box);
-  const note=$('playerNote');
-  note.textContent='These are official provider watch pages, not embedded video streams. The provider controls playback, sound, subtitles, fullscreen and regional access.';
+  const isVideo=saved&&(saved.provider==='XBT Storage'||saved.provider==='Self-hosted video');
+  if(!isVideo){
+   const box=document.createElement('div');box.className='watch-player-placeholder';
+   const mark=document.createElement('div');mark.className='player-mark';mark.textContent='▶';
+   const title=document.createElement('strong');title.textContent='No video added yet';
+   const description=document.createElement('p');description.textContent='The site owner can upload a rights-cleared MP4/WebM or paste a direct video URL hosted on All in One Edition. Select this episode in the manager to add it.';
+   box.append(mark,title,description);stage.append(box);
+   $('playerNote').textContent='No episode video has been added yet.';
+   return;
+  }
+  const frame=document.createElement('div');frame.className='watch-video-stage';
+  const video=document.createElement('video');video.className='watch-video';video.src=saved.watch_url;video.preload='metadata';video.playsInline=true;video.controls=false;video.setAttribute('aria-label',s.title+' '+ep.title);
+  const overlay=document.createElement('button');overlay.type='button';overlay.className='watch-video-overlay';overlay.setAttribute('aria-label','Play episode');const overlayIcon=document.createElement('span');overlayIcon.textContent='▶';overlay.append(overlayIcon);
+  const toggle=async()=>{if(video.paused){try{await video.play()}catch{$('playerNote').textContent='Playback could not start. Check that the video URL is reachable and supports MP4/WebM streaming.'}}else video.pause()};
+  video.addEventListener('click',toggle);
+  video.addEventListener('keydown',event=>{if(event.code==='Space'||event.code==='Enter'){event.preventDefault();toggle()}});
+  overlay.addEventListener('click',event=>{event.stopPropagation();toggle()});
+  video.addEventListener('play',()=>{overlay.hidden=true;overlay.setAttribute('aria-label','Pause episode')});
+  video.addEventListener('pause',()=>{overlay.hidden=false;overlay.setAttribute('aria-label','Play episode');overlayIcon.textContent='▶'});
+  video.addEventListener('error',()=>{$('playerNote').textContent='This video could not be loaded. Check the saved URL, file permissions and MP4/WebM encoding.'});
+  frame.append(video,overlay);
+  const actions=document.createElement('div');actions.className='watch-video-actions';
+  const fullscreen=document.createElement('button');fullscreen.type='button';fullscreen.textContent='⛶ Fullscreen';fullscreen.addEventListener('click',async()=>{try{if(!document.fullscreenElement)await frame.requestFullscreen();else await document.exitFullscreen()}catch{$('playerNote').textContent='Fullscreen is not available in this browser.'}});
+  actions.append(fullscreen);
+  stage.append(frame,actions);
+  $('playerNote').textContent='Click the video to play or pause. Fullscreen is available below the player. Sound controls are hidden.';
  }
  function seriesProgress(s){let all=0,done=0;s.seasons.forEach((season,si)=>season.episodes.forEach(ep=>{all++;if(watched[key(s.id,si,ep.number)])done++}));return {all,done,pct:all?Math.round(done/all*100):0}}
  function renderStats(){let all=0,done=0;series.forEach(s=>{const p=seriesProgress(s);all+=p.all;done+=p.done});$('watchedCount').textContent=done.toLocaleString('en-GB');$('watchedCaption').textContent='of '+all.toLocaleString('en-GB')+' listed episodes marked watched';$('progressPct').textContent=(all?Math.round(done/all*100):0)+'%';$('overallBar').style.width=(all?done/all*100:0)+'%'}
@@ -414,8 +464,6 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   const s=current(),p=seriesProgress(s);$('catalogTitle').textContent=s.title;$('catalogDescription').textContent=s.description+' · '+p.done+'/'+p.all+' tracked.';$('catalogRating').textContent='UK '+s.rating;
   const tabs=$('seasonTabs');tabs.replaceChildren();
   s.seasons.forEach((season,index)=>{const b=document.createElement('button');b.type='button';b.className='season-tab';b.textContent=season.name;b.setAttribute('aria-pressed',String(index===activeSeason));b.addEventListener('click',()=>{activeSeason=index;renderCatalog()});tabs.append(b)});
-  const watch=$('watchLinks');watch.replaceChildren();s.watch.forEach(link=>{const a=document.createElement('a');a.className='watch-link';a.href=link.url;a.target='_blank';a.rel='noopener noreferrer';const title=document.createElement('span');title.textContent=link.label;const arrow=document.createElement('span');arrow.textContent='↗';a.title=link.hint;a.append(title,arrow);watch.append(a)});
-  $('watchNote').textContent=s.note;
   const list=$('episodeList'),season=s.seasons[activeSeason];list.replaceChildren();
   const query=$('episodeSearch').value.trim().toLowerCase(),filter=$('progressFilter').value;
   let shown=0;
@@ -426,7 +474,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
    const row=document.createElement('label');row.className='episode-row'+(done?' watched':'');
    const num=document.createElement('span');num.className='ep-num';num.textContent='EP '+String(ep.number).padStart(2,'0');
    const copy=document.createElement('span');copy.className='ep-copy';const title=document.createElement('strong');title.textContent=ep.title;const meta=document.createElement('small');const savedLink=episodeLinks.get(watchLinkKey(s.id,activeSeason,ep.number));meta.textContent=season.name+(savedLink?' · '+savedLink.provider+' link added':'');copy.append(title,meta);
-   const play=document.createElement('button');play.type='button';play.className='ep-play';play.textContent=savedLink?'Open episode':'Viewing options';play.setAttribute('aria-label','Watch or open '+ep.title);play.addEventListener('click',()=>{renderPlayer(s,activeSeason,ep);$('playerTitle').scrollIntoView({behavior:'smooth',block:'nearest'})});
+   const play=document.createElement('button');play.type='button';play.className='ep-play';play.textContent=savedLink?'Play episode':'Add video';play.setAttribute('aria-label','Play or add video for '+ep.title);play.addEventListener('click',()=>{renderPlayer(s,activeSeason,ep);$('playerTitle').scrollIntoView({behavior:'smooth',block:'nearest'})});
    const checkWrap=document.createElement('span');checkWrap.className='ep-check';const check=document.createElement('input');check.type='checkbox';check.checked=done;check.setAttribute('aria-label','Mark '+ep.title+' watched');check.addEventListener('change',()=>{if(check.checked)watched[epKey]=true;else delete watched[epKey];save();renderEpisodesOnly()});checkWrap.append(check,document.createTextNode('Watched'));row.append(num,copy,play,checkWrap);list.append(row);shown++;
   });
   if(!shown){const empty=document.createElement('div');empty.className='no-results';empty.textContent='No episodes match those filters.';list.append(empty)}
@@ -434,6 +482,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
  function renderEpisodesOnly(){renderCatalog();renderStats()}
  $('episodeSearch').addEventListener('input',renderCatalog);$('progressFilter').addEventListener('change',renderCatalog);
  $('saveEpisodeLink').addEventListener('click',saveOwnerEpisodeLink);
+ $('uploadEpisodeVideo').addEventListener('click',uploadOwnerEpisodeVideo);
  $('removeEpisodeLink').addEventListener('click',removeOwnerEpisodeLink);
  $('exportProgress').addEventListener('click',()=>{
   const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),watched},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='all-in-one-anime-progress.json';a.click();URL.revokeObjectURL(url);$('saveStatus').textContent='Progress backup exported.';
