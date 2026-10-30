@@ -8,6 +8,8 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Social · All in One Edition</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231b5cff'/%3E%3Cpath d='M17 18h30v11H28v17H17z' fill='white'/%3E%3Cpath d='M29 18l18 13-18 13z' fill='%23ffe16a'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://btnbuchsrfllpzlypjtn.supabase.co" crossorigin>
+<link rel="dns-prefetch" href="https://btnbuchsrfllpzlypjtn.supabase.co">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{color-scheme:light;--bg:#f5f7fb;--panel:#fff;--text:#20232b;--muted:#747b8b;--line:#e4e8f0;--soft:#f0f3f9;--accent:#1b5cff;--accent-soft:#e9efff;--mint:#baf2e4;--shadow:0 12px 36px rgba(26,35,56,.08);--header-h:68px}
@@ -247,7 +249,7 @@
   let currentUser=null,currentProfile=null,mode='for-you',posts=[],postStats=new Map(),userLikes=new Set(),userFollows=new Set(),savedPosts=new Set();
   let feedQuery='',feedSort='newest';
   let autoScrollEnabled=localRead(STORAGE_KEYS.autoScroll,false)===true;
-  let commentsForPost=null,commentsCache=new Map(),authMode='signin',postBusy=false,videoObserver=null;
+  let commentsForPost=null,commentsCache=new Map(),authMode='signin',postBusy=false,videoObserver=null,videoPreloadObserver=null;
   let accountEmail='',feedErrorMessage='';
 
   function updateSocialClock(){const clock=$('socialLiveClock');if(!clock)return;clock.textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false});}
@@ -367,6 +369,7 @@
   function renderFeed(){
     const feed=$('feed');if(!feed)return;
     if(videoObserver){videoObserver.disconnect();videoObserver=null;}
+    if(videoPreloadObserver){videoPreloadObserver.disconnect();videoPreloadObserver=null;}
     pauseAllVideos();
     updateAutoScrollToggle();
     const list=visiblePosts();
@@ -444,6 +447,14 @@
       }
     });
     if('IntersectionObserver'in window){
+      videoPreloadObserver=new IntersectionObserver(entries=>{
+        for(const entry of entries){
+          if(entry.isIntersecting){
+            prepareSocialVideo(entry.target);
+            videoPreloadObserver.unobserve(entry.target);
+          }
+        }
+      },{root:feed,rootMargin:'650px 0px',threshold:0});
       videoObserver=new IntersectionObserver(entries=>{
         let mostVisible=null;
         for(const entry of entries){
@@ -457,7 +468,7 @@
           if(activeVideo.paused&&activeVideo.dataset.autoplayBlocked!=='true')startVideo(activeVideo.dataset.postId);
         }
       },{root:feed,threshold:[0,.22,.58,.72]});
-      feed.querySelectorAll('[data-social-video]').forEach(v=>videoObserver.observe(v));
+      feed.querySelectorAll('[data-social-video]').forEach(v=>{videoPreloadObserver.observe(v);videoObserver.observe(v)});
     }
   }
   function fitSocialPost(post,naturalWidth,naturalHeight){
@@ -515,7 +526,7 @@
     const ownerTools=isOwner?'<div class="post-owner-tools"><button type="button" data-action="edit-post" data-id="'+escapeHTML(id)+'">Edit caption</button><button type="button" class="owner-delete" data-action="delete-post" data-id="'+escapeHTML(id)+'">Delete</button></div>':'';
     const avatar=p.avatar_url?'<img src="'+escapeHTML(p.avatar_url)+'" alt="" loading="lazy">':escapeHTML(safeInitials(p.username));
     const media=isVideo
-      ?'<div class="video-stage" role="button" tabindex="0" aria-label="Play video" aria-pressed="false"><video src="'+escapeHTML(p.media_url)+'" data-social-video data-post-id="'+escapeHTML(id)+'" playsinline webkit-playsinline preload="none" disablepictureinpicture disableremoteplayback aria-label="Tap the video to play or pause" tabindex="-1"></video><div class="media-error" hidden>Could not play this video. Try another post or open the media from its source.</div></div>'
+      ?'<div class="video-stage" role="button" tabindex="0" aria-label="Play video" aria-pressed="false"><video data-video-src="'+escapeHTML(p.media_url)+'" data-social-video data-post-id="'+escapeHTML(id)+'" playsinline webkit-playsinline preload="none" loading="lazy" width="1280" height="720" disablepictureinpicture disableremoteplayback aria-label="Tap the video to play or pause" tabindex="-1"></video><div class="media-error" hidden>Could not play this video. Try another post or open the media from its source.</div></div>'
       :'<img data-post-image src="'+escapeHTML(p.media_url)+'" alt="Image posted by '+escapeHTML(p.username)+'" loading="lazy" decoding="async"><div class="media-error" hidden>This image could not be loaded.</div>';
     return '<article class="post" data-social-post="'+escapeHTML(id)+'"><div class="post-media">'+media+'</div><div class="post-shade"></div><div class="post-top"><span class="post-pill">'+(isVideo?'Video':'Image')+' · public post</span><span class="post-time">'+escapeHTML(timeSince(p.created_at))+'</span>'+ownerTools+'</div><div class="post-rail"><button type="button" class="rail-action '+(liked?'liked':'')+'" data-action="like" data-id="'+escapeHTML(id)+'" aria-label="'+(liked?'Unlike':'Like')+' post">'+(liked?'♥':'♡')+'</button><span class="rail-count" data-like-count="'+escapeHTML(id)+'">'+formatCount(stat.likes+(liked&&!currentUser?1:0))+'</span><button type="button" class="rail-action" data-action="comments" data-id="'+escapeHTML(id)+'" aria-label="Comments">▤</button><span class="rail-count" data-comment-count="'+escapeHTML(id)+'">'+formatCount(stat.comments)+'</span><button type="button" class="rail-action '+(saved?'saved':'')+'" data-action="save" data-id="'+escapeHTML(id)+'" aria-label="'+(saved?'Unsave':'Save')+' post">▣</button><span class="rail-count">'+(saved?'Saved':'')+'</span><button type="button" class="rail-action" data-action="share" data-id="'+escapeHTML(id)+'" aria-label="Share post">↗</button></div><div class="post-bottom"><div class="creator-row"><div class="creator-avatar">'+avatar+'</div><div class="creator-copy"><strong>'+escapeHTML(p.username||'Guest')+'</strong><small>'+escapeHTML(timeSince(p.created_at))+'</small></div><button type="button" class="follow-btn '+(followed?'following':'')+'" data-action="follow" data-name="'+escapeHTML(p.username||'Guest')+'">'+(followed?'Following':'Follow')+'</button></div><div class="post-caption">'+escapeHTML(p.caption||'')+'</div></div></article>';
   }
@@ -760,10 +771,21 @@
       showToast(mediaCleanupFailed?'Post deleted. Its uploaded file could not be cleaned up.':'Post deleted');
     }catch(e){showToast('Could not delete post: '+String(e?.message||'try again'));}
   }
+  function prepareSocialVideo(video){
+    if(!video||video.dataset.sourceReady==='1')return false;
+    const src=String(video.dataset.videoSrc||'').trim();
+    if(!src)return false;
+    video.preload='metadata';
+    video.src=src;
+    video.dataset.sourceReady='1';
+    video.load();
+    return true;
+  }
   function startVideo(id){
     const post=document.querySelector('[data-social-post="'+CSS.escape(String(id))+'"]');
     const video=post?.querySelector('[data-social-video]');
     if(!video)return;
+    prepareSocialVideo(video);
     pauseAllVideos(video);
     video.dataset.autoplayBlocked='false';
     video.muted=false;
