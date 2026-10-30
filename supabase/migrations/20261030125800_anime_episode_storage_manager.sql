@@ -40,7 +40,7 @@ alter table public.anime_episode_watch_links
     and (
       (
         provider = 'Self-hosted video'
-        and watch_url ~* '^https://(allinoneedition\\.vercel\\.app/.+|schoolinoneedition\\.github\\.io/allinoneedition/.+)\\.(mp4|webm)(\\?.*)?$'
+        and watch_url ~* '^https://allinone\\.vercel\\.app/videos/.+\\.(mp4|webm)(\\?.*)?$'
       )
       or
       (
