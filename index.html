@@ -1188,7 +1188,7 @@ document.addEventListener('visibilitychange',()=>{
   renderStopwatch();
   if(swRunning&&!stopwatchTimer)stopwatchTimer=setInterval(renderStopwatch,100);
 });
-let calcExpr='';let calcExpr='';
+let calcExpr='';
 function normalizeCalcExpression(raw){return String(raw||'').replace(/×/g,'*').replace(/÷/g,'/').replace(/\s+/g,'').replace(/[^0-9+\-*/().%]/g,'');}
 function evaluateCalc(expr){const x=normalizeCalcExpression(expr);if(!x||!/[0-9]/.test(x)||!/^[0-9+\-*/().%]+$/.test(x))return null;const tokens=x.match(/\d+(?:\.\d+)?|[()+\-*/%]/g)||[];if(tokens.join('')!==x)return null;let p=0;const pk=()=>tokens[p];const eat=v=>pk()===v?(p++,true):false;function primary(){if(eat('+'))return primary();if(eat('-'))return -primary();if(eat('(')){const v=addSub();if(!eat(')'))throw Error();return v;}const n=Number(pk());if(!Number.isFinite(n))throw Error();p++;return n;}function percent(v){while(eat('%'))v/=100;return v;}function mulDiv(){let v=percent(primary());while(pk()==='*'||pk()==='/'){const op=tokens[p++],r=percent(primary());if(op==='/'&&r===0)throw Error();v=op==='*'?v*r:v/r;}return v;}function addSub(){let v=mulDiv();while(pk()==='+'||pk()==='-'){const op=tokens[p++],r=mulDiv();v=op==='+'?v+r:v-r;}return v;}const out=addSub();if(p!==tokens.length||!Number.isFinite(out))throw Error();return out;}
 function calcKey(v){calcExpr+=v;if($('calcInput'))$('calcInput').value=calcExpr;renderCalc();}
