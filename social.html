@@ -450,7 +450,7 @@
     if(!next)return;
     const feedRect=feed.getBoundingClientRect(),nextRect=next.getBoundingClientRect();
     const top=Math.max(0,feed.scrollTop+nextRect.top-feedRect.top);
-    const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
     feed.scrollTo({top,behavior:reducedMotion?'auto':'smooth'});
   }
   function openOverlay(id){
