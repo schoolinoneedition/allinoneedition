@@ -473,6 +473,41 @@ html.reduced-motion .cover{transition:none!important}
 .perch-ad-slot{display:block;width:100%;min-width:0;min-height:90px;text-align:center;overflow:hidden}
 .perch-ad-slot>*{max-width:100%;margin-left:auto;margin-right:auto}
 @media(max-width:600px){.perch-ad-section{margin:10px 0 17px;padding:8px 7px 9px;border-radius:12px}.perch-ad-slot{min-height:70px}}
+
+/* Product polish: clearer focus, more consistent rhythm and a responsive command launcher. */
+html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
+.topbar .brand{transition:opacity .18s ease}.topbar .brand:hover{opacity:.88}
+.search input{transition:border-color .18s ease,box-shadow .18s ease,background .18s ease}
+.quick-launch-trigger{display:inline-flex;align-items:center;gap:10px}
+.quick-launch-trigger kbd{font:800 9px/1 ui-monospace,SFMono-Regular,Consolas,monospace;border:1px solid currentColor;border-radius:5px;padding:4px 5px;opacity:.7}
+.nav button{transition:background .16s ease,color .16s ease,transform .16s ease}
+.nav button:active,.btn:active,.chip:active{transform:scale(.98)}
+.section-head{align-items:flex-end}.section-head small{line-height:1.4;text-align:right}
+.hero-card,.qcard,.panel,.tool,.newsbox,.football{transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+.qcard:hover,.tool:hover{border-color:color-mix(in srgb,var(--accent) 23%,var(--line));box-shadow:0 10px 28px rgba(24,38,70,.08)}
+#aioQuickLaunch[hidden]{display:none!important}
+.aio-command-backdrop{position:fixed;inset:0;z-index:100000;background:rgba(9,13,24,.48);backdrop-filter:blur(8px);display:grid;place-items:start center;padding:12vh 16px 20px}
+.aio-command-dialog{width:min(620px,100%);max-height:min(70dvh,650px);display:flex;flex-direction:column;overflow:hidden;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:20px;box-shadow:0 30px 100px rgba(0,0,0,.28)}
+.aio-command-head{display:flex;align-items:center;gap:11px;padding:15px 17px;border-bottom:1px solid var(--line)}
+.aio-command-mark{width:34px;height:34px;display:grid;place-items:center;border-radius:11px;background:linear-gradient(135deg,var(--accent),#8d5cf5);color:white;font-weight:950}
+.aio-command-head-copy{flex:1;min-width:0}.aio-command-head-copy strong{display:block;font-size:13px}.aio-command-head-copy small{display:block;margin-top:3px;color:var(--muted);font-size:10px}
+.aio-command-head kbd,.aio-command-foot kbd{font:800 10px ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--muted);background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:4px 6px}
+.aio-command-input-wrap{padding:12px 15px;border-bottom:1px solid var(--line)}
+#aioCommandInput{width:100%;height:45px;padding:0 13px;border:1px solid var(--line);border-radius:12px;background:var(--soft);color:var(--text);font-size:13px;outline:none}
+#aioCommandInput:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 14%,transparent)}
+.aio-command-results{padding:8px;overflow:auto;overscroll-behavior:contain}
+.aio-command-group{padding:7px 9px 5px;color:var(--muted);font-size:9px;font-weight:950;letter-spacing:.12em;text-transform:uppercase}
+.aio-command-item{width:100%;display:flex;align-items:center;gap:11px;padding:10px;border:0;border-radius:11px;background:transparent;color:var(--text);text-align:left}
+.aio-command-item:hover,.aio-command-item[aria-selected=true]{background:var(--soft)}
+.aio-command-icon{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;border:1px solid var(--line);border-radius:10px;background:var(--panel);font-size:15px}
+.aio-command-copy{flex:1;min-width:0}.aio-command-copy strong{display:block;font-size:11px}.aio-command-copy small{display:block;margin-top:3px;color:var(--muted);font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.aio-command-tag{color:var(--muted);font-size:9px;font-weight:850}
+.aio-command-empty{padding:28px 12px;text-align:center;color:var(--muted);font-size:12px}
+.aio-command-foot{display:flex;align-items:center;gap:13px;flex-wrap:wrap;padding:11px 15px;border-top:1px solid var(--line);color:var(--muted);font-size:10px}
+.aio-command-foot span{display:flex;align-items:center;gap:5px}
+@media(max-width:850px){.quick-launch-trigger kbd{display:none}.top{gap:7px}.owner{display:none}.brandtext{font-size:17px}}
+@media(max-width:650px){html{scroll-padding-top:112px}.top{padding:8px 10px;gap:6px}.top .search{order:10;flex:1 1 100%;min-width:100%}.top .search input{height:37px}.quick-launch-trigger{height:36px;padding:0 9px;font-size:11px}.topbar .btn{padding-left:9px;padding-right:9px}.nav{padding:0 10px 9px;gap:4px}.nav button{padding:7px 9px;font-size:11px}.hero h1{font-size:29px}.section-head{align-items:flex-start;flex-direction:column}.section-head small{text-align:left}.aio-command-backdrop{padding:7vh 10px 12px}.aio-command-dialog{max-height:82dvh}}
+@media(prefers-reduced-motion:reduce){.topbar .brand,.nav button,.qcard,.tool{transition:none!important}}
 </style>
 <link rel="stylesheet" href="./appearance.css">
 <link rel="stylesheet" href="./ultimate-experience.css">
@@ -517,7 +552,8 @@ html.reduced-motion .cover{transition:none!important}
    <div class="brandmark"><svg viewBox="0 0 24 24" fill="none"><path d="M4 5h16v7h-9v7H4z" fill="white"/><path d="M12 5l8 6-8 6z" fill="#ffe16a"/></svg></div>
    <div class="brandtext">All in One Edition</div><div class="owner">Roy owner</div>
   </div>
-  <div class="search"><input id="search" autocomplete="off" placeholder="Search games, tools, school apps...  ( / )"></div>
+  <div class="search"><input id="search" autocomplete="off" placeholder="Search games… ( / )" aria-label="Search games"></div>
+  <button class="btn quick-launch-trigger" id="quickLaunchOpen" type="button" aria-haspopup="dialog" aria-controls="aioQuickLaunch">Quick open <kbd>Ctrl K</kbd></button>
   <button class="btn" id="assistantBtn">Smart answer</button><button class="btn account-btn" id="accountBtn" type="button" onclick="handleAccountClick()"><span class="account-avatar" id="accountAvatar">?</span><span id="accountLabel">Account</span></button><span class="aio-live-clock" id="aioLiveClock" aria-label="Current local time">00:00</span><button class="btn" id="settingsBtn">Settings</button><select class="lang-select" id="languageSelect" aria-label="Language"><option value="en">EN</option><option value="es">ES</option><option value="fr">FR</option><option value="de">DE</option><option value="pl">PL</option><option value="pt">PT</option><option value="tr">TR</option><option value="ar">AR</option><option value="it">IT</option><option value="nl">NL</option><option value="ja">JA</option><option value="ko">KO</option></select><button class="btn" id="darkBtn">Dark</button><button class="btn" id="afkBtn" title="Pause your current game and enter AFK mode">AFK</button><button class="btn" id="hideBtn">Hide</button>
  </div>
  <div class="nav"><button data-scroll="home">Home</button><button data-scroll="games">Games</button><button data-scroll="school">School</button><button type="button" onclick="location.href='social.html'">Social</button><button type="button" onclick="location.href='study.html'">Study Hub</button><button data-scroll="community">Community</button><button data-scroll="chat">Chat</button><button data-scroll="live">Live</button><button data-scroll="tools">Tools</button><button data-scroll="notes">Notes</button><button data-scroll="music">Music</button><button data-scroll="code">Code Lab</button></div>
@@ -750,7 +786,113 @@ html.reduced-motion .cover{transition:none!important}
 <button onclick="document.body.style.background='#eaf2ff'">Click me</button>
 
 
-</body>
+
+<div id="aioQuickLaunch" class="aio-command-backdrop" hidden aria-hidden="true">
+  <section class="aio-command-dialog" role="dialog" aria-modal="true" aria-labelledby="aioCommandTitle">
+    <div class="aio-command-head"><span class="aio-command-mark">A</span><span class="aio-command-head-copy"><strong id="aioCommandTitle">Quick Launch</strong><small>Jump anywhere in All in One Edition</small></span><kbd>ESC</kbd></div>
+    <div class="aio-command-input-wrap"><input id="aioCommandInput" type="search" autocomplete="off" spellcheck="false" placeholder="Search pages, tools or games…" aria-label="Search pages, tools or games"></div>
+    <div id="aioCommandResults" class="aio-command-results" role="listbox" aria-label="Quick launch results"></div>
+    <div class="aio-command-foot"><span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span><span><kbd>↵</kbd> Open</span><span><kbd>Ctrl</kbd><kbd>K</kbd> Toggle</span></div>
+  </section>
+</div>
+<script>
+(()=>{
+  'use strict';
+  const overlay=document.getElementById('aioQuickLaunch');
+  const input=document.getElementById('aioCommandInput');
+  const results=document.getElementById('aioCommandResults');
+  const trigger=document.getElementById('quickLaunchOpen');
+  if(!overlay||!input||!results||!trigger)return;
+  let selected=0,visible=[];
+  const commands=[
+    {label:'Home',detail:'Return to the top of the hub',icon:'⌂',group:'Pages',run:()=>scrollToId('home')},
+    {label:'Games',detail:'Browse the full game library',icon:'🎮',group:'Pages',run:()=>scrollToId('games')},
+    {label:'School apps',detail:'Open your school workspace',icon:'📚',group:'Pages',run:()=>scrollToId('school')},
+    {label:'Social',detail:'Open the community video and image feed',icon:'◉',group:'Pages',run:()=>location.href='social.html'},
+    {label:'Study Hub',detail:'Focus timer, revision planner and flashcards',icon:'✦',group:'Pages',run:()=>location.href='study.html'},
+    {label:'Community',detail:'Profiles, posts and shared activity',icon:'◎',group:'Pages',run:()=>scrollToId('community')},
+    {label:'Party workspace',detail:'Open shared party tools',icon:'✧',group:'Pages',run:()=>scrollToId('party-workspace')},
+    {label:'Live news',detail:'Read the latest headlines and scores',icon:'◷',group:'Pages',run:()=>scrollToId('live')},
+    {label:'Useful tools',detail:'Calculator, converter, timer and more',icon:'⌘',group:'Pages',run:()=>scrollToId('tools')},
+    {label:'Notes',detail:'Open notes and to-do list',icon:'▤',group:'Pages',run:()=>scrollToId('notes')},
+    {label:'Music',detail:'Open the music player',icon:'♫',group:'Pages',run:()=>scrollToId('music')},
+    {label:'Code Lab',detail:'Open the HTML, CSS and JavaScript editor',icon:'</>',group:'Pages',run:()=>scrollToId('code')},
+    {label:'Settings',detail:'Personalisation, themes and preferences',icon:'⚙',group:'Actions',run:()=>document.getElementById('settingsBtn')?.click()},
+    {label:'A-Coins & Quests',detail:'View rewards, quests and game shop',icon:'◈',group:'Actions',run:()=>window.openAioEconomy?.()},
+    {label:'Random game',detail:'Launch a random game from the library',icon:'⤨',group:'Actions',run:()=>{if(typeof GAMES!=='undefined'&&GAMES.length&&typeof openGame==='function')openGame(Math.floor(Math.random()*GAMES.length));else scrollToId('games')}}
+  ];
+  function makeOption(item,index){
+    const button=document.createElement('button');
+    button.type='button';button.className='aio-command-item';button.setAttribute('role','option');
+    button.setAttribute('aria-selected',String(index===selected));
+    const icon=document.createElement('span');icon.className='aio-command-icon';icon.textContent=item.icon;
+    const copy=document.createElement('span');copy.className='aio-command-copy';
+    const title=document.createElement('strong');title.textContent=item.label;
+    const detail=document.createElement('small');detail.textContent=item.detail||'Open result';
+    copy.append(title,detail);
+    const tag=document.createElement('span');tag.className='aio-command-tag';tag.textContent=item.group||'Game';
+    button.append(icon,copy,tag);
+    button.addEventListener('click',()=>choose(index));
+    button.addEventListener('pointermove',()=>{selected=index;syncSelection()});
+    return button;
+  }
+  function syncSelection(){
+    [...results.querySelectorAll('.aio-command-item')].forEach((button,index)=>{
+      button.setAttribute('aria-selected',String(index===selected));
+      if(index===selected)button.scrollIntoView({block:'nearest'});
+    });
+  }
+  function render(){
+    const query=input.value.trim().toLowerCase();
+    let base=commands.filter(item=>(item.label+' '+item.detail).toLowerCase().includes(query));
+    if(typeof GAMES!=='undefined'&&Array.isArray(GAMES)&&query){
+      const games=GAMES.map((game,index)=>({game,index})).filter(x=>(String(x.game.name||'')+' '+String(x.game.cat||'')).toLowerCase().includes(query)).slice(0,8)
+      .map(x=>({label:x.game.name,detail:(x.game.cat||'Game')+' · Open in the game player',icon:'🎮',group:'Game',run:()=>{scrollToId('games');openGame(x.index)}}));
+      base=base.concat(games);
+    }
+    visible=base;
+    selected=Math.max(0,Math.min(selected,visible.length-1));
+    results.replaceChildren();
+    if(!visible.length){const empty=document.createElement('div');empty.className='aio-command-empty';empty.textContent='No matching pages, tools or games. Try a shorter search.';results.append(empty);return}
+    let lastGroup='';
+    visible.forEach((item,index)=>{
+      if(item.group!==lastGroup){const heading=document.createElement('div');heading.className='aio-command-group';heading.textContent=item.group;results.append(heading);lastGroup=item.group}
+      results.append(makeOption(item,index));
+    });
+    syncSelection();
+  }
+  function open(){
+    overlay.hidden=false;overlay.setAttribute('aria-hidden','false');input.value='';selected=0;render();
+    requestAnimationFrame(()=>input.focus());
+    document.body.style.overflow='hidden';
+  }
+  function close(){
+    if(overlay.hidden)return;
+    overlay.hidden=true;overlay.setAttribute('aria-hidden','true');document.body.style.overflow='';
+    trigger.focus();
+  }
+  function choose(index){
+    const item=visible[index];if(!item)return;
+    close();requestAnimationFrame(()=>{try{item.run()}catch(error){console.error('Quick Launch action failed',error)}});
+  }
+  trigger.addEventListener('click',open);
+  overlay.addEventListener('click',event=>{if(event.target===overlay)close()});
+  input.addEventListener('input',()=>{selected=0;render()});
+  input.addEventListener('keydown',event=>{
+    if(event.key==='ArrowDown'){event.preventDefault();selected=(selected+1)%Math.max(1,visible.length);syncSelection()}
+    if(event.key==='ArrowUp'){event.preventDefault();selected=(selected-1+Math.max(1,visible.length))%Math.max(1,visible.length);syncSelection()}
+    if(event.key==='Enter'){event.preventDefault();choose(selected)}
+    if(event.key==='Escape'){event.preventDefault();close()}
+  });
+  document.addEventListener('keydown',event=>{
+    const target=event.target;
+    const editing=target instanceof HTMLElement&&(target.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
+    if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'){event.preventDefault();overlay.hidden?open():close();return}
+    if(event.key==='Escape'&&!overlay.hidden){event.preventDefault();close();return}
+    if(event.key==='/'&&!editing&&!event.ctrlKey&&!event.metaKey&&!event.altKey){event.preventDefault();open()}
+  });
+})();
+</script></body>
 </html></textarea><iframe id="codePreview" class="preview" sandbox="allow-scripts"></iframe></div></div></section>
 <section class="section"><div class="section-head"><h2>Smart answer</h2><small>Chat-style helper — fast and local.</small></div><div class="panel chatbox" id="assistantChat"></div><div class="assistant-actions"><button class="chip" onclick="smartQuick('What time is it?')">What time is it?</button><button class="chip" onclick="smartQuick('Play Crossy Road')">Play a game</button><button class="chip" onclick="smartQuick('Make a sticky note that says test')">Make a note</button><button class="chip" onclick="smartQuick('Open settings')">Settings</button></div><div class="chatcomposer"><input id="assistantInput" autocomplete="off" placeholder="Message Smart answer…"><button class="btn mini primary" id="assistantSend">Send</button></div></section>
 </main>
