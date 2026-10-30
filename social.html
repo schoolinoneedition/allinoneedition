@@ -184,6 +184,41 @@
   }
 }
 
+/* One compact toolbar for every feed control. */
+.social-app .feed-heading{width:100%;max-width:900px;margin:0 auto;padding:1px 2px 9px}
+.social-app .feed-heading h1{font-size:23px;letter-spacing:-.75px}
+.social-app .feed-heading p{margin-top:4px;font-size:10px}
+.social-app .feed-tools{
+  width:100%;max-width:900px;margin:0 auto 13px;padding:7px;
+  display:flex;align-items:center;flex-wrap:wrap;gap:7px;
+  border:1px solid var(--line);border-radius:15px;background:var(--panel);
+  box-shadow:0 3px 12px rgba(26,35,56,.035)
+}
+.social-app .feed-search-wrap{flex:1 1 170px;min-width:130px}
+.social-app .feed-search{width:100%;height:36px;border:0;background:var(--soft);border-radius:10px;font-size:11px}
+.social-app .feed-mode-tabs{display:flex;align-items:center;gap:3px;min-width:0;flex:0 1 auto;padding:3px;border:1px solid var(--line);border-radius:11px;background:var(--soft)}
+.social-app .feed-mode{min-height:29px;padding:0 10px;border:0;border-radius:8px;background:transparent;color:var(--muted);font-size:10px;font-weight:850;white-space:nowrap}
+.social-app .feed-mode:hover{color:var(--text);background:var(--panel)}
+.social-app .feed-mode.active{color:var(--accent);background:var(--panel);box-shadow:0 1px 4px rgba(20,30,50,.10)}
+.social-app .feed-toolbar-actions{display:flex;align-items:center;gap:5px;margin-left:auto}
+.social-app .feed-toolbar-actions .btn{min-height:34px;padding:0 10px;border-radius:9px;font-size:10px}
+.social-app .feed-toolbar-actions .btn.square{width:34px;min-width:34px;padding:0;font-size:15px}
+.social-app .auto-scroll-toggle.is-on{color:var(--accent);background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+@media(max-width:1050px){.social-app .feed-search-wrap{flex-basis:140px}.social-app .feed-mode{padding-inline:8px}}
+@media(max-width:850px) and (min-width:721px){.social-app .feed-tools{gap:6px}.social-app .feed-search-wrap{flex-basis:100%;min-width:100%}.social-app .feed-mode-tabs{flex:1 1 auto;overflow-x:auto;scrollbar-width:none}.social-app .feed-mode-tabs::-webkit-scrollbar{display:none}}
+@media(max-width:720px){
+ .social-app .feed-heading{padding:0 2px 8px}
+ .social-app .feed-heading h1{font-size:21px}
+ .social-app .feed-heading p{font-size:9px}
+ .social-app .feed-tools{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"search search" "views actions";gap:6px;padding:6px;margin-bottom:10px}
+ .social-app .feed-search-wrap{grid-area:search;min-width:0;width:100%}
+ .social-app .feed-mode-tabs{grid-area:views;min-width:0;overflow-x:auto;scrollbar-width:none;gap:2px}
+ .social-app .feed-mode-tabs::-webkit-scrollbar{display:none}
+ .social-app .feed-mode{min-height:28px;padding:0 7px;font-size:9px}
+ .social-app .feed-toolbar-actions{grid-area:actions;margin-left:0}
+ .social-app .feed-toolbar-actions .btn{padding:0 8px}
+}
+@media(max-width:390px){.social-app .feed-mode{padding-inline:6px;font-size:8px}.social-app .feed-toolbar-actions .btn{font-size:9px}}
 /* Social clarity pass: calmer spacing, a more deliberate centre column, and cleaner responsive controls. */
 .social-app>.content{
   width:min(1600px,100%);
@@ -340,15 +375,6 @@
   <main class="content">
     <aside class="sidebar">
       <div class="side-card">
-        <h2 class="side-title">Your feed</h2>
-        <nav class="nav-list" aria-label="Social feed filters">
-          <button class="nav-item active" type="button" data-mode="for-you"><span class="nav-icon">✦</span>For you</button>
-          <button class="nav-item" type="button" data-mode="following"><span class="nav-icon">◎</span>Following</button>
-          <button class="nav-item" type="button" data-mode="saved"><span class="nav-icon">▣</span>Saved</button>
-          <button class="nav-item" type="button" data-mode="videos"><span class="nav-icon">▷</span>Videos only</button>
-        </nav>
-      </div>
-      <div class="side-card">
         <h2 class="side-title">Your account</h2>
         <div class="user-line"><div class="avatar" id="accountAvatar">G</div><div class="user-details"><strong id="accountName">Guest</strong><small id="accountType">Guest mode</small></div></div>
         <div class="side-actions"><button class="btn" id="accountManage" type="button">Sign in / account</button><a href="./index.html" class="btn ghost">← Back to hub</a></div>
@@ -362,11 +388,19 @@
     </aside>
 
     <section class="feed-column" aria-label="Social feed">
-      <div class="feed-heading"><div><h1>Social</h1><p>Fresh posts, short videos and real comments. Use ↑ and ↓ to scroll.</p></div><div class="feed-heading-actions"><button class="btn auto-scroll-toggle" id="autoScrollToggle" type="button" aria-pressed="false" title="Move to the next video when the current video ends">↧ Auto-scroll: Off</button><button class="btn square" id="refreshFeed" type="button" title="Refresh feed" aria-label="Refresh feed">↻</button></div></div>
-      <div class="feed-tools" role="search" aria-label="Search social posts">
-        <label class="feed-search-wrap"><span aria-hidden="true">⌕</span><input id="feedSearch" type="search" class="searchbox feed-search" placeholder="Search captions or creators…" autocomplete="off" aria-label="Search captions or creators"></label>
-        <label class="feed-sort-wrap"><span class="sr-only">Sort posts</span><select id="feedSort" class="searchbox feed-sort" aria-label="Sort posts"><option value="newest">Latest</option><option value="popular">Most liked</option></select></label>
-        <button class="btn feed-clear" id="clearFeedSearch" type="button" disabled>Clear</button>
+      <div class="feed-heading"><div><h1>Social</h1><p>Posts, videos and conversations.</p></div></div>
+      <div class="feed-tools" aria-label="Social feed controls">
+        <label class="feed-search-wrap"><span aria-hidden="true">⌕</span><input id="feedSearch" type="search" class="searchbox feed-search" placeholder="Search social…" autocomplete="off" aria-label="Search captions or creators"></label>
+        <nav class="feed-mode-tabs" aria-label="Feed">
+          <button class="feed-mode active" type="button" data-mode="for-you" aria-current="page">For you</button>
+          <button class="feed-mode" type="button" data-mode="following" aria-current="false">Following</button>
+          <button class="feed-mode" type="button" data-mode="saved" aria-current="false">Saved</button>
+          <button class="feed-mode" type="button" data-mode="videos" aria-current="false">Videos</button>
+        </nav>
+        <div class="feed-toolbar-actions">
+          <button class="btn auto-scroll-toggle" id="autoScrollToggle" type="button" aria-pressed="false" title="Move to the next video when the current video ends">↧ Auto</button>
+          <button class="btn square" id="refreshFeed" type="button" title="Refresh feed" aria-label="Refresh feed">↻</button>
+        </div>
       </div>
       <div id="feedError" class="error-state" hidden></div>
       <div id="feed" class="feed-scroll" tabindex="0" aria-label="Scrollable social posts">
@@ -581,15 +615,14 @@
   }
   function updateAutoScrollToggle(){
     const button=$('autoScrollToggle');if(!button)return;
-    button.textContent='↧ Auto-scroll: '+(autoScrollEnabled?'On':'Off');
+    button.textContent='↧ Auto';
     button.setAttribute('aria-pressed',String(autoScrollEnabled));
+    button.classList.toggle('is-on',autoScrollEnabled);
     button.title=autoScrollEnabled?'Auto-scroll is on: the next video will be brought into view when one ends.':'Auto-scroll is off: videos will not advance automatically when they end.';
   }
   function updateFeedToolbar(){
-    const input=$('feedSearch'),sort=$('feedSort');
+    const input=$('feedSearch');
     if(input&&input.value!==feedQuery)input.value=feedQuery;
-    if(sort&&sort.value!==feedSort)sort.value=feedSort;
-    const clear=$('clearFeedSearch');if(clear)clear.disabled=!feedQuery;
   }
   function renderFeed(){
     const feed=$('feed');if(!feed)return;
@@ -1251,14 +1284,12 @@
   $('accountManage').addEventListener('click',()=>{showCompose();$('authPanel').hidden=false;$('authEmail').focus();});
   $('refreshFeed').addEventListener('click',loadFeed);
   $('feedSearch').addEventListener('input',updateFeedSearch);
-  $('feedSort').addEventListener('change',()=>{feedSort=$('feedSort').value==='popular'?'popular':'newest';renderFeed();});
   $('autoScrollToggle').addEventListener('click',()=>{
     autoScrollEnabled=!autoScrollEnabled;
     localWrite(STORAGE_KEYS.autoScroll,autoScrollEnabled);
     updateAutoScrollToggle();
     showToast(autoScrollEnabled?'Auto-scroll is on. The next video will open when this one ends.':'Auto-scroll is off.');
   });
-  $('clearFeedSearch').addEventListener('click',()=>{feedQuery='';$('feedSearch').value='';renderFeed();$('feedSearch').focus();});
   $('composeForm').addEventListener('submit',createPost);
   $('commentForm').addEventListener('submit',addComment);
   $('authForm').addEventListener('submit',submitAuth);
