@@ -183,6 +183,142 @@
     border-radius:14px;
   }
 }
+
+/* Social clarity pass: calmer spacing, a more deliberate centre column, and cleaner responsive controls. */
+.social-app>.content{
+  width:min(1600px,100%);
+  grid-template-columns:minmax(190px,212px) minmax(0,900px) minmax(225px,252px);
+  justify-content:center;
+  gap:clamp(16px,2vw,30px);
+  padding:clamp(16px,2vw,28px);
+}
+.social-app .sidebar,
+.social-app .rightbar{
+  gap:12px;
+  align-self:start;
+}
+.social-app .side-card{
+  border-radius:16px;
+  padding:14px;
+  box-shadow:0 3px 12px rgba(26,35,56,.035);
+}
+.social-app .side-title{
+  margin-bottom:9px;
+  letter-spacing:.105em;
+}
+.social-app .side-copy{
+  line-height:1.55;
+}
+.social-app .feed-column{
+  width:100%;
+  max-width:900px;
+  margin-inline:auto;
+  min-width:0;
+}
+.social-app .feed-heading,
+.social-app .feed-tools{
+  width:100%;
+  max-width:860px;
+  margin-left:auto;
+  margin-right:auto;
+}
+.social-app .feed-heading{
+  min-height:56px;
+  padding:2px 2px 14px;
+  gap:16px;
+}
+.social-app .feed-heading h1{
+  font-size:25px;
+  letter-spacing:-.9px;
+}
+.social-app .feed-heading p{
+  line-height:1.45;
+}
+.social-app .feed-heading-actions{
+  flex:0 0 auto;
+  gap:8px;
+}
+.social-app .feed-tools{
+  gap:9px;
+  margin-bottom:14px;
+}
+.social-app .feed-search,
+.social-app .feed-sort{
+  border-radius:12px;
+}
+.social-app .feed-scroll{
+  scrollbar-gutter:stable;
+  padding:0 0 22px;
+}
+.social-app .post{
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:0 12px 30px rgba(10,15,25,.13);
+}
+.social-app .empty-state,
+.social-app .error-state,
+.social-app .skeleton{
+  max-width:860px;
+}
+@media(max-width:1150px) and (min-width:721px){
+  .social-app>.content{
+    grid-template-columns:180px minmax(0,860px);
+    gap:18px;
+    padding:16px 18px 22px;
+  }
+  .social-app .rightbar{display:none}
+  .social-app .feed-heading,
+  .social-app .feed-tools{max-width:820px}
+}
+@media(max-width:850px) and (min-width:721px){
+  .social-app>.content{
+    grid-template-columns:160px minmax(0,1fr);
+    gap:14px;
+    padding:14px;
+  }
+  .social-app .side-card{padding:12px}
+  .social-app .feed-heading h1{font-size:22px}
+  .social-app .feed-heading p{max-width:260px}
+  .social-app .feed-sort-wrap{width:112px;flex-basis:112px}
+  .social-app .feed-clear{padding-inline:9px}
+}
+@media(max-width:720px){
+  .social-app>.content{
+    padding:10px 8px 12px;
+    gap:0;
+  }
+  .social-app .feed-heading{
+    align-items:flex-start;
+    padding:2px 3px 11px;
+    gap:8px;
+  }
+  .social-app .feed-heading h1{font-size:22px}
+  .social-app .feed-heading p{
+    max-width:220px;
+    font-size:10px;
+    line-height:1.4;
+  }
+  .social-app .feed-heading-actions{gap:5px}
+  .social-app .auto-scroll-toggle{
+    padding:8px 9px;
+    font-size:9px;
+  }
+  .social-app .feed-tools{
+    gap:6px;
+    margin-bottom:10px;
+  }
+  .social-app .feed-search{height:40px}
+  .social-app .feed-sort-wrap{width:102px;flex-basis:102px}
+  .social-app .feed-sort{height:40px}
+  .social-app .feed-clear{height:40px}
+  .social-app .feed-scroll{scrollbar-width:none}
+  .social-app .feed-scroll::-webkit-scrollbar{display:none}
+}
+@media(prefers-reduced-motion:no-preference){
+  .social-app .side-card,
+  .social-app .feed-tools>*{
+    transition:border-color .16s ease,box-shadow .16s ease,background-color .16s ease;
+  }
+}
 </style>
 </head>
 <body>
