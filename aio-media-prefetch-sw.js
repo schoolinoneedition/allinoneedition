@@ -93,9 +93,14 @@ async function aioWarmBatch(event){
   const maxCache=Math.min(AIO_MAX_CACHE_BYTES,Math.max(1,Number(data.maxCacheBytes)||AIO_MAX_CACHE_BYTES));
   const cache=await caches.open(AIO_CACHE_NAME);
   let downloadedBytes=0,warmed=0,skipped=0;
+  const pendingUrls=[];
 
-  for(const url of urls){
-    if(downloadedBytes>=maxBatch)break;
+  for(let index=0;index<urls.length;index++){
+    const url=urls[index];
+    if(downloadedBytes>=maxBatch){
+      pendingUrls.push(...urls.slice(index));
+      break;
+    }
     if(await cache.match(url)){skipped++;continue;}
     try{
       // GET once: response headers let us reject large media before reading the body.
@@ -106,7 +111,7 @@ async function aioWarmBatch(event){
       skipped++;
     }
   }
-  try{source?.postMessage({type:'AIO_SOCIAL_MEDIA_WARM_DONE',downloadedBytes,warmed,skipped})}catch{}
+  try{source?.postMessage({type:'AIO_SOCIAL_MEDIA_WARM_DONE',downloadedBytes,warmed,skipped,pendingUrls})}catch{}
 }
 
 async function aioServeCachedMedia(request,proxyUrl){
