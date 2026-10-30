@@ -249,7 +249,7 @@
   let currentUser=null,currentProfile=null,mode='for-you',posts=[],postStats=new Map(),userLikes=new Set(),userFollows=new Set(),savedPosts=new Set();
   let feedQuery='',feedSort='newest';
   let autoScrollEnabled=localRead(STORAGE_KEYS.autoScroll,false)===true;
-  let commentsForPost=null,commentsCache=new Map(),authMode='signin',postBusy=false,videoObserver=null,videoPreloadObserver=null;
+  let commentsForPost=null,commentsCache=new Map(),authMode='signin',postBusy=false,videoObserver=null;
   let accountEmail='',feedErrorMessage='';
 
   function updateSocialClock(){const clock=$('socialLiveClock');if(!clock)return;clock.textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false});}
@@ -369,7 +369,6 @@
   function renderFeed(){
     const feed=$('feed');if(!feed)return;
     if(videoObserver){videoObserver.disconnect();videoObserver=null;}
-    if(videoPreloadObserver){videoPreloadObserver.disconnect();videoPreloadObserver=null;}
     pauseAllVideos();
     updateAutoScrollToggle();
     const list=visiblePosts();
@@ -447,14 +446,6 @@
       }
     });
     if('IntersectionObserver'in window){
-      videoPreloadObserver=new IntersectionObserver(entries=>{
-        for(const entry of entries){
-          if(entry.isIntersecting){
-            prepareSocialVideo(entry.target);
-            videoPreloadObserver.unobserve(entry.target);
-          }
-        }
-      },{root:feed,rootMargin:'650px 0px',threshold:0});
       videoObserver=new IntersectionObserver(entries=>{
         let mostVisible=null;
         for(const entry of entries){
@@ -468,7 +459,7 @@
           if(activeVideo.paused&&activeVideo.dataset.autoplayBlocked!=='true')startVideo(activeVideo.dataset.postId);
         }
       },{root:feed,threshold:[0,.22,.58,.72]});
-      feed.querySelectorAll('[data-social-video]').forEach(v=>{videoPreloadObserver.observe(v);videoObserver.observe(v)});
+      feed.querySelectorAll('[data-social-video]').forEach(v=>videoObserver.observe(v));
     }
   }
   function fitSocialPost(post,naturalWidth,naturalHeight){
