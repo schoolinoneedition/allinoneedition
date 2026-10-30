@@ -18,6 +18,7 @@ const counter = read('supabase/migrations/20261028102739_secure_tiktok_sticker_d
 const eventPolicy = read('supabase/migrations/20261028103352_deny_client_access_to_tiktok_sticker_download_events.sql');
 const eventIndex = read('supabase/migrations/20261028103427_index_tiktok_sticker_download_events_sticker_id.sql');
 const staffRls = read('supabase/migrations/20261028103528_optimize_tiktok_sticker_staff_rls_policies.sql');
+const animeStorage = read('supabase/migrations/20261030125800_anime_episode_storage_manager.sql');
 
 // Appearance choices must change the real UI and persist, not just update previews.
 assert.match(appearance, /function selectWallpaper\(id\)[\s\S]*?state\.wallpaper=id;delete state\.pendingWallpaper;save\(\);applyWallpaper\(\)/);
@@ -162,6 +163,12 @@ assert.match(html, /function filteredGames\(\)/);
  assert.ok(anime.includes('frame.requestFullscreen()'),'The player must include fullscreen');
  assert.ok(anime.includes('This editor is restricted to the site owner account.'),'Episode editing must stay owner-only');
  assert.ok(!anime.includes('watchLinks')&&!anime.includes('sourceLinks'),'The old external provider and episode-source panels should stay removed');
+ assert.ok(animeStorage.includes("create policy \"Site owner can upload anime episodes\""),'Anime videos must have owner-only Storage upload permissions');
+ assert.ok(animeStorage.includes("create policy \"Site owner can delete anime episodes\""),'Anime videos must have owner-only Storage delete permissions');
+ assert.ok(animeStorage.includes("file_size_limit, allowed_mime_types"),'The Anime episode bucket must restrict upload size and media types');
+ assert.ok(animeStorage.includes("grant select on table public.anime_episode_watch_links to anon, authenticated"),'The episode video catalogue must be readable by visitors');
+ assert.ok(animeStorage.includes("grant insert, update, delete on table public.anime_episode_watch_links to authenticated"),'Only signed-in clients may reach write operations, with owner-only RLS enforcement');
+
  assert.ok(anime.includes('image.onerror=()=>{image.hidden=true}'),'Spotlight banner should have a broken-image fallback');
  assert.ok(anime.includes('counts=[102,37,41,52,65,40,52,54,47,52,52,55,34,48,49,45,49,49,49,44,62,54,48,42,58,11]'), 'Pokémon season episode catalogue is incomplete');
  assert.ok(anime.includes("const STORE='aio.anime.watch.v1'"), 'Anime watch progress must have a stable local key');
