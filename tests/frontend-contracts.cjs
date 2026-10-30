@@ -6,6 +6,7 @@ const read = (p) => fs.readFileSync(path.join(__dirname, '..', p), 'utf8');
 
 const appearance = read('appearance.js');
 const ux = read('ultimate-experience.js');
+const backend = read('backend-features.js');
 const css = read('ultimate-experience.css');
 const html = read('index.html');
 const social = read('social.html');
@@ -189,10 +190,14 @@ assert.match(html, /function filteredGames\(\)/);
 // Video feeds should not fetch every MP4 when the page renders.
 assert.ok(html.includes('data-video-src=') && html.includes("function socialAttachVideoSource(video,preload='metadata')"), 'Main hub Social videos should attach their sources on demand');
 assert.ok(html.includes("v.preload='none'"), 'Main hub videos should not preload the entire feed');
-assert.ok(html.includes("socialPreloadNextVideos(){") && html.includes("socialAttachVideoSource(nextVideo,'metadata')"), 'Only the next visible-feed video should have metadata warmed');
+assert.ok(!html.includes('socialPreloadNextVideos') && !html.includes('scheduleSocialVideoPreload') && !html.includes('socialPreloadDuringIdle'), 'Main hub must not preload videos in the background while idle');
 assert.ok(!html.includes('autoplay loop preload="auto" data-social-video'), 'Main hub Social videos must not all auto-download on render');
-assert.ok(social.includes('videoPreloadObserver') && social.includes("rootMargin:'650px 0px'"), 'Separate Social page should prepare videos shortly before they enter view');
+assert.ok(!social.includes('videoPreloadObserver') && !social.includes("rootMargin:'650px 0px'"), 'Separate Social page must not download upcoming videos before they are visible');
 assert.ok(social.includes('function prepareSocialVideo(video)'), 'Separate Social page should attach video URLs only when needed');
+assert.ok(backend.includes('function prepareGalleryVideo(video)'), 'Video gallery should load individual videos on demand');
+assert.ok(backend.includes("player.preload='none'") && backend.includes('player.dataset.videoSrc=post.media_url'), 'Video gallery cards must not attach every video URL as they render');
+assert.ok(backend.includes("rootMargin:'0px'") && backend.includes('prepareGalleryVideo(entry.target)'), 'Video gallery should fetch a video only when its card enters the viewport');
+
 assert.ok(social.includes('data-video-src=') && !social.includes("'<video src=\"'+escapeHTML(p.media_url)+'\" data-social-video"), 'Separate Social feed should not attach every video source during rendering');
 assert.ok(anime.includes("video.dataset.videoSrc=saved.watch_url;video.preload='none'"), 'Anime episodes should not request video bytes merely when selected');
 assert.ok(anime.includes("cacheControl:'31536000'"), 'Unique Anime episode uploads should receive long-lived cache headers');
