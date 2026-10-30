@@ -61,6 +61,32 @@
 .social-app:fullscreen .overlay{z-index:110}.social-app:fullscreen .sidebar,.social-app:fullscreen .rightbar{display:none}.social-app:fullscreen .feed-column{width:min(850px,100%);margin:0 auto;height:100%;min-height:0}.social-app:fullscreen .feed-heading{padding:3px 8px 10px}.social-app:fullscreen .feed-scroll{height:auto;min-height:0;flex:1;padding-bottom:26px}.social-app:fullscreen .post{height:calc(100dvh - 132px);min-height:420px;max-height:none;width:min(100%,780px)}.social-app:fullscreen .custom-video-controls{bottom:112px}
 @media(max-width:1150px){.content{grid-template-columns:175px minmax(0,1fr)}.rightbar{display:none}.feed-scroll{height:calc(100dvh - 210px)}}@media(max-width:720px){:root{--header-h:60px}.topbar{padding:0 10px;gap:8px}.brand-copy small,.cloud-pill{display:none}.brand-copy strong{font-size:13px}.backmark{width:34px;height:34px}.header-actions{gap:5px}.header-actions .btn{padding:8px 9px;font-size:10px}.header-actions .btn.square{width:34px;height:34px}.content{display:block;padding:10px 8px 12px;min-height:calc(100dvh - 60px)}.sidebar{display:none}.feed-heading h1{font-size:21px}.feed-heading{padding:3px 4px 10px}.feed-heading p{max-width:230px;line-height:1.4}.feed-scroll{height:calc(100dvh - 195px);min-height:420px;padding:0 1px 15px}.post{height:calc(100dvh - 160px);min-height:420px;border-radius:16px;margin-bottom:11px}.post-bottom{left:12px;bottom:12px;right:62px}.post-rail{right:8px;bottom:88px;gap:3px}.rail-action{width:39px;height:39px;font-size:18px}.post-caption{font-size:11px;max-height:80px}.comments-compose{grid-template-columns:minmax(0,1fr) auto}.comments-compose #commentName{grid-column:1/-1}.comments-compose .text-field{grid-column:1}.comments-compose button{grid-column:2;grid-row:2;min-height:42px}.social-app:fullscreen .topbar{display:none}.social-app:fullscreen .content{padding:0;display:block}.social-app:fullscreen .feed-heading{display:none}.social-app:fullscreen .feed-column{height:100%;width:100%}.social-app:fullscreen .feed-scroll{height:100%;padding:0}.social-app:fullscreen .post{height:100dvh;min-height:0;width:100%;border-radius:0;border:0;margin:0;scroll-snap-align:start}.social-app:fullscreen .post-bottom{bottom:25px}.social-app:fullscreen .post-rail{bottom:125px}.social-app:fullscreen .custom-video-controls{left:12px;right:62px;bottom:112px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
+/* Adaptive sizing: let the feed use the real space left in the viewport. */
+.social-app{height:100dvh;min-height:0;overflow:hidden}
+.social-app>.content{height:calc(100dvh - var(--header-h));min-height:0;min-width:0;overflow:hidden;grid-template-rows:minmax(0,1fr)}
+.social-app .feed-column{height:100%;min-height:0}
+.social-app .feed-scroll{height:auto;min-height:0;max-height:none;flex:1 1 auto}
+.social-app .post{height:min(760px,100%);min-height:0;max-height:100%}
+.social-app .skeleton{height:100%;min-height:0}
+.social-app:fullscreen>.content{height:calc(100dvh - var(--header-h))}
+@media(max-width:720px){
+  .social-app>.content{display:flex;flex-direction:column;height:calc(100dvh - var(--header-h));min-height:0}
+  .social-app .feed-column{width:100%;height:100%;min-height:0}
+  .social-app .feed-scroll{height:auto;min-height:0;flex:1 1 auto;padding:0 1px 15px}
+  .social-app .post{width:100%;height:min(760px,100%);min-height:0;max-height:100%;border-radius:16px}
+  .social-app .skeleton{height:100%;min-height:0}
+  .social-app:fullscreen>.content{display:block;height:100dvh}
+  .social-app:fullscreen .feed-column{height:100%;width:100%}
+  .social-app:fullscreen .feed-scroll{height:100%;min-height:0;flex:1}
+  .social-app:fullscreen .post{width:100%;height:100%;min-height:0;max-height:100%;border-radius:0}
+}
+@media(max-height:560px) and (orientation:landscape){
+  .social-app .feed-heading{padding-bottom:6px}
+  .social-app .feed-tools{margin-bottom:6px}
+  .social-app .post-caption{max-height:58px}
+  .social-app .custom-video-controls{bottom:54px}
+}
 </style>
 </head>
 <body>
@@ -430,32 +456,52 @@
     }
   }
   function fitSocialPost(post,naturalWidth,naturalHeight){
-    if(!post||!naturalWidth||!naturalHeight)return;
-    const feed=$('feed');
-    const maxWidth=Math.max(180,Math.min(620,(feed?.clientWidth||window.innerWidth)-12,window.innerWidth-24));
-    const maxHeight=Math.max(180,Math.min((feed?.clientHeight||window.innerHeight-170)-18,window.innerHeight-165));
+    if(!post||!post.isConnected||!naturalWidth||!naturalHeight)return;
     const ratio=naturalWidth/naturalHeight;
-    const width=Math.min(maxWidth,maxHeight*ratio);
-    const height=width/ratio;
+    if(!Number.isFinite(ratio)||ratio<=0)return;
+    const feed=$('feed');
+    const viewportWidth=Math.max(1,Math.round(window.visualViewport?.width||window.innerWidth||1));
+    const viewportHeight=Math.max(1,Math.round(window.visualViewport?.height||window.innerHeight||1));
+    const feedWidth=feed?.clientWidth||viewportWidth;
+    const feedHeight=feed?.clientHeight||Math.max(1,viewportHeight-160);
+    const maxWidth=Math.max(1,Math.min(620,feedWidth-16,viewportWidth-16));
+    const maxHeight=Math.max(1,Math.min(feedHeight-18,viewportHeight-16));
+    const width=Math.max(1,Math.min(maxWidth,maxHeight*ratio));
+    const height=Math.max(1,Math.min(maxHeight,width/ratio));
     post.style.width=Math.round(width)+'px';
     post.style.height=Math.round(height)+'px';
     post.style.maxWidth='100%';
     post.style.maxHeight='100%';
     post.style.minHeight='0';
+    post.style.minWidth='0';
     post.style.aspectRatio=String(ratio);
     post.style.boxSizing='border-box';
     post.dataset.mediaRatio=String(ratio);
   }
+  function refitSocialPosts(){
+    document.querySelectorAll('[data-social-post]').forEach(post=>{
+      const v=post.querySelector('[data-social-video]');
+      const img=post.querySelector('img[data-post-image]');
+      if(v&&v.videoWidth&&v.videoHeight)fitSocialPost(post,v.videoWidth,v.videoHeight);
+      else if(img&&img.naturalWidth&&img.naturalHeight)fitSocialPost(post,img.naturalWidth,img.naturalHeight);
+    });
+  }
   let socialPostResizeTimer=0;
-  window.addEventListener('resize',()=>{
+  function scheduleSocialPostResize(){
     clearTimeout(socialPostResizeTimer);
-    socialPostResizeTimer=setTimeout(()=>{
-      document.querySelectorAll('[data-social-post]').forEach(post=>{
-        const v=post.querySelector('[data-social-video]'),img=post.querySelector('img[data-post-image]');
-        if(v)fitSocialPost(post,v.videoWidth,v.videoHeight);else if(img)fitSocialPost(post,img.naturalWidth,img.naturalHeight);
-      });
-    },80);
-  },{passive:true});
+    socialPostResizeTimer=setTimeout(refitSocialPosts,60);
+  }
+  window.addEventListener('resize',scheduleSocialPostResize,{passive:true});
+  window.addEventListener('orientationchange',scheduleSocialPostResize,{passive:true});
+  window.visualViewport?.addEventListener('resize',scheduleSocialPostResize,{passive:true});
+  document.addEventListener('fullscreenchange',scheduleSocialPostResize);
+  if('ResizeObserver'in window){
+    const socialLayoutObserver=new ResizeObserver(scheduleSocialPostResize);
+    ['.content','.feed-column','#feed'].forEach(selector=>{
+      const target=document.querySelector(selector);
+      if(target)socialLayoutObserver.observe(target);
+    });
+  }
   function renderPost(p){
     const id=String(p.id),isVideo=p.media_type==='video';
     const stat=statFor(id),liked=userLikes.has(id)||( !currentUser&&getLocalSet(STORAGE_KEYS.likes).has(id) );
