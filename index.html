@@ -2821,9 +2821,13 @@ if(!window.aioSocialAudioGestureBound){
 }
 let socialResizeFitTimer=0;
 window.addEventListener('resize',()=>{clearTimeout(socialResizeFitTimer);socialResizeFitTimer=setTimeout(socialFitAllPosts,80)},{passive:true});
+let socialFitOnScrollTimer=0;
 window.addEventListener('scroll',()=>{
   const sec=document.getElementById('social');
-  if(sec&&sec.getBoundingClientRect().top<window.innerHeight){scheduleSocialVideoPreload();}
+  if(sec&&sec.getBoundingClientRect().top<window.innerHeight){
+    scheduleSocialVideoPreload();
+    if(!socialFitOnScrollTimer)socialFitOnScrollTimer=setTimeout(()=>{socialFitOnScrollTimer=0;socialFitAllPosts();},120);
+  }
 },{passive:true});
 
 /* =========================
