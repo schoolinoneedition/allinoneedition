@@ -2271,10 +2271,9 @@ function socialTryPlayVideo(v){
       }).catch(()=>{
         /* Browser autoplay policy can block sound. Keep the video available and
            let the first real pointer/keyboard gesture unlock it. */
-        v.muted=true;v.defaultMuted=true;
-        const mutedPlay=v.play();
-        if(mutedPlay?.then)mutedPlay.then(()=>{center?.classList.add('hidden');}).catch(()=>center?.classList.remove('hidden'));
-        if(status){status.textContent='Sound will start after your first click.';status.classList.add('show');}
+        try{v.pause()}catch{}
+        center?.classList.remove('hidden');
+        if(status){status.textContent='Tap Play to start this video with sound.';status.classList.add('show');}
       });
     }
   };
@@ -2590,6 +2589,9 @@ function socialCustomPlayerInit(v){
   const time=wrap?.querySelector('[data-sp-time]');
   const duration=wrap?.querySelector('[data-sp-duration]');
   const full=wrap?.querySelector('[data-sp-fullscreen]');
+  const back=wrap?.querySelector('[data-sp-back]');
+  const forward=wrap?.querySelector('[data-sp-forward]');
+  const speed=wrap?.querySelector('[data-sp-speed]');
   const center=wrap?.querySelector('.social-video-play');
   const status=wrap?.querySelector('[data-social-video-status]');
   const setPlay=()=>{
@@ -2612,16 +2614,18 @@ function socialCustomPlayerInit(v){
       center?.classList.add('hidden');
       status?.classList.remove('show');
     }).catch(()=>{
-      // Some browsers still require a second direct gesture for sound.
-      v.muted=true;
-      v.defaultMuted=true;
-      const q=v.play();
-      if(q?.catch)q.catch(()=>{});
-      if(status){status.textContent='Click play to enable sound';status.classList.add('show');}
+      // Browser policy can block audible playback; never switch to silent playback.
+      try{v.pause()}catch{}
+      center?.classList.remove('hidden');
+      if(status){status.textContent='Your browser blocked autoplay with sound. Tap Play to start.';status.classList.add('show');}
     });
   };
   const toggle=()=>v.paused?startWithUserGesture():v.pause();
+  const speeds=[1,1.25,1.5,1.75,2];
   play?.addEventListener('click',e=>{e.stopPropagation();toggle()});
+  back?.addEventListener('click',e=>{e.stopPropagation();v.currentTime=Math.max(0,(v.currentTime||0)-10)});
+  forward?.addEventListener('click',e=>{e.stopPropagation();v.currentTime=Math.min(Number.isFinite(v.duration)?v.duration:Infinity,(v.currentTime||0)+10)});
+  speed?.addEventListener('click',e=>{e.stopPropagation();const at=speeds.indexOf(v.playbackRate),next=speeds[(at+1+speeds.length)%speeds.length];v.playbackRate=next;speed.textContent=String(next)+'×';});
   center?.addEventListener('click',e=>{e.stopPropagation();startWithUserGesture()});
   range?.addEventListener('input',()=>{if(Number.isFinite(v.duration)&&v.duration>0)v.currentTime=(Number(range.value)/100)*v.duration});
   full?.addEventListener('click',e=>{e.stopPropagation();const target=wrap;if(target?.requestFullscreen)target.requestFullscreen().catch(()=>{});else if(v.webkitEnterFullscreen)v.webkitEnterFullscreen()});
