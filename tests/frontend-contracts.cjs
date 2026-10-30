@@ -188,7 +188,7 @@ assert.match(html, /function filteredGames\(\)/);
 
 // Video feeds should not fetch every MP4 when the page renders.
 assert.ok(html.includes('data-video-src=') && html.includes("function socialAttachVideoSource(video,preload='metadata')"), 'Main hub Social videos should attach their sources on demand');
-assert.ok(html.includes("video.preload='none'"), 'Main hub videos should not preload the entire feed');
+assert.ok(html.includes("v.preload='none'"), 'Main hub videos should not preload the entire feed');
 assert.ok(html.includes("socialPreloadNextVideos(){") && html.includes("socialAttachVideoSource(nextVideo,'metadata')"), 'Only the next visible-feed video should have metadata warmed');
 assert.ok(!html.includes('autoplay loop preload="auto" data-social-video'), 'Main hub Social videos must not all auto-download on render');
 assert.ok(social.includes('videoPreloadObserver') && social.includes("rootMargin:'650px 0px'"), 'Separate Social page should prepare videos shortly before they enter view');
