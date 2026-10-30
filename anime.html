@@ -98,6 +98,22 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
 .spotlight-art:before{z-index:1;background:linear-gradient(90deg,rgba(5,8,16,.15),rgba(5,8,16,.08))}
 .spotlight-art:after{z-index:1}
 .spotlight-symbol{z-index:2;text-shadow:0 4px 16px rgba(0,0,0,.65)}
+
+/* Owner-managed official episode links */
+.owner-link-panel[hidden],.owner-link-editor[hidden]{display:none!important}
+.owner-link-panel h3{margin:0 0 7px;font-size:14px}
+.owner-link-panel p{font-size:11px;line-height:1.55;color:var(--muted);margin:0 0 11px}
+.owner-link-panel .owner-target{padding:10px 11px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);font-size:11px;color:var(--text);margin:10px 0}
+.owner-link-panel label{display:block;font-size:10px;font-weight:850;color:var(--muted);margin:10px 0 5px}
+.owner-link-panel input,.owner-link-panel select{width:100%;min-height:40px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--text);padding:9px 10px;font:inherit;font-size:11px}
+.owner-link-panel .owner-form-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.owner-link-panel .owner-form-actions button{border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--soft);color:var(--text);font:inherit;font-size:10px;font-weight:850;cursor:pointer}
+.owner-link-panel .owner-form-actions button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.owner-link-panel .owner-form-actions button:disabled{opacity:.45;cursor:not-allowed}
+.owner-link-panel .owner-link-status{min-height:16px;margin-top:8px;font-size:10px;color:var(--good)}
+.owner-link-panel .owner-terms{font-size:9px;color:var(--muted);line-height:1.55;margin-top:10px}
+.owner-access-link{display:inline-flex;margin-top:4px;color:var(--accent);font-size:10px;font-weight:850;text-decoration:underline;text-underline-offset:3px}
+.owner-link-panel .owner-link-editor{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 </style>
 </head>
 <body>
@@ -133,18 +149,40 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   </div>
   <aside class="side-stack">
    <section class="side-panel"><h3>Where to watch legally</h3><p id="watchNote">Availability differs by country and changes over time. These buttons open official show pages or a UK availability guide.</p><div class="watch-links" id="watchLinks"></div><p class="notice">This page is an episode guide and watch tracker. It does not host or copy copyrighted episodes. Check each service's current UK catalogue and the show's age rating before watching.</p></section>
-   <section class="side-panel"><h3>Episode guide sources</h3><p>Episode names and season structure are based on publisher, official series and episode-guide references. Some very large catalogues have their own complete external index.</p><div class="source-links" id="sourceLinks"></div></section>
+
+   <section class="side-panel owner-link-panel" id="ownerLinkPanel">
+    <h3>Episode link manager</h3>
+    <p id="ownerAccessText">Owner-only controls. Sign in to the hub with the site owner account to manage episode watch links.</p>
+    <a class="owner-access-link" href="./index.html">Open All in One Edition account</a>
+    <div class="owner-link-editor" id="ownerLinkEditor" hidden>
+     <div class="owner-target" id="ownerEpisodeTarget">Choose an episode from the list first.</div>
+     <label for="episodeProvider">Official provider</label>
+     <select id="episodeProvider">
+      <option>Crunchyroll</option><option>Netflix</option><option>Prime Video</option><option>Disney+</option><option>HIDIVE</option><option>BBC iPlayer</option><option>ITVX</option><option>Channel 4</option><option>My5</option><option>JustWatch</option>
+     </select>
+     <label for="episodeWatchUrl">Official episode or series page URL</label>
+     <input id="episodeWatchUrl" type="url" inputmode="url" maxlength="2048" placeholder="https://www.crunchyroll.com/...">
+     <div class="owner-form-actions"><button class="primary" id="saveEpisodeLink" type="button">Save episode link</button><button id="removeEpisodeLink" type="button" disabled>Remove link</button></div>
+     <div class="owner-link-status" id="ownerLinkStatus" role="status" aria-live="polite"></div>
+     <p class="owner-terms">Only approved streaming-service or availability-guide pages are accepted. Direct video files and unapproved streaming hosts are blocked. Links open on the provider's own website.</p>
+    </div>
+   </section>
    <section class="side-panel"><h3>Progress controls</h3><p>Watched ticks are stored only in this browser. You can export a backup or clear the watch history at any time.</p><div class="watch-links"><button class="watch-link" id="exportProgress" type="button">Export watch progress <span>↓</span></button><button class="watch-link" id="clearProgress" type="button">Clear watch progress <span>↺</span></button></div><p id="saveStatus" class="stat-caption" aria-live="polite" style="margin-top:9px">Progress saves automatically.</p></section>
   </aside>
  </section>
  <footer class="footer"><span>Anime Zone · All in One Edition</span><span>Episode information checked October 2026 · availability can change</span></footer>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
  const STORE='aio.anime.watch.v1',THEME='aio.anime.theme.v1';
+ const SUPABASE_URL='https://btnbuchsrfllpzlypjtn.supabase.co';
+ const SUPABASE_KEY='sb_publishable_a1gdNTiQdF9587p5K-Sw-Q_nFbvWRmp';
+ const ownerClient=window.supabase?.createClient?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}):null;
  let watched=readStore(),activeId='pokemon',activeSeason=0;
+ let currentSession=null,siteOwner=false,episodeLinks=new Map(),selectedEpisode=null;
  function readStore(){try{const x=JSON.parse(localStorage.getItem(STORE)||'{}');return x&&typeof x==='object'?x:{}}catch{return {}}}
  function save(){try{localStorage.setItem(STORE,JSON.stringify(watched));$('saveStatus').textContent='Saved automatically on this device.'}catch{$('saveStatus').textContent='Browser storage is full or unavailable.'}renderStats();renderSeries()}
  const makeEpisodes=(names,prefix='Episode')=>names.map((name,i)=>({number:i+1,title:name||prefix+' '+String(i+1).padStart(2,'0')}));
@@ -212,7 +250,108 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   ],watch:[{label:'Crunchyroll · BLUE LOCK',url:'https://www.crunchyroll.com/search?q=BLUE%20LOCK',hint:'Licensed UK streaming listing'},{label:'Netflix UK',url:'https://www.netflix.com/search?q=BLUE%20LOCK',hint:'Check current UK catalogue'},{label:'JustWatch UK',url:'https://www.justwatch.com/uk/tv-series/bluelock',hint:'UK availability and episode count'}],sources:[{label:'JustWatch UK episode guide',url:'https://www.justwatch.com/uk/tv-series/bluelock'},{label:'Official Blue Lock production website',url:'https://bluelock-pr.com/'}],note:'UK listing currently shows 15. Check the age rating and provider listing before watching.'}
  ];
  const key=(sid,season,ep)=>sid+':'+season+':'+ep;
-  function current(){return series.find(s=>s.id===activeId)||series[0]}
+ const watchLinkKey=(sid,season,ep)=>sid+':'+season+':'+ep;
+ const providerDomains={
+  'Crunchyroll':['crunchyroll.com'],'Netflix':['netflix.com'],
+  'Prime Video':['primevideo.com','amazon.co.uk','amazon.com'],
+  'Disney+':['disneyplus.com'],'HIDIVE':['hidive.com'],
+  'BBC iPlayer':['bbc.co.uk'],'ITVX':['itv.com'],
+  'Channel 4':['channel4.com'],'My5':['my5.tv'],'JustWatch':['justwatch.com']
+ };
+ function validateOfficialWatchUrl(raw,provider){
+  let url;try{url=new URL(String(raw||'').trim())}catch{throw new Error('Enter a valid provider page URL.')}
+  if(url.protocol!=='https:'||url.username||url.password)throw new Error('Use a secure https:// provider page URL.');
+  const host=url.hostname.toLowerCase(),allowed=providerDomains[provider]||[];
+  if(!allowed.some(domain=>host===domain||host.endsWith('.'+domain)))throw new Error('That URL does not match the selected approved provider.');
+  if(/\.(mp4|m3u8|mpd|webm|mkv)$/i.test(url.pathname))throw new Error('Direct video-file links are not accepted. Use the provider’s official watch page.');
+  if(!url.pathname||url.pathname==='/')throw new Error('Use the actual episode or series page, not just the provider homepage.');
+  return url.href;
+ }
+ function updateOwnerEditor(s,si,ep){
+  selectedEpisode={seriesId:s.id,seasonIndex:si,episodeNumber:ep.number};
+  const saved=episodeLinks.get(watchLinkKey(s.id,si,ep.number));
+  $('ownerEpisodeTarget').textContent=s.title+' · '+s.seasons[si].name+' · Episode '+ep.number+' — '+ep.title;
+  if($('episodeProvider'))$('episodeProvider').value=saved?.provider||'Crunchyroll';
+  if($('episodeWatchUrl'))$('episodeWatchUrl').value=saved?.watch_url||'';
+  if($('removeEpisodeLink'))$('removeEpisodeLink').disabled=!saved;
+  if($('ownerLinkStatus'))$('ownerLinkStatus').textContent=saved?'Saved link: '+saved.provider:'No owner link saved for this episode yet.';
+ }
+ async function loadEpisodeLinks(){
+  if(!ownerClient)return;
+  const rows=[];
+  try{
+   for(let start=0;start<5000;start+=500){
+    const result=await ownerClient.from('anime_episode_watch_links').select('series_id,season_index,episode_number,provider,watch_url').order('series_id').order('season_index').order('episode_number').range(start,start+499);
+    if(result.error)throw result.error;
+    rows.push(...(result.data||[]));
+    if(!result.data||result.data.length<500)break;
+   }
+   episodeLinks=new Map(rows.map(row=>[watchLinkKey(row.series_id,row.season_index,row.episode_number),row]));
+   renderCatalog();
+   if(selectedEpisode){
+    const s=series.find(item=>item.id===selectedEpisode.seriesId),ep=s?.seasons[selectedEpisode.seasonIndex]?.episodes.find(item=>item.number===selectedEpisode.episodeNumber);
+    if(s&&ep)renderPlayer(s,selectedEpisode.seasonIndex,ep);
+   }
+  }catch(error){
+   $('ownerAccessText').textContent='Episode links could not be loaded: '+(error?.message||'Cloud database error.');
+  }
+ }
+ async function refreshOwnerAccess(){
+  const editor=$('ownerLinkEditor'),access=$('ownerAccessText');
+  if(!ownerClient||!currentSession?.user){siteOwner=false;editor.hidden=true;access.textContent='Sign in to the All in One Edition owner account, then return here to manage episode links.';return}
+  try{
+   const result=await ownerClient.from('staff_roles').select('role').eq('user_id',currentSession.user.id).maybeSingle();
+   if(result.error)throw result.error;
+   siteOwner=result.data?.role==='owner';
+   editor.hidden=!siteOwner;
+   access.textContent=siteOwner?'Owner verified. You can add or remove approved watch-page links for any listed episode.': 'This editor is restricted to the site owner account.';
+   if(siteOwner&&selectedEpisode){
+    const s=series.find(item=>item.id===selectedEpisode.seriesId),ep=s?.seasons[selectedEpisode.seasonIndex]?.episodes.find(item=>item.number===selectedEpisode.episodeNumber);
+    if(s&&ep)updateOwnerEditor(s,selectedEpisode.seasonIndex,ep);
+   }
+  }catch(error){siteOwner=false;editor.hidden=true;access.textContent='Could not verify owner permissions. '+(error?.message||'Try signing in again from the main hub.')}
+ }
+ async function saveOwnerEpisodeLink(){
+  if(!siteOwner||!currentSession?.user||!selectedEpisode){$('ownerLinkStatus').textContent='Only the verified site owner can save a link. Select an episode first.';return}
+  let watchUrl;
+  const provider=$('episodeProvider').value;
+  try{watchUrl=validateOfficialWatchUrl($('episodeWatchUrl').value,provider)}catch(error){$('ownerLinkStatus').textContent=error.message;return}
+  const button=$('saveEpisodeLink');button.disabled=true;
+  const row={...selectedEpisode,provider,watch_url:watchUrl,updated_by:currentSession.user.id,updated_at:new Date().toISOString()};
+  try{
+   const result=await ownerClient.from('anime_episode_watch_links').upsert(row,{onConflict:'series_id,season_index,episode_number'});
+   if(result.error)throw result.error;
+   episodeLinks.set(watchLinkKey(row.series_id,row.season_index,row.episode_number),row);
+   $('ownerLinkStatus').textContent='Saved. This episode now has an official provider link.';
+   renderCatalog();
+   const s=series.find(item=>item.id===row.series_id),ep=s?.seasons[row.season_index]?.episodes.find(item=>item.number===row.episode_number);
+   if(s&&ep)renderPlayer(s,row.season_index,ep);
+  }catch(error){$('ownerLinkStatus').textContent='Could not save: '+(error?.message||'Database error.')}
+  finally{button.disabled=false}
+ }
+ async function removeOwnerEpisodeLink(){
+  if(!siteOwner||!currentSession?.user||!selectedEpisode)return;
+  const button=$('removeEpisodeLink');button.disabled=true;
+  try{
+   const result=await ownerClient.from('anime_episode_watch_links').delete().eq('series_id',selectedEpisode.seriesId).eq('season_index',selectedEpisode.seasonIndex).eq('episode_number',selectedEpisode.episodeNumber);
+   if(result.error)throw result.error;
+   episodeLinks.delete(watchLinkKey(selectedEpisode.seriesId,selectedEpisode.seasonIndex,selectedEpisode.episodeNumber));
+   $('episodeWatchUrl').value='';$('ownerLinkStatus').textContent='Episode link removed.';
+   renderCatalog();
+   const s=series.find(item=>item.id===selectedEpisode.seriesId),ep=s?.seasons[selectedEpisode.seasonIndex]?.episodes.find(item=>item.number===selectedEpisode.episodeNumber);
+   if(s&&ep)renderPlayer(s,selectedEpisode.seasonIndex,ep);
+  }catch(error){$('ownerLinkStatus').textContent='Could not remove: '+(error?.message||'Database error.')}
+  finally{button.disabled=!episodeLinks.has(watchLinkKey(selectedEpisode.seriesId,selectedEpisode.seasonIndex,selectedEpisode.episodeNumber))}
+ }
+ function initOwnerLinks(){
+  if(!ownerClient){$('ownerAccessText').textContent='Account service is unavailable in this browser. Refresh and try again.';return}
+  ownerClient.auth.getSession().then(async({data,error})=>{
+   if(error)throw error;currentSession=data?.session||null;
+   await refreshOwnerAccess();await loadEpisodeLinks();
+  }).catch(error=>{$('ownerAccessText').textContent='Could not connect to the account service: '+(error?.message||'Refresh the page to retry.')});
+  ownerClient.auth.onAuthStateChange((_event,session)=>{currentSession=session||null;setTimeout(()=>refreshOwnerAccess(),0)});
+ }
+ function current(){return series.find(s=>s.id===activeId)||series[0]}
  function updateSpotlight(){
   const s=current(),banner=$('spotlightBanner');
   banner.style.setProperty('--spotlight',s.tone);banner.dataset.kanji=s.jp;
@@ -226,25 +365,30 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
  }
  function renderPlayer(s,si,ep){
   $('playerTitle').textContent=s.title+' · '+ep.title;
-  $('playerSubtitle').textContent=s.seasons[si].name+' · Episode '+ep.number+' · Official viewing options';
+  $('playerSubtitle').textContent=s.seasons[si].name+' · Episode '+ep.number+' · Official provider page';
+  updateOwnerEditor(s,si,ep);
   const stage=$('playerStage');stage.replaceChildren();
   const box=document.createElement('div');box.className='watch-player-placeholder';
+  const saved=episodeLinks.get(watchLinkKey(s.id,si,ep.number));
   const mark=document.createElement('div');mark.className='player-mark';mark.textContent='↗';
-  const title=document.createElement('strong');title.textContent='Choose an official place to watch';
+  const title=document.createElement('strong');title.textContent=saved?'Episode link added':'Choose an official place to watch';
   const description=document.createElement('p');
-  description.textContent='This episode does not have a distributor-authorised in-page player. Open a licensed service below to check whether it is available in your UK region. Anime Zone will not show a fake player or an unlicensed copy.';
+  description.textContent=saved
+   ?'The site owner added an official '+saved.provider+' page for this episode. Playback opens on the provider’s own website.'
+   :'No episode-specific provider page has been added yet. Use one of the official service pages below to check availability in your region.';
   const actions=document.createElement('div');actions.className='watch-player-actions';
-  s.watch.forEach((link,index)=>{
+  const links=saved?[{label:'Open '+saved.provider+' page',url:saved.watch_url,hint:'Opens the provider website in a new tab'}]:s.watch;
+  links.forEach((link,index)=>{
    const a=document.createElement('a');
    a.className='action'+(index===0?' primary':'');
    a.href=link.url;a.target='_blank';a.rel='noopener noreferrer';
-   a.textContent=/justwatch/i.test(link.label)?'Check UK availability':link.label;
+   a.textContent=saved?link.label:(/justwatch/i.test(link.label)?'Check UK availability':link.label);
    a.title=link.hint||link.label;
    actions.append(a);
   });
   box.append(mark,title,description,actions);stage.append(box);
   const note=$('playerNote');
-  note.textContent='In-site playback requires an authorised video embed from the distributor. These links open the providers directly; their own player handles sign-in, subtitles and playback.';
+  note.textContent='These are official provider watch pages, not embedded video streams. The provider controls playback, sound, subtitles, fullscreen and regional access.';
  }
  function seriesProgress(s){let all=0,done=0;s.seasons.forEach((season,si)=>season.episodes.forEach(ep=>{all++;if(watched[key(s.id,si,ep.number)])done++}));return {all,done,pct:all?Math.round(done/all*100):0}}
  function renderStats(){let all=0,done=0;series.forEach(s=>{const p=seriesProgress(s);all+=p.all;done+=p.done});$('watchedCount').textContent=done.toLocaleString('en-GB');$('watchedCaption').textContent='of '+all.toLocaleString('en-GB')+' listed episodes marked watched';$('progressPct').textContent=(all?Math.round(done/all*100):0)+'%';$('overallBar').style.width=(all?done/all*100:0)+'%'}
@@ -282,14 +426,16 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
    if(filter==='watched'&&!done)return;if(filter==='unwatched'&&done)return;
    const row=document.createElement('label');row.className='episode-row'+(done?' watched':'');
    const num=document.createElement('span');num.className='ep-num';num.textContent='EP '+String(ep.number).padStart(2,'0');
-   const copy=document.createElement('span');copy.className='ep-copy';const title=document.createElement('strong');title.textContent=ep.title;const meta=document.createElement('small');meta.textContent=season.name;copy.append(title,meta);
-   const play=document.createElement('button');play.type='button';play.className='ep-play';play.textContent='Viewing options';play.setAttribute('aria-label','Watch or open '+ep.title);play.addEventListener('click',()=>{renderPlayer(s,activeSeason,ep);$('playerTitle').scrollIntoView({behavior:'smooth',block:'nearest'})});
+   const copy=document.createElement('span');copy.className='ep-copy';const title=document.createElement('strong');title.textContent=ep.title;const meta=document.createElement('small');const savedLink=episodeLinks.get(watchLinkKey(s.id,activeSeason,ep.number));meta.textContent=season.name+(savedLink?' · '+savedLink.provider+' link added':'');copy.append(title,meta);
+   const play=document.createElement('button');play.type='button';play.className='ep-play';play.textContent=savedLink?'Open episode':'Viewing options';play.setAttribute('aria-label','Watch or open '+ep.title);play.addEventListener('click',()=>{renderPlayer(s,activeSeason,ep);$('playerTitle').scrollIntoView({behavior:'smooth',block:'nearest'})});
    const checkWrap=document.createElement('span');checkWrap.className='ep-check';const check=document.createElement('input');check.type='checkbox';check.checked=done;check.setAttribute('aria-label','Mark '+ep.title+' watched');check.addEventListener('change',()=>{if(check.checked)watched[epKey]=true;else delete watched[epKey];save();renderEpisodesOnly()});checkWrap.append(check,document.createTextNode('Watched'));row.append(num,copy,play,checkWrap);list.append(row);shown++;
   });
   if(!shown){const empty=document.createElement('div');empty.className='no-results';empty.textContent='No episodes match those filters.';list.append(empty)}
  }
  function renderEpisodesOnly(){renderCatalog();renderStats()}
  $('episodeSearch').addEventListener('input',renderCatalog);$('progressFilter').addEventListener('change',renderCatalog);
+ $('saveEpisodeLink').addEventListener('click',saveOwnerEpisodeLink);
+ $('removeEpisodeLink').addEventListener('click',removeOwnerEpisodeLink);
  $('exportProgress').addEventListener('click',()=>{
   const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),watched},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='all-in-one-anime-progress.json';a.click();URL.revokeObjectURL(url);$('saveStatus').textContent='Progress backup exported.';
  });
@@ -302,7 +448,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
  });
  try{if(localStorage.getItem(THEME)==='light')document.documentElement.classList.add('light')}catch{}
  window.addEventListener('storage',event=>{if(event.key===STORE){watched=readStore();renderStats();renderSeries();renderCatalog()}});
- updateSpotlight();renderStats();renderSeries();renderCatalog();
+ updateSpotlight();renderStats();renderSeries();renderCatalog();initOwnerLinks();
  $('spotlightBrowse').addEventListener('click',()=> $('episodeCatalog').scrollIntoView({behavior:'smooth',block:'start'}));
  $('spotlightWatch').textContent='View episode options ↗';
  $('spotlightWatch').addEventListener('click',()=>{const s=current(),ep=s.seasons[0].episodes[0];renderPlayer(s,0,ep);$('playerTitle').scrollIntoView({behavior:'smooth',block:'nearest'})});
