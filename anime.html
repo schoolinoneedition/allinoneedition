@@ -357,7 +357,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   const result=await ownerClient.from('anime_episode_watch_links').upsert(row,{onConflict:'series_id,season_index,episode_number'});
   if(result.error)throw result.error;
   episodeLinks.set(mapKey,row);
-  const oldObject=previous?.provider==='XBT Storage'&&previous.watch_url!==watchUrl?videoObjectPath(previous.watch_url):null;
+  const oldObject=['XBT Storage','Self-hosted video'].includes(previous?.provider)&&previous.watch_url!==watchUrl?videoObjectPath(previous.watch_url):null;
   if(oldObject){try{await ownerClient.storage.from('anime-episodes').remove([oldObject])}catch{}}
   renderCatalog();
   const s=series.find(item=>item.id===row.series_id),ep=s?.seasons[row.season_index]?.episodes.find(item=>item.number===row.episode_number);
