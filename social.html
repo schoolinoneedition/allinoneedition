@@ -672,7 +672,7 @@
   function updatePostIdentityControls(){
     const file=$('mediaFile'),note=document.querySelector('#composeForm .note-small');
     if(file)file.title=currentUser?'Files upload to your account folder.':'Sign in to upload files.';
-    if(note)note.textContent='Images up to 15 MB; videos up to 100 MB. Uploaded videos are converted to H.264 MP4 before being saved. First conversion downloads the video engine; large conversions use your device’s memory and processor.';
+    if(note)note.textContent='Images up to 15 MB; videos up to 100 MB. Every uploaded video is converted to H.264/AAC MP4 before saving, so formats such as HEVC and MOV play on more devices. First conversion downloads the video engine.';
   }
   function statFor(id){
     const key=String(id);if(!postStats.has(key))postStats.set(key,{likes:0,comments:0});
@@ -1287,49 +1287,8 @@
     }catch(e){if(e?.name!=='AbortError')showToast('Could not share this post.');}
   }
   let socialFFmpeg=null,socialFFmpegPromise=null,socialFFmpegCoreUrls=[];
+  const SOCIAL_FFMPEG_VERSION='0.12.15';
   const SOCIAL_FFMPEG_CORE_BASE='https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd';
-  function createSocialFFmpegBridge(){
-    const worker=new Worker(new URL('./ffmpeg-social-worker.js',location.href),{type:'module',name:'aio-social-video-converter'});
-    const pending=new Map(),listeners={progress:[],log:[]};
-    let sequence=0;
-    const rejectPending=error=>{
-      for(const job of pending.values())job.reject(error);
-      pending.clear();
-    };
-    worker.addEventListener('message',event=>{
-      const message=event.data||{};
-      if(message.type==='PROGRESS'||message.type==='LOG'){
-        (listeners[message.type==='PROGRESS'?'progress':'log']||[]).forEach(callback=>{try{callback(message.data||{});}catch{}});
-        return;
-      }
-      const job=pending.get(message.id);
-      if(!job)return;
-      pending.delete(message.id);
-      if(message.type==='ERROR')job.reject(new Error(String(message.data||'FFmpeg conversion failed.')));
-      else job.resolve(message.data);
-    });
-    worker.addEventListener('error',event=>{
-      rejectPending(new Error(event.message||'The video converter worker could not start. Check that this browser supports WebAssembly workers.'));
-    });
-    worker.addEventListener('messageerror',()=>rejectPending(new Error('The video converter returned an unreadable response.')));
-    return {
-      send(type,data,transfer=[]){
-        return new Promise((resolve,reject)=>{
-          const id=++sequence;
-          pending.set(id,{resolve,reject});
-          try{worker.postMessage({id,type,data},transfer);}catch(error){pending.delete(id);reject(error);}
-        });
-      },
-      on(event,callback){if(listeners[event])listeners[event].push(callback);},
-      off(event,callback){if(listeners[event])listeners[event]=listeners[event].filter(item=>item!==callback);},
-      load(config){return this.send('LOAD',config);},
-      writeFile(path,data){return this.send('WRITE_FILE',{path,data},data instanceof Uint8Array?[data.buffer]:[]);},
-      exec(args){return this.send('EXEC',{args,timeout:-1});},
-      readFile(path){return this.send('READ_FILE',{path,encoding:'binary'});},
-      deleteFile(path){return this.send('DELETE_FILE',{path});},
-      terminate(){worker.terminate();rejectPending(new Error('The video converter was stopped.'));}
-    };
-  }
   async function socialFFmpegBlobURL(url,type){
     const response=await fetch(url,{mode:'cors',credentials:'omit',cache:'force-cache'});
     if(!response.ok)throw new Error('The video converter engine could not be downloaded (HTTP '+response.status+').');
@@ -1339,21 +1298,29 @@
     if(socialFFmpeg?.loaded)return socialFFmpeg;
     if(!socialFFmpegPromise){
       socialFFmpegPromise=(async()=>{
-        onStatus('Loading the video converter for the first time… (about 31 MB)');
-        const bridge=createSocialFFmpegBridge();
-        socialFFmpeg=bridge;
+        onStatus('Loading the official video converter for the first time… (about 31 MB)');
+        let engine=null;
         try{
+          if(!window.Worker||!window.WebAssembly)throw new Error('This browser does not support the background video converter. Update your browser or use a different device.');
+          // Use the published FFmpeg.wasm API and its own worker protocol.
+          // Its ESM module creates the worker relative to its CDN module URL.
+          const library=await import('https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@'+SOCIAL_FFMPEG_VERSION+'/dist/esm/index.js');
+          if(typeof library.FFmpeg!=='function')throw new Error('The video converter library did not load correctly.');
+          engine=new library.FFmpeg();
+          socialFFmpeg=engine;
+          engine.on('log',({message})=>{if(message)console.debug('[Social video converter]',message);});
           const coreURL=await socialFFmpegBlobURL(SOCIAL_FFMPEG_CORE_BASE+'/ffmpeg-core.js','text/javascript');
           socialFFmpegCoreUrls.push(coreURL);
           const wasmURL=await socialFFmpegBlobURL(SOCIAL_FFMPEG_CORE_BASE+'/ffmpeg-core.wasm','application/wasm');
           socialFFmpegCoreUrls.push(wasmURL);
-          await bridge.load({coreURL,wasmURL});
-          bridge.loaded=true;
-          return bridge;
+          await engine.load({coreURL,wasmURL});
+          onStatus('Video converter ready.');
+          return engine;
         }catch(error){
-          bridge.terminate();
+          try{engine?.terminate();}catch{}
           socialFFmpeg=null;
-          throw error;
+          for(const url of socialFFmpegCoreUrls.splice(0))try{URL.revokeObjectURL(url)}catch{}
+          throw new Error('Video conversion could not start: '+String(error?.message||error));
         }
       })().catch(error=>{socialFFmpegPromise=null;throw error;});
     }
@@ -1388,8 +1355,8 @@
       const exitCode=await ffmpeg.exec([
         '-hide_banner','-y','-i',inputPath,
         '-map','0:v:0','-map','0:a?',
-        '-vf',"scale='min(1920,iw)':'min(1920,ih)':force_original_aspect_ratio=decrease,fps=30",
-        '-c:v','libx264','-preset','ultrafast','-crf','24','-pix_fmt','yuv420p',
+        '-vf',"scale='min(1920,iw)':'min(1920,ih)':force_original_aspect_ratio=decrease:force_divisible_by=2,fps=30",
+        '-c:v','libx264','-preset','ultrafast','-crf','24','-pix_fmt','yuv420p','-profile:v','high','-tag:v','avc1',
         '-c:a','aac','-b:a','128k','-ac','2',
         '-movflags','+faststart','-threads','1',outputPath
       ]);
@@ -1498,7 +1465,7 @@
     }
     if(!client){setStatus('postStatus','Cloud service is unavailable. Nothing was published.','bad');return;}
     postBusy=true;const submit=$('submitPost');submit.disabled=true;submit.textContent='Publishing…';
-    setStatus('postStatus',file?'Uploading file to XBT storage…':'Publishing your post…');
+    setStatus('postStatus',file?(mediaType==='video'?'Preparing video conversion…':'Uploading image to XBT storage…'):'Publishing your post…');
     try{
       if(file){
         let uploadFile=file;
