@@ -32,6 +32,8 @@ window.onSpotifyIframeApiReady=api=>{window.aioSpotifyAPI=api;};
 </script>
 <script async src="https://open.spotify.com/embed/iframe-api/v1"></script>
 
+<link rel="preconnect" href="https://btnbuchsrfllpzlypjtn.supabase.co" crossorigin>
+<link rel="dns-prefetch" href="https://btnbuchsrfllpzlypjtn.supabase.co">
 <link rel="preconnect" href="https://pizzaedition.com">
 <link rel="preconnect" href="https://games.construct.net">
 <link rel="preconnect" href="https://topvaz.com">
@@ -2244,7 +2246,7 @@ function renderSocialPost(p,i){
   const stat=socialStat(p.id),commentCount=stat.comments||socialCommentMap()[p.id]?.length||0;
   const likeCount=Math.max(stat.likes||0,0)+(liked&&!socialCloudReady?1:0);
   const media=p.media_type==='video'
-    ?`<div class="social-video-wrap"><video src="${socialEsc(p.media_url)}" playsinline webkit-playsinline autoplay loop preload="auto" data-social-video></video><button type="button" class="social-video-play" aria-label="Play video" onclick="toggleSocialVideo(event,this)">▶</button><div class="social-video-status" data-social-video-status>Click play to start with sound</div><div class="social-player-controls" data-social-player-controls><button type="button" class="social-player-btn" data-sp-play aria-label="Play or pause">▶</button><button type="button" class="social-player-btn" data-sp-back aria-label="Back 10 seconds" title="Back 10 seconds">↶10</button><div class="social-player-time" data-sp-time>00:00</div><input class="social-player-range" data-sp-range type="range" min="0" max="100" value="0" step="0.1" aria-label="Video progress"><div class="social-player-time" data-sp-duration>00:00</div><button type="button" class="social-player-btn" data-sp-forward aria-label="Forward 10 seconds" title="Forward 10 seconds">10↷</button><button type="button" class="social-player-btn" data-sp-speed aria-label="Playback speed">1×</button><button type="button" class="social-player-btn" data-sp-fullscreen aria-label="Fullscreen">⛶</button></div></div>`
+    ?`<div class="social-video-wrap"><video data-video-src="${socialEsc(p.media_url)}" playsinline webkit-playsinline preload="none" width="1280" height="720" data-social-video></video><button type="button" class="social-video-play" aria-label="Play video" onclick="toggleSocialVideo(event,this)">▶</button><div class="social-video-status" data-social-video-status>Click play to start with sound</div><div class="social-player-controls" data-social-player-controls><button type="button" class="social-player-btn" data-sp-play aria-label="Play or pause">▶</button><button type="button" class="social-player-btn" data-sp-back aria-label="Back 10 seconds" title="Back 10 seconds">↶10</button><div class="social-player-time" data-sp-time>00:00</div><input class="social-player-range" data-sp-range type="range" min="0" max="100" value="0" step="0.1" aria-label="Video progress"><div class="social-player-time" data-sp-duration>00:00</div><button type="button" class="social-player-btn" data-sp-forward aria-label="Forward 10 seconds" title="Forward 10 seconds">10↷</button><button type="button" class="social-player-btn" data-sp-speed aria-label="Playback speed">1×</button><button type="button" class="social-player-btn" data-sp-fullscreen aria-label="Fullscreen">⛶</button></div></div>`
     :`<img src="${socialEsc(p.media_url)}" alt="" loading="${i<2?'eager':'lazy'}" decoding="async" onerror="socialMediaError(this)">`;
   return `<article class="social-post" data-social-post="${socialEsc(p.id)}">
     <div class="social-post-media">${media}<div class="social-media-shade"></div></div>
@@ -2666,7 +2668,7 @@ async function socialRenderManageList(){
     const posts=q.data||[];
     if(status)status.textContent=posts.length?`${posts.length} post${posts.length===1?'':'s'} found`:'You have no Social posts yet.';
     box.innerHTML=posts.length?posts.map(p=>{
-      const thumb=p.media_type==='video'?`<video src="${socialEsc(p.media_url)}" muted preload="metadata"></video>`:`<img src="${socialEsc(p.media_url)}" alt="">`;
+      const thumb=p.media_type==='video'?`<video src="${socialEsc(p.media_url)}" muted preload="metadata" loading="lazy" width="320" height="180"></video>`:`<img src="${socialEsc(p.media_url)}" alt="">`;
       return `<div class="social-manage-item" data-manage-post="${socialEsc(p.id)}"><div class="social-manage-thumb">${thumb}</div><div class="social-manage-info"><strong>${socialEsc(p.caption||'No caption')}</strong><span>${socialTime(p.created_at)} · ${p.media_type==='video'?'MP4 video':'Image'}</span></div><div class="social-manage-actions"><button class="btn mini" type="button" onclick="socialEditCaption('${socialEsc(p.id)}')">Edit caption</button><button class="btn mini" type="button" onclick="deleteSocialPost('${socialEsc(p.id)}')">Delete</button></div></div>`;
     }).join(''):'<div class="social-manage-empty">You have no Social posts yet.</div>';
   }catch(e){
@@ -2748,6 +2750,7 @@ function socialCustomPlayerInit(v){
     if(duration)duration.textContent=socialFmtTime(v.duration);
   };
   const startWithUserGesture=()=>{
+    socialAttachVideoSource(v,'metadata');
     v.dataset.socialUserStarted='1';
     v.defaultMuted=false;
     v.muted=false;
@@ -2788,6 +2791,7 @@ function socialStartVisibleWithSound(){
   for(const v of videos){
     const r=v.getBoundingClientRect();
     if(r.top<window.innerHeight*.86&&r.bottom>window.innerHeight*.14){
+      socialAttachVideoSource(v,'metadata');
       v.dataset.socialUserStarted='1';
       v.defaultMuted=false;v.muted=false;v.volume=Math.max(.7,v.volume||1);
       const p=v.play();
@@ -2846,32 +2850,40 @@ function socialFitAllPosts(){
     if(v)socialFitPostToMedia(v);else if(img)socialFitPostToMedia(img);
   });
 }
-function socialPreloadNextVideos(limit=6){
-  const posts=[...document.querySelectorAll('.social-post')];
-  const activeIndex=Math.max(0,posts.findIndex(p=>{
-    const r=p.getBoundingClientRect();
-    return r.top<window.innerHeight*.86&&r.bottom>window.innerHeight*.14;
-  }));
-  for(let n=1;n<=limit;n++){
-    const post=posts[activeIndex+n],v=post?.querySelector('[data-social-video]');
-    if(!v)continue;
-    try{v.preload='auto';if(v.readyState<2)v.load();}catch{}
-  }
+function socialAttachVideoSource(video,preload='metadata'){
+  if(!video)return false;
+  if(video.dataset.sourceAttached==='1')return true;
+  const src=String(video.dataset.videoSrc||'').trim();
+  if(!src)return false;
+  video.preload=preload;
+  video.src=src;
+  video.dataset.sourceAttached='1';
+  video.load();
+  return true;
 }
-let socialIdlePreloadTimer=0,socialIdlePreloadRound=0;
+function socialPreloadNextVideos(){
+  const connection=navigator.connection;
+  if(connection?.saveData||/^(slow-)?2g$/.test(connection?.effectiveType||''))return;
+  const section=$('social');
+  if(section){
+    const sectionRect=section.getBoundingClientRect();
+    if(sectionRect.top>window.innerHeight+500||sectionRect.bottom< -500)return;
+  }
+  const cards=[...document.querySelectorAll('.social-post')];
+  const activeIndex=cards.findIndex(post=>{
+    const rect=post.getBoundingClientRect();
+    return rect.top<window.innerHeight*.86&&rect.bottom>window.innerHeight*.14;
+  });
+  const nextCard=cards.slice(Math.max(0,activeIndex+1)).find(post=>post.querySelector('[data-social-video]'));
+  const nextVideo=nextCard?.querySelector('[data-social-video]');
+  if(nextVideo)socialAttachVideoSource(nextVideo,'metadata');
+}
+let socialIdlePreloadTimer=0;
 function scheduleSocialVideoPreload(){
   clearTimeout(socialIdlePreloadTimer);
-  const run=()=>{
-    if(navigator.connection?.saveData)return;
-    socialPreloadNextVideos(6);
-    socialIdlePreloadRound++;
-    if(socialIdlePreloadRound<4){
-      if('requestIdleCallback' in window)requestIdleCallback(()=>socialPreloadNextVideos(8),{timeout:3000});
-      else socialIdlePreloadTimer=setTimeout(()=>socialPreloadNextVideos(8),1800);
-    }
-  };
-  if('requestIdleCallback' in window)requestIdleCallback(run,{timeout:2500});
-  else socialIdlePreloadTimer=setTimeout(run,1400);
+  const run=()=>{if(!document.hidden)socialPreloadNextVideos()};
+  if('requestIdleCallback' in window)requestIdleCallback(run,{timeout:1400});
+  else socialIdlePreloadTimer=setTimeout(run,500);
 }
 function socialMarkAudioUnlocked(){
   try{sessionStorage.setItem('aio-social-audio-unlocked','1')}catch{}
@@ -2879,6 +2891,7 @@ function socialMarkAudioUnlocked(){
 function socialAudioIsUnlocked(){try{return sessionStorage.getItem('aio-social-audio-unlocked')==='1'}catch{return false}}
 function socialPlayAudible(v){
   if(!v)return Promise.reject(new Error('No video'));
+  socialAttachVideoSource(v,'metadata');
   v.dataset.socialUserStarted='1';
   v.defaultMuted=false;
   v.muted=false;
@@ -2894,6 +2907,7 @@ function socialPlayAudible(v){
 }
 function socialTryAudibleAutoplay(v){
   if(!v)return;
+  socialAttachVideoSource(v,'metadata');
   socialCustomPlayerInit(v);
   if(socialAudioIsUnlocked()||v.dataset.socialUserStarted==='1'){
     socialPlayAudible(v).catch(()=>{});
@@ -2911,22 +2925,14 @@ function socialTryAudibleAutoplay(v){
     if(status){status.textContent='Click play for sound';status.classList.add('show');}
   });
 }
-function socialPreloadDuringIdle(){
-  if(navigator.connection?.saveData)return;
-  const run=()=>{
-    socialPreloadNextVideos(8);
-    document.querySelectorAll('[data-social-video]').forEach((v,i)=>{if(i<8)try{v.preload='auto'}catch{}});
-  };
-  if('requestIdleCallback' in window)requestIdleCallback(run,{timeout:4500});
-  else setTimeout(run,2200);
-}
+function socialPreloadDuringIdle(){scheduleSocialVideoPreload()}
 function setupSocialVideoObserver(){
   const videos=[...document.querySelectorAll('[data-social-video]')];
   if(window.aioSocialVideoObserver)window.aioSocialVideoObserver.disconnect();
   videos.forEach(v=>{
-    v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.removeAttribute('controls');v.preload='auto';
+    v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.removeAttribute('controls');v.preload='none';
     socialCustomPlayerInit(v);
-    v.addEventListener('loadedmetadata',()=>{socialFitPostToMedia(v);scheduleSocialVideoPreload()}, {once:true});
+    v.addEventListener('loadedmetadata',()=>socialFitPostToMedia(v), {once:true});
     v.addEventListener('canplay',()=>{socialFitPostToMedia(v)}, {once:true});
     v.addEventListener('error',()=>v.closest('.social-video-wrap')?.querySelector('[data-social-video-status]')?.classList.add('show'));
   });
@@ -2939,6 +2945,7 @@ function setupSocialVideoObserver(){
       for(const entry of entries){
         const v=entry.target;
         if(entry.isIntersecting&&entry.intersectionRatio>.55){
+          socialAttachVideoSource(v,'metadata');
           videos.forEach(x=>{if(x!==v)try{x.pause()}catch{}});
           socialTryAudibleAutoplay(v);
           scheduleSocialVideoPreload();
