@@ -354,6 +354,96 @@
     transition:border-color .16s ease,box-shadow .16s ease,background-color .16s ease;
   }
 }
+
+/* Top-anchored toolbar with a centered media stage beneath it. */
+.social-app>.content{padding-top:10px}
+.social-app .feed-column{
+  display:grid;
+  grid-template-rows:auto auto minmax(0,1fr);
+  align-content:stretch;
+  gap:8px;
+  min-height:0;
+  height:100%;
+}
+.social-app .feed-tools{
+  grid-row:1;
+  position:sticky;
+  top:0;
+  z-index:7;
+  margin:0 auto;
+  align-self:start;
+  width:100%;
+}
+.social-app .feed-heading{
+  grid-row:2;
+  align-self:center;
+  padding:0 2px 2px;
+  min-height:0;
+}
+.social-app .feed-heading p{margin-top:3px}
+.social-app .feed-scroll{
+  grid-row:3;
+  width:100%;
+  height:100%;
+  min-height:0;
+  max-height:none;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  container-type:size;
+  overscroll-behavior:contain;
+  scroll-padding-block:50%;
+  scroll-snap-type:y mandatory;
+  padding:8px 0 14px;
+}
+.social-app .feed-scroll>.post{
+  flex:0 0 auto;
+  width:min(100%,860px,calc((100dvh - 250px)*var(--media-ratio-value)));
+  max-height:calc(100dvh - 250px);
+  aspect-ratio:var(--media-ratio);
+  margin:0 auto 16px;
+  scroll-snap-align:center;
+}
+@supports (width: 100cqh){
+  .social-app .feed-scroll>.post{
+    width:min(100%,860px,calc(100cqh * var(--media-ratio-value)));
+    max-height:100cqh;
+  }
+}
+.social-app .feed-scroll>.skeleton{
+  width:min(100%,860px);
+  max-width:860px;
+  height:100%;
+  min-height:0;
+  margin:0 auto;
+}
+@media(min-width:721px){
+  .social-app .feed-column{gap:7px}
+  .social-app .feed-heading{width:100%;max-width:900px}
+}
+@media(max-width:720px){
+  .social-app>.content{padding-top:7px}
+  .social-app .feed-column{display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:6px}
+  .social-app .feed-tools{position:sticky;top:0;margin:0 auto}
+  .social-app .feed-heading{padding:0 2px 1px}
+  .social-app .feed-heading p{font-size:9px}
+  .social-app .feed-scroll{padding:6px 0 10px}
+  .social-app .feed-scroll>.post{
+    width:min(100%,calc((100dvh - 215px)*var(--media-ratio-value)));
+    max-height:calc(100dvh - 215px);
+    margin-bottom:12px;
+  }
+  @supports (width: 100cqh){
+    .social-app .feed-scroll>.post{width:min(100%,calc(100cqh * var(--media-ratio-value)));max-height:100cqh}
+  }
+}
+@media(max-height:560px) and (orientation:landscape){
+  .social-app .feed-column{gap:4px}
+  .social-app .feed-heading{display:none}
+  .social-app .feed-column{grid-template-rows:auto minmax(0,1fr)}
+  .social-app .feed-scroll{grid-row:2}
+}
 </style>
 </head>
 <body>
@@ -388,7 +478,6 @@
     </aside>
 
     <section class="feed-column" aria-label="Social feed">
-      <div class="feed-heading"><div><h1>Social</h1><p>Posts, videos and conversations.</p></div></div>
       <div class="feed-tools" aria-label="Social feed controls">
         <label class="feed-search-wrap"><span aria-hidden="true">⌕</span><input id="feedSearch" type="search" class="searchbox feed-search" placeholder="Search social…" autocomplete="off" aria-label="Search captions or creators"></label>
         <nav class="feed-mode-tabs" aria-label="Feed">
@@ -402,6 +491,7 @@
           <button class="btn square" id="refreshFeed" type="button" title="Refresh feed" aria-label="Refresh feed">↻</button>
         </div>
       </div>
+      <div class="feed-heading"><div><h1>Social</h1><p>Posts, videos and conversations.</p></div></div>
       <div id="feedError" class="error-state" hidden></div>
       <div id="feed" class="feed-scroll" tabindex="0" aria-label="Scrollable social posts">
         <div class="skeleton" aria-hidden="true"></div>
