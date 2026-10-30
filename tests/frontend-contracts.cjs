@@ -224,5 +224,8 @@ assert.ok(ux.includes('60000-(Date.now()%60000)'), 'The minute-only clock should
  assert.equal(html.split("let calcExpr='").length-1,1,'The calculator state must be declared only once');
  assert.ok(!html.includes('socialFitOnScrollTimer')&&!html.includes("if(location.hash.includes('social')"),'Social should not repeatedly scan posts or recreate observers during scrolling');
  assert.ok(html.includes("v.dataset.socialSetupBound==='1'"),'Social player event handlers must be idempotent');
+ assert.ok(html.includes('function initLiveUpdates()')&&html.includes("rootMargin:'300px 0px'"),'Live data should only be requested near the Live section');
+ assert.ok(html.includes('Promise.allSettled([loadNews(),loadFootball()])')&&!html.includes('safeBoot(refreshLive)'),'News and football requests must not start during homepage boot');
+ assert.ok(html.includes('clearTimeout(liveRefreshTimer)')&&html.includes('else if(liveSectionVisible)refreshLive()'),'Live refreshes should pause off-screen and while the tab is hidden');
 
  console.log('Frontend contract checks passed: appearance persistence, context menu/game freeze wiring, auth/video safeguards, and economy/security migration contracts.');
