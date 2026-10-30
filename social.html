@@ -506,7 +506,7 @@
     : null;
 
   let currentUser=null,currentProfile=null,mode='for-you',posts=[],postStats=new Map(),userLikes=new Set(),userFollows=new Set(),savedPosts=new Set();
-  let feedQuery='',feedSort='newest';
+  let feedQuery='';
   let autoScrollEnabled=localRead(STORAGE_KEYS.autoScroll,false)===true;
   let commentsForPost=null,commentsCache=new Map(),authMode='signin',postBusy=false,videoObserver=null,videoWarmObserver=null;
   let accountEmail='',feedErrorMessage='';
@@ -591,10 +591,7 @@
     else if(mode==='videos')list=list.filter(p=>p.media_type==='video');
     const query=feedQuery.trim().toLocaleLowerCase();
     if(query)list=list.filter(p=>String(p.username||'').toLocaleLowerCase().includes(query)||String(p.caption||'').toLocaleLowerCase().includes(query)||(query==='video'&&p.media_type==='video')||(query==='image'&&p.media_type==='image'));
-    list=[...list];
-    if(feedSort==='popular')list.sort((a,b)=>{const A=statFor(a.id),B=statFor(b.id);return (B.likes*2+B.comments)-(A.likes*2+A.comments)||new Date(b.created_at)-new Date(a.created_at)});
-    else list.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
-    return list;
+    return [...list].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
   }
   function renderCreatorSuggestions(){
     const root=$('creatorSuggestions');if(!root)return;
