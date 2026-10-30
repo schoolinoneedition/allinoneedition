@@ -186,6 +186,18 @@ assert.match(html, /function filteredGames\(\)/);
  assert.ok(study.includes('id="taskForm"'), 'Study Hub revision planner must stay available');
  assert.ok(study.includes('id="flashForm"'), 'Study Hub flashcards must stay available');
 
+// Video feeds should not fetch every MP4 when the page renders.
+assert.ok(html.includes('data-video-src=') && html.includes("function socialAttachVideoSource(video,preload='metadata')"), 'Main hub Social videos should attach their sources on demand');
+assert.ok(html.includes("video.preload='none'"), 'Main hub videos should not preload the entire feed');
+assert.ok(html.includes("socialPreloadNextVideos(){") && html.includes("socialAttachVideoSource(nextVideo,'metadata')"), 'Only the next visible-feed video should have metadata warmed');
+assert.ok(!html.includes('autoplay loop preload="auto" data-social-video'), 'Main hub Social videos must not all auto-download on render');
+assert.ok(social.includes('videoPreloadObserver') && social.includes("rootMargin:'650px 0px'"), 'Separate Social page should prepare videos shortly before they enter view');
+assert.ok(social.includes('function prepareSocialVideo(video)'), 'Separate Social page should attach video URLs only when needed');
+assert.ok(social.includes('data-video-src=') && !social.includes('<video src="'+escapeHTML(p.media_url)+'" data-social-video'), 'Separate Social feed should not attach every video source during rendering');
+assert.ok(anime.includes("video.dataset.videoSrc=saved.watch_url;video.preload='none'"), 'Anime episodes should not request video bytes merely when selected');
+assert.ok(anime.includes("cacheControl:'31536000'"), 'Unique Anime episode uploads should receive long-lived cache headers');
+assert.ok(html.includes('href="https://btnbuchsrfllpzlypjtn.supabase.co" crossorigin') && social.includes('href="https://btnbuchsrfllpzlypjtn.supabase.co" crossorigin') && anime.includes('href="https://btnbuchsrfllpzlypjtn.supabase.co" crossorigin'), 'Video pages should preconnect to their storage API');
+
 // Keep one source of truth for favourites and avoid eager-fetching dozens of covers.
 assert.ok(!ux.includes('addFavouriteButtons'), 'Discovery must not inject a duplicate favourites button system');
 assert.ok(!ux.includes('aio-favourite-button'), 'Each game card should keep only its native favourite control');
