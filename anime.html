@@ -415,7 +415,6 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   const tabs=$('seasonTabs');tabs.replaceChildren();
   s.seasons.forEach((season,index)=>{const b=document.createElement('button');b.type='button';b.className='season-tab';b.textContent=season.name;b.setAttribute('aria-pressed',String(index===activeSeason));b.addEventListener('click',()=>{activeSeason=index;renderCatalog()});tabs.append(b)});
   const watch=$('watchLinks');watch.replaceChildren();s.watch.forEach(link=>{const a=document.createElement('a');a.className='watch-link';a.href=link.url;a.target='_blank';a.rel='noopener noreferrer';const title=document.createElement('span');title.textContent=link.label;const arrow=document.createElement('span');arrow.textContent='↗';a.title=link.hint;a.append(title,arrow);watch.append(a)});
-  const sources=$('sourceLinks');sources.replaceChildren();s.sources.forEach(link=>{const a=document.createElement('a');a.href=link.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=link.label;sources.append(a)});
   $('watchNote').textContent=s.note;
   const list=$('episodeList'),season=s.seasons[activeSeason];list.replaceChildren();
   const query=$('episodeSearch').value.trim().toLowerCase(),filter=$('progressFilter').value;
