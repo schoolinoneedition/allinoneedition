@@ -338,7 +338,7 @@
   let currentUser=null,currentProfile=null,mode='for-you',posts=[],postStats=new Map(),userLikes=new Set(),userFollows=new Set(),savedPosts=new Set();
   let feedQuery='',feedSort='newest';
   let autoScrollEnabled=localRead(STORAGE_KEYS.autoScroll,false)===true;
-  let commentsForPost=null,commentsCache=new Map(),authMode='signin',postBusy=false,videoObserver=null;
+  let commentsForPost=null,commentsCache=new Map(),authMode='signin',postBusy=false,videoObserver=null,videoWarmObserver=null;
   let accountEmail='',feedErrorMessage='';
 
   function updateSocialClock(){const clock=$('socialLiveClock');if(!clock)return;clock.textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false});}
@@ -458,6 +458,7 @@
   function renderFeed(){
     const feed=$('feed');if(!feed)return;
     if(videoObserver){videoObserver.disconnect();videoObserver=null;}
+    if(videoWarmObserver){videoWarmObserver.disconnect();videoWarmObserver=null;}
     pauseAllVideos();
     updateAutoScrollToggle();
     const list=visiblePosts();
@@ -535,6 +536,23 @@
       }
     });
     if('IntersectionObserver'in window){
+      // Attach media URLs shortly before a post reaches the viewport. This gives
+      // the browser time to fetch metadata and buffer the opening segment without
+      // downloading every video in the feed.
+      const connection=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+      const constrained=!!connection?.saveData||['slow-2g','2g'].includes(String(connection?.effectiveType||''))||Number(navigator.deviceMemory)<=2;
+      const warmMargin=constrained?'55% 0px':'135% 0px';
+      videoWarmObserver=new IntersectionObserver(entries=>{
+        for(const entry of entries){
+          if(!entry.isIntersecting)continue;
+          const v=entry.target;
+          videoWarmObserver.unobserve(v);
+          prepareSocialVideo(v,constrained?'metadata':'auto','low');
+        }
+      },{root:feed,rootMargin:warmMargin,threshold:0.01});
+      feed.querySelectorAll('[data-social-video]').forEach(v=>videoWarmObserver.observe(v));
+
+      // Playback still starts only when a video is actually in view.
       videoObserver=new IntersectionObserver(entries=>{
         let mostVisible=null;
         for(const entry of entries){
@@ -549,8 +567,10 @@
         }
       },{root:feed,threshold:[0,.22,.58,.72]});
       feed.querySelectorAll('[data-social-video]').forEach(v=>videoObserver.observe(v));
+    }else{
+      const firstVideo=feed.querySelector('[data-social-video]');
+      if(firstVideo)prepareSocialVideo(firstVideo,'metadata','low');
     }
-    queueSocialMediaWarmup();
   }
   function fitSocialPost(post,naturalWidth,naturalHeight){
     // Size each card from the media's real dimensions, while limiting it to the
@@ -992,11 +1012,14 @@
       showToast(mediaCleanupFailed?'Post deleted. Its uploaded file could not be cleaned up.':'Post deleted');
     }catch(e){showToast('Could not delete post: '+String(e?.message||'try again'));}
   }
-  function prepareSocialVideo(video){
-    if(!video||video.dataset.sourceReady==='1')return false;
+  function prepareSocialVideo(video,preload='auto',priority='low'){
+    if(!video)return false;
+    // Raise the current video's loading priority when playback is requested.
+    video.preload=preload==='none'?'none':preload==='metadata'?'metadata':'auto';
+    try{video.fetchPriority=priority==='high'?'high':'low';}catch{}
+    if(video.dataset.sourceReady==='1')return false;
     const src=String(video.dataset.videoSrc||'').trim();
     if(!src)return false;
-    video.preload='metadata';
     video.src=socialMediaPlaybackURL(src);
     video.dataset.sourceReady='1';
     video.load();
@@ -1006,7 +1029,7 @@
     const post=document.querySelector('[data-social-post="'+CSS.escape(String(id))+'"]');
     const video=post?.querySelector('[data-social-video]');
     if(!video)return;
-    prepareSocialVideo(video);
+    prepareSocialVideo(video,'auto','high');
     pauseAllVideos(video);
     video.dataset.autoplayBlocked='false';
     video.muted=false;
