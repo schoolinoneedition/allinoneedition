@@ -541,7 +541,8 @@
       // downloading every video in the feed.
       const connection=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
       const constrained=!!connection?.saveData||['slow-2g','2g'].includes(String(connection?.effectiveType||''))||Number(navigator.deviceMemory)<=2;
-      const warmMargin=constrained?'55% 0px':'135% 0px';
+      const warmAheadPx=Math.max(320,Math.min(1050,Math.round((feed.clientHeight||window.innerHeight)*0.9)));
+      const warmMargin=(constrained?Math.round(warmAheadPx*0.4):warmAheadPx)+'px 0px';
       videoWarmObserver=new IntersectionObserver(entries=>{
         for(const entry of entries){
           if(!entry.isIntersecting)continue;
