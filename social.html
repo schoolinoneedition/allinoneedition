@@ -17,7 +17,7 @@
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;min-width:0}.backmark{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#1b5cff,#8b5cf6);color:#fff;font-weight:950;font-size:19px;box-shadow:0 7px 16px #1b5cff28}.brand-copy{min-width:0}.brand-copy strong{display:block;font-size:15px;letter-spacing:-.3px}.brand-copy small{display:block;color:var(--muted);font-size:10px;margin-top:2px}.top-spacer{flex:1}.cloud-pill{font-size:10px;font-weight:850;color:var(--muted);border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:7px 10px;white-space:nowrap}.cloud-pill.online{color:#16805c;background:#e7faf3;border-color:#c9f0e1}.dark .cloud-pill.online{color:#92e9c5;background:#17382e;border-color:#285747}.header-actions{display:flex;gap:7px;align-items:center}.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line);background:var(--panel);color:var(--text);text-decoration:none;border-radius:11px;padding:9px 12px;font-size:11px;font-weight:850;white-space:nowrap;transition:transform .15s,border-color .15s,background .15s}.btn:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn.ghost{background:transparent}.btn.square{width:38px;height:38px;padding:0;font-size:16px}
 .content{width:min(1440px,100%);margin:0 auto;padding:16px 18px 22px;display:grid;grid-template-columns:205px minmax(0,1fr) 275px;gap:15px;flex:1;min-height:0}
 .sidebar,.rightbar{min-width:0;align-self:start;display:flex;flex-direction:column;gap:12px}.side-card{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:14px;box-shadow:0 4px 14px rgba(26,35,56,.025)}.side-title{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:950;margin:0 0 10px}.nav-list{display:grid;gap:4px}.nav-item{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 11px;border:0;border-radius:11px;background:transparent;color:var(--muted);font-size:12px;font-weight:850}.nav-item:hover,.nav-item.active{background:var(--accent-soft);color:var(--accent)}.nav-icon{width:22px;text-align:center;font-size:16px}.side-copy{font-size:11px;color:var(--muted);line-height:1.6;margin:0}.side-actions{display:grid;gap:7px;margin-top:12px}.user-line{display:flex;align-items:center;gap:9px;min-width:0}.avatar{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,var(--accent),#9a75fb);color:#fff;font-size:11px;font-weight:950;overflow:hidden}.avatar img{width:100%;height:100%;object-fit:cover}.user-details{min-width:0}.user-details strong{display:block;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.user-details small{display:block;margin-top:3px;color:var(--muted);font-size:10px;overflow-wrap:anywhere}
-.feed-column{display:flex;flex-direction:column;min-width:0;min-height:0}.feed-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:3px 3px 12px}.feed-heading h1{font-size:23px;line-height:1.05;letter-spacing:-.8px;margin:0}.feed-heading p{font-size:11px;color:var(--muted);margin:6px 0 0}.feed-heading-actions{display:flex;gap:6px}
+.feed-column{display:flex;flex-direction:column;min-width:0;min-height:0}.feed-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:3px 3px 12px}.feed-heading h1{font-size:23px;line-height:1.05;letter-spacing:-.8px;margin:0}.feed-heading p{font-size:11px;color:var(--muted);margin:6px 0 0}.feed-heading-actions{display:flex;gap:6px}.auto-scroll-toggle[aria-pressed="true"]{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 55%,var(--line));color:var(--accent)}
 .feed-tools{width:min(100%,620px);margin:0 auto 11px;display:flex;align-items:center;gap:7px}
 .feed-search-wrap{position:relative;display:flex;align-items:center;flex:1;min-width:0}
 .feed-search-wrap>span{position:absolute;left:12px;color:var(--muted);font-size:19px;line-height:1;pointer-events:none}
@@ -99,11 +99,11 @@
         <p class="side-copy suggestion-intro">Find creators from the posts already in your feed.</p>
         <div id="creatorSuggestions" class="creator-suggestions" aria-live="polite"><p class="suggestion-empty">Discovering creators…</p></div>
       </div>
-      <div class="side-card"><h2 class="side-title">Playback rules</h2><p class="side-copy">Videos are paused when the page opens. Press Play to start one, and the feed pauses any other video. Scroll the feed even in full-screen mode.</p></div>
+      <div class="side-card"><h2 class="side-title">Playback</h2><p class="side-copy">Videos play muted when they enter view and pause when you scroll away. Use the video controls to unmute or pause. Turn on Auto-scroll to move to the next video when one ends.</p></div>
     </aside>
 
     <section class="feed-column" aria-label="Social feed">
-      <div class="feed-heading"><div><h1>Social</h1><p>Fresh posts, short videos and real comments. Use ↑ and ↓ to scroll.</p></div><div class="feed-heading-actions"><button class="btn square" id="refreshFeed" type="button" title="Refresh feed" aria-label="Refresh feed">↻</button></div></div>
+      <div class="feed-heading"><div><h1>Social</h1><p>Fresh posts, short videos and real comments. Use ↑ and ↓ to scroll.</p></div><div class="feed-heading-actions"><button class="btn auto-scroll-toggle" id="autoScrollToggle" type="button" aria-pressed="false" title="Move to the next video when the current video ends">↧ Auto-scroll: Off</button><button class="btn square" id="refreshFeed" type="button" title="Refresh feed" aria-label="Refresh feed">↻</button></div></div>
       <div class="feed-tools" role="search" aria-label="Search social posts">
         <label class="feed-search-wrap"><span aria-hidden="true">⌕</span><input id="feedSearch" type="search" class="searchbox feed-search" placeholder="Search captions or creators…" autocomplete="off" aria-label="Search captions or creators"></label>
         <label class="feed-sort-wrap"><span class="sr-only">Sort posts</span><select id="feedSort" class="searchbox feed-sort" aria-label="Sort posts"><option value="newest">Latest</option><option value="popular">Most liked</option></select></label>
@@ -207,13 +207,14 @@
     return id;
   };
   const GUEST_ID = createVisitorId();
-  const STORAGE_KEYS = { likes:'aio-social-likes-v4', saves:'aio-social-saves-v4', follows:'aio-social-follows-v4', theme:'aio-social-page-theme-v1', displayName:'aio-social-display-name' };
+  const STORAGE_KEYS = { likes:'aio-social-likes-v4', saves:'aio-social-saves-v4', follows:'aio-social-follows-v4', theme:'aio-social-page-theme-v1', displayName:'aio-social-display-name', autoScroll:'aio-social-auto-scroll-v1' };
   const client = (window.supabase && typeof window.supabase.createClient==='function')
     ? window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})
     : null;
 
   let currentUser=null,currentProfile=null,mode='for-you',posts=[],postStats=new Map(),userLikes=new Set(),userFollows=new Set(),savedPosts=new Set();
   let feedQuery='',feedSort='newest';
+  let autoScrollEnabled=localRead(STORAGE_KEYS.autoScroll,false)===true;
   let commentsForPost=null,commentsCache=new Map(),authMode='signin',postBusy=false,videoObserver=null;
   let accountEmail='',feedErrorMessage='';
 
@@ -317,6 +318,12 @@
     if(!ranked.length){root.innerHTML='<p class="suggestion-empty">'+(creators.size?'You are following everyone in this feed.':'New creators will appear here when posts are shared.')+'</p>';return;}
     root.innerHTML=ranked.map(item=>'<div class="suggestion-row"><div class="suggestion-avatar">'+(item.avatar?'<img src="'+escapeHTML(item.avatar)+'" alt="" loading="lazy">':escapeHTML(safeInitials(item.name)))+'</div><div class="suggestion-copy"><strong>'+escapeHTML(item.name)+'</strong><small>'+item.count+' post'+(item.count===1?'':'s')+'</small></div><button type="button" class="suggestion-follow" data-action="follow" data-name="'+escapeHTML(item.name)+'">Follow</button></div>').join('');
   }
+  function updateAutoScrollToggle(){
+    const button=$('autoScrollToggle');if(!button)return;
+    button.textContent='↧ Auto-scroll: '+(autoScrollEnabled?'On':'Off');
+    button.setAttribute('aria-pressed',String(autoScrollEnabled));
+    button.title=autoScrollEnabled?'Auto-scroll is on: the next video will be brought into view when one ends.':'Auto-scroll is off: videos will not advance automatically when they end.';
+  }
   function updateFeedToolbar(){
     const input=$('feedSearch'),sort=$('feedSort');
     if(input&&input.value!==feedQuery)input.value=feedQuery;
@@ -327,6 +334,7 @@
     const feed=$('feed');if(!feed)return;
     if(videoObserver){videoObserver.disconnect();videoObserver=null;}
     pauseAllVideos();
+    updateAutoScrollToggle();
     const list=visiblePosts();
     renderCreatorSuggestions();
     updateFeedToolbar();
@@ -351,7 +359,10 @@
         v.closest('.video-stage')?.querySelector('.video-play-overlay')?.classList.add('is-playing');
       });
       v.addEventListener('pause',()=>v.closest('.video-stage')?.querySelector('.video-play-overlay')?.classList.remove('is-playing'));
-      v.addEventListener('ended',()=>v.closest('.video-stage')?.querySelector('.video-play-overlay')?.classList.remove('is-playing'));
+      v.addEventListener('ended',()=>{
+        v.closest('.video-stage')?.querySelector('.video-play-overlay')?.classList.remove('is-playing');
+        if(autoScrollEnabled)scrollToNextVideo(v);
+      });
       v.addEventListener('error',()=>{const msg=v.closest('.video-stage')?.querySelector('.media-error');if(msg)msg.hidden=false;});
     });
     feed.querySelectorAll('[data-social-post]').forEach(post=>{
@@ -362,11 +373,22 @@
     });
     if('IntersectionObserver'in window){
       videoObserver=new IntersectionObserver(entries=>{
+        let mostVisible=null;
         for(const entry of entries){
           const v=entry.target;
           if(entry.intersectionRatio<.22&&!v.paused){try{v.pause();}catch{}}
+          if(entry.isIntersecting&&entry.intersectionRatio>=.58&&(!mostVisible||entry.intersectionRatio>mostVisible.intersectionRatio))mostVisible=entry;
         }
-      },{root:feed,threshold:[0,.22,.55]});
+        if(mostVisible){
+          const activeVideo=mostVisible.target;
+          pauseAllVideos(activeVideo);
+          if(activeVideo.paused){
+            activeVideo.muted=true;
+            const playAttempt=activeVideo.play();
+            if(playAttempt?.catch)playAttempt.catch(()=>{});
+          }
+        }
+      },{root:feed,threshold:[0,.22,.58,.72]});
       feed.querySelectorAll('[data-social-video]').forEach(v=>videoObserver.observe(v));
     }
   }
@@ -418,6 +440,18 @@
   }
   function pauseAllVideos(except=null){
     document.querySelectorAll('[data-social-video]').forEach(v=>{if(v!==except&&!v.paused){try{v.pause();}catch{}}});
+  }
+  function scrollToNextVideo(video){
+    const feed=$('feed'),current=video?.closest('[data-social-post]');
+    if(!feed||!current)return;
+    const cards=[...feed.querySelectorAll('[data-social-post]')];
+    const currentIndex=cards.indexOf(current);
+    const next=cards.slice(currentIndex+1).find(card=>card.querySelector('[data-social-video]'));
+    if(!next)return;
+    const feedRect=feed.getBoundingClientRect(),nextRect=next.getBoundingClientRect();
+    const top=Math.max(0,feed.scrollTop+nextRect.top-feedRect.top);
+    const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    feed.scrollTo({top,behavior:reducedMotion?'auto':'smooth'});
   }
   function openOverlay(id){
     const overlay=$(id);if(!overlay)return;overlay.classList.add('open');overlay.setAttribute('aria-hidden','false');
@@ -688,6 +722,12 @@
   $('refreshFeed').addEventListener('click',loadFeed);
   $('feedSearch').addEventListener('input',updateFeedSearch);
   $('feedSort').addEventListener('change',()=>{feedSort=$('feedSort').value==='popular'?'popular':'newest';renderFeed();});
+  $('autoScrollToggle').addEventListener('click',()=>{
+    autoScrollEnabled=!autoScrollEnabled;
+    localWrite(STORAGE_KEYS.autoScroll,autoScrollEnabled);
+    updateAutoScrollToggle();
+    showToast(autoScrollEnabled?'Auto-scroll is on. The next video will open when this one ends.':'Auto-scroll is off.');
+  });
   $('clearFeedSearch').addEventListener('click',()=>{feedQuery='';$('feedSearch').value='';renderFeed();$('feedSearch').focus();});
   $('composeForm').addEventListener('submit',createPost);
   $('commentForm').addEventListener('submit',addComment);
@@ -748,6 +788,7 @@
   window.addEventListener('beforeunload',()=>pauseAllVideos());
   if(localStorage.getItem(STORAGE_KEYS.theme)==='dark')document.documentElement.classList.add('dark');
   updateAuthMode();
+  updateAutoScrollToggle();
 
   async function boot(){
     if(!client){setCloudStatus('Cloud unavailable');feedErrorMessage='The Supabase browser client failed to load.';renderFeed();return;}
