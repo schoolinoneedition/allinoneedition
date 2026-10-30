@@ -184,21 +184,6 @@
   }
 }
 
-/* Small codec capability readout in the upload panel. */
-.codec-support{
-  display:grid;
-  gap:4px;
-  margin-top:8px;
-  padding:9px 10px;
-  border:1px solid var(--line);
-  border-radius:10px;
-  background:var(--soft);
-  color:var(--muted);
-  font-size:10px;
-  line-height:1.5;
-}
-.codec-support strong{color:var(--text);font-size:10px}
-.codec-support-detail{display:block;font-size:9px;color:var(--muted)}
 /* One compact toolbar for every feed control. */
 .social-app .feed-heading{width:100%;max-width:900px;margin:0 auto;padding:1px 2px 9px}
 .social-app .feed-heading h1{font-size:23px;letter-spacing:-.75px}
@@ -543,7 +528,7 @@
         <div><label class="field-label" for="postAvatar">Avatar image URL (optional)</label><input class="field" id="postAvatar" maxlength="500" placeholder="https://…"></div>
         <div><label class="field-label" for="postCaption">Caption</label><textarea class="text-field" id="postCaption" maxlength="500" placeholder="Write a caption…"></textarea></div>
         <div><label class="field-label" for="mediaUrl">Direct image or MP4 URL</label><input class="field" id="mediaUrl" maxlength="2000" placeholder="https://example.com/video.mp4"></div>
-        <div><label class="field-label" for="mediaFile">Or choose a file</label><label class="file-label">Choose image / video <input id="mediaFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/*,.jpg,.jpeg,.png,.webp,.gif,.mp4,.m4v,.webm,.ogv,.ogg,.mov,.3gp,.mkv,.avi,.wmv,.flv,.mpeg,.mpg,.hevc,.h265,.h264,.264,.av1,.ivf,.m2v,.ts,.mts,.m2ts"></label><p class="note-small" style="margin-top:7px">Images up to 15 MB; videos up to 100 MB. Browser-playable codecs depend on your device. File uploads require your account.</p><p class="codec-support" id="codecSupportStatus" role="status" aria-live="polite">Checking this device's video decoders…</p></div>
+        <div><label class="field-label" for="mediaFile">Or choose a file</label><label class="file-label">Choose image / video <input id="mediaFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/*,.jpg,.jpeg,.png,.webp,.gif,.mp4,.m4v,.webm,.ogv,.ogg,.mov,.3gp,.mkv,.avi,.wmv,.flv,.mpeg,.mpg,.hevc,.h265,.h264,.264,.av1,.ivf,.m2v,.ts,.mts,.m2ts"></label><p class="note-small" style="margin-top:7px">Images up to 15 MB; videos up to 100 MB. Videos upload as selected, without conversion. For a more widely compatible MP4, use the Video converter in Tools first. File uploads require your account.</p></div>
         <div><label class="field-label" for="postStatus">Post status</label><div id="postStatus" class="status-text" role="status">Nothing has been posted yet.</div></div>
         <div class="form-foot"><button class="btn" type="button" data-close="composeOverlay">Cancel</button><button class="btn primary" id="submitPost" type="submit">Publish post</button></div>
       </form>
@@ -610,7 +595,7 @@
     ? window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})
     : null;
 
-  let currentUser=null,currentProfile=null,mode='for-you',posts=[],postStats=new Map(),userLikes=new Set(),userFollows=new Set(),savedPosts=new Set(),localConvertedMedia=new Map();
+  let currentUser=null,currentProfile=null,mode='for-you',posts=[],postStats=new Map(),userLikes=new Set(),userFollows=new Set(),savedPosts=new Set(),
   let feedQuery='';
   let autoScrollEnabled=localRead(STORAGE_KEYS.autoScroll,false)===true;
   let commentsForPost=null,commentsCache=new Map(),authMode='signin',postBusy=false,videoObserver=null,videoWarmObserver=null;
@@ -672,7 +657,7 @@
   function updatePostIdentityControls(){
     const file=$('mediaFile'),note=document.querySelector('#composeForm .note-small');
     if(file)file.title=currentUser?'Files upload to your account folder.':'Sign in to upload files.';
-    if(note)note.textContent='Images up to 15 MB; videos up to 100 MB. Every video is checked for its real codecs before upload. Compatible H.264/AAC MP4 files stay untouched; unsupported codecs are converted automatically.';
+    if(note)note.textContent='Images up to 15 MB; videos up to 100 MB. Videos upload as selected. For a more widely compatible MP4, use the Video converter in Tools first.';
   }
   function statFor(id){
     const key=String(id);if(!postStats.has(key))postStats.set(key,{likes:0,comments:0});
@@ -706,55 +691,6 @@
       if(/\.(jpe?g|png|webp|gif)$/.test(path))return 'image';
       return '';
     }catch{return '';}
-  }
-  const SOCIAL_CODEC_PROBES=[
-    {label:'H.264 / AVC',types:['video/mp4; codecs="avc1.42E01E, mp4a.40.2"']},
-    {label:'HEVC / H.265',types:['video/mp4; codecs="hvc1.1.6.L120.B0, mp4a.40.2"','video/mp4; codecs="hev1.1.6.L120.B0, mp4a.40.2"']},
-    {label:'AV1',types:['video/mp4; codecs="av01.0.05M.08, mp4a.40.2"','video/webm; codecs="av01.0.05M.08, opus"']},
-    {label:'VP9',types:['video/webm; codecs="vp09.00.10.08, opus"']},
-    {label:'VP8',types:['video/webm; codecs="vp8, vorbis"']},
-    {label:'Apple ProRes',types:['video/quicktime; codecs="apcn"','video/quicktime; codecs="apch"']},
-    {label:'MPEG-2',types:['video/mpeg; codecs="mp2v"']},
-    {label:'MPEG-4 Part 2',types:['video/mp4; codecs="mp4v.20.8"']},
-    {label:'Theora',types:['video/ogg; codecs="theora, vorbis"']},
-    {label:'H.263',types:['video/3gpp; codecs="s263"']}
-  ];
-  async function inspectSocialCodecSupport(){
-    const target=$('codecSupportStatus');if(!target)return;
-    const nativeVideo=document.createElement('video');
-    const results=await Promise.all(SOCIAL_CODEC_PROBES.map(async probe=>{
-      for(const contentType of probe.types){
-        try{
-          let result=null;
-          if(navigator.mediaCapabilities?.decodingInfo){
-            result=await navigator.mediaCapabilities.decodingInfo({
-              type:'file',
-              video:{contentType,width:1280,height:720,bitrate:2500000,framerate:30}
-            });
-            if(result.supported)return {...probe,supported:true,smooth:!!result.smooth,powerEfficient:!!result.powerEfficient};
-          }
-          if(nativeVideo.canPlayType(contentType))return {...probe,supported:true,smooth:null,powerEfficient:null};
-        }catch{}
-      }
-      return {...probe,supported:false,smooth:false,powerEfficient:false};
-    }));
-    const yes=results.filter(item=>item.supported);
-    const hevc=results.find(item=>item.label==='HEVC / H.265');
-    const smoothCount=yes.filter(item=>item.smooth===true).length;
-    target.replaceChildren();
-    const heading=document.createElement('strong');
-    heading.textContent='This device can decode: ';
-    target.appendChild(heading);
-    const summary=document.createElement('span');
-    summary.textContent=yes.length?yes.map(item=>item.label).join(' · '):'No tested video codecs were confirmed';
-    target.appendChild(summary);
-    const detail=document.createElement('span');
-    detail.className='codec-support-detail';
-    detail.textContent='HEVC / H.265: '+(hevc?.supported?'available on this device':'not reported as supported')+
-      ' · '+smoothCount+' tested codecs report smooth decoding. Actual support can vary by profile, bit depth, resolution and audio codec.';
-    target.appendChild(detail);
-    target.dataset.hevcSupported=String(!!hevc?.supported);
-    target.dataset.checked='true';
   }
   function videoPlaybackErrorMessage(video){
     const mime=videoMimeType(video?.dataset?.videoSrc||'');
@@ -970,14 +906,14 @@
   }
   function renderPost(p){
     const id=String(p.id),isVideo=p.media_type==='video';
-    const playbackURL=localConvertedMedia.get(id)||p.media_url;
+    
     const stat=statFor(id),liked=userLikes.has(id)||( !currentUser&&getLocalSet(STORAGE_KEYS.likes).has(id) );
     const saved=savedPosts.has(id),followed=userFollows.has(String(p.username||''));
     const isOwner=!!currentUser&&String(p.visitor_id)===String(currentUser.id);
     const ownerTools=isOwner?'<div class="post-owner-tools"><button type="button" data-action="edit-post" data-id="'+escapeHTML(id)+'">Edit caption</button><button type="button" class="owner-delete" data-action="delete-post" data-id="'+escapeHTML(id)+'">Delete</button></div>':'';
     const avatar=p.avatar_url?'<img src="'+escapeHTML(p.avatar_url)+'" alt="" loading="lazy">':escapeHTML(safeInitials(p.username));
     const media=isVideo
-      ?'<div class="video-stage" role="button" tabindex="0" aria-label="Play video" aria-pressed="false"><video data-video-src="'+escapeHTML(playbackURL)+'" data-social-video data-post-id="'+escapeHTML(id)+'" playsinline webkit-playsinline preload="none" loading="lazy" width="1280" height="720" disablepictureinpicture disableremoteplayback aria-label="Tap the video to play or pause" tabindex="-1"></video><div class="media-error" hidden><span class="media-error-copy">This video could not be loaded.</span><div class="media-error-actions"><button type="button" class="media-retry" data-action="retry-video" data-id="'+escapeHTML(id)+'">Try again</button><button type="button" class="media-retry" data-action="convert-video" data-id="'+escapeHTML(id)+'">'+(isOwner?'Convert &amp; repair':'Convert for this device')+'</button></div></div></div>'
+      ?'<div class="video-stage" role="button" tabindex="0" aria-label="Play video" aria-pressed="false"><video data-video-src="'+escapeHTML(p.media_url)+'" data-social-video data-post-id="'+escapeHTML(id)+'" playsinline webkit-playsinline preload="none" loading="lazy" width="1280" height="720" disablepictureinpicture disableremoteplayback aria-label="Tap the video to play or pause" tabindex="-1"></video><div class="media-error" hidden><span class="media-error-copy">This video could not be loaded.</span><div class="media-error-actions"><button type="button" class="media-retry" data-action="retry-video" data-id="'+escapeHTML(id)+'">Try again</button></div></div></div>'
       :'<img data-post-image src="'+escapeHTML(p.media_url)+'" alt="Image posted by '+escapeHTML(p.username)+'" loading="lazy" decoding="async"><div class="media-error" hidden>This image could not be loaded.</div>';
     return '<article class="post" data-social-post="'+escapeHTML(id)+'"><div class="post-media">'+media+'</div><div class="post-shade"></div><div class="post-top"><span class="post-pill">'+(isVideo?'Video':'Image')+' · public post</span><span class="post-time">'+escapeHTML(timeSince(p.created_at))+'</span>'+ownerTools+'</div><div class="post-rail"><button type="button" class="rail-action '+(liked?'liked':'')+'" data-action="like" data-id="'+escapeHTML(id)+'" aria-label="'+(liked?'Unlike':'Like')+' post">'+(liked?'♥':'♡')+'</button><span class="rail-count" data-like-count="'+escapeHTML(id)+'">'+formatCount(stat.likes+(liked&&!currentUser?1:0))+'</span><button type="button" class="rail-action" data-action="comments" data-id="'+escapeHTML(id)+'" aria-label="Comments">▤</button><span class="rail-count" data-comment-count="'+escapeHTML(id)+'">'+formatCount(stat.comments)+'</span><button type="button" class="rail-action '+(saved?'saved':'')+'" data-action="save" data-id="'+escapeHTML(id)+'" aria-label="'+(saved?'Unsave':'Save')+' post">▣</button><span class="rail-count">'+(saved?'Saved':'')+'</span><button type="button" class="rail-action" data-action="share" data-id="'+escapeHTML(id)+'" aria-label="Share post">↗</button></div><div class="post-bottom"><div class="creator-row"><div class="creator-avatar">'+avatar+'</div><div class="creator-copy"><strong>'+escapeHTML(p.username||'Guest')+'</strong><small>'+escapeHTML(timeSince(p.created_at))+'</small></div><button type="button" class="follow-btn '+(followed?'following':'')+'" data-action="follow" data-name="'+escapeHTML(p.username||'Guest')+'">'+(followed?'Following':'Follow')+'</button></div><div class="post-caption">'+escapeHTML(p.caption||'')+'</div></div></article>';
   }
@@ -1286,262 +1222,6 @@
       else{await navigator.clipboard.writeText(url.href);showToast('Post link copied');}
     }catch(e){if(e?.name!=='AbortError')showToast('Could not share this post.');}
   }
-  let socialFFmpeg=null,socialFFmpegPromise=null,socialFFmpegCoreUrls=[],socialFFmpegLogs=[];
-  const SOCIAL_FFMPEG_VERSION='0.12.15';
-  const SOCIAL_FFMPEG_CORE_BASE='https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm';
-  async function socialFFmpegBlobURL(url,type){
-    const response=await fetch(url,{mode:'cors',credentials:'omit',cache:'force-cache'});
-    if(!response.ok)throw new Error('The video converter engine could not be downloaded (HTTP '+response.status+').');
-    return URL.createObjectURL(new Blob([await response.arrayBuffer()],{type}));
-  }
-  async function ensureSocialFFmpeg(onStatus=()=>{}){
-    if(socialFFmpeg?.loaded)return socialFFmpeg;
-    if(!socialFFmpegPromise){
-      socialFFmpegPromise=(async()=>{
-        onStatus('Loading the official video converter for the first time… (about 31 MB)');
-        let engine=null;
-        try{
-          if(!window.Worker||!window.WebAssembly)throw new Error('This browser does not support the background video converter. Update your browser or use a different device.');
-          // Use the published FFmpeg.wasm API and its own worker protocol.
-          // Its ESM module creates the worker relative to its CDN module URL.
-          const library=await import('https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@'+SOCIAL_FFMPEG_VERSION+'/dist/esm/index.js');
-          if(typeof library.FFmpeg!=='function')throw new Error('The video converter library did not load correctly.');
-          engine=new library.FFmpeg();
-          socialFFmpeg=engine;
-          engine.on('log',({message})=>{if(message){socialFFmpegLogs.push(String(message));if(socialFFmpegLogs.length>160)socialFFmpegLogs.splice(0,socialFFmpegLogs.length-160);console.debug('[Social video converter]',message);}});
-          const coreURL=await socialFFmpegBlobURL(SOCIAL_FFMPEG_CORE_BASE+'/ffmpeg-core.js','text/javascript');
-          socialFFmpegCoreUrls.push(coreURL);
-          const wasmURL=await socialFFmpegBlobURL(SOCIAL_FFMPEG_CORE_BASE+'/ffmpeg-core.wasm','application/wasm');
-          socialFFmpegCoreUrls.push(wasmURL);
-          const classWorkerURL=new URL('./ffmpeg-local-worker.js',location.href).href;
-          await engine.load({coreURL,wasmURL,classWorkerURL});
-          onStatus('Video converter ready.');
-          return engine;
-        }catch(error){
-          try{engine?.terminate();}catch{}
-          socialFFmpeg=null;
-          for(const url of socialFFmpegCoreUrls.splice(0))try{URL.revokeObjectURL(url)}catch{}
-          throw new Error('Video conversion could not start: '+String(error?.message||error));
-        }
-      })().catch(error=>{socialFFmpegPromise=null;throw error;});
-    }
-    return socialFFmpegPromise;
-  }
-  function socialTranscodeLimit(){
-    const memory=Number(navigator.deviceMemory)||4;
-    return (memory<=2?40:memory<=4?70:100)*1024*1024;
-  }
-  async function browserSupportsSocialOutput(videoStream,audioStreams){
-    const probe=document.createElement('video');
-    const audioSuffix=audioStreams.length?', mp4a.40.2':'';
-    const contentType='video/mp4; codecs="avc1.42E01E'+audioSuffix+'"';
-    if(!probe.canPlayType(contentType))return false;
-    if(navigator.mediaCapabilities?.decodingInfo){
-      try{
-        const width=Math.max(2,Math.min(1920,Number(videoStream.width)||1280));
-        const height=Math.max(2,Math.min(1080,Number(videoStream.height)||720));
-        const configuration={
-          type:'file',
-          video:{contentType,width,height,bitrate:2500000,framerate:30}
-        };
-        if(audioStreams.length){
-          configuration.audio={
-            contentType:'audio/mp4; codecs="mp4a.40.2"',
-            channels:'2',bitrate:128000,samplerate:48000
-          };
-        }
-        const capability=await navigator.mediaCapabilities.decodingInfo(configuration);
-        return !!capability.supported;
-      }catch{return true;}
-    }
-    return true;
-  }
-  async function transcodeSocialVideoNow(file,onStatus=()=>{}){
-    const limit=socialTranscodeLimit();
-    if(file.size>limit){
-      const mb=Math.floor(limit/1024/1024);
-      throw new Error('This device is limiting video inspection/conversion to '+mb+' MB to protect memory. This file is '+Math.ceil(file.size/1024/1024)+' MB. Use a smaller clip.');
-    }
-    const ffmpeg=await ensureSocialFFmpeg(onStatus);
-    const ext=(String(file.name||'video.bin').toLowerCase().match(/\.([a-z0-9]{1,8})$/)||[])[1]||'bin';
-    const suffix=Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
-    const inputPath='social_input_'+suffix+'.'+ext;
-    const probePath='social_probe_'+suffix+'.json';
-    const outputPath='social_output_'+suffix+'.mp4';
-    const verifyPath='social_verify_'+suffix+'.json';
-    let progressHandler=null;
-    try{
-      onStatus('Checking the actual video and audio codecs…');
-      const inputBytes=new Uint8Array(await file.arrayBuffer());
-      await ffmpeg.writeFile(inputPath,inputBytes);
-
-      // FFprobe reads the codecs inside the file. The extension and MIME type
-      // alone cannot tell H.264 apart from HEVC inside an MP4 container.
-      const probeLogStart=socialFFmpegLogs.length;
-      const probeExit=await ffmpeg.ffprobe([
-        '-v','error',
-        '-show_entries','format=format_name:stream=codec_type,codec_name,profile,pix_fmt,width,height',
-        '-of','json',inputPath,'-o',probePath
-      ]);
-      // FFmpeg.wasm core 0.12.10 can return -1 from ffprobe even when it
-      // successfully writes its output file (upstream issue #817). The JSON
-      // report is authoritative; do not reject a valid report from the exit code.
-      let probeText='';
-      try{
-        const probeRaw=await ffmpeg.readFile(probePath,'utf8');
-        probeText=typeof probeRaw==='string'?probeRaw:new TextDecoder().decode(probeRaw);
-      }catch{}
-      if(!probeText.trim()){
-        const diagnostic=socialFFmpegLogs.slice(probeLogStart).filter(Boolean).slice(-5).join(' | ');
-        throw new Error('FFprobe did not create a codec report (exit '+probeExit+'). '+(diagnostic||'The file may be damaged or its container may not be supported by this FFmpeg build.'));
-      }
-      let metadata;
-      try{metadata=JSON.parse(probeText);}catch(error){
-        throw new Error('FFprobe created an invalid codec report (exit '+probeExit+'): '+String(error?.message||error));
-      }
-      const streams=Array.isArray(metadata.streams)?metadata.streams:[];
-      const videoStream=streams.find(stream=>stream.codec_type==='video');
-      const audioStreams=streams.filter(stream=>stream.codec_type==='audio');
-      if(!videoStream)throw new Error('FFprobe did not find a video stream in this file.');
-      const videoCodec=String(videoStream.codec_name||'').toLowerCase();
-      const pixelFormat=String(videoStream.pix_fmt||'').toLowerCase();
-      const audioCompatible=audioStreams.every(stream=>String(stream.codec_name||'').toLowerCase()==='aac');
-      const videoCompatible=videoCodec==='h264'&&['yuv420p','yuvj420p'].includes(pixelFormat);
-      const browserCanPlayH264=await browserSupportsSocialOutput(videoStream,audioStreams);
-      const isMp4File=['mp4','m4v'].includes(ext);
-      const codecsAlreadyCompatible=videoCompatible&&audioCompatible&&browserCanPlayH264;
-
-      onStatus('Detected video: '+videoCodec.toUpperCase()+' · audio: '+(audioStreams.length?audioStreams.map(stream=>String(stream.codec_name||'unknown').toUpperCase()).join(', '):'none'));
-      if(!browserCanPlayH264){
-        throw new Error('This browser does not report H.264 MP4 playback support, so an H.264 conversion would not fix playback on this device.');
-      }
-
-      // Already-good MP4 files do not get re-encoded. Compatible codecs in
-      // other containers are remuxed into MP4 without quality loss.
-      if(codecsAlreadyCompatible&&isMp4File){
-        onStatus('H.264/AAC codecs already supported. Skipping conversion.');
-        return file;
-      }
-
-      progressHandler=({progress})=>{
-        const percent=Number(progress);
-        if(Number.isFinite(percent))onStatus('Preparing browser-friendly MP4… '+Math.max(0,Math.min(99,Math.round(percent*100)))+'%');
-      };
-      ffmpeg.on('progress',progressHandler);
-      if(codecsAlreadyCompatible){
-        onStatus('Codecs are supported. Repackaging into MP4 without re-encoding…');
-        const remuxExit=await ffmpeg.exec([
-          '-hide_banner','-y','-i',inputPath,
-          '-map','0:v:0','-map','0:a?',
-          '-c','copy','-movflags','+faststart',outputPath
-        ]);
-        if(remuxExit!==0)throw new Error('The H.264 video could not be repackaged into MP4. Try a different file.');
-      }else{
-        onStatus('Unsupported codec detected. Converting to H.264 video and AAC audio…');
-        const encodeExit=await ffmpeg.exec([
-          '-hide_banner','-y','-i',inputPath,
-          '-map','0:v:0','-map','0:a?',
-          '-vf',"scale='min(1920,iw)':'min(1920,ih)':force_original_aspect_ratio=decrease:force_divisible_by=2,fps=30",
-          '-c:v','libx264','-preset','ultrafast','-crf','24','-pix_fmt','yuv420p','-profile:v','high','-tag:v','avc1',
-          '-c:a','aac','-b:a','128k','-ac','2',
-          '-movflags','+faststart','-threads','1',outputPath
-        ]);
-        if(encodeExit!==0)throw new Error('The converter could not decode this source video. It may be damaged or use a codec that is not included in this build.');
-      }
-      onStatus('Verifying the output codecs…');
-      const outputProbeExit=await ffmpeg.ffprobe([
-        '-v','error',
-        '-show_entries','stream=codec_type,codec_name,pix_fmt',
-        '-of','json',outputPath,'-o',verifyPath
-      ]);
-      if(outputProbeExit!==0)throw new Error('The converted file could not be verified. Nothing was uploaded.');
-      const outputProbeRaw=await ffmpeg.readFile(verifyPath,'utf8');
-      const outputProbeText=typeof outputProbeRaw==='string'?outputProbeRaw:new TextDecoder().decode(outputProbeRaw);
-      const outputStreams=JSON.parse(outputProbeText).streams||[];
-      const outputVideo=outputStreams.find(stream=>stream.codec_type==='video');
-      const outputAudio=outputStreams.filter(stream=>stream.codec_type==='audio');
-      if(String(outputVideo?.codec_name||'').toLowerCase()!=='h264'||!['yuv420p','yuvj420p'].includes(String(outputVideo?.pix_fmt||'').toLowerCase())||outputAudio.some(stream=>String(stream.codec_name||'').toLowerCase()!=='aac')){
-        throw new Error('The converted file did not pass H.264/AAC verification. Nothing was uploaded.');
-      }
-      const output=await ffmpeg.readFile(outputPath);
-      if(!(output instanceof Uint8Array)||!output.byteLength)throw new Error('The converter produced an empty video.');
-      const converted=new File([output],String(file.name||'video').replace(/\.[^.]*$/,'')+'.mp4',{type:'video/mp4',lastModified:Date.now()});
-      if(converted.size>100*1024*1024)throw new Error('The converted MP4 is larger than the 100 MB upload limit. Try a shorter video.');
-      return converted;
-    }finally{
-      if(progressHandler)ffmpeg.off('progress',progressHandler);
-      try{await ffmpeg.deleteFile(inputPath);}catch{}
-      try{await ffmpeg.deleteFile(probePath);}catch{}
-      try{await ffmpeg.deleteFile(outputPath);}catch{}
-      try{await ffmpeg.deleteFile(verifyPath);}catch{}
-    }
-  }
-  let socialFFmpegQueue=Promise.resolve();
-  function transcodeSocialVideo(file,onStatus=()=>{}){
-    const task=socialFFmpegQueue.then(()=>transcodeSocialVideoNow(file,onStatus),()=>transcodeSocialVideoNow(file,onStatus));
-    socialFFmpegQueue=task.catch(()=>{});
-    return task;
-  }
-  function ownedSocialStoragePath(raw,userId){
-    try{
-      const url=new URL(String(raw||''));
-      const marker='/storage/v1/object/public/social-media/';
-      if(url.origin!==new URL(SUPABASE_URL).origin||!url.pathname.includes(marker))return '';
-      const path=decodeURIComponent(url.pathname.split(marker)[1]||'');
-      return path.startsWith('social/'+String(userId)+'/')?path:'';
-    }catch{return '';}
-  }
-  async function convertSocialPostVideo(id,button){
-    const post=posts.find(item=>String(item.id)===String(id));
-    if(!post)return;
-    const owner=!!currentUser&&String(post.visitor_id)===String(currentUser.id);
-    const stage=button.closest('.video-stage');
-    const errorPanel=stage?.querySelector('.media-error');
-    const copy=errorPanel?.querySelector('.media-error-copy');
-    const oldLabel=button.textContent;
-    button.disabled=true;
-    const update=status=>{if(copy)copy.textContent=status;};
-    try{
-      update('Downloading the original video…');
-      const response=await fetch(post.media_url,{mode:'cors',credentials:'omit'});
-      if(!response.ok)throw new Error('Could not download the original video (HTTP '+response.status+').');
-      const original=await response.blob();
-      const urlName=(()=>{try{return decodeURIComponent(new URL(post.media_url).pathname.split('/').pop()||'video.bin');}catch{return 'video.bin';}})();
-      const sourceFile=new File([original],urlName,{type:original.type||videoMimeType(urlName)||'application/octet-stream',lastModified:Date.now()});
-      const converted=await transcodeSocialVideo(sourceFile,update);
-      const oldPath=owner?ownedSocialStoragePath(post.media_url,currentUser.id):'';
-      if(oldPath&&client){
-        update('Uploading the compatible MP4…');
-        const newPath='social/'+currentUser.id+'/'+(window.crypto?.randomUUID?window.crypto.randomUUID():Date.now().toString(36)+'-'+Math.random().toString(36).slice(2))+'.mp4';
-        const upload=await client.storage.from('social-media').upload(newPath,converted,{upsert:false,contentType:'video/mp4',cacheControl:'31536000'});
-        if(upload.error)throw upload.error;
-        const newURL=client.storage.from('social-media').getPublicUrl(newPath).data.publicUrl;
-        const saved=await client.from('social_posts').update({media_url:newURL}).eq('id',String(id)).eq('visitor_id',String(currentUser.id)).select('id').maybeSingle();
-        if(saved.error||!saved.data){
-          try{await client.storage.from('social-media').remove([newPath]);}catch{}
-          throw saved.error||new Error('The post could not be updated. Your account may not have permission to edit it.');
-        }
-        post.media_url=newURL;
-        const localURL=localConvertedMedia.get(String(id));
-        if(localURL){URL.revokeObjectURL(localURL);localConvertedMedia.delete(String(id));}
-        try{await client.storage.from('social-media').remove([oldPath]);}catch{}
-        renderFeed();
-        showToast('Video converted and repaired for everyone.');
-        return;
-      }
-      const objectURL=URL.createObjectURL(converted);
-      const previous=localConvertedMedia.get(String(id));
-      if(previous)URL.revokeObjectURL(previous);
-      localConvertedMedia.set(String(id),objectURL);
-      renderFeed();
-      startVideo(id);
-      showToast('Converted for this device. The original post stays unchanged.');
-    }catch(error){
-      update('Conversion failed: '+String(error?.message||'Unknown error.'));
-      button.disabled=false;
-      button.textContent=oldLabel;
-    }
-  }
   function showCompose(){openOverlay('composeOverlay');setStatus('postStatus','Direct URLs can be posted as a guest. File uploads need your account.');$('mediaUrl')?.focus();}
   async function createPost(event){
     event.preventDefault();if(postBusy)return;
@@ -1568,16 +1248,14 @@
     }
     if(!client){setStatus('postStatus','Cloud service is unavailable. Nothing was published.','bad');return;}
     postBusy=true;const submit=$('submitPost');submit.disabled=true;submit.textContent='Publishing…';
-    setStatus('postStatus',file?(mediaType==='video'?'Checking video codecs…':'Uploading image to XBT storage…'):'Publishing your post…');
+    setStatus('postStatus',file?'Uploading media to XBT storage…':'Publishing your post…');
     try{
       if(file){
-        let uploadFile=file;
-        if(mediaType==='video'){
-          uploadFile=await transcodeSocialVideo(file,message=>setStatus('postStatus',message));
-        }
-        const ext=mediaType==='video'?'mp4':(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');
+        const extensionMatch=String(file.name||'').toLowerCase().match(/\.([a-z0-9]{1,8})$/);
+        const ext=extensionMatch?.[1]||(mediaType==='video'?'mp4':'jpg');
+        const uploadContentType=mediaType==='video'?(videoMimeType(file)||String(file.type||'video/mp4')):(file.type||'image/jpeg');
         storagePath='social/'+currentUser.id+'/'+(window.crypto?.randomUUID?window.crypto.randomUUID():Date.now().toString(36)+'-'+Math.random().toString(36).slice(2))+'.'+ext;
-        const up=await client.storage.from('social-media').upload(storagePath,uploadFile,{upsert:false,contentType:mediaType==='video'?'video/mp4':(file.type||'image/jpeg'),cacheControl:'31536000'});
+        const up=await client.storage.from('social-media').upload(storagePath,file,{upsert:false,contentType:uploadContentType,cacheControl:'31536000'});
         if(up.error)throw up.error;
         mediaURL=client.storage.from('social-media').getPublicUrl(storagePath).data.publicUrl;
       }
@@ -1712,7 +1390,6 @@
     if(action){
       const act=action.dataset.action,id=action.dataset.id;
       if(act==='play'){startVideo(id,action);const message=action.closest('.video-stage')?.querySelector('.media-error');if(message)message.hidden=true;return;}
-      if(act==='convert-video'){await convertSocialPostVideo(id,action);return;}
       if(act==='retry-video'){
         const post=document.querySelector('[data-social-post="'+CSS.escape(String(id))+'"]');
         const video=post?.querySelector('[data-social-video]');
@@ -1833,16 +1510,9 @@
     if(file.size>100*1024*1024){$('mediaFile').value='';setStatus('postStatus','Files must be 100 MB or smaller.','bad');return;}
     setStatus('postStatus',file.name+' selected. It will upload when you publish.');
   });
-  window.addEventListener('beforeunload',()=>{
-    pauseAllVideos();
-    for(const url of localConvertedMedia.values())try{URL.revokeObjectURL(url)}catch{}
-    for(const url of socialFFmpegCoreUrls)try{URL.revokeObjectURL(url)}catch{}
-    try{socialFFmpeg?.terminate();}catch{}
-  });
   if(localStorage.getItem(STORAGE_KEYS.theme)==='dark')document.documentElement.classList.add('dark');
   updateAuthMode();
   updateAutoScrollToggle();
-  inspectSocialCodecSupport().catch(error=>console.warn('Video codec capability check unavailable:',error));
 
   async function boot(){
     if(!client){setCloudStatus('Cloud unavailable');feedErrorMessage='The Supabase browser client failed to load.';renderFeed();return;}
