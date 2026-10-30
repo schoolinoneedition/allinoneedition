@@ -690,7 +690,7 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
 </div>
   </div>
 </section>
-<section id="live" class="section"><div class="section-head"><h2>Live news & recent football</h2><small id="liveStatus">Connecting…</small></div><div class="newsgrid"><div class="newsbox"><h3 style="margin:0 0 8px">UK news</h3><div id="newsList"><div class="muted">Loading live headlines…</div></div></div><div class="football"><h3 style="margin:0 0 8px">Recent Premier League scores</h3><div id="footballList"><div class="muted">Loading recent scores…</div></div></div></div></section>
+<section id="live" class="section"><div class="section-head"><h2>Live news & recent football</h2><small id="liveStatus">Live updates load when you reach this section</small></div><div class="newsgrid"><div class="newsbox"><h3 style="margin:0 0 8px">UK news</h3><div id="newsList"><div class="muted">Headlines will load when this section is near your screen.</div></div></div><div class="football"><h3 style="margin:0 0 8px">Recent Premier League scores</h3><div id="footballList"><div class="muted">Recent scores will load when this section is near your screen.</div></div></div></div></section>
 <section id="tools" class="section"><div class="section-head"><h2>Useful things</h2><small>Local tools, live info and zero site-served ads.</small></div><div class="toolsgrid">
  <div class="tool"><h3>Hometime</h3><div class="value">15:30</div><p>Counts down to the next weekday at 15:30.</p></div>
  <div class="tool"><h3>Countdown</h3><div class="value" id="countdown">00:00:00</div><div class="inline"><input id="timerMin" type="number" min="1" value="5" style="width:75px;height:34px;border:1px solid var(--line);border-radius:9px;padding:0 8px;background:var(--soft);color:var(--text)"><button class="btn mini" onclick="startCountdown()">Start</button><button class="btn mini" onclick="resetCountdown()">Reset</button></div></div>
@@ -1482,7 +1482,37 @@ async function loadNews(){
   $('liveStatus').textContent='News feed unavailable';
 }
 async function loadFootball(){try{const dates=[];for(let n=0;n<5;n++){const d=new Date();d.setDate(d.getDate()-n);dates.push(d.toISOString().slice(0,10).replaceAll('-',''))}const results=await Promise.all(dates.map(d=>fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=${d}`,{cache:'no-store'}).then(r=>r.ok?r.json():{events:[]}).catch(()=>({events:[]}))));const events=results.flatMap(j=>j.events||[]).sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,16);if(!events.length){$('footballList').innerHTML='<div class="muted" style="padding:10px 0">No recent Premier League scores returned right now.</div>';return}$('footballList').innerHTML=events.map(ev=>{let c=ev.competitions?.[0],cs=c?.competitors||[],home=cs.find(x=>x.homeAway==='home'),away=cs.find(x=>x.homeAway==='away'),typ=c?.status?.type?.state||'',detail=c?.status?.type?.shortDetail||'',hs=home?.score??'-',as=away?.score??'-',finished=typ==='post',live=typ==='in',label=finished?'FT':live?'LIVE':detail||'Scheduled',date=ev.date?new Date(ev.date).toLocaleDateString('en-GB',{day:'2-digit',month:'short'}):'';return`<div class="match"><div><strong>${esc(away?.team?.shortDisplayName||'Away')}</strong><small>${esc(date)}</small></div><div class="score"><span class="score-num">${esc(as)} - ${esc(hs)}</span><small class="${live?'live':''}">${esc(label)}</small></div><div class="team-right"><strong>${esc(home?.team?.shortDisplayName||'Home')}</strong><small>${esc(date)}</small></div></div>`}).join('');$('liveStatus').textContent=`Updated ${new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}`}catch{$('footballList').innerHTML='<div class="muted" style="padding:10px 0">Recent football scores are unavailable right now.</div>'}}
-function refreshLive(){loadNews();loadFootball();setTimeout(refreshLive,120000)}
+let liveSectionVisible=false,liveRefreshTimer=0,liveRefreshBusy=false;
+function scheduleLiveRefresh(){
+  clearTimeout(liveRefreshTimer);liveRefreshTimer=0;
+  if(liveSectionVisible&&!document.hidden)liveRefreshTimer=setTimeout(refreshLive,120000);
+}
+async function refreshLive(){
+  if(!liveSectionVisible||document.hidden||liveRefreshBusy)return;
+  liveRefreshBusy=true;
+  await Promise.allSettled([loadNews(),loadFootball()]);
+  liveRefreshBusy=false;
+  scheduleLiveRefresh();
+}
+function initLiveUpdates(){
+  const section=$('live');if(!section)return;
+  if('IntersectionObserver' in window){
+    const observer=new IntersectionObserver(entries=>{
+      const visible=entries.some(entry=>entry.isIntersecting);
+      if(visible&&!liveSectionVisible){liveSectionVisible=true;refreshLive();}
+      else if(!visible&&liveSectionVisible){liveSectionVisible=false;clearTimeout(liveRefreshTimer);liveRefreshTimer=0;}
+    },{rootMargin:'300px 0px',threshold:0});
+    observer.observe(section);
+  }else{
+    document.querySelector('.nav button[data-scroll="live"]')?.addEventListener('click',()=>{
+      liveSectionVisible=true;refreshLive();
+    });
+  }
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden){clearTimeout(liveRefreshTimer);liveRefreshTimer=0;}
+    else if(liveSectionVisible)refreshLive();
+  });
+}
 function skipIntro(){const loader=$('siteLoader');if(!loader)return;loader.classList.add('played');setTimeout(()=>loader.classList.add('done'),900)}
 function renderIntroCutscene(){
   const loader=$('siteLoader');
@@ -1498,7 +1528,7 @@ function renderIntroCutscene(){
   setTimeout(()=>{if(!loader.classList.contains('done'))skipIntro()},4200);
 }
 setInterval(()=>{if(hidden&&$('studyClock'))$('studyClock').textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})},60000);
-safeBoot(updateResumeCard);safeBoot(renderChatHistory);safeBoot(renderAudioTracks);safeBoot(initLanguage);safeBoot(initSpotify);safeBoot(initMusicSearch);safeBoot(runCode);safeBoot(updateCacheStatus);safeBoot(renderAfkShuffle);safeBoot(refreshLive);
+safeBoot(updateResumeCard);safeBoot(renderChatHistory);safeBoot(renderAudioTracks);safeBoot(initLanguage);safeBoot(initSpotify);safeBoot(initMusicSearch);safeBoot(runCode);safeBoot(updateCacheStatus);safeBoot(renderAfkShuffle);safeBoot(initLiveUpdates);
 setTimeout(()=>safeBoot(loadOnlineGamesCatalog),650);
 
 
