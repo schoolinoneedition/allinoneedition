@@ -444,7 +444,7 @@
   .social-app .feed-column{grid-template-rows:auto minmax(0,1fr)}
   .social-app .feed-scroll{grid-row:2}
 }
-.feed-load-more{appearance:none;display:flex;align-items:center;justify-content:center;min-height:54px;margin:4px auto 16px;padding:0 16px;border:0;border-radius:12px;background:transparent;color:var(--muted);font:750 11px inherit;letter-spacing:.01em;cursor:pointer;scroll-snap-align:none}
+.feed-load-more{appearance:none;display:flex;align-items:center;justify-content:center;min-height:54px;margin:4px auto 16px;padding:0 16px;border:0;border-radius:12px;background:transparent;color:var(--muted);font-family:inherit;font-size:11px;font-weight:750;letter-spacing:.01em;cursor:pointer;scroll-snap-align:none}
 button.feed-load-more{border:1px solid var(--line);background:var(--panel);transition:background .18s ease,border-color .18s ease}
 button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
 .feed-load-more::before{content:"";width:8px;height:8px;margin-right:9px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:aioFeedSpin .8s linear infinite}
@@ -777,8 +777,9 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
       feedMoreObserver.observe(sentinel);
     }
   }
-  function renderFeed(){
+  function renderFeed(preserveScroll=false){
     const feed=$('feed');if(!feed)return;
+    const previousScrollTop=feed.scrollTop;
     if(videoObserver){videoObserver.disconnect();videoObserver=null;}
     if(videoWarmObserver){videoWarmObserver.disconnect();videoWarmObserver=null;}
     if(feedMoreObserver){feedMoreObserver.disconnect();feedMoreObserver=null;}
@@ -799,6 +800,7 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
       $('emptyCopy').textContent=feedHasMore?'There may be matching posts further back. Load older posts to keep looking.':(feedQuery?'Try a different creator name or caption search.':mode==='saved'?'Tap the bookmark on a post to save it here.':mode==='following'?'Follow a creator and their posts will appear in this view.':'When someone shares a public image or video, it will appear here.');
       $('emptyCreate').hidden=mode==='following'||mode==='saved';
       appendFeedSentinel(feed,false);
+      if(preserveScroll)feed.scrollTop=previousScrollTop;
       return;
     }
     $('emptyState').hidden=true;
@@ -908,6 +910,7 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
       const firstVideo=feed.querySelector('[data-social-video]');
       if(firstVideo)prepareSocialVideo(firstVideo,'metadata','low');
     }
+    if(preserveScroll)feed.scrollTop=previousScrollTop;
   }
   function fitSocialPost(post,naturalWidth,naturalHeight){
     // Size each card from the media's real dimensions, while limiting it to the
@@ -1003,7 +1006,7 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
       feedHasMore=false;
     }finally{
       feedLoading=false;
-      renderFeed();
+      renderFeed(addToFeed);
     }
   }
   /* Background video preparation for Social.
