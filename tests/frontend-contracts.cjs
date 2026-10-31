@@ -217,7 +217,10 @@ assert.ok(ux.includes('60000-(Date.now()%60000)'), 'The minute-only clock should
  assert.ok(html.includes('let visibleLimit=48;')&&html.includes('visibleLimit+=48'),'The initial game grid and load-more batches should stay bounded');
  assert.ok(html.includes('let gameSearchTimer=0;')&&html.includes('renderGames()},100)'),'Game search should debounce rapid keystrokes');
  assert.ok(html.includes('loading="lazy" fetchpriority="low"')&&html.includes('slice(0,18)'),'The intro should lazy-load a smaller set of game covers');
- assert.ok(html.includes('if(!homeClockTimer)homeClockTimer=setInterval(updateClock,1000)'),'The home clock should only tick while the document is visible');
+ assert.ok(ux.includes('function startAioDashboardClock()')&&ux.includes('window.aioDashboardClockTimer=setInterval(tick,1000)')&&ux.includes("document.addEventListener('visibilitychange',sync)"),'Dashboard date, time and hometime should share one visible-tab clock');
+assert.ok(ux.includes('WELCOME · SETUP + WALKTHROUGH')&&ux.includes('STEP 5 OF 6 · QUICK TOUR')&&ux.includes('aio-setup-tour-card'),'The first-run setup must include the guided hub walkthrough');
+assert.ok(ux.includes('Replay setup')&&ux.includes('Reset setup')&&ux.includes('aioOnboardProgress'),'Setup should be replayable and show progress');
+assert.ok(!html.includes('tutorialOverlay')&&!html.includes('function startTutorial')&&!html.includes('setTimeout(startTutorial'),'The old standalone tutorial must not run separately');
  assert.ok(html.includes('if(!worldClockTimer)worldClockTimer=setInterval(updateWorldClock,60000)'),'World clocks should refresh once per minute');
  assert.ok(html.includes('setInterval(updateCountdown,1000)')&&html.includes('if(swRunning&&!stopwatchTimer)'),'Countdown and stopwatch redraw loops should run only while active');
  assert.ok(html.includes('setInterval(pomoTick,1000)')&&html.includes('clearInterval(pomodoroTimer)'),'Pomodoro should use one-second visible updates');
