@@ -120,3 +120,10 @@ html[data-aio-theme="glass"] :is(.panel,.hero-card,.qcard,.settings-card,.notes-
 html[data-aio-theme="glass"] :is(.source-label,.source-badge,.game-source,[data-source-label]){display:none!important}
 @media(prefers-reduced-motion:reduce){html[data-aio-theme="glass"] *,html[data-aio-theme="glass"] *::before,html[data-aio-theme="glass"] *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 @media(max-width:700px){html[data-aio-theme="glass"]{--aio-glass-blur:18px}html[data-aio-theme="glass"] .card:hover{transform:translateY(-2px)}}
+
+
+/* Hardware-aware profile: preserve the Glass look without asking small machines to blur the entire UI. */
+html[data-aio-performance-profile="lite"][data-aio-theme="glass"]{--aio-glass-blur:12px;--aio-glass-alpha:.58}
+html[data-aio-performance-profile="lite"][data-aio-theme="glass"] :is(.topbar,.hero-card,.qcard,.panel,.tool,.newsbox,.football,.modalbox,.settings-help,.filters .filter,.btn,.nav button.active,.card,.stat,.gameframe-wrap,.settings-card,.notes-card,.todo-card){backdrop-filter:blur(var(--aio-glass-blur)) saturate(132%);-webkit-backdrop-filter:blur(var(--aio-glass-blur)) saturate(132%)}
+html[data-aio-performance-profile="lite"] #gameGrid .card{animation:none!important;will-change:auto!important}
+html[data-aio-performance-profile="lite"] #gameGrid .card:hover .cover{transform:translateY(-2px) scale(1.008)}
