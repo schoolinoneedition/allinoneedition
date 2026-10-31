@@ -207,7 +207,7 @@ assert.ok(html.includes('href="https://btnbuchsrfllpzlypjtn.supabase.co" crossor
 assert.ok(!ux.includes('addFavouriteButtons'), 'Discovery must not inject a duplicate favourites button system');
 assert.ok(!ux.includes('aio-favourite-button'), 'Each game card should keep only its native favourite control');
 assert.ok(ux.includes("discoveryFilter==='favourites'") && ux.includes('favouriteGames.has(gameKey(x.g))'), 'The discovery favourites filter must use the existing saved favourites');
-assert.ok(html.includes("const priority=i<12?'eager':'lazy'"), 'Only the first twelve game covers should be eager-loaded');
+assert.ok(html.includes("const priority=i<6?'eager':'lazy'"), 'Only the first six game covers should be eager-loaded for a lighter initial render');
 assert.ok(ux.includes('60000-(Date.now()%60000)'), 'The minute-only clock should align updates to minute boundaries');
 
 
