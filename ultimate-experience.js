@@ -78,13 +78,13 @@ const appearance=()=>window.AIOAppearance?.getState?.()||{};
 const setChoice=o=>window.AIOAppearance?.setChoice?.(o);
 const signed=()=>{try{return typeof currentUser!=='undefined'&&!!currentUser}catch{return false}};
 const walls=()=>window.AIOAppearance?.getWallpapers?.()||[{id:'default',name:'Default',bg:'linear-gradient(135deg,#f7f7f8,#e8edf7)'},{id:'midnight',name:'Midnight',bg:'linear-gradient(135deg,#05070f,#28334d)'},{id:'aurora',name:'Aurora',bg:'linear-gradient(135deg,#10152d,#42e8c5)'},{id:'arcade',name:'Arcade neon',bg:'linear-gradient(135deg,#11112b,#ff4dd2)'}];
-function ensureOnboard(){if($('aioOnboarding'))return;const m=document.createElement('div');m.id='aioOnboarding';m.className='aio-ultimate-modal';m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');m.innerHTML='<div class="aio-onboard-card"><div class="aio-onboard-top"><div class="aio-onboard-mark">A</div><span id="aioOnboardStep">WELCOME · SETUP + WALKTHROUGH</span><button class="aio-icon-button" id="aioOnboardClose" aria-label="Close setup">×</button></div><div class="aio-onboard-progress" role="progressbar" aria-label="Setup progress" aria-valuemin="0" aria-valuemax="100"><span id="aioOnboardProgress"></span></div><div id="aioOnboardContent"></div><div class="aio-onboard-footer"><span>Your choices apply immediately.</span><div id="aioOnboardActions"></div></div></div>';document.body.append(m);$('aioOnboardClose').onclick=()=>{if(step===0&&!fontChosen){toast('Choose a font before continuing.');return}closeOnboard()}}
+function ensureOnboard(){if($('aioOnboarding'))return;const m=document.createElement('div');m.id='aioOnboarding';m.className='aio-ultimate-modal';m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');m.innerHTML='<div class="aio-onboard-card"><div class="aio-onboard-top"><div class="aio-onboard-mark">A</div><span id="aioOnboardStep">WELCOME · SETUP + WALKTHROUGH</span><button class="aio-icon-button" id="aioOnboardClose" aria-label="Close setup">×</button></div><div class="aio-onboard-progress" role="progressbar" aria-label="Setup progress" aria-valuemin="0" aria-valuemax="100"><span id="aioOnboardProgress"></span></div><div id="aioOnboardContent"></div><div class="aio-onboard-footer"><span>Your choices apply immediately.</span><div id="aioOnboardActions"></div></div></div>';document.body.append(m);$('aioOnboardClose').onclick=()=>{if(step===0){toast('Choose Start setup or Use current settings.');return}closeOnboard()}}
 function openOnboard(reset){ensureOnboard();if(reset)localStorage.removeItem(KEY);const a=appearance();font=a.font||'inter';wall=a.wallpaper||'default';cursor=a.cursorStyle||'chatgpt';fontChosen=false;wallChosen=false;cursorChosen=false;step=0;renderOnboard();$('aioOnboarding').classList.add('open');document.body.classList.add('aio-onboarding-open')}
 function closeOnboard(){ $('aioOnboarding')?.classList.remove('open');document.body.classList.remove('aio-onboarding-open')}
 function renderOnboard(){
 const content=$('aioOnboardContent'),actions=$('aioOnboardActions'),total=6;
 const set=(label,title,copy)=>{$('aioOnboardStep').textContent=label;content.innerHTML='<h2>'+title+'</h2><p class="aio-onboard-copy">'+copy+'</p>'};
-const progress=$('aioOnboardProgress');if(progress)progress.style.width=((step+1)/total*100)+'%';
+const progress=$('aioOnboardProgress');if(progress){const percent=Math.round((step+1)/total*100);progress.style.width=percent+'%';progress.parentElement?.setAttribute('aria-valuenow',String(percent));}
 if(step===0){
   set('WELCOME · SETUP + WALKTHROUGH','Your hub, set up your way','A quick guided start: personalise the look, then learn where everything lives. You can replay the full setup from Settings whenever you need it.');
   content.innerHTML+='<div class="aio-setup-intro-grid"><div><span>01</span><strong>Personalise</strong><small>Pick your font, wallpaper and cursor.</small></div><div><span>02</span><strong>Explore</strong><small>See how games, tools, school and Social fit together.</small></div></div><div class="aio-setup-tip">Your choices apply immediately. Nothing is posted or shared during setup.</div>';
@@ -127,7 +127,17 @@ else{
   $('aioEnter').onclick=()=>{localStorage.setItem(KEY,JSON.stringify({completed:true,font,wallpaper:wall,cursor,at:Date.now()}));closeOnboard();toast('Setup complete. Enjoy the hub!')};
 }
 }
-function addSetupSetting(){const root=$('aioAppearanceRoot');if(!root||root.querySelector('#aioSetupTutorial'))return;const s=document.createElement('section');s.className='aio-appearance-section';s.id='aioSetupTutorial';s.innerHTML='<div class="aio-appearance-section-head"><strong>Personalisation tutorial</strong><span>Reopen the first-time setup or reset it for the next visit.</span></div><div class="aio-setup-actions"><button class="btn mini primary" id="aioRunTutorial">Setup Tutorial</button><button class="btn mini" id="aioResetTutorial">Reset Tutorial</button></div>';root.append(s);$('aioRunTutorial').onclick=()=>openOnboard(true);$('aioResetTutorial').onclick=()=>{localStorage.removeItem(KEY);toast('Tutorial reset. It will appear next visit.')}}
+function addSetupSetting(){
+  const root=$('aioAppearanceRoot');
+  if(!root||root.querySelector('#aioSetupTutorial'))return;
+  const section=document.createElement('section');
+  section.className='aio-appearance-section';
+  section.id='aioSetupTutorial';
+  section.innerHTML='<div class="aio-appearance-section-head"><strong>Setup & walkthrough</strong><span>Replay the personalisation steps and the built-in hub tour, or reset first-run setup.</span></div><div class="aio-setup-actions"><button class="btn mini primary" id="aioRunTutorial">Replay setup</button><button class="btn mini" id="aioResetTutorial">Reset setup</button></div>';
+  root.append(section);
+  $('aioRunTutorial').onclick=()=>openOnboard(true);
+  $('aioResetTutorial').onclick=()=>{localStorage.removeItem(KEY);toast('Setup reset. It will appear next visit.')};
+}
 
 let discoveryFilter='all',pricesLoaded=false;
 function loadPrices(){try{if(typeof supabaseClient==='undefined'||!supabaseClient)return;supabaseClient.from('aio_game_prices').select('game_id,price').then(r=>{if(r.error)throw r.error;priceCache=new Map((r.data||[]).map(x=>[x.game_id,Number(x.price)]));pricesLoaded=true;addSourceLabels();if(discoveryFilter==='free'&&typeof renderGames==='function')renderGames()}).catch(e=>console.info('Price cache unavailable:',e.message))}catch{}}
