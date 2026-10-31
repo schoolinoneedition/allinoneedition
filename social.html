@@ -444,6 +444,10 @@
   .social-app .feed-column{grid-template-rows:auto minmax(0,1fr)}
   .social-app .feed-scroll{grid-row:2}
 }
+.feed-load-more{display:flex;align-items:center;justify-content:center;min-height:54px;margin:4px auto 16px;color:var(--muted);font-size:11px;font-weight:750;letter-spacing:.01em;scroll-snap-align:none}
+.feed-load-more::before{content:"";width:8px;height:8px;margin-right:9px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:aioFeedSpin .8s linear infinite}
+@keyframes aioFeedSpin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.feed-load-more::before{animation:none;border-top-color:var(--line)}}
 </style>
 </head>
 <body>
@@ -597,6 +601,8 @@
 
   let currentUser=null,currentProfile=null,mode='for-you',posts=[],postStats=new Map(),userLikes=new Set(),userFollows=new Set(),savedPosts=new Set();
   let feedQuery='';
+  const FEED_PAGE_SIZE=24;
+  let feedOffset=0,feedHasMore=true,feedLoading=false,feedMoreObserver=null;
   let autoScrollEnabled=localRead(STORAGE_KEYS.autoScroll,false)===true;
   let commentsForPost=null,commentsCache=new Map(),authMode='signin',postBusy=false,videoObserver=null,videoWarmObserver=null;
   let accountEmail='',feedErrorMessage='';
@@ -741,10 +747,30 @@
     const input=$('feedSearch');
     if(input&&input.value!==feedQuery)input.value=feedQuery;
   }
+  function appendFeedSentinel(feed){
+    if(!feed||!feedHasMore)return;
+    const sentinel=document.createElement('div');
+    sentinel.id='feedLoadMore';
+    sentinel.className='feed-load-more';
+    sentinel.setAttribute('role','status');
+    sentinel.setAttribute('aria-live','polite');
+    sentinel.textContent=feedLoading?'Loading more posts…':'Scroll for more posts';
+    feed.append(sentinel);
+    if('IntersectionObserver'in window){
+      feedMoreObserver=new IntersectionObserver(entries=>{
+        if(entries.some(entry=>entry.isIntersecting)&&!feedLoading){
+          feedMoreObserver?.disconnect();feedMoreObserver=null;
+          loadFeed(true);
+        }
+      },{root:feed,rootMargin:'420px 0px',threshold:0.01});
+      feedMoreObserver.observe(sentinel);
+    }
+  }
   function renderFeed(){
     const feed=$('feed');if(!feed)return;
     if(videoObserver){videoObserver.disconnect();videoObserver=null;}
     if(videoWarmObserver){videoWarmObserver.disconnect();videoWarmObserver=null;}
+    if(feedMoreObserver){feedMoreObserver.disconnect();feedMoreObserver=null;}
     pauseAllVideos();
     updateAutoScrollToggle();
     const list=visiblePosts();
@@ -758,13 +784,15 @@
     if(!list.length){
       feed.innerHTML='';
       $('emptyState').hidden=false;
-      $('emptyTitle').textContent=feedQuery?'No matching posts':mode==='following'?'No posts from followed creators yet':mode==='saved'?'Nothing saved yet':mode==='videos'?'No video posts yet':'No posts yet';
-      $('emptyCopy').textContent=feedQuery?'Try a different creator name or caption search.':mode==='saved'?'Tap the bookmark on a post to save it here.':mode==='following'?'Follow a creator and their posts will appear in this view.':'When someone shares a public image or video, it will appear here.';
+      $('emptyTitle').textContent=feedHasMore?(feedLoading?'Loading posts…':'Looking through older posts…'):(feedQuery?'No matching posts':mode==='following'?'No posts from followed creators yet':mode==='saved'?'Nothing saved yet':mode==='videos'?'No video posts yet':'No posts yet');
+      $('emptyCopy').textContent=feedHasMore?'Checking the next batch of community posts for this view.':(feedQuery?'Try a different creator name or caption search.':mode==='saved'?'Tap the bookmark on a post to save it here.':mode==='following'?'Follow a creator and their posts will appear in this view.':'When someone shares a public image or video, it will appear here.');
       $('emptyCreate').hidden=mode==='following'||mode==='saved';
+      appendFeedSentinel(feed);
       return;
     }
     $('emptyState').hidden=true;
     feed.innerHTML=list.map(renderPost).join('');
+    appendFeedSentinel(feed);
     feed.querySelectorAll('[data-social-video]').forEach(v=>{
       const stage=v.closest('.video-stage');
       if(!stage)return;
@@ -917,29 +945,41 @@
       :'<img data-post-image src="'+escapeHTML(p.media_url)+'" alt="Image posted by '+escapeHTML(p.username)+'" loading="lazy" decoding="async"><div class="media-error" hidden>This image could not be loaded.</div>';
     return '<article class="post" data-social-post="'+escapeHTML(id)+'"><div class="post-media">'+media+'</div><div class="post-shade"></div><div class="post-top"><span class="post-pill">'+(isVideo?'Video':'Image')+' · public post</span><span class="post-time">'+escapeHTML(timeSince(p.created_at))+'</span>'+ownerTools+'</div><div class="post-rail"><button type="button" class="rail-action '+(liked?'liked':'')+'" data-action="like" data-id="'+escapeHTML(id)+'" aria-label="'+(liked?'Unlike':'Like')+' post">'+(liked?'♥':'♡')+'</button><span class="rail-count" data-like-count="'+escapeHTML(id)+'">'+formatCount(stat.likes+(liked&&!currentUser?1:0))+'</span><button type="button" class="rail-action" data-action="comments" data-id="'+escapeHTML(id)+'" aria-label="Comments">▤</button><span class="rail-count" data-comment-count="'+escapeHTML(id)+'">'+formatCount(stat.comments)+'</span><button type="button" class="rail-action '+(saved?'saved':'')+'" data-action="save" data-id="'+escapeHTML(id)+'" aria-label="'+(saved?'Unsave':'Save')+' post">▣</button><span class="rail-count">'+(saved?'Saved':'')+'</span><button type="button" class="rail-action" data-action="share" data-id="'+escapeHTML(id)+'" aria-label="Share post">↗</button></div><div class="post-bottom"><div class="creator-row"><div class="creator-avatar">'+avatar+'</div><div class="creator-copy"><strong>'+escapeHTML(p.username||'Guest')+'</strong><small>'+escapeHTML(timeSince(p.created_at))+'</small></div><button type="button" class="follow-btn '+(followed?'following':'')+'" data-action="follow" data-name="'+escapeHTML(p.username||'Guest')+'">'+(followed?'Following':'Follow')+'</button></div><div class="post-caption">'+escapeHTML(p.caption||'')+'</div></div></article>';
   }
-  async function loadFeed(){
+  async function loadFeed(append=false){
     if(!client){
       setCloudStatus('Cloud unavailable');feedErrorMessage='The Supabase client did not load. Check your connection and refresh the page.';
       renderFeed();return;
     }
-    setCloudStatus('Loading feed…');
+    if(feedLoading)return;
+    const addToFeed=!!append&&feedOffset>0;
+    if(!addToFeed){feedOffset=0;feedHasMore=true;}
+    feedLoading=true;
+    setCloudStatus(addToFeed?'Loading more posts…':'Loading feed…');
     try{
-      const postsQ=await client.from('social_posts').select('id,visitor_id,username,avatar_url,caption,media_type,media_url,created_at').order('created_at',{ascending:false}).limit(250);
+      const postsQ=await client.from('social_posts').select('id,visitor_id,username,avatar_url,caption,media_type,media_url,created_at').order('created_at',{ascending:false}).range(feedOffset,feedOffset+FEED_PAGE_SIZE-1);
       if(postsQ.error)throw postsQ.error;
-      posts=(postsQ.data||[]).filter(p=>p.media_url&&/^https?:\/\//i.test(String(p.media_url)));
+      const rows=Array.isArray(postsQ.data)?postsQ.data:[];
+      const knownIds=new Set(addToFeed?posts.map(p=>String(p.id)):[]);
+      const incoming=rows.filter(p=>p.media_url&&/^https?:\/\//i.test(String(p.media_url))&&!knownIds.has(String(p.id)));
+      if(!addToFeed){posts=[];postStats=new Map();userLikes=new Set();userFollows=new Set();}
+      posts.push(...incoming);
+      feedOffset+=rows.length;
+      feedHasMore=rows.length===FEED_PAGE_SIZE;
+      const pageIds=incoming.map(p=>p.id);
       const [commentsQ,reactionsQ,followsQ]=await Promise.all([
-        client.from('social_comments').select('post_id').limit(5000),
-        client.from('social_reactions').select('post_id,visitor_id').limit(5000),
-        currentUser?client.from('social_follows').select('username').eq('visitor_id',currentUser.id).limit(500):Promise.resolve({data:[],error:null})
+        pageIds.length?client.from('social_comments').select('post_id').in('post_id',pageIds):Promise.resolve({data:[],error:null}),
+        pageIds.length?client.from('social_reactions').select('post_id,visitor_id').in('post_id',pageIds):Promise.resolve({data:[],error:null}),
+        !addToFeed&&currentUser?client.from('social_follows').select('username').eq('visitor_id',currentUser.id).limit(500):Promise.resolve({data:null,error:null})
       ]);
-      postStats=new Map();
-      for(const p of posts)postStats.set(String(p.id),{likes:0,comments:0});
+      for(const p of incoming)statFor(p.id);
       if(!commentsQ.error)for(const c of commentsQ.data||[]){const st=statFor(c.post_id);st.comments++;}
       if(!reactionsQ.error)for(const r of reactionsQ.data||[]){const st=statFor(r.post_id);st.likes++;}
-      if(currentUser&&!reactionsQ.error)userLikes=new Set((reactionsQ.data||[]).filter(r=>String(r.visitor_id)===String(currentUser.id)).map(r=>String(r.post_id)));
-      else userLikes=getLocalSet(STORAGE_KEYS.likes);
-      if(currentUser&&!followsQ.error)userFollows=new Set((followsQ.data||[]).map(f=>String(f.username)));
-      else userFollows=getLocalSet(STORAGE_KEYS.follows);
+      if(currentUser&&!reactionsQ.error){
+        if(!addToFeed)userLikes=new Set();
+        for(const reaction of reactionsQ.data||[])if(String(reaction.visitor_id)===String(currentUser.id))userLikes.add(String(reaction.post_id));
+      }else if(!addToFeed)userLikes=getLocalSet(STORAGE_KEYS.likes);
+      if(currentUser&&!addToFeed&&!followsQ.error&&Array.isArray(followsQ.data))userFollows=new Set(followsQ.data.map(f=>String(f.username)));
+      else if(!addToFeed)userFollows=getLocalSet(STORAGE_KEYS.follows);
       savedPosts=getLocalSet(STORAGE_KEYS.saves);
       feedErrorMessage='';
       setCloudStatus('Cloud connected',true);
@@ -947,9 +987,12 @@
       console.error('Social feed load failed:',e);
       feedErrorMessage='Could not load the cloud feed: '+String(e?.message||'connection error')+'. Refresh to retry.';
       setCloudStatus('Connection issue');
-      posts=[];postStats=new Map();userLikes=getLocalSet(STORAGE_KEYS.likes);userFollows=getLocalSet(STORAGE_KEYS.follows);savedPosts=getLocalSet(STORAGE_KEYS.saves);
+      if(!addToFeed){posts=[];postStats=new Map();userLikes=getLocalSet(STORAGE_KEYS.likes);userFollows=getLocalSet(STORAGE_KEYS.follows);savedPosts=getLocalSet(STORAGE_KEYS.saves);}
+      else feedHasMore=false;
+    }finally{
+      feedLoading=false;
+      renderFeed();
     }
-    renderFeed();
   }
   /* Background video preparation for Social.
      Downloads are limited to the site's own public MP4 bucket and stored in Cache Storage.
@@ -1497,7 +1540,10 @@
     if(document.hidden){pauseAllVideos();runSocialMediaWarmup();}
     else if(aioSocialWarmQueue.length)scheduleSocialMediaWarmup();
   });
-  $('feed').addEventListener('scroll',()=>{ /* scroll-snap is handled by CSS; playback is intentionally never automatic */ },{passive:true});
+  $('feed').addEventListener('scroll',()=>{
+    const feed=$('feed');
+    if(feed&&!('IntersectionObserver'in window)&&feedHasMore&&!feedLoading&&feed.scrollHeight-feed.scrollTop-feed.clientHeight<420)loadFeed(true);
+  },{passive:true});
   $('postName').addEventListener('input',()=>{
     if(!currentUser)try{localStorage.setItem(STORAGE_KEYS.displayName,String($('postName').value||'').slice(0,32))}catch{}
   });
