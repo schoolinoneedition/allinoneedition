@@ -232,3 +232,10 @@ assert.ok(!html.includes('tutorialOverlay')&&!html.includes('function startTutor
  assert.ok(html.includes('clearTimeout(liveRefreshTimer)')&&html.includes('else if(liveSectionVisible)refreshLive()'),'Live refreshes should pause off-screen and while the tab is hidden');
 
  console.log('Frontend contract checks passed: appearance persistence, context menu/game freeze wiring, auth/video safeguards, and economy/security migration contracts.');
+
+assert.ok(ux.includes("['sakura','Sakura (fallback)'"), 'First-run setup should expose the Sakura fallback font.');
+assert.ok(html.includes('Personalisation · Setup tutorial') && html.includes('Reset tutorial') && html.includes('window.resetAioOnboarding?.()'), 'Settings should offer both replay and reset for the integrated tutorial.');
+assert.ok(ux.includes('window.openAioOnboarding=()=>openOnboard(false)') && ux.includes('window.resetAioOnboarding=()=>'), 'Replaying the tutorial must preserve completion; reset must be a separate action.');
+assert.ok(social.includes('const FEED_PAGE_SIZE=24') && social.includes('.range(feedOffset,feedOffset+FEED_PAGE_SIZE-1)'), 'Social should load the feed in bounded Supabase pages.');
+assert.ok(social.includes('function appendFeedSentinel') && social.includes('loadFeed(true)') && social.includes('feed-load-more'), 'Social should load additional posts as the feed approaches its end.');
+assert.ok(social.includes(".in('post_id',pageIds)"), 'Social engagement counts should be fetched only for posts in the current batch.');
