@@ -210,7 +210,7 @@ assert.ok(ux.includes("discoveryFilter==='favourites'") && ux.includes('favourit
 assert.ok(html.includes("const priority=i<6?'eager':'lazy'"), 'Only the first six game covers should be eager-loaded for a lighter initial render');
 assert.ok(ux.includes('60000-(Date.now()%60000)'), 'The minute-only clock should align updates to minute boundaries');
 assert.ok(appearance.includes('function applyPerformanceProfile()') && appearance.includes("root.dataset.aioPerformanceProfile=constrained?'lite':'full'"), 'Appearance should detect constrained hardware and apply a lightweight profile.');
-assert.ok(appearanceCss.includes('data-aio-performance-profile="lite"') && appearanceCss.includes('--aio-glass-blur:12px') && appearanceCss.includes('#gameGrid .card{animation:none!important'), 'The lightweight profile should reduce glass blur and card animation cost.');
+assert.ok(glassCss.includes('data-aio-performance-profile="lite"') && glassCss.includes('--aio-glass-blur:12px') && glassCss.includes('#gameGrid .card{animation:none!important'), 'The lightweight profile should reduce glass blur and card animation cost.');
 
 
 
