@@ -6,7 +6,6 @@ const ECONOMY_CACHE_KEY='aio-economy-offline-cache-v1',OFFLINE_PURCHASE_QUEUE_KE
 function startAioDashboardClock(){
   const dateEl=$('date'),clockEl=$('clock'),homeEl=$('homeCountdown');
   if(!dateEl&&!clockEl&&!homeEl)return;
-  if(window.aioDashboardClockTimer)clearInterval(window.aioDashboardClockTimer);
   const tick=()=>{
     const now=new Date();
     if(clockEl)clockEl.textContent=now.toLocaleTimeString('en-GB');
@@ -24,11 +23,16 @@ function startAioDashboardClock(){
       homeEl.setAttribute('aria-label','Time remaining until hometime at 15:30');
     }
   };
-  tick();
-  window.aioDashboardClockTimer=setInterval(()=>{if(!document.hidden)tick()},1000);
+  const sync=()=>{
+    if(window.aioDashboardClockTimer){clearInterval(window.aioDashboardClockTimer);window.aioDashboardClockTimer=0;}
+    if(document.hidden)return;
+    tick();
+    window.aioDashboardClockTimer=setInterval(tick,1000);
+  };
+  sync();
   if(!window.aioDashboardClockVisibilityBound){
     window.aioDashboardClockVisibilityBound=true;
-    document.addEventListener('visibilitychange',()=>{if(!document.hidden)tick()});
+    document.addEventListener('visibilitychange',sync);
   }
 }
 function startAioLiveClock(){const el=$('aioLiveClock');if(!el||el.dataset.clockBound==='1')return;el.dataset.clockBound='1';let timer=0;const tick=()=>{el.textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false});if(timer)clearTimeout(timer);if(!document.hidden)timer=setTimeout(tick,60000-(Date.now()%60000)+40)};tick();document.addEventListener('visibilitychange',()=>{if(timer)clearTimeout(timer);timer=0;if(!document.hidden)tick()})}
