@@ -193,7 +193,7 @@ assert.ok(html.includes("v.preload='none'"), 'Main hub videos should not preload
 assert.ok(!html.includes('socialPreloadNextVideos') && !html.includes('scheduleSocialVideoPreload') && !html.includes('socialPreloadDuringIdle'), 'Main hub must not preload videos in the background while idle');
 assert.ok(!html.includes('autoplay loop preload="auto" data-social-video'), 'Main hub Social videos must not all auto-download on render');
 assert.ok(!social.includes('videoPreloadObserver') && !social.includes("rootMargin:'650px 0px'"), 'Separate Social page must not download upcoming videos before they are visible');
-assert.ok(social.includes('function prepareSocialVideo(video)'), 'Separate Social page should attach video URLs only when needed');
+assert.ok(social.includes("function prepareSocialVideo(video,preload='auto',priority='low')") && social.includes('video.src=socialMediaPlaybackURL(src)'), 'Separate Social page should lazily attach video URLs with explicit preload and priority controls');
 assert.ok(backend.includes('function prepareGalleryVideo(video)'), 'Video gallery should load individual videos on demand');
 assert.ok(backend.includes("player.preload='none'") && backend.includes('player.dataset.videoSrc=post.media_url'), 'Video gallery cards must not attach every video URL as they render');
 assert.ok(backend.includes("rootMargin:'0px'") && backend.includes('prepareGalleryVideo(entry.target)'), 'Video gallery should fetch a video only when its card enters the viewport');
@@ -207,8 +207,11 @@ assert.ok(html.includes('href="https://btnbuchsrfllpzlypjtn.supabase.co" crossor
 assert.ok(!ux.includes('addFavouriteButtons'), 'Discovery must not inject a duplicate favourites button system');
 assert.ok(!ux.includes('aio-favourite-button'), 'Each game card should keep only its native favourite control');
 assert.ok(ux.includes("discoveryFilter==='favourites'") && ux.includes('favouriteGames.has(gameKey(x.g))'), 'The discovery favourites filter must use the existing saved favourites');
-assert.ok(html.includes("const priority=i<12?'eager':'lazy'"), 'Only the first twelve game covers should be eager-loaded');
+assert.ok(html.includes("const priority=i<6?'eager':'lazy'"), 'Only the first six game covers should be eager-loaded for a lighter initial render');
 assert.ok(ux.includes('60000-(Date.now()%60000)'), 'The minute-only clock should align updates to minute boundaries');
+assert.ok(appearance.includes('function applyPerformanceProfile()') && appearance.includes("root.dataset.aioPerformanceProfile=constrained?'lite':'full'"), 'Appearance should detect constrained hardware and apply a lightweight profile.');
+assert.ok(glassCss.includes('data-aio-performance-profile="lite"') && glassCss.includes('--aio-glass-blur:12px') && glassCss.includes('#gameGrid .card{animation:none!important'), 'The lightweight profile should reduce glass blur and card animation cost.');
+
 
 
  // The hub should never bulk-download artwork or game pages while idle.
@@ -219,7 +222,7 @@ assert.ok(ux.includes('60000-(Date.now()%60000)'), 'The minute-only clock should
  assert.ok(html.includes('loading="lazy" fetchpriority="low"')&&html.includes('slice(0,18)'),'The intro should lazy-load a smaller set of game covers');
  assert.ok(ux.includes('function startAioDashboardClock()')&&ux.includes('window.aioDashboardClockTimer=setInterval(tick,1000)')&&ux.includes("document.addEventListener('visibilitychange',sync)"),'Dashboard date, time and hometime should share one visible-tab clock');
 assert.ok(ux.includes('WELCOME · SETUP + WALKTHROUGH')&&ux.includes('STEP 5 OF 6 · QUICK TOUR')&&ux.includes('aio-setup-tour-card'),'The first-run setup must include the guided hub walkthrough');
-assert.ok(html.includes('Setup & walkthrough')&&html.includes('window.openAioOnboarding?.()')&&ux.includes('aioOnboardProgress'),'Settings should replay the integrated setup and show progress');
+assert.ok(html.includes('Personalisation · Setup tutorial')&&html.includes('window.openAioOnboarding?.()')&&html.includes('window.resetAioOnboarding?.()')&&ux.includes('aioOnboardProgress'),'Settings should replay or reset the integrated setup and show progress');
 assert.ok(!html.includes('tutorialOverlay')&&!html.includes('function startTutorial')&&!html.includes('setTimeout(startTutorial'),'The old standalone tutorial must not run separately');
  assert.ok(html.includes('if(!worldClockTimer)worldClockTimer=setInterval(updateWorldClock,60000)'),'World clocks should refresh once per minute');
  assert.ok(html.includes('setInterval(updateCountdown,1000)')&&html.includes('if(swRunning&&!stopwatchTimer)'),'Countdown and stopwatch redraw loops should run only while active');
@@ -232,3 +235,13 @@ assert.ok(!html.includes('tutorialOverlay')&&!html.includes('function startTutor
  assert.ok(html.includes('clearTimeout(liveRefreshTimer)')&&html.includes('else if(liveSectionVisible)refreshLive()'),'Live refreshes should pause off-screen and while the tab is hidden');
 
  console.log('Frontend contract checks passed: appearance persistence, context menu/game freeze wiring, auth/video safeguards, and economy/security migration contracts.');
+
+assert.ok(ux.includes("['sakura','Sakura (fallback)'"), 'First-run setup should expose the Sakura fallback font.');
+assert.ok(html.includes('Personalisation · Setup tutorial') && html.includes('Reset tutorial') && html.includes('window.resetAioOnboarding?.()'), 'Settings should offer both replay and reset for the integrated tutorial.');
+assert.ok(ux.includes('window.openAioOnboarding=()=>openOnboard(false)') && ux.includes('window.resetAioOnboarding=()=>'), 'Replaying the tutorial must preserve completion; reset must be a separate action.');
+assert.ok(social.includes('const FEED_PAGE_SIZE=24') && social.includes('.range(feedOffset,feedOffset+FEED_PAGE_SIZE-1)'), 'Social should load the feed in bounded Supabase pages.');
+assert.ok(social.includes('function appendFeedSentinel') && social.includes('loadFeed(true)') && social.includes('feed-load-more'), 'Social should load additional posts as the feed approaches its end.');
+assert.ok(social.includes(".in('post_id',pageIds)"), 'Social engagement counts should be fetched only for posts in the current batch.');
+
+assert.ok(social.includes("let feedSort=['latest','popular','oldest']") && social.includes("feedSort==='popular'") && social.includes("localWrite(STORAGE_KEYS.feedSort,feedSort)"), 'Social sort preferences should offer persistent latest, most-liked and oldest ordering.');
+assert.ok(social.includes('function renderFeed(preserveScroll=false)') && social.includes('if(preserveScroll)feed.scrollTop=previousScrollTop') && social.includes('renderFeed(addToFeed)'), 'Loading older posts should preserve the reader scroll position.');

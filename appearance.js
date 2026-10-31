@@ -81,7 +81,20 @@ function refreshGallery(){document.querySelectorAll('.aio-wallpaper-option').for
 async function uploadWallpaper(e){const f=e.target.files?.[0];if(!f)return;if(!/^image\/(png|jpeg|webp|avif)$/.test(f.type)||f.size>8*1024*1024){status('Choose a PNG, JPEG, WebP or AVIF image under 8 MB.');e.target.value='';return;}try{const bitmap=await createImageBitmap(f);if(bitmap.width>12000||bitmap.height>12000){bitmap.close?.();throw Error('Image dimensions are too large.');}bitmap.close?.();await saveCustom(f);if(customUrl)URL.revokeObjectURL(customUrl);customUrl=URL.createObjectURL(f);state.pendingWallpaper='custom';selectWallpaper('custom');status('Image saved locally and ready to preview.');}catch(err){status('Could not save this image: '+(err?.message||'storage unavailable'));}finally{e.target.value='';}}
 function applyAll(){applyFont();applyTheme();applyCursor();applyWallpaper();const s=$('aioFontSelect');if(s)s.value=state.font;}
 function buildRefresh(){const r=$('aioAppearanceRoot');if(r)r.remove();build();getCustom();}
-function init(){applyAll();build();getCustom();}
+function applyPerformanceProfile(){
+ const root=document.documentElement;
+ const connection=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+ const memory=Number(navigator.deviceMemory)||0;
+ const cores=Number(navigator.hardwareConcurrency)||0;
+ const constrained=!!connection?.saveData||['slow-2g','2g'].includes(String(connection?.effectiveType||''))||(memory>0&&memory<=4)||(cores>0&&cores<=2);
+ root.dataset.aioPerformanceProfile=constrained?'lite':'full';
+}
+function init(){
+ applyPerformanceProfile();
+ const connection=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+ connection?.addEventListener?.('change',applyPerformanceProfile);
+ applyAll();build();getCustom();
+}
 document.addEventListener('DOMContentLoaded',init,{once:true});
 document.addEventListener('click',e=>{const b=e.target.closest('#settingsBtn');if(b){setTimeout(()=>{build();updateFontPreview();},0)}});
 window.addEventListener('storage',e=>{if(e.key===KEY){state=load();applyAll()}});
