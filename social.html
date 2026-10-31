@@ -25,7 +25,7 @@
 .feed-search-wrap>span{position:absolute;left:12px;color:var(--muted);font-size:19px;line-height:1;pointer-events:none}
 .feed-search{height:42px;padding-left:34px;background:var(--panel);min-width:0}
 .feed-sort-wrap{width:132px;flex:0 0 132px}
-.feed-sort{height:42px;width:100%;background:var(--panel);padding:0 9px}
+.feed-sort{height:42px;width:100%;background:var(--panel);padding:0 9px;min-width:0;color:var(--text);border:1px solid var(--line);border-radius:11px;font:inherit;font-size:11px;font-weight:750}
 .feed-clear{height:42px;padding:0 11px}
 .feed-clear:disabled{opacity:.48;cursor:default;transform:none}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
@@ -48,7 +48,7 @@
 .post-owner-tools button{border:1px solid rgba(255,255,255,.24);border-radius:8px;padding:6px 8px;background:rgba(0,0,0,.52);color:#fff;font-size:9px;font-weight:900;backdrop-filter:blur(8px)}
 .post-owner-tools button:hover{background:rgba(0,0,0,.78)}
 .post-owner-tools .owner-delete{color:#ffc5ce}
-@media(max-width:650px){.feed-tools{gap:5px}.feed-sort-wrap{width:105px;flex-basis:105px}.feed-sort{font-size:10px}.feed-clear{padding:0 8px;font-size:10px}.feed-search{font-size:11px}}
+@media(max-width:650px){.feed-tools{gap:5px;flex-wrap:wrap}.feed-sort-wrap{width:105px;flex:0 0 105px}.feed-sort{font-size:10px}.feed-clear{padding:0 8px;font-size:10px}.feed-search{font-size:11px}}
 .feed-scroll{height:calc(100dvh - 210px);min-height:500px;overflow-y:auto;overscroll-behavior:contain;scroll-snap-type:y mandatory;scrollbar-width:thin;scrollbar-color:var(--line) transparent;padding:0 4px 18px;min-width:0}
 .post{position:relative;width:min(100%,620px);height:min(760px,calc(100dvh - 178px));min-height:0;max-height:calc(100dvh - 165px);margin:0 auto 15px;scroll-snap-align:start;scroll-snap-stop:normal;border:1px solid rgba(255,255,255,.12);border-radius:20px;overflow:hidden;background:#080b12;color:#fff;isolation:isolate;box-shadow:0 15px 34px rgba(10,15,25,.16);box-sizing:border-box}
 .post-media{position:absolute;inset:0;display:grid;place-items:center;background:#080b12}.post-media img,.post-media video{display:block;width:100%;height:100%;object-fit:contain;background:#080b12}.post-media img{object-fit:cover}.video-stage{position:absolute;inset:0;display:grid;place-items:center;background:#080b12}.video-stage video{width:100%;height:100%;object-fit:contain;background:#080b12}.video-stage:fullscreen{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:999999!important;background:#000!important;display:grid!important;place-items:center}.video-stage:fullscreen video{object-fit:contain!important}.video-stage:fullscreen .custom-video-controls{left:16px;right:16px;bottom:max(14px,env(safe-area-inset-bottom));opacity:1;transform:none}.video-play-overlay{position:absolute;z-index:3;left:50%;top:50%;transform:translate(-50%,-50%);border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(10,13,22,.68);color:#fff;box-shadow:0 8px 30px #0005;backdrop-filter:blur(12px);display:flex;align-items:center;gap:10px;padding:14px 18px;font-size:12px;font-weight:900}.video-play-overlay span:first-child{font-size:18px}.video-play-overlay:hover{background:rgba(10,13,22,.85);transform:translate(-50%,-50%) scale(1.03)}.video-play-overlay.is-playing{display:none}.custom-video-controls{position:absolute;z-index:4;left:14px;right:70px;bottom:82px;display:flex;align-items:center;justify-content:center;gap:7px;padding:7px 9px;min-height:48px;border:1px solid rgba(255,255,255,.14);border-radius:15px;background:rgba(5,8,15,.48);color:#fff;backdrop-filter:blur(18px) saturate(135%);box-shadow:0 8px 26px #0002}.custom-video-controls button{width:31px;height:31px;flex:0 0 31px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(255,255,255,.10);color:#fff;font-size:12px;font-weight:900}.custom-video-controls button:hover{background:rgba(255,255,255,.21)}.custom-video-controls .video-seek{width:100%;min-width:48px;height:5px;flex:1;accent-color:#fff;cursor:pointer}.custom-video-controls .video-time{font-size:10px;font-variant-numeric:tabular-nums;color:rgba(255,255,255,.94);white-space:nowrap;min-width:35px;text-align:center}.custom-video-controls .sound-lock{display:flex;align-items:center;gap:4px;font-size:9px;font-weight:850;color:#fff;white-space:nowrap;padding:0 4px}.custom-video-controls .video-speed{min-width:38px;width:auto;padding:0 7px}@media(max-width:650px){.custom-video-controls{left:9px;right:58px;bottom:68px;gap:4px;padding:6px 7px}.custom-video-controls button{width:27px;flex-basis:27px;height:28px;font-size:10px}.custom-video-controls .video-time{font-size:9px;min-width:30px}.custom-video-controls .video-seek{min-width:28px}.custom-video-controls .sound-lock{display:none}}.media-error{position:absolute;inset:0;z-index:6;display:grid;place-items:center;align-content:center;gap:14px;text-align:center;padding:24px;background:#111722;color:#b9c3d6;font-size:12px;line-height:1.5}.media-error[hidden]{display:none!important}.media-error-actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}.media-retry{border:1px solid #ffffff55;border-radius:10px;background:#ffffff18;color:#fff;padding:9px 14px;font-size:11px;font-weight:900}.media-retry:hover{background:#ffffff2b}.media-retry:disabled{opacity:.55;cursor:wait}
@@ -492,6 +492,7 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
           <button class="feed-mode" type="button" data-mode="saved" aria-current="false">Saved</button>
           <button class="feed-mode" type="button" data-mode="videos" aria-current="false">Videos</button>
         </nav>
+        <label class="feed-sort-wrap"><span class="sr-only">Sort social posts</span><select id="feedSort" class="feed-sort" aria-label="Sort posts"><option value="latest">Latest</option><option value="popular">Most liked</option><option value="oldest">Oldest</option></select></label>
         <div class="feed-toolbar-actions">
           <button class="btn auto-scroll-toggle" id="autoScrollToggle" type="button" aria-pressed="false" title="Move to the next video when the current video ends">↧ Auto</button>
           <button class="btn square" id="refreshFeed" type="button" title="Refresh feed" aria-label="Refresh feed">↻</button>
@@ -596,13 +597,14 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
     return id;
   };
   const GUEST_ID = createVisitorId();
-  const STORAGE_KEYS = { likes:'aio-social-likes-v4', saves:'aio-social-saves-v4', follows:'aio-social-follows-v4', theme:'aio-social-page-theme-v1', displayName:'aio-social-display-name', autoScroll:'aio-social-auto-scroll-v1' };
+  const STORAGE_KEYS = { likes:'aio-social-likes-v4', saves:'aio-social-saves-v4', follows:'aio-social-follows-v4', theme:'aio-social-page-theme-v1', displayName:'aio-social-display-name', autoScroll:'aio-social-auto-scroll-v1', feedSort:'aio-social-feed-sort-v1' };
   const client = (window.supabase && typeof window.supabase.createClient==='function')
     ? window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})
     : null;
 
   let currentUser=null,currentProfile=null,mode='for-you',posts=[],postStats=new Map(),userLikes=new Set(),userFollows=new Set(),savedPosts=new Set();
   let feedQuery='';
+  let feedSort=['latest','popular','oldest'].includes(localRead('aio-social-feed-sort-v1','latest'))?localRead('aio-social-feed-sort-v1','latest'):'latest';
   const FEED_PAGE_SIZE=24;
   let feedOffset=0,feedHasMore=true,feedLoading=false,feedMoreObserver=null;
   let autoScrollEnabled=localRead(STORAGE_KEYS.autoScroll,false)===true;
@@ -719,7 +721,10 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
     else if(mode==='videos')list=list.filter(p=>p.media_type==='video');
     const query=feedQuery.trim().toLocaleLowerCase();
     if(query)list=list.filter(p=>String(p.username||'').toLocaleLowerCase().includes(query)||String(p.caption||'').toLocaleLowerCase().includes(query)||(query==='video'&&p.media_type==='video')||(query==='image'&&p.media_type==='image'));
-    return [...list].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+    return [...list].sort((a,b)=>{
+      if(feedSort==='popular')return (Number(statFor(b.id).likes)||0)-(Number(statFor(a.id).likes)||0)||new Date(b.created_at)-new Date(a.created_at);
+      return feedSort==='oldest'?new Date(a.created_at)-new Date(b.created_at):new Date(b.created_at)-new Date(a.created_at);
+    });
   }
   function renderCreatorSuggestions(){
     const root=$('creatorSuggestions');if(!root)return;
@@ -748,6 +753,7 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
   function updateFeedToolbar(){
     const input=$('feedSearch');
     if(input&&input.value!==feedQuery)input.value=feedQuery;
+    const sort=$('feedSort');if(sort&&sort.value!==feedSort)sort.value=feedSort;
   }
   function appendFeedSentinel(feed,autoLoad=true){
     if(!feed||!feedHasMore)return;
@@ -1481,6 +1487,12 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
   $('accountManage').addEventListener('click',()=>{showCompose();$('authPanel').hidden=false;$('authEmail').focus();});
   $('refreshFeed').addEventListener('click',loadFeed);
   $('feedSearch').addEventListener('input',updateFeedSearch);
+  $('feedSort').addEventListener('change',event=>{
+    const next=String(event.target.value||'latest');
+    feedSort=['latest','popular','oldest'].includes(next)?next:'latest';
+    localWrite(STORAGE_KEYS.feedSort,feedSort);
+    renderFeed();
+  });
   $('autoScrollToggle').addEventListener('click',()=>{
     autoScrollEnabled=!autoScrollEnabled;
     localWrite(STORAGE_KEYS.autoScroll,autoScrollEnabled);
