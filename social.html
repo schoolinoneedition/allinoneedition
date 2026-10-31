@@ -1562,6 +1562,7 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
     else if(aioSocialWarmQueue.length)scheduleSocialMediaWarmup();
   });
   $('feed').addEventListener('scroll',()=>{
+    // IntersectionObserver handles normal pagination; retain a scroll fallback for older browsers.
     const feed=$('feed');
     if(feed&&!('IntersectionObserver'in window)&&feedHasMore&&!feedLoading&&feed.scrollHeight-feed.scrollTop-feed.clientHeight<420)loadFeed(true);
   },{passive:true});
