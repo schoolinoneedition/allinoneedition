@@ -193,7 +193,7 @@ assert.ok(html.includes("v.preload='none'"), 'Main hub videos should not preload
 assert.ok(!html.includes('socialPreloadNextVideos') && !html.includes('scheduleSocialVideoPreload') && !html.includes('socialPreloadDuringIdle'), 'Main hub must not preload videos in the background while idle');
 assert.ok(!html.includes('autoplay loop preload="auto" data-social-video'), 'Main hub Social videos must not all auto-download on render');
 assert.ok(!social.includes('videoPreloadObserver') && !social.includes("rootMargin:'650px 0px'"), 'Separate Social page must not download upcoming videos before they are visible');
-assert.ok(social.includes('function prepareSocialVideo(video)'), 'Separate Social page should attach video URLs only when needed');
+assert.ok(social.includes("function prepareSocialVideo(video,preload='auto',priority='low')") && social.includes('video.src=socialMediaPlaybackURL(src)'), 'Separate Social page should lazily attach video URLs with explicit preload and priority controls');
 assert.ok(backend.includes('function prepareGalleryVideo(video)'), 'Video gallery should load individual videos on demand');
 assert.ok(backend.includes("player.preload='none'") && backend.includes('player.dataset.videoSrc=post.media_url'), 'Video gallery cards must not attach every video URL as they render');
 assert.ok(backend.includes("rootMargin:'0px'") && backend.includes('prepareGalleryVideo(entry.target)'), 'Video gallery should fetch a video only when its card enters the viewport');
