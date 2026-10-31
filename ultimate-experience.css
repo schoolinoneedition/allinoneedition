@@ -132,3 +132,14 @@ html[data-aio-cursor-style="minimal"] body :is(.resize-handle,[data-resize]){cur
 .aio-onboard-progress span{will-change:width}
 .aio-onboard-card button:focus-visible{outline:3px solid #7fa2ff;outline-offset:2px}
 @media(max-width:650px){.aio-setup-intro-grid,.aio-setup-tour-grid{grid-template-columns:1fr}.aio-setup-intro-grid>div{min-height:94px}.aio-setup-tour-card{min-height:0}.aio-onboard-card h2{margin-top:20px}}
+
+/* Setup controls stay readable and tappable in the compact Settings layout. */
+.aio-setup-setting-actions{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap}
+.aio-setup-setting-row>div:first-child{min-width:0}
+@media(max-width:560px){
+  .aio-setup-setting-row{align-items:flex-start;flex-wrap:wrap}
+  .aio-setup-setting-actions{width:100%;justify-content:flex-start}
+}
+@media(prefers-reduced-motion:reduce){
+  .aio-setup-setting-actions .btn{transition:none!important}
+}
