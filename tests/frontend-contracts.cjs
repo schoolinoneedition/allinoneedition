@@ -239,3 +239,6 @@ assert.ok(ux.includes('window.openAioOnboarding=()=>openOnboard(false)') && ux.i
 assert.ok(social.includes('const FEED_PAGE_SIZE=24') && social.includes('.range(feedOffset,feedOffset+FEED_PAGE_SIZE-1)'), 'Social should load the feed in bounded Supabase pages.');
 assert.ok(social.includes('function appendFeedSentinel') && social.includes('loadFeed(true)') && social.includes('feed-load-more'), 'Social should load additional posts as the feed approaches its end.');
 assert.ok(social.includes(".in('post_id',pageIds)"), 'Social engagement counts should be fetched only for posts in the current batch.');
+
+assert.ok(social.includes("let feedSort=['latest','popular','oldest']") && social.includes("feedSort==='popular'") && social.includes("localWrite(STORAGE_KEYS.feedSort,feedSort)"), 'Social sort preferences should offer persistent latest, most-liked and oldest ordering.');
+assert.ok(social.includes('function renderFeed(preserveScroll=false)') && social.includes('if(preserveScroll)feed.scrollTop=previousScrollTop') && social.includes('renderFeed(addToFeed)'), 'Loading older posts should preserve the reader scroll position.');
