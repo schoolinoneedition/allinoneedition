@@ -27,7 +27,7 @@ const vercel = read('vercel.json');
  assert.ok(html.includes('./favicon.svg')&&social.includes('./favicon.svg')&&anime.includes('./favicon.svg'), 'The hub, Social and Watch must use the shared refreshed favicon.');
  assert.ok(social.includes('./appearance.css')&&social.includes('./appearance.js')&&anime.includes('./appearance.css')&&anime.includes('./appearance.js'), 'Standalone Social and Watch pages must load the shared appearance system.');
  assert.ok(appearance.includes("root.dataset.aioWallpaperActive=active?'1':'0'")&&glassCss.includes('data-aio-wallpaper-active="1"'), 'Saved wallpapers must be applied consistently on standalone pages.');
- assert.ok(uxCss.includes('aioOnboardSlideIn')&&uxCss.includes('aio-ultimate-modal.open .aio-onboard-card'), 'Setup should use a smooth slide-in transition.');
+ assert.ok(css.includes('aioOnboardSlideIn')&&uxCss.includes('aio-ultimate-modal.open .aio-onboard-card'), 'Setup should use a smooth slide-in transition.');
  assert.ok(html.includes("location.href='anime.html'">Watch")&&anime.includes('<title>Watch · Anime & Cartoons'), 'The main navigation should call the separate anime page Watch.');
  assert.ok(anime.includes("id:'bluey',kind:'cartoon'")&&anime.includes("id:'pocoyo',kind:'cartoon'")&&anime.includes("id:'bing',kind:'cartoon'"), 'Watch should keep anime and include family cartoon collections.');
  assert.ok(anime.includes('youtube-nocookie.com/embed/')&&anime.includes('aP-qKaig84M')&&anime.includes('dDP-jzPV5fo'), 'Family cartoon episodes should use official publisher embeds.');
