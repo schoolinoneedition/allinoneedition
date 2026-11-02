@@ -163,7 +163,7 @@ assert.match(html, /function filteredGames\(\)/);
    assert.ok(anime.includes("id:'"+animeId+"'"), 'Missing Anime Zone series: '+animeId);
  }
  assert.equal((anime.match(/banner:'https:\/\//g)||[]).length,10,'Each Anime Zone title should have banner art');
- assert.ok(!anime.includes('youtube-nocookie.com'),'Anime Zone must not depend on YouTube embeds');
+ assert.ok(anime.includes("kind:'cartoon'")&&anime.includes('youtube-nocookie.com/embed/'),'Only explicitly curated family-cartoon entries should use official YouTube embeds; anime playback remains owner-managed.');
  assert.ok(!anime.includes('videoId:'),'Anime Zone must not contain broken hard-coded video IDs');
  assert.ok(anime.includes('No video added yet'),'Episodes without a saved video must show a clear empty player state');
  assert.ok(anime.includes("ownerClient.from('staff_roles').select('role')"),'Episode editing must verify the signed-in site owner role');
