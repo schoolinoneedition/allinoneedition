@@ -22,6 +22,19 @@ const staffRls = read('supabase/migrations/20261028103528_optimize_tiktok_sticke
 const animeStorage = read('supabase/migrations/20261030125800_anime_episode_storage_manager.sql');
 const vercel = read('vercel.json');
 
+ // Finishing touches: remove the unused ad slot and share appearance across standalone pages.
+ assert.ok(!html.includes('perchads.com')&&!html.includes('perch-ad-slot')&&!html.includes('perch-ad-section'), 'The unused Perch ad slot and loader must be completely removed.');
+ assert.ok(html.includes('./favicon.svg')&&social.includes('./favicon.svg')&&anime.includes('./favicon.svg'), 'The hub, Social and Watch must use the shared refreshed favicon.');
+ assert.ok(social.includes('./appearance.css')&&social.includes('./appearance.js')&&anime.includes('./appearance.css')&&anime.includes('./appearance.js'), 'Standalone Social and Watch pages must load the shared appearance system.');
+ assert.ok(appearance.includes("root.dataset.aioWallpaperActive=active?'1':'0'")&&glassCss.includes('data-aio-wallpaper-active="1"'), 'Saved wallpapers must be applied consistently on standalone pages.');
+ assert.ok(css.includes('aioOnboardSlideIn')&&css.includes('aio-ultimate-modal.open .aio-onboard-card'), 'Setup should use a smooth slide-in transition.');
+ assert.ok(html.includes(`location.href='anime.html'">Watch`)&&anime.includes('<title>Watch · Anime & Cartoons'), 'The main navigation should call the separate anime page Watch.');
+ assert.ok(anime.includes("id:'bluey',kind:'cartoon'")&&anime.includes("id:'pocoyo',kind:'cartoon'")&&anime.includes("id:'bing',kind:'cartoon'"), 'Watch should keep anime and include family cartoon collections.');
+ assert.ok(anime.includes('youtube-nocookie.com/embed/')&&anime.includes('aP-qKaig84M')&&anime.includes('dDP-jzPV5fo'), 'Family cartoon episodes should use official publisher embeds.');
+ assert.ok(anime.includes('uk.bingbunny.com/spis-odcinkow')&&anime.includes('data-watch-filter="cartoons"'), 'Cartoon browsing should include an official Bing episode guide and a dedicated filter.');
+ assert.ok(anime.includes("if(s.kind==='cartoon'){selectedEpisode=null;$('ownerLinkPanel').hidden=true;return}"), 'Family cartoon listings must not write into the anime-only episode storage table.');
+
+
 // Appearance choices must change the real UI and persist, not just update previews.
 assert.match(appearance, /function selectWallpaper\(id\)[\s\S]*?state\.wallpaper=id;delete state\.pendingWallpaper;save\(\);applyWallpaper\(\)/);
 assert.match(appearance, /fs\.addEventListener\('change',[\s\S]*?state\.font=fs\.value;save\(\);applyFont\(\)/);
@@ -150,7 +163,7 @@ assert.match(html, /function filteredGames\(\)/);
    assert.ok(anime.includes("id:'"+animeId+"'"), 'Missing Anime Zone series: '+animeId);
  }
  assert.equal((anime.match(/banner:'https:\/\//g)||[]).length,10,'Each Anime Zone title should have banner art');
- assert.ok(!anime.includes('youtube-nocookie.com'),'Anime Zone must not depend on YouTube embeds');
+ assert.ok(anime.includes("kind:'cartoon'")&&anime.includes('youtube-nocookie.com/embed/'),'Only explicitly curated family-cartoon entries should use official YouTube embeds; anime playback remains owner-managed.');
  assert.ok(!anime.includes('videoId:'),'Anime Zone must not contain broken hard-coded video IDs');
  assert.ok(anime.includes('No video added yet'),'Episodes without a saved video must show a clear empty player state');
  assert.ok(anime.includes("ownerClient.from('staff_roles').select('role')"),'Episode editing must verify the signed-in site owner role');

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#ffffff">
 <meta name="description" content="All in One Edition — games, school apps, tools, notes, live news and football. Roy owner.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231b5cff'/%3E%3Cpath d='M17 18h30v11H28v17H17z' fill='white'/%3E%3Cpath d='M29 18l18 13-18 13z' fill='%23ffe16a'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg"><link rel="apple-touch-icon" href="./favicon.svg">
 <title>All in One Edition — Roy Owner</title>
 <meta name="referrer" content="strict-origin-when-cross-origin">
 
@@ -464,13 +464,6 @@ html.reduced-motion .cover{transition:none!important}
 .social-launch-panel a,.social-launch-inline a{text-decoration:none}.social-launch-inline{display:flex;align-items:center;justify-content:space-between;gap:12px}
 @media(max-width:600px){.social-launch-panel,.social-launch-inline{align-items:flex-start;flex-direction:column}}
 
-/* Perch Ads: quiet, responsive placement between the hero and game-progress/catalogue content. */
-.perch-ad-section{width:100%;margin:12px 0 22px;padding:9px 12px 12px;border:1px solid var(--line);border-radius:15px;background:linear-gradient(135deg,var(--panel),var(--soft));box-shadow:0 4px 14px rgba(20,30,45,.035);text-align:center;overflow:hidden}
-.perch-ad-label{font-size:9px;line-height:1.2;letter-spacing:.12em;text-transform:uppercase;font-weight:850;color:var(--muted);margin:0 0 7px}
-.perch-ad-slot{display:block;width:100%;min-width:0;min-height:90px;text-align:center;overflow:hidden}
-.perch-ad-slot>*{max-width:100%;margin-left:auto;margin-right:auto}
-@media(max-width:600px){.perch-ad-section{margin:10px 0 17px;padding:8px 7px 9px;border-radius:12px}.perch-ad-slot{min-height:70px}}
-
 /* Product polish: clearer focus, more consistent rhythm and a responsive command launcher. */
 html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
 .topbar .brand{transition:opacity .18s ease}.topbar .brand:hover{opacity:.88}
@@ -509,7 +502,6 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
 <link rel="stylesheet" href="./appearance.css">
 <link rel="stylesheet" href="./ultimate-experience.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="preconnect" href="https://www.perchads.com" crossorigin>
 </head>
 <body>
 <div id="siteLoader" aria-live="polite">
@@ -546,27 +538,20 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
 <header class="topbar" id="topbar">
  <div class="top">
   <div class="brand" onclick="scrollToId('home')" style="cursor:pointer">
-   <div class="brandmark"><svg viewBox="0 0 24 24" fill="none"><path d="M4 5h16v7h-9v7H4z" fill="white"/><path d="M12 5l8 6-8 6z" fill="#ffe16a"/></svg></div>
+   <div class="brandmark"><img src="./favicon.svg" alt="" width="42" height="42"></div>
    <div class="brandtext">All in One Edition</div><div class="owner">Roy owner</div>
   </div>
   <div class="search"><input id="search" autocomplete="off" placeholder="Search games… ( / )" aria-label="Search games"></div>
   <button class="btn quick-launch-trigger" id="quickLaunchOpen" type="button" aria-haspopup="dialog" aria-controls="aioQuickLaunch">Quick open <kbd>Ctrl K</kbd></button>
   <button class="btn" id="assistantBtn">Smart answer</button><button class="btn account-btn" id="accountBtn" type="button" onclick="handleAccountClick()"><span class="account-avatar" id="accountAvatar">?</span><span id="accountLabel">Account</span></button><span class="aio-live-clock" id="aioLiveClock" aria-label="Current local time">00:00</span><button class="btn" id="settingsBtn">Settings</button><select class="lang-select" id="languageSelect" aria-label="Language"><option value="en">EN</option><option value="es">ES</option><option value="fr">FR</option><option value="de">DE</option><option value="pl">PL</option><option value="pt">PT</option><option value="tr">TR</option><option value="ar">AR</option><option value="it">IT</option><option value="nl">NL</option><option value="ja">JA</option><option value="ko">KO</option></select><button class="btn" id="darkBtn">Dark</button><button class="btn" id="afkBtn" title="Pause your current game and enter AFK mode">AFK</button><button class="btn" id="hideBtn">Hide</button>
  </div>
- <div class="nav"><button data-scroll="home">Home</button><button data-scroll="games">Games</button><button data-scroll="school">School</button><button type="button" onclick="location.href='social.html'">Social</button><button type="button" onclick="location.href='anime.html'">Anime</button><button type="button" onclick="location.href='study.html'">Study Hub</button><button data-scroll="community">Community</button><button data-scroll="chat">Chat</button><button data-scroll="live">Live</button><button data-scroll="tools">Tools</button><button data-scroll="notes">Notes</button><button data-scroll="music">Music</button><button data-scroll="code">Code Lab</button></div>
+ <div class="nav"><button data-scroll="home">Home</button><button data-scroll="games">Games</button><button data-scroll="school">School</button><button type="button" onclick="location.href='social.html'">Social</button><button type="button" onclick="location.href='anime.html'">Watch</button><button type="button" onclick="location.href='study.html'">Study Hub</button><button data-scroll="community">Community</button><button data-scroll="chat">Chat</button><button data-scroll="live">Live</button><button data-scroll="tools">Tools</button><button data-scroll="notes">Notes</button><button data-scroll="music">Music</button><button data-scroll="code">Code Lab</button></div>
 </header>
 <main id="app">
 <section id="home" class="hero">
  <div class="hero-card"><h1>One site. Games, school, tools and live info.</h1><p>A fast single-file hub. Game covers use lazy loading and a game iframe only starts after you click a card.</p><div class="chips"><button class="chip" onclick="scrollToId('games')">Browse games</button><button class="chip" onclick="scrollToId('school')">School apps</button><button class="chip" onclick="scrollToId('community')">Community</button><button class="chip" onclick="scrollToId('live')">Live info</button><button class="chip" onclick="scrollToId('tools')">Useful tools</button><button class="chip" onclick="location.href='study.html'">Open Study Hub</button><button class="chip" onclick="location.href='anime.html'">Anime Zone</button><button class="chip" onclick="openAssistant()">Ask smart answer</button></div><p style="margin-top:15px"><span class="kbd">Ctrl+Q</span> toggles page hiding where the browser allows the shortcut. The Hide button is always available.</p></div>
  <div class="quick"><div class="qcard"><div class="k">Hometime</div><div class="v" id="homeCountdown">--:--:--</div></div><div class="qcard"><div class="k">Current time</div><div class="v" id="clock">--:--:--</div></div><div class="qcard"><div class="k">Today</div><div class="v" id="date">Loading…</div></div><div class="qcard"><div class="k">Game count</div><div class="v" id="gameCount">—</div></div></div>
 </section>
-<section class="perch-ad-section" aria-label="Advertisement">
-  <div class="perch-ad-label">Advertisement</div>
-  <div class="perch-ad-slot">
-    <script async src="https://www.perchads.com/embed.js" data-space="tz96axf6cz"></script>
-  </div>
-</section>
-
 <section class="section" id="continueSection"><div class="section-head"><h2>Continue playing</h2><small>Your recent game progress stays on this device.</small></div><div id="resumePanel" class="resume-panel panel"><div><strong>No game started yet.</strong><span>Open a game and your last-played progress will appear here.</span></div><button class="btn mini" onclick="continueLastGame()">Continue</button></div></section>
 <section id="games" class="section"><div class="section-head"><h2>Games</h2><small>Fast games, quick search, saved progress</small></div><div class="panel catalog-info" style="margin-bottom:12px"><strong>Huge game library</strong><span><b id="librarySummary">Your games are rendered in fast batches while the browser warms images and game pages in the background</b> · fast-loading cards, saved progress and a full-screen game view.</span></div><div class="panel catalog-info" style="margin-bottom:12px"><strong>Quick picks</strong><span>Use New for the latest additions, the star on a card to save Favourites, or search and categories to find something to play.</span></div><div class="filters" id="filters"></div><div class="games" id="gameGrid"></div><div id="loadMoreWrap" style="display:none;justify-content:center;margin-top:18px"><button class="btn mini" id="loadMoreBtn" onclick="loadMoreGames()">Load more games</button></div></section>
 <section id="school" class="section"><div class="section-head"><h2>School apps</h2><small>In-page workspace with an external fallback.</small></div><div class="grid4">

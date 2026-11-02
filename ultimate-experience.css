@@ -143,3 +143,8 @@ html[data-aio-cursor-style="minimal"] body :is(.resize-handle,[data-resize]){cur
 @media(prefers-reduced-motion:reduce){
   .aio-setup-setting-actions .btn{transition:none!important}
 }
+
+/* The setup card glides in from the side instead of appearing as a disconnected popup. */
+.aio-ultimate-modal.open .aio-onboard-card{animation:aioOnboardSlideIn .34s cubic-bezier(.2,.78,.22,1) both}
+@keyframes aioOnboardSlideIn{from{opacity:0;transform:translate3d(34px,0,0) scale(.985)}to{opacity:1;transform:translate3d(0,0,0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.aio-ultimate-modal.open .aio-onboard-card{animation:none}}
