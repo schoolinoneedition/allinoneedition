@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#101522">
 <meta name="description" content="Anime Zone: episode guides and a personal watch tracker for Pokémon, The Quintessential Quintuplets, My Dress-Up Darling and Demon Slayer.">
-<title>Anime Zone · All in One Edition</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23365dff'/%3E%3Cpath d='M17 18h30v11H28v17H17z' fill='white'/%3E%3Cpath d='M29 18l18 13-18 13z' fill='%23ffe16a'/%3E%3C/svg%3E">
+<title>Watch · Anime & Cartoons · All in One Edition</title>
+<link rel="icon" type="image/svg+xml" href="./favicon.svg"><link rel="apple-touch-icon" href="./favicon.svg">
 <style>
 :root{color-scheme:dark;--bg:#0d1220;--panel:#151d2d;--panel2:#1a2539;--text:#f5f7fc;--muted:#a2aec3;--line:#2b3850;--soft:#202b40;--accent:#89a2ff;--accent2:#b18cff;--good:#7de1bc;--shadow:0 20px 60px rgba(0,0,0,.22)}
 :root.light{color-scheme:light;--bg:#f4f6fb;--panel:#fff;--panel2:#f9faff;--text:#202738;--muted:#707d92;--line:#e4e9f2;--soft:#eef2fa;--accent:#365dff;--accent2:#9364ed;--good:#16805c;--shadow:0 18px 48px rgba(30,43,75,.08)}
@@ -136,11 +136,15 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
 .watch-video-actions button{border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(255,255,255,.08);color:#fff;padding:8px 11px;font:inherit;font-size:10px;font-weight:850;cursor:pointer}
 .watch-video-stage:fullscreen{height:100vh;padding:0}
 .watch-video-stage:fullscreen .watch-video{width:100%;height:100%;max-height:100vh;aspect-ratio:auto}
+
+.watch-filters{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}.watch-filter{border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:9px 14px;border-radius:999px;font:800 11px inherit;cursor:pointer;transition:background .18s,border-color .18s,color .18s}.watch-filter.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 6px 18px color-mix(in srgb,var(--accent) 24%,transparent)}.watch-content-note{margin:0 0 18px;padding:11px 13px;border:1px solid var(--line);border-radius:12px;background:var(--soft);color:var(--muted);font-size:10px;line-height:1.6}.watch-episode-embed{display:block;width:100%;height:100%;min-height:180px;aspect-ratio:16/9;border:0;background:#05080f}.watch-player-stage:has(.watch-episode-embed){display:block;aspect-ratio:16/9;min-height:180px;max-height:560px;padding:0}.mark{object-fit:contain;flex:none}@media(max-width:600px){.watch-filter{padding:8px 11px}.watch-content-note{font-size:9px}}
 </style>
+<link rel="stylesheet" href="./appearance.css">
+<script src="./appearance.js" defer></script>
 </head>
 <body>
 <header class="topbar">
- <a class="brand" href="./index.html"><span class="mark">A</span><span>All in One Edition<small>Anime Zone · series and episodes</small></span></a>
+ <a class="brand" href="./index.html"><img class="mark" src="./favicon.svg" alt="" width="38" height="38"><span>All in One Edition<small>Watch · anime and family cartoons</small></span></a>
  <span class="spacer"></span>
  <a class="toplink" href="./study.html">Study Hub</a>
  <a class="toplink primary" href="./index.html">← Hub</a>
@@ -148,14 +152,16 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
 </header>
 <main>
  <section class="hero">
-  <div class="hero-copy"><span class="eyebrow">✦ All in One · Anime Zone</span><h1>Your anime list.<br>One tidy place.</h1><p>Pick a series, browse its seasons and tick off episodes as you go. Your watch progress stays saved in this browser, so the list remembers where you left off.</p></div>
+  <div class="hero-copy"><span class="eyebrow">✦ All in One · Watch</span><h1>Anime, cartoons<br>and episode guides.</h1><p>Keep your anime watchlist, explore family-friendly cartoons and follow episodes from official publishers. Your progress stays saved in this browser.</p></div>
   <div class="hero-stat"><div><div class="stat-top"><span>Your watch progress</span><span>LOCAL</span></div><div class="stat-number" id="watchedCount">0</div><div class="stat-caption" id="watchedCaption">Episodes marked watched</div></div><div><div class="stat-top"><span>Overall progress</span><span id="progressPct">0%</span></div><div class="stat-progress"><span id="overallBar"></span></div><div class="stat-caption" style="margin-top:8px">Tick an episode to update your progress.</div></div></div>
  </section>
  <section class="spotlight-banner" id="spotlightBanner" data-kanji="ア" style="--spotlight:#e8a52d" aria-live="polite">
   <div class="spotlight-copy"><span class="spotlight-kicker" id="spotlightKicker">FEATURED SERIES · ANIME ZONE</span><h2 id="spotlightTitle">Pokémon</h2><p id="spotlightDescription">Pick a series, choose an episode and track your watch progress.</p><div class="spotlight-meta"><span class="pill rating" id="spotlightRating">UK U</span><span class="pill" id="spotlightMeta">Episode guide and watch tracker</span></div><div class="spotlight-actions"><button class="action primary" id="spotlightBrowse" type="button">Browse episodes ↓</button><button class="action" id="spotlightWatch" type="button">Watch available episode ▶</button></div></div>
   <div class="spotlight-art" aria-hidden="true"><img id="spotlightImage" alt="" loading="lazy" decoding="async"><span class="spotlight-symbol" id="spotlightSymbol">◉</span></div>
  </section>
- <div class="section-title"><div><h2>Choose a series</h2><p>Ten titles with episode lists, official viewing options and progress tracking.</p></div></div>
+ <div class="section-title"><div><h2>Explore Watch</h2><p>Keep anime and family cartoons in one place, with clear categories and official episode sources.</p></div></div>
+ <div class="watch-filters" role="group" aria-label="Filter shows"><button type="button" class="watch-filter active" data-watch-filter="all" aria-pressed="true">Everything</button><button type="button" class="watch-filter" data-watch-filter="anime" aria-pressed="false">Anime</button><button type="button" class="watch-filter" data-watch-filter="cartoons" aria-pressed="false">Family cartoons</button></div>
+ <p class="watch-content-note">Family cartoon picks link to official publisher videos or episode guides. Anime titles keep their published age labels; some are aimed at older audiences. Always check the programme rating before watching.</p>
  <section class="series-grid" id="seriesGrid" aria-label="Anime series"></section>
  <section class="catalog" id="episodeCatalog" aria-label="Episode catalogue">
   <div class="episode-panel">
@@ -213,7 +219,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
  const SUPABASE_URL='https://btnbuchsrfllpzlypjtn.supabase.co';
  const SUPABASE_KEY='sb_publishable_a1gdNTiQdF9587p5K-Sw-Q_nFbvWRmp';
  const ownerClient=window.supabase?.createClient?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}):null;
- let watched=readStore(),activeId='pokemon',activeSeason=0;
+ let watched=readStore(),activeId='pokemon',activeSeason=0,activeWatchFilter='all';
  let currentSession=null,siteOwner=false,episodeLinks=new Map(),selectedEpisode=null;
  function readStore(){try{const x=JSON.parse(localStorage.getItem(STORE)||'{}');return x&&typeof x==='object'?x:{}}catch{return {}}}
  function save(){try{localStorage.setItem(STORE,JSON.stringify(watched));$('saveStatus').textContent='Saved automatically on this device.'}catch{$('saveStatus').textContent='Browser storage is full or unavailable.'}renderStats();renderSeries()}
@@ -279,7 +285,15 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   ],watch:[{label:'Crunchyroll · My Hero Academia',url:'https://www.crunchyroll.com/search?q=My%20Hero%20Academia',hint:'Licensed UK streaming listing'},{label:'Netflix UK',url:'https://www.netflix.com/search?q=My%20Hero%20Academia',hint:'Check current UK catalogue'},{label:'JustWatch UK',url:'https://www.justwatch.com/uk/tv-series/my-hero-academia',hint:'UK availability and episode counts'}],sources:[{label:'JustWatch UK episode guide',url:'https://www.justwatch.com/uk/tv-series/my-hero-academia'}],note:'UK listing currently shows 15 and the series contains action violence. Check the age rating before watching.'},
   {id:'bluelock',title:'BLUE LOCK',jp:'ブルーロック',symbol:'⚽',tone:'#4d7fc4',banner:'https://otajo.jp/files/2022/08/2b26e732e2c9ce28a0da9b312ba4b9d5.jpg',type:'Sports · Drama',rating:'15',meta:'1 season · 38 episodes',description:'Young footballers compete in an intense striker development programme. The UK listing currently shows 38 episodes in season 1.',seasons:[
    {name:'Season 1 · 2022–23',episodes:numbered(38)}
-  ],watch:[{label:'Crunchyroll · BLUE LOCK',url:'https://www.crunchyroll.com/search?q=BLUE%20LOCK',hint:'Licensed UK streaming listing'},{label:'Netflix UK',url:'https://www.netflix.com/search?q=BLUE%20LOCK',hint:'Check current UK catalogue'},{label:'JustWatch UK',url:'https://www.justwatch.com/uk/tv-series/bluelock',hint:'UK availability and episode count'}],sources:[{label:'JustWatch UK episode guide',url:'https://www.justwatch.com/uk/tv-series/bluelock'},{label:'Official Blue Lock production website',url:'https://bluelock-pr.com/'}],note:'UK listing currently shows 15. Check the age rating and provider listing before watching.'}
+  ],watch:[{label:'Crunchyroll · BLUE LOCK',url:'https://www.crunchyroll.com/search?q=BLUE%20LOCK',hint:'Licensed UK streaming listing'},{label:'Netflix UK',url:'https://www.netflix.com/search?q=BLUE%20LOCK',hint:'Check current UK catalogue'},{label:'JustWatch UK',url:'https://www.justwatch.com/uk/tv-series/bluelock',hint:'UK availability and episode count'}],sources:[{label:'JustWatch UK episode guide',url:'https://www.justwatch.com/uk/tv-series/bluelock'},{label:'Official Blue Lock production website',url:'https://bluelock-pr.com/'}],note:'UK listing currently shows 15. Check the age rating and provider listing before watching.'},
+
+  {id:'bluey',kind:'cartoon',title:'Bluey',jp:'BLUEY',symbol:'🐾',tone:'#4c9bd8',type:'Family cartoon',rating:'Family',meta:'18 episodes in an official full-episode collection',description:'Bluey and Bingo turn everyday family life into imaginative adventures. This collection is published by the verified Bluey channel.',embedVideoId:'aP-qKaig84M',watch:[{label:'Official Bluey full-episode collection',url:'https://www.youtube.com/watch?v=aP-qKaig84M',hint:'Verified Bluey channel · full episodes'},{label:'Bluey official episode guide',url:'https://www.bluey.tv/watch/',hint:'Episode descriptions and official viewing options'}],seasons:[{name:'Official collection · 18 episodes',episodes:[
+   {number:1,title:'Pizza Girls',start:0},{number:2,title:'Pass the Parcel',start:405},{number:3,title:'Faceytalk',start:849},{number:4,title:'Magic',start:1229},{number:5,title:'Mini Bluey',start:1589},{number:6,title:'Unicorse',start:1989},{number:7,title:'Seesaw',start:2369},{number:8,title:'Ice Cream',start:2729},{number:9,title:'Movies',start:3089},{number:10,title:'Dad Baby',start:3529},{number:11,title:'Baby Race',start:4249},{number:12,title:'Christmas Swim',start:4969},{number:13,title:'The Beach',start:5689},{number:14,title:'Yoga Ball',start:6309},{number:15,title:'The Sleepover',start:6909},{number:16,title:'The Pool',start:7529},{number:17,title:'Hotel',start:8189},{number:18,title:'Asparagus',start:8789}
+  ]}]},
+  {id:'pocoyo',kind:'cartoon',title:'Pocoyo',jp:'POCOYO',symbol:'◉',tone:'#42a9d7',type:'Family cartoon',rating:'Family',meta:'13 episodes in an official English collection',description:'Pocoyo and friends explore, play and learn together. Episodes below open at their chapter timestamps in an official Pocoyo English collection.',embedVideoId:'dDP-jzPV5fo',watch:[{label:'Official Pocoyo full-episode collection',url:'https://www.youtube.com/watch?v=dDP-jzPV5fo',hint:'Verified Pocoyo English channel'},{label:'Pocoyo official episode library',url:'https://www.pocoyo.com/episodes',hint:'Official episode listings and new episodes'}],seasons:[{name:'Official English collection · 13 episodes',episodes:[
+   {number:1,title:'Umbrella!',start:39},{number:2,title:'Drum Roll Please',start:440},{number:3,title:'Swept Away',start:836},{number:4,title:"Who's On The Phone?",start:1236},{number:5,title:'Fetch Loula Fetch!',start:1637},{number:6,title:'A Little Cloud',start:2037},{number:7,title:'A Present for Elly',start:2437},{number:8,title:'Pocoyo Dance',start:2839},{number:9,title:'The Big Sneeze',start:3239},{number:10,title:'A Mystery Most Puzzling',start:3638},{number:11,title:'Hush!',start:4039},{number:12,title:'Double Bubble',start:4441},{number:13,title:'Key to It All',start:4841}
+  ]}]},
+  {id:'bing',kind:'cartoon',title:'Bing',jp:'BING',symbol:'🐰',tone:'#e47d45',type:'Family cartoon',rating:'Family',meta:'Official episode guide · four series',description:'Bing explores the small surprises of everyday life with his friends. Browse the official episode guide and watch through the publisher’s listed services.',episodeGuideUrl:'https://uk.bingbunny.com/spis-odcinkow',watch:[{label:'Bing official watch page',url:'https://uk.bingbunny.com/watch',hint:'Official full episodes and viewing options'},{label:'Bing official episode guide',url:'https://uk.bingbunny.com/spis-odcinkow',hint:'Episode titles and series filters'}],seasons:[{name:'Series One · selected episodes',episodes:makeEpisodes(['Fireworks','Bye Bye','Blocks','Smoothie','Frog','Car Park','Shadow','Musical Statues'])}]}
  ];
  const key=(sid,season,ep)=>sid+':'+season+':'+ep;
  const watchLinkKey=(sid,season,ep)=>sid+':'+season+':'+ep;
@@ -305,6 +319,8 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   }catch{return null}
  }
  function updateOwnerEditor(s,si,ep){
+  if(s.kind==='cartoon'){selectedEpisode=null;$('ownerLinkPanel').hidden=true;return}
+  $('ownerLinkPanel').hidden=false;
   selectedEpisode={seriesId:s.id,seasonIndex:si,episodeNumber:ep.number};
   const saved=episodeLinks.get(watchLinkKey(s.id,si,ep.number));
   $('ownerEpisodeTarget').textContent=s.title+' · '+s.seasons[si].name+' · Episode '+ep.number+' — '+ep.title;
@@ -439,9 +455,9 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
  function updateSpotlight(){
   const s=current(),banner=$('spotlightBanner');
   banner.style.setProperty('--spotlight',s.tone);banner.dataset.kanji=s.jp;
-  $('spotlightKicker').textContent='FEATURED SERIES · '+s.type.toUpperCase();
+  $('spotlightKicker').textContent=(s.kind==='cartoon'?'FAMILY CARTOON':'ANIME')+' · '+s.type.toUpperCase();
   $('spotlightTitle').textContent=s.title;$('spotlightDescription').textContent=s.description;
-  $('spotlightRating').textContent='UK '+s.rating;$('spotlightMeta').textContent=s.meta;
+  $('spotlightRating').textContent=s.kind==='cartoon'?'FAMILY PICK':'UK '+s.rating;$('spotlightMeta').textContent=s.meta;
   $('spotlightSymbol').textContent=s.symbol;
   const image=$('spotlightImage');
   if(s.banner){image.hidden=false;image.onload=()=>{image.hidden=false};image.onerror=()=>{image.hidden=true};image.src=s.banner;image.alt=s.title+' anime banner'}
@@ -452,6 +468,12 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   $('playerSubtitle').textContent=s.seasons[si].name+' · Episode '+ep.number;
   updateOwnerEditor(s,si,ep);
   const stage=$('playerStage');stage.replaceChildren();
+  if(s.kind==='cartoon'&&s.embedVideoId){
+   const frame=document.createElement('iframe');frame.className='watch-episode-embed';frame.title=s.title+' · '+ep.title;frame.loading='lazy';frame.referrerPolicy='strict-origin-when-cross-origin';frame.allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share';frame.allowFullscreen=true;frame.src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(s.embedVideoId)+'?start='+Math.max(0,Number(ep.start)||0)+'&rel=0&modestbranding=1';stage.append(frame);$('playerNote').textContent='Official publisher video. Episode selection opens at its chapter timestamp; playback and availability are controlled by the publisher.';return;
+  }
+  if(s.kind==='cartoon'&&s.episodeGuideUrl){
+   const box=document.createElement('div');box.className='watch-player-placeholder';const mark=document.createElement('div');mark.className='player-mark';mark.textContent='↗';const title=document.createElement('strong');title.textContent='Open the official episode guide';const description=document.createElement('p');description.textContent='This publisher provides its episode list and approved viewing options on its own website.';const link=document.createElement('a');link.href=s.episodeGuideUrl;link.target='_blank';link.rel='noopener noreferrer';link.className='action primary';link.textContent='Open official Bing watch page';box.append(mark,title,description,link);stage.append(box);$('playerNote').textContent='Bing episodes are listed by the official publisher. Availability depends on the viewing service and your region.';return;
+  }
   const saved=episodeLinks.get(watchLinkKey(s.id,si,ep.number));
   const isVideo=saved&&(saved.provider==='XBT Storage'||saved.provider==='Self-hosted video');
   if(!isVideo){
@@ -484,7 +506,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
  function renderStats(){let all=0,done=0;series.forEach(s=>{const p=seriesProgress(s);all+=p.all;done+=p.done});$('watchedCount').textContent=done.toLocaleString('en-GB');$('watchedCaption').textContent='of '+all.toLocaleString('en-GB')+' listed episodes marked watched';$('progressPct').textContent=(all?Math.round(done/all*100):0)+'%';$('overallBar').style.width=(all?done/all*100:0)+'%'}
  function renderSeries(){
   const grid=$('seriesGrid');grid.replaceChildren();
-  series.forEach(s=>{
+  series.filter(s=>activeWatchFilter==='all'||(activeWatchFilter==='cartoons'?s.kind==='cartoon':s.kind!=='cartoon')).forEach(s=>{
    const p=seriesProgress(s),button=document.createElement('button');button.type='button';button.className='series-card';button.style.setProperty('--tone',s.tone);button.setAttribute('aria-pressed',String(s.id===activeId));
    const art=document.createElement('div');art.className='series-art';art.dataset.jp=s.jp;
    if(s.banner){const image=document.createElement('img');image.src=s.banner;image.alt=s.title+' key visual';image.loading='lazy';image.decoding='async';image.addEventListener('error',()=>image.remove(),{once:true});art.append(image)}
@@ -500,6 +522,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   });
  }
  function selectSeries(id,scroll){activeId=id;activeSeason=0;$('episodeSearch').value='';$('progressFilter').value='all';updateSpotlight();renderCatalog();renderSeries();if(scroll)$('episodeCatalog').scrollIntoView({behavior:'smooth',block:'start'})}
+ document.querySelectorAll('[data-watch-filter]').forEach(button=>button.addEventListener('click',()=>{activeWatchFilter=button.dataset.watchFilter;document.querySelectorAll('[data-watch-filter]').forEach(item=>{const active=item===button;item.classList.toggle('active',active);item.setAttribute('aria-pressed',String(active))});const first=series.find(item=>activeWatchFilter==='all'||(activeWatchFilter==='cartoons'?item.kind==='cartoon':item.kind!=='cartoon'));if(first&&!(activeWatchFilter==='all'||(activeWatchFilter==='cartoons'?current().kind==='cartoon':current().kind!=='cartoon')))selectSeries(first.id,false);else renderSeries()}));
  function renderCatalog(){
   const s=current(),p=seriesProgress(s);$('catalogTitle').textContent=s.title;$('catalogDescription').textContent=s.description+' · '+p.done+'/'+p.all+' tracked.';$('catalogRating').textContent='UK '+s.rating;
   const tabs=$('seasonTabs');tabs.replaceChildren();
@@ -514,7 +537,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
    const row=document.createElement('label');row.className='episode-row'+(done?' watched':'');
    const num=document.createElement('span');num.className='ep-num';num.textContent='EP '+String(ep.number).padStart(2,'0');
    const copy=document.createElement('span');copy.className='ep-copy';const title=document.createElement('strong');title.textContent=ep.title;const meta=document.createElement('small');const savedLink=episodeLinks.get(watchLinkKey(s.id,activeSeason,ep.number));meta.textContent=season.name+(savedLink?' · video added':'');copy.append(title,meta);
-   const play=document.createElement('button');play.type='button';play.className='ep-play';play.textContent=savedLink?'Play episode':'Add video';play.setAttribute('aria-label','Play or add video for '+ep.title);play.addEventListener('click',()=>{renderPlayer(s,activeSeason,ep);$('playerTitle').scrollIntoView({behavior:'smooth',block:'nearest'})});
+   const play=document.createElement('button');play.type='button';play.className='ep-play';play.textContent=s.kind==='cartoon'?'Watch episode':(savedLink?'Play episode':'Add video');play.setAttribute('aria-label','Play or add video for '+ep.title);play.addEventListener('click',()=>{renderPlayer(s,activeSeason,ep);$('playerTitle').scrollIntoView({behavior:'smooth',block:'nearest'})});
    const checkWrap=document.createElement('span');checkWrap.className='ep-check';const check=document.createElement('input');check.type='checkbox';check.checked=done;check.setAttribute('aria-label','Mark '+ep.title+' watched');check.addEventListener('change',()=>{if(check.checked)watched[epKey]=true;else delete watched[epKey];save();renderEpisodesOnly()});checkWrap.append(check,document.createTextNode('Watched'));row.append(num,copy,play,checkWrap);list.append(row);shown++;
   });
   if(!shown){const empty=document.createElement('div');empty.className='no-results';empty.textContent='No episodes match those filters.';list.append(empty)}
