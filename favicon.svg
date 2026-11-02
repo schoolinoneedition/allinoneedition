@@ -1,18 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <defs>
-    <linearGradient id="g" x1="5" y1="4" x2="59" y2="62" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#6ea8ff"/>
-      <stop offset=".52" stop-color="#4169f5"/>
-      <stop offset="1" stop-color="#7545d8"/>
-    </linearGradient>
-    <linearGradient id="shine" x1="13" y1="8" x2="50" y2="54" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#fff" stop-opacity=".42"/>
-      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
-    </linearGradient>
-  </defs>
-  <rect x="2" y="2" width="60" height="60" rx="19" fill="#10182c"/>
-  <rect x="4" y="4" width="56" height="56" rx="17" fill="url(#g)"/>
-  <path d="M15 46 27.2 17h9.6L49 46h-9.2l-2.2-5.7H26.3L24.1 46H15Zm14.1-13h6.4l-3.2-8.5-3.2 8.5Z" fill="#fff"/>
-  <path d="M5 21C13 8 31 4 44 7c7 2 12 6 15 11V21C48 12 25 10 5 31v-10Z" fill="url(#shine)"/>
-  <circle cx="47.5" cy="17" r="3" fill="#baf4e5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="All in One Edition">
+  <rect x="3" y="3" width="58" height="58" rx="15" fill="#f1ecdf"/>
+  <rect x="3.75" y="3.75" width="56.5" height="56.5" rx="14.25" fill="none" stroke="#294b3d" stroke-width="1.5"/>
+  <path d="M16 45.5 27.2 17h8.1l11.1 28.5h-8.1l-2.1-5.8H26.2l-2.1 5.8H16Zm12.5-12.1h5.4l-2.7-7.5-2.7 7.5Z" fill="#294b3d"/>
+  <circle cx="48.5" cy="17" r="3.2" fill="#d27a58"/>
 </svg>
