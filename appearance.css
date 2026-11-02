@@ -127,3 +127,15 @@ html[data-aio-performance-profile="lite"][data-aio-theme="glass"]{--aio-glass-bl
 html[data-aio-performance-profile="lite"][data-aio-theme="glass"] :is(.topbar,.hero-card,.qcard,.panel,.tool,.newsbox,.football,.modalbox,.settings-help,.filters .filter,.btn,.nav button.active,.card,.stat,.gameframe-wrap,.settings-card,.notes-card,.todo-card){backdrop-filter:blur(var(--aio-glass-blur)) saturate(132%);-webkit-backdrop-filter:blur(var(--aio-glass-blur)) saturate(132%)}
 html[data-aio-performance-profile="lite"] #gameGrid .card{animation:none!important;will-change:auto!important}
 html[data-aio-performance-profile="lite"] #gameGrid .card:hover .cover{transform:translateY(-2px) scale(1.008)}
+
+
+/* Shared appearance is intentionally loaded by the standalone Social and Watch pages too. */
+html[data-aio-wallpaper-active="1"] body{background-color:transparent!important}
+html[data-aio-wallpaper-active="1"] body::before{z-index:0}
+html[data-aio-wallpaper-active="1"] body>*{position:relative;z-index:1}
+html[data-aio-theme="glass"] :is(.social-app,.content,.sidebar,.rightbar,.feed-column,.feed-main,.series-card,.episode-panel,.side-panel,.catalog,.watch-player,.hero-stat){background-color:transparent}
+html[data-aio-theme="glass"] :is(.social-app .topbar,.social-app .side-card,.social-app .post-card,.social-app .composer-card,.social-app .right-card,.series-card,.episode-panel,.side-panel,.watch-player,.spotlight-banner,.hero-stat){border-color:var(--aio-glass-edge);box-shadow:0 1px 0 rgba(255,255,255,.46) inset,0 16px 42px rgba(24,38,68,.12);backdrop-filter:blur(var(--aio-glass-blur)) saturate(165%);-webkit-backdrop-filter:blur(var(--aio-glass-blur)) saturate(165%)}
+html.dark[data-aio-theme="glass"] :is(.social-app .topbar,.social-app .side-card,.social-app .post-card,.social-app .composer-card,.social-app .right-card,.series-card,.episode-panel,.side-panel,.watch-player,.spotlight-banner,.hero-stat){background-color:rgba(20,26,38,.62);border-color:rgba(255,255,255,.14);box-shadow:0 1px 0 rgba(255,255,255,.08) inset,0 16px 42px rgba(0,0,0,.22)}
+html[data-aio-wallpaper-active="1"] .social-app,html[data-aio-wallpaper-active="1"] .watch-page{background:transparent}
+html[data-aio-performance-profile="lite"][data-aio-theme="glass"] :is(.social-app .topbar,.social-app .side-card,.social-app .post-card,.social-app .composer-card,.social-app .right-card,.series-card,.episode-panel,.side-panel,.watch-player,.spotlight-banner,.hero-stat){backdrop-filter:blur(12px) saturate(125%);-webkit-backdrop-filter:blur(12px) saturate(125%)}
+@media(prefers-reduced-motion:reduce){html[data-aio-theme="glass"] :is(.series-card,.social-app .post-card,.social-app .btn){transition:none!important}}
