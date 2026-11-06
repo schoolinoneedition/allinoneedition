@@ -21,6 +21,8 @@ jobs:
           node --check backend-features.js
           node --check appearance.js
           node --check ultimate-experience.js
+      - name: Build Cloudflare media Worker without deploying
+        run: npx --yes wrangler@4 deploy --dry-run --config cloudflare/media-worker/wrangler.toml --outdir /tmp/aio-media-worker-build
       - name: Check appearance, auth, game and security wiring
         run: node tests/frontend-contracts.cjs
       - name: Audit game catalogue duplicates and required fields
