@@ -270,9 +270,9 @@ assert.ok(mediaWorker.includes('/auth/v1/user') && mediaWorker.includes('Authori
 assert.ok(mediaWorker.includes('user_id: `eq.${userId}`'), 'Every media lookup must be scoped to the authenticated owner.');
 assert.ok(mediaWorker.includes('createMultipartUpload') && mediaWorker.includes('resumeMultipartUpload') && mediaWorker.includes('uploadPart') && mediaWorker.includes('complete('), 'R2 uploads must use the multipart API.');
 assert.ok(mediaWorker.includes('dbUpsertPart') && mediaWorker.includes('dbGetParts') && mediaWorker.includes('dbDeleteParts'), 'Multipart progress must persist and be checked server-side for resumability.');
-assert.ok(mediaWorker.includes('Accept-Ranges') && mediaWorker.includes('Content-Range') && mediaWorker.includes('range = { offset: rangeStart, length: rangeLength }'), 'Private video playback must support byte-range seeking.');
+assert.ok(mediaWorker.includes('Accept-Ranges') && mediaWorker.includes('Content-Range') && mediaWorker.includes('range = { offset: rangeStart, length: rangeLength! }'), 'Private video playback must support byte-range seeking.');
 assert.ok(mediaWorker.includes('status !== "ready"') && mediaWorker.includes('row.status !== "uploading"'), 'Only completed uploads may be played and only active uploads may be completed.');
-assert.ok(mediaWorker.includes('MAX_PART_BYTES = 32 * 1024 * 1024') && mediaWorker.includes('MAX_PARTS = 10_000'), 'Multipart transport limits must be explicit and bounded.');
+assert.ok(mediaWorker.includes('MAX_PART_BYTES = 32 * 1024 * 1024') && mediaWorker.includes('MAX_PARTS = 10_000') && mediaWorker.includes('MAX_OBJECT_BYTES = MAX_PARTS * MAX_PART_BYTES'), 'Multipart transport limits must be explicit and bounded.');
 assert.ok(mediaSchema.includes('enable row level security') && mediaRlsSchema.includes('using ((select auth.uid()) = user_id)'), 'Media metadata must be protected by owner-scoped RLS.');
 assert.ok(mediaSchema.includes('grant select (id, user_id, filename, content_type, size_bytes, status, created_at, completed_at)'), 'Browser clients must not receive internal R2 keys or multipart IDs.');
 assert.ok(mediaPartsSchema.includes('revoke all on public.aio_media_upload_parts from anon, authenticated'), 'Multipart ETags and upload state must remain server-only.');
