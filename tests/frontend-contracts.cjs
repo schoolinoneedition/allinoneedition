@@ -258,3 +258,5 @@ assert.ok(social.includes(".in('post_id',pageIds)"), 'Social engagement counts s
 
 assert.ok(social.includes("let feedSort=['latest','popular','oldest']") && social.includes("feedSort==='popular'") && social.includes("localWrite(STORAGE_KEYS.feedSort,feedSort)"), 'Social sort preferences should offer persistent latest, most-liked and oldest ordering.');
 assert.ok(social.includes('function renderFeed(preserveScroll=false)') && social.includes('if(preserveScroll)feed.scrollTop=previousScrollTop') && social.includes('renderFeed(addToFeed)'), 'Loading older posts should preserve the reader scroll position.');
+
+assert.ok(html.includes('id="assistantBtn" type="button" onclick="openAssistant()"'), 'The top-bar Smart Answer button must open the assistant modal when clicked.');
