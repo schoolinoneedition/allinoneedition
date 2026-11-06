@@ -276,6 +276,6 @@ assert.ok(mediaWorker.includes('status !== "ready"') && mediaWorker.includes('ro
 assert.ok(mediaWorker.includes('MAX_PART_BYTES = 32 * 1024 * 1024') && mediaWorker.includes('MAX_PARTS = 10_000') && mediaWorker.includes('MAX_OBJECT_BYTES = MAX_PARTS * MAX_PART_BYTES'), 'Multipart transport limits must be explicit and bounded.');
 assert.ok(mediaSchema.includes('enable row level security') && mediaRlsSchema.includes('using ((select auth.uid()) = user_id)'), 'Media metadata must be protected by owner-scoped RLS.');
 assert.ok(mediaSchema.includes('revoke all on public.aio_media_objects from public, anon, authenticated') && mediaSchema.includes('grant select (id, user_id, filename, content_type, size_bytes, status, created_at, completed_at)'), 'Browser clients must not receive internal R2 keys or multipart IDs.');
-assert.ok(mediaPartsSchema.includes('revoke all on public.aio_media_upload_parts from anon, authenticated'), 'Multipart ETags and upload state must remain server-only.');
+assert.ok(mediaPartsSchema.includes('revoke all on public.aio_media_upload_parts from public, anon, authenticated'), 'Multipart ETags and upload state must remain server-only.');
 assert.ok(mediaWrangler.includes('binding = "MEDIA"') && mediaWrangler.includes('bucket_name = "aio-media"'), 'The Worker must bind the private aio-media bucket.');
 assert.ok(!html.includes('SUPABASE_SERVICE_ROLE_KEY') && !social.includes('SUPABASE_SERVICE_ROLE_KEY') && !anime.includes('SUPABASE_SERVICE_ROLE_KEY'), 'Privileged Supabase credentials must never be added to browser pages.');
