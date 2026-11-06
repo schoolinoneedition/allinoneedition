@@ -311,7 +311,7 @@ assert.ok(!anime.includes('Open official Bing watch page'), 'The normal Watch pl
 
 assert.ok(html.includes('async function askAioAssistant') && html.includes("else askAioAssistant('assistantChat',q)") && html.includes("else askAioAssistant('assistantModalChat',q)"), 'Smart Answer must use real streaming AI for open-ended questions.');
 assert.ok(!html.includes("label:'Random game'") && !html.includes("const games=GAMES.map((game,index)"), 'Quick Launch must not expose unrestricted game discovery.');
-assert.ok(html.includes('Find a puzzle game to play') && html.includes('Find puzzle games'), 'AI Search suggestions must use the curated public catalogue.');
+assert.ok(html.includes('Find puzzle games') && html.includes('find puzzle games'), 'AI Search suggestions must use the curated public catalogue.');
 
 
 assert.ok(html.includes("'games-puzzle.md':'Puzzle games'") && html.includes("'games-word.md':'Word games'") && html.includes("'games-board.md':'Board games'"), 'AI Search must label category-specific catalogue results clearly.');
