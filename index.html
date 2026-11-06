@@ -3413,7 +3413,8 @@ socialBind=function(){__oldSocialBind();socialBindPostManagement();setTimeout(()
       if(!chunks.length){setStatus('No matching indexed information yet. The public catalogue index may still be processing.');return}
       chunks.forEach(chunk=>{
         const key=String(chunk.item?.key||'');
-        const title=key==='games-catalogue.md'?'Games catalogue':key==='platform-guide.md'?'Platform guide':'All in One Edition';
+        const titles={'games-puzzle.md':'Puzzle games','games-word.md':'Word games','games-memory.md':'Memory games','games-board.md':'Board games','games-simulation.md':'Simulation games','games-idle.md':'Idle games','games-rhythm.md':'Rhythm games','platform-guide.md':'Platform guide'};
+        const title=titles[key]||'All in One Edition';
         const text=String(chunk.text||'').trim().slice(0,900);
         if(text)resultCard(title,text);
       });
