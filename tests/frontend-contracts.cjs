@@ -299,3 +299,11 @@ assert.ok(html.includes('id="aiSearchOpen"') && html.includes('id="aioAiSearch"'
 assert.ok(html.includes('16fdd2d2-aa84-4145-a0d5-be81366b07b1.search.ai.cloudflare.com') && html.includes("ENDPOINT+'/search'") && html.includes("ENDPOINT+'/chat/completions'"), 'AI Search must call the configured Cloudflare AI Search endpoint.');
 assert.ok(html.includes('stream:true') && html.includes('query_rewrite:{enabled:true}'), 'AI Search chat must stream real model output and use query rewriting.');
 assert.ok(html.lastIndexOf('id="aioQuickLaunch"') > html.indexOf('</textarea>'), 'Quick Launch must exist in the live DOM, not only inside the Code Lab sample text.');
+
+
+// Watch source metadata is private and only the canonical owner can inspect it.
+const watchSourceSchema = read('supabase/migrations/20261106204516_private_anime_episode_source_metadata.sql');
+assert.ok(watchSourceSchema.includes('drop policy if exists "Public can read anime episode watch links"') && watchSourceSchema.includes('revoke all on public.anime_episode_watch_links from public, anon'), 'Watch provider URLs must not be publicly readable.');
+assert.ok(watchSourceSchema.includes('using ((select private.is_aio_site_owner()))'), 'Only the canonical owner may read Watch source metadata.');
+assert.ok(anime.includes("ownerClient.from('anime_episode_watch_links')"), 'The Watch source manager must use the owner-authenticated client.');
+assert.ok(!anime.includes('Open official Bing watch page'), 'The normal Watch player must not display unnecessary provider branding.');
