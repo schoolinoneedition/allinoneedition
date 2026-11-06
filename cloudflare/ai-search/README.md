@@ -23,7 +23,7 @@ The public endpoint is restricted to the production site origin and has a 20-req
 ## Current indexed material
 
 - `platform-guide.md`: public site sections and privacy boundaries.
-- `games-catalogue.md`: 118 curated catalogue entries from puzzle, word, memory, board, simulation, idle and rhythm categories. No external launch URLs or provider metadata are indexed.
+- `games-catalogue.md`: 118 curated catalogue entries split into separate puzzle, word, memory, board, simulation, idle and rhythm documents. No external launch URLs or provider metadata are indexed.
 
 The Watch series document was removed because episode availability is not yet verified. Watch results must not invent episodes or claim playback availability based on series names alone.
 
