@@ -9,7 +9,7 @@ create table if not exists public.aio_media_upload_parts (
 );
 
 alter table public.aio_media_upload_parts enable row level security;
-revoke all on public.aio_media_upload_parts from anon, authenticated;
+revoke all on public.aio_media_upload_parts from public, anon, authenticated;
 grant all on public.aio_media_upload_parts to service_role;
 
 comment on table public.aio_media_upload_parts is
