@@ -542,7 +542,7 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
    <div class="brandtext">All in One Edition</div><div class="owner">Roy owner</div>
   </div>
   <div class="search"><input id="search" autocomplete="off" placeholder="Search games… ( / )" aria-label="Search games"></div>
-  <button class="btn quick-launch-trigger" id="quickLaunchOpen" type="button" aria-haspopup="dialog" aria-controls="aioQuickLaunch">Quick open <kbd>Ctrl K</kbd></button>
+  <button class="btn quick-launch-trigger" id="quickLaunchOpen" type="button" aria-haspopup="dialog" aria-controls="aioQuickLaunch">Quick open <kbd>Ctrl K</kbd></button><button class="btn" id="aiSearchOpen" type="button" aria-haspopup="dialog" aria-controls="aioAiSearch">AI Search</button>
   <button class="btn" id="assistantBtn">Smart answer</button><button class="btn account-btn" id="accountBtn" type="button" onclick="handleAccountClick()"><span class="account-avatar" id="accountAvatar">?</span><span id="accountLabel">Account</span></button><span class="aio-live-clock" id="aioLiveClock" aria-label="Current local time">00:00</span><button class="btn" id="settingsBtn">Settings</button><select class="lang-select" id="languageSelect" aria-label="Language"><option value="en">EN</option><option value="es">ES</option><option value="fr">FR</option><option value="de">DE</option><option value="pl">PL</option><option value="pt">PT</option><option value="tr">TR</option><option value="ar">AR</option><option value="it">IT</option><option value="nl">NL</option><option value="ja">JA</option><option value="ko">KO</option></select><button class="btn" id="darkBtn">Dark</button><button class="btn" id="afkBtn" title="Pause your current game and enter AFK mode">AFK</button><button class="btn" id="hideBtn">Hide</button>
  </div>
  <div class="nav"><button data-scroll="home">Home</button><button data-scroll="games">Games</button><button data-scroll="school">School</button><button type="button" onclick="location.href='social.html'">Social</button><button type="button" onclick="location.href='anime.html'">Watch</button><button type="button" onclick="location.href='study.html'">Study Hub</button><button data-scroll="community">Community</button><button data-scroll="chat">Chat</button><button data-scroll="live">Live</button><button data-scroll="tools">Tools</button><button data-scroll="notes">Notes</button><button data-scroll="music">Music</button><button data-scroll="code">Code Lab</button></div>
@@ -3202,5 +3202,276 @@ socialBind=function(){__oldSocialBind();socialBindPostManagement();setTimeout(()
 <script src="./backend-features.js" defer></script>
 <script src="./appearance.js" defer></script>
 <script src="./ultimate-experience.js" defer></script>
+
+<style>
+.aio-ai-backdrop{position:fixed;inset:0;z-index:100001;background:rgba(7,11,20,.62);backdrop-filter:blur(9px);display:grid;place-items:start center;padding:9vh 14px 18px}
+.aio-ai-backdrop[hidden]{display:none!important}
+.aio-ai-dialog{width:min(760px,100%);max-height:82dvh;display:flex;flex-direction:column;overflow:hidden;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:20px;box-shadow:0 28px 90px rgba(0,0,0,.32)}
+.aio-ai-head{display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.aio-ai-brand{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:var(--accent);color:#fff;font-size:12px;font-weight:950}
+.aio-ai-head-copy{flex:1;min-width:0}.aio-ai-head-copy strong{display:block;font-size:14px}.aio-ai-head-copy small{display:block;margin-top:3px;color:var(--muted);font-size:11px}
+.aio-ai-close{width:34px;height:34px;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--text);font-size:22px;line-height:1}
+.aio-ai-modes{display:flex;gap:6px;padding:12px 16px 0}
+.aio-ai-modes button,.aio-ai-suggestions button{border:1px solid var(--line);border-radius:999px;padding:7px 12px;background:transparent;color:var(--text);font-size:11px;font-weight:800}
+.aio-ai-modes button[aria-pressed=true]{background:var(--soft);border-color:var(--accent)}
+.aio-ai-form{display:flex;gap:8px;padding:12px 16px}
+#aioAiQuery{flex:1;min-width:0;height:44px;border:1px solid var(--line);border-radius:12px;background:var(--soft);color:var(--text);padding:0 13px;font-size:13px;outline:none}
+#aioAiQuery:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 15%,transparent)}
+#aioAiVoice,.aio-ai-form button[type=submit]{border:1px solid var(--line);border-radius:12px;padding:0 13px;background:var(--panel);color:var(--text);font-weight:850}
+.aio-ai-form button[type=submit]{background:var(--accent);color:#fff;border-color:var(--accent)}
+.aio-ai-suggestions{display:flex;gap:7px;flex-wrap:wrap;padding:0 16px 12px}
+.aio-ai-suggestions[hidden]{display:none}
+.aio-ai-status{padding:10px 17px;border-top:1px solid var(--line);color:var(--muted);font-size:11px}
+.aio-ai-results{padding:4px 16px 18px;overflow:auto;overscroll-behavior:contain;min-height:120px}
+.aio-ai-result{padding:13px 0;border-bottom:1px solid var(--line)}
+.aio-ai-result strong{display:block;font-size:12px}.aio-ai-result p{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.55;white-space:pre-wrap}
+.aio-ai-chat-message{padding:12px;margin:8px 0;border:1px solid var(--line);border-radius:13px;background:var(--soft);font-size:12px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+.aio-ai-chat-message[data-role=user]{background:color-mix(in srgb,var(--accent) 8%,var(--panel))}
+@media(max-width:600px){.aio-ai-backdrop{padding:5vh 8px 8px}.aio-ai-dialog{max-height:90dvh;border-radius:16px}.aio-ai-form{gap:6px;padding:10px}.aio-ai-form button{padding:0 10px}.aio-ai-suggestions{padding:0 10px 10px}}
+</style>
+<div id="aioQuickLaunch" class="aio-command-backdrop" hidden aria-hidden="true">
+  <section class="aio-command-dialog" role="dialog" aria-modal="true" aria-labelledby="aioCommandTitle">
+    <div class="aio-command-head"><span class="aio-command-mark">A</span><span class="aio-command-head-copy"><strong id="aioCommandTitle">Quick Launch</strong><small>Jump anywhere in All in One Edition</small></span><kbd>ESC</kbd></div>
+    <div class="aio-command-input-wrap"><input id="aioCommandInput" type="search" autocomplete="off" spellcheck="false" placeholder="Search pages, tools or games…" aria-label="Search pages, tools or games"></div>
+    <div id="aioCommandResults" class="aio-command-results" role="listbox" aria-label="Quick launch results"></div>
+    <div class="aio-command-foot"><span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span><span><kbd>↵</kbd> Open</span><span><kbd>Ctrl</kbd><kbd>K</kbd> Toggle</span></div>
+  </section>
+</div>
+
+<div id="aioAiSearch" class="aio-ai-backdrop" hidden aria-hidden="true">
+  <section class="aio-ai-dialog" role="dialog" aria-modal="true" aria-labelledby="aioAiTitle">
+    <header class="aio-ai-head">
+      <div class="aio-ai-brand">AI</div>
+      <div class="aio-ai-head-copy"><strong id="aioAiTitle">AI Search</strong><small>Search the public All in One Edition catalogue</small></div>
+      <button type="button" class="aio-ai-close" id="aioAiClose" aria-label="Close AI Search">×</button>
+    </header>
+    <div class="aio-ai-modes">
+      <button type="button" data-ai-mode="search" aria-pressed="true">Search</button>
+      <button type="button" data-ai-mode="chat" aria-pressed="false">Ask AI</button>
+    </div>
+    <form id="aioAiForm" class="aio-ai-form">
+      <input id="aioAiQuery" type="search" autocomplete="off" maxlength="500" placeholder="Try “find racing games” or “what tools are available?”" aria-label="Search All in One Edition">
+      <button type="button" id="aioAiVoice" aria-label="Voice search">🎙</button>
+      <button type="submit" id="aioAiSubmit">Search</button>
+    </form>
+    <div class="aio-ai-suggestions" id="aioAiSuggestions">
+      <button type="button" data-ai-query="Find racing games">Racing games</button>
+      <button type="button" data-ai-query="What tools are available?">Available tools</button>
+      <button type="button" data-ai-query="How do I use the Study Hub?">Study Hub</button>
+    </div>
+    <div id="aioAiStatus" class="aio-ai-status" role="status">Search public catalogue information. Private notes and Social posts are not included.</div>
+    <div id="aioAiResults" class="aio-ai-results" aria-live="polite"></div>
+  </section>
+</div>
+<script>
+(()=>{
+  'use strict';
+  const overlay=document.getElementById('aioQuickLaunch');
+  const input=document.getElementById('aioCommandInput');
+  const results=document.getElementById('aioCommandResults');
+  const trigger=document.getElementById('quickLaunchOpen');
+  if(!overlay||!input||!results||!trigger)return;
+  let selected=0,visible=[];
+  const commands=[
+    {label:'Home',detail:'Return to the top of the hub',icon:'⌂',group:'Pages',run:()=>scrollToId('home')},
+    {label:'Games',detail:'Browse the full game library',icon:'🎮',group:'Pages',run:()=>scrollToId('games')},
+    {label:'School apps',detail:'Open your school workspace',icon:'📚',group:'Pages',run:()=>scrollToId('school')},
+    {label:'Social',detail:'Open the community video and image feed',icon:'◉',group:'Pages',run:()=>location.href='social.html'},
+    {label:'Study Hub',detail:'Focus timer, revision planner and flashcards',icon:'✦',group:'Pages',run:()=>location.href='study.html'},
+    {label:'Anime Zone',detail:'Episode guides and watch progress for four anime',icon:'ア',group:'Pages',run:()=>location.href='anime.html'},
+    {label:'Community',detail:'Profiles, posts and shared activity',icon:'◎',group:'Pages',run:()=>scrollToId('community')},
+    {label:'Party workspace',detail:'Open shared party tools',icon:'✧',group:'Pages',run:()=>scrollToId('party-workspace')},
+    {label:'Live news',detail:'Read the latest headlines and scores',icon:'◷',group:'Pages',run:()=>scrollToId('live')},
+    {label:'Useful tools',detail:'Calculator, converter, timer and more',icon:'⌘',group:'Pages',run:()=>scrollToId('tools')},
+    {label:'Notes',detail:'Open notes and to-do list',icon:'▤',group:'Pages',run:()=>scrollToId('notes')},
+    {label:'Music',detail:'Open the music player',icon:'♫',group:'Pages',run:()=>scrollToId('music')},
+    {label:'Code Lab',detail:'Open the HTML, CSS and JavaScript editor',icon:'</>',group:'Pages',run:()=>scrollToId('code')},
+    {label:'Settings',detail:'Personalisation, themes and preferences',icon:'⚙',group:'Actions',run:()=>document.getElementById('settingsBtn')?.click()},
+    {label:'A-Coins & Quests',detail:'View rewards, quests and game shop',icon:'◈',group:'Actions',run:()=>window.openAioEconomy?.()},
+    {label:'Random game',detail:'Launch a random game from the library',icon:'⤨',group:'Actions',run:()=>{if(typeof GAMES!=='undefined'&&GAMES.length&&typeof openGame==='function')openGame(Math.floor(Math.random()*GAMES.length));else scrollToId('games')}}
+  ];
+  function makeOption(item,index){
+    const button=document.createElement('button');
+    button.type='button';button.className='aio-command-item';button.setAttribute('role','option');
+    button.setAttribute('aria-selected',String(index===selected));
+    const icon=document.createElement('span');icon.className='aio-command-icon';icon.textContent=item.icon;
+    const copy=document.createElement('span');copy.className='aio-command-copy';
+    const title=document.createElement('strong');title.textContent=item.label;
+    const detail=document.createElement('small');detail.textContent=item.detail||'Open result';
+    copy.append(title,detail);
+    const tag=document.createElement('span');tag.className='aio-command-tag';tag.textContent=item.group||'Game';
+    button.append(icon,copy,tag);
+    button.addEventListener('click',()=>choose(index));
+    button.addEventListener('pointermove',()=>{selected=index;syncSelection()});
+    return button;
+  }
+  function syncSelection(){
+    [...results.querySelectorAll('.aio-command-item')].forEach((button,index)=>{
+      button.setAttribute('aria-selected',String(index===selected));
+      if(index===selected)button.scrollIntoView({block:'nearest'});
+    });
+  }
+  function render(){
+    const query=input.value.trim().toLowerCase();
+    let base=commands.filter(item=>(item.label+' '+item.detail).toLowerCase().includes(query));
+    if(typeof GAMES!=='undefined'&&Array.isArray(GAMES)&&query){
+      const games=GAMES.map((game,index)=>({game,index})).filter(x=>(String(x.game.name||'')+' '+String(x.game.cat||'')).toLowerCase().includes(query)).slice(0,8)
+      .map(x=>({label:x.game.name,detail:(x.game.cat||'Game')+' · Open in the game player',icon:'🎮',group:'Game',run:()=>{scrollToId('games');openGame(x.index)}}));
+      base=base.concat(games);
+    }
+    visible=base;
+    selected=Math.max(0,Math.min(selected,visible.length-1));
+    results.replaceChildren();
+    if(!visible.length){const empty=document.createElement('div');empty.className='aio-command-empty';empty.textContent='No matching pages, tools or games. Try a shorter search.';results.append(empty);return}
+    let lastGroup='';
+    visible.forEach((item,index)=>{
+      if(item.group!==lastGroup){const heading=document.createElement('div');heading.className='aio-command-group';heading.textContent=item.group;results.append(heading);lastGroup=item.group}
+      results.append(makeOption(item,index));
+    });
+    syncSelection();
+  }
+  function open(){
+    overlay.hidden=false;overlay.setAttribute('aria-hidden','false');input.value='';selected=0;render();
+    requestAnimationFrame(()=>input.focus());
+    document.body.style.overflow='hidden';
+  }
+  function close(){
+    if(overlay.hidden)return;
+    overlay.hidden=true;overlay.setAttribute('aria-hidden','true');document.body.style.overflow='';
+    trigger.focus();
+  }
+  function choose(index){
+    const item=visible[index];if(!item)return;
+    close();requestAnimationFrame(()=>{try{item.run()}catch(error){console.error('Quick Launch action failed',error)}});
+  }
+  trigger.addEventListener('click',open);
+  overlay.addEventListener('click',event=>{if(event.target===overlay)close()});
+  input.addEventListener('input',()=>{selected=0;render()});
+  input.addEventListener('keydown',event=>{
+    if(event.key==='ArrowDown'){event.preventDefault();selected=(selected+1)%Math.max(1,visible.length);syncSelection()}
+    if(event.key==='ArrowUp'){event.preventDefault();selected=(selected-1+Math.max(1,visible.length))%Math.max(1,visible.length);syncSelection()}
+    if(event.key==='Enter'){event.preventDefault();choose(selected)}
+    if(event.key==='Escape'){event.preventDefault();close()}
+  });
+  document.addEventListener('keydown',event=>{
+    const target=event.target;
+    const editing=target instanceof HTMLElement&&(target.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
+    if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'){event.preventDefault();overlay.hidden?open():close();return}
+    if(event.key==='Escape'&&!overlay.hidden){event.preventDefault();close();return}
+    if(event.key==='/'&&!editing&&!event.ctrlKey&&!event.metaKey&&!event.altKey){event.preventDefault();open()}
+  });
+})();
+</script>
+<script>
+(()=>{
+  const ENDPOINT='https://59fa95cf-3fef-4c97-be4a-6328308cb959.search.ai.cloudflare.com';
+  const SYSTEM='You are All in One Edition AI Search. Answer only from the public indexed platform catalogue. Do not invent games, tools, episodes, release dates, features or playable links. The public index does not contain private notes, account data or Social posts. If the answer is not in the indexed material, say it is not currently indexed. Never expose internal storage keys or provider metadata.';
+  const modal=document.getElementById('aioAiSearch');
+  const openButton=document.getElementById('aiSearchOpen');
+  const closeButton=document.getElementById('aioAiClose');
+  const form=document.getElementById('aioAiForm');
+  const input=document.getElementById('aioAiQuery');
+  const submit=document.getElementById('aioAiSubmit');
+  const voice=document.getElementById('aioAiVoice');
+  const status=document.getElementById('aioAiStatus');
+  const results=document.getElementById('aioAiResults');
+  const suggestions=document.getElementById('aioAiSuggestions');
+  const modeButtons=[...document.querySelectorAll('[data-ai-mode]')];
+  if(!modal||!openButton||!form||!input||!results)return;
+  let mode='search',messages=[],busy=false;
+  function setStatus(value){status.textContent=value}
+  function setMode(next){
+    mode=next;
+    modeButtons.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.aiMode===mode)));
+    submit.textContent=mode==='chat'?'Ask AI':'Search';
+    input.placeholder=mode==='chat'?'Ask a question about All in One Edition…':'Try “find racing games” or “what tools are available?”';
+    suggestions.hidden=mode==='chat';
+  }
+  function open(){
+    modal.hidden=false;modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
+    setTimeout(()=>input.focus(),0);
+  }
+  function close(){
+    if(modal.hidden)return;
+    modal.hidden=true;modal.setAttribute('aria-hidden','true');document.body.style.overflow='';
+    openButton.focus();
+  }
+  function clearResults(){results.replaceChildren()}
+  function resultCard(title,body){
+    const card=document.createElement('article');card.className='aio-ai-result';
+    const heading=document.createElement('strong');heading.textContent=title;
+    const paragraph=document.createElement('p');paragraph.textContent=body;
+    card.append(heading,paragraph);results.append(card);
+  }
+  function chatBubble(role,text){
+    const bubble=document.createElement('div');bubble.className='aio-ai-chat-message';bubble.dataset.role=role;bubble.textContent=text;results.append(bubble);return bubble;
+  }
+  async function runSearch(query){
+    setStatus('Searching the public catalogue…');clearResults();
+    try{
+      const response=await fetch(ENDPOINT+'/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:query,ai_search_options:{retrieval:{retrieval_type:'hybrid',max_num_results:8,match_threshold:0.25},query_rewrite:{enabled:true}}})});
+      if(!response.ok)throw new Error('Search service returned '+response.status);
+      const payload=await response.json();const chunks=payload.result?.chunks||[];
+      if(!chunks.length){setStatus('No matching indexed information yet. The public catalogue index may still be processing.');return}
+      chunks.forEach(chunk=>{
+        const key=String(chunk.item?.key||'');
+        const title=key==='games-catalogue.md'?'Games catalogue':key==='platform-guide.md'?'Platform guide':'All in One Edition';
+        const text=String(chunk.text||'').trim().slice(0,900);
+        if(text)resultCard(title,text);
+      });
+      setStatus('Found '+chunks.length+' relevant catalogue section'+(chunks.length===1?'':'s')+'.');
+    }catch(error){setStatus('AI Search is temporarily unavailable. '+String(error.message||''))}
+  }
+  async function runChat(query){
+    messages.push({role:'user',content:query});
+    clearResults();chatBubble('user',query);
+    const answerNode=chatBubble('assistant','');
+    setStatus('AI is checking the indexed catalogue…');
+    try{
+      const response=await fetch(ENDPOINT+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'system',content:SYSTEM}].concat(messages),stream:true,ai_search_options:{retrieval:{retrieval_type:'hybrid',max_num_results:6,match_threshold:0.25},query_rewrite:{enabled:true}}})});
+      if(!response.ok)throw new Error('AI service returned '+response.status);
+      const reader=response.body.getReader();const decoder=new TextDecoder();let buffer='',answer='';
+      while(true){
+        const part=await reader.read();if(part.done)break;
+        buffer+=decoder.decode(part.value,{stream:true});
+        const lines=buffer.split(/\r?\n/);buffer=lines.pop()||'';
+        for(const line of lines){
+          if(!line.startsWith('data:'))continue;
+          const data=line.slice(5).trim();if(!data||data==='[DONE]')continue;
+          try{const item=JSON.parse(data);const token=item.choices?.[0]?.delta?.content;if(token){answer+=token;answerNode.textContent=answer}}catch{}
+        }
+      }
+      messages.push({role:'assistant',content:answer});
+      setStatus(answer?'Answer generated from the indexed public catalogue.':'No answer was returned. Try a more specific question.');
+    }catch(error){answerNode.textContent='AI Search is temporarily unavailable.';setStatus(String(error.message||''));messages.pop()}
+  }
+  async function submitQuery(){
+    if(busy)return;
+    const query=input.value.trim();if(query.length<2){setStatus('Enter at least two characters.');return}
+    busy=true;submit.disabled=true;voice.disabled=true;
+    try{if(mode==='chat')await runChat(query);else await runSearch(query)}
+    finally{busy=false;submit.disabled=false;voice.disabled=false}
+  }
+  openButton.addEventListener('click',open);closeButton.addEventListener('click',close);
+  modal.addEventListener('click',event=>{if(event.target===modal)close()});
+  modeButtons.forEach(button=>button.addEventListener('click',()=>setMode(button.dataset.aiMode)));
+  form.addEventListener('submit',event=>{event.preventDefault();submitQuery()});
+  suggestions?.addEventListener('click',event=>{
+    const button=event.target.closest('[data-ai-query]');if(!button)return;
+    input.value=button.dataset.aiQuery;setMode('search');submitQuery();
+  });
+  voice.addEventListener('click',()=>{
+    const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!Recognition){setStatus('Voice search is not supported in this browser.');return}
+    const recognition=new Recognition();recognition.lang='en-GB';recognition.interimResults=false;
+    recognition.onresult=event=>{input.value=event.results[0][0].transcript;submitQuery()};
+    recognition.onerror=()=>setStatus('Voice search could not start. Check microphone permission.');
+    recognition.start();setStatus('Listening…');
+  });
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!modal.hidden){event.preventDefault();close()}});
+  setMode('search');
+})();
+</script>
+
 </body>
 </html>
