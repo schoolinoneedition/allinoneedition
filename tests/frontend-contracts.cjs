@@ -279,3 +279,5 @@ assert.ok(mediaSchema.includes('revoke all on public.aio_media_objects from publ
 assert.ok(mediaPartsSchema.includes('revoke all on public.aio_media_upload_parts from public, anon, authenticated'), 'Multipart ETags and upload state must remain server-only.');
 assert.ok(mediaWrangler.includes('binding = "MEDIA"') && mediaWrangler.includes('bucket_name = "aio-media"'), 'The Worker must bind the private aio-media bucket.');
 assert.ok(!html.includes('SUPABASE_SERVICE_ROLE_KEY') && !social.includes('SUPABASE_SERVICE_ROLE_KEY') && !anime.includes('SUPABASE_SERVICE_ROLE_KEY'), 'Privileged Supabase credentials must never be added to browser pages.');
+
+assert.ok(mediaWorker.includes('firstPart.byteLength !== length || !hasExpectedMagic(row.content_type, firstPart)'), 'The first uploaded part must match its declared content type before R2 stores it.');
