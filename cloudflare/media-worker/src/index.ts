@@ -22,7 +22,7 @@ const MAX_PART_BYTES = 32 * 1024 * 1024;
 const MIN_PART_BYTES = 5 * 1024 * 1024;
 const MAX_OBJECT_BYTES = MAX_PARTS * MAX_PART_BYTES;
 const ALLOWED_TYPES = new Set([
-  "video/mp4", "video/webm",
+  "video/mp4", "video/webm", "video/quicktime",
   "image/jpeg", "image/png", "image/webp", "image/gif",
   "application/pdf",
   "text/plain",
@@ -133,6 +133,26 @@ async function dbDeleteParts(env: Env, uploadId: string) {
   if (!response.ok) throw new Error("Could not clear multipart progress");
 }
 
+function hasExpectedMagic(contentType: string, bytes: ArrayBuffer) {
+  const data = new Uint8Array(bytes, 0, Math.min(bytes.byteLength, 16));
+  const starts = (...values: number[]) => values.every((value, index) => data[index] === value);
+  if (contentType === "image/jpeg") return starts(0xff, 0xd8, 0xff);
+  if (contentType === "image/png") return starts(0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a);
+  if (contentType === "image/gif") return new TextDecoder().decode(data.slice(0, 6)).startsWith("GIF8");
+  if (contentType === "video/webm") return starts(0x1a, 0x45, 0xdf, 0xa3);
+  if (contentType === "video/mp4" || contentType === "video/quicktime") {
+    return data.length >= 8 && data[4] === 0x66 && data[5] === 0x74 && data[6] === 0x79 && data[7] === 0x70;
+  }
+  if (contentType === "application/pdf") return new TextDecoder().decode(data.slice(0, 5)) === "%PDF-";
+  if (contentType.startsWith("application/vnd.openxmlformats-officedocument.")) return starts(0x50, 0x4b, 0x03, 0x04);
+  if (contentType === "text/plain") {
+    if (data.includes(0)) return false;
+    try { new TextDecoder("utf-8", { fatal: true }).decode(data); return true; }
+    catch { return false; }
+  }
+  return false;
+}
+
 function safeFilename(value: unknown) {
   if (typeof value !== "string") return "upload";
   return value.normalize("NFKC").replace(/[\\/\0-\x1f\x7f]/g, "_").slice(0, 180) || "upload";
@@ -200,7 +220,15 @@ export default {
         const row = await dbGet(env, id, user.id);
         if (!row || row.status !== "uploading" || !row.multipart_upload_id) return json({ error: "Upload not found" }, 404, headers);
         const upload = env.MEDIA.resumeMultipartUpload(row.object_key, row.multipart_upload_id);
-        const result = await upload.uploadPart(partNumber, request.body!);
+        let partBody: ReadableStream | ArrayBuffer = request.body!;
+        if (partNumber === 1) {
+          const firstPart = await request.arrayBuffer();
+          if (firstPart.byteLength !== length || !hasExpectedMagic(row.content_type, firstPart)) {
+            return json({ error: "File content does not match its declared media type" }, 415, headers);
+          }
+          partBody = firstPart;
+        }
+        const result = await upload.uploadPart(partNumber, partBody);
         await dbUpsertPart(env, id, partNumber, result.etag, length);
         return json({ partNumber, etag: result.etag }, 200, headers);
       }
