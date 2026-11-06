@@ -307,3 +307,8 @@ assert.ok(watchSourceSchema.includes('drop policy if exists "Public can read ani
 assert.ok(watchSourceSchema.includes('using ((select private.is_aio_site_owner()))'), 'Only the canonical owner may read Watch source metadata.');
 assert.ok(anime.includes("ownerClient.from('anime_episode_watch_links')"), 'The Watch source manager must use the owner-authenticated client.');
 assert.ok(!anime.includes('Open official Bing watch page'), 'The normal Watch player must not display unnecessary provider branding.');
+
+
+assert.ok(html.includes('function openAiSearchFor(query)') && html.includes("return openAiSearchFor(q)"), 'Smart Answer game and search requests must use the curated AI Search path.');
+assert.ok(!html.includes("label:'Random game'") && !html.includes("const games=GAMES.map((game,index)"), 'Quick Launch must not expose unrestricted game discovery.');
+assert.ok(html.includes('Find a puzzle game to play') && html.includes('Find puzzle games'), 'AI Search suggestions must use the curated public catalogue.');
