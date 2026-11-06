@@ -316,3 +316,5 @@ assert.ok(html.includes('Find a puzzle game to play') && html.includes('Find puz
 
 assert.ok(html.includes("'games-puzzle.md':'Puzzle games'") && html.includes("'games-word.md':'Word games'") && html.includes("'games-board.md':'Board games'"), 'AI Search must label category-specific catalogue results clearly.');
 assert.ok(html.includes('Do not help locate dangerous or age-restricted content'), 'AI Search chat must enforce the platform safety boundary.');
+
+assert.ok(html.includes('payload.chunks||payload.result?.chunks'), 'AI Search must parse the public endpoint response shape.');
