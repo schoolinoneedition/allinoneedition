@@ -163,8 +163,10 @@ export default {
         if (!safeId(id) || !Number.isInteger(partNumber) || partNumber < 1 || partNumber > MAX_PARTS) {
           return json({ error: "Invalid upload or part number" }, 400, headers);
         }
-        const length = Number(request.headers.get("Content-Length") || 0);
-        if (length > MAX_PART_BYTES) return json({ error: "Part exceeds the 32 MiB part limit" }, 413, headers);
+        const contentLength = request.headers.get("Content-Length");
+        if (!contentLength || !/^\\d+$/.test(contentLength)) return json({ error: "Content-Length is required for multipart parts" }, 411, headers);
+        const length = Number(contentLength);
+        if (length <= 0 || length > MAX_PART_BYTES) return json({ error: "Part must be between 1 byte and 32 MiB" }, 413, headers);
         const row = await dbGet(env, id, user.id);
         if (!row || row.status !== "uploading" || !row.multipart_upload_id) return json({ error: "Upload not found" }, 404, headers);
         const upload = env.MEDIA.resumeMultipartUpload(row.object_key, row.multipart_upload_id);
@@ -186,8 +188,13 @@ export default {
         if (!valid) return json({ error: "Invalid multipart part metadata" }, 400, headers);
         const upload = env.MEDIA.resumeMultipartUpload(row.object_key, row.multipart_upload_id);
         const object = await upload.complete(uploadedParts);
+        if (object.size !== row.size_bytes) {
+          await env.MEDIA.delete(row.object_key);
+          await dbUpdate(env, row, { status: "deleted", multipart_upload_id: null });
+          return json({ error: "Uploaded size did not match the declared file size" }, 400, headers);
+        }
         await dbUpdate(env, row, { status: "ready", multipart_upload_id: null, etag: object.etag, completed_at: new Date().toISOString() });
-        return json({ id: row.id, status: "ready", sizeBytes: row.size_bytes }, 200, headers);
+        return json({ id: row.id, status: "ready", sizeBytes: object.size }, 200, headers);
       }
 
       if (request.method === "POST" && parts.length === 3 && parts[0] === "uploads" && parts[2] === "abort") {
@@ -205,16 +212,46 @@ export default {
         if (!safeId(id)) return json({ error: "Invalid media ID" }, 400, headers);
         const row = await dbGet(env, id, user.id);
         if (!row || row.status !== "ready") return json({ error: "Media not found" }, 404, headers);
-        const object = await env.MEDIA.get(row.object_key);
+        const rangeHeader = request.headers.get("Range");
+        let range: R2Range | undefined;
+        let rangeStatus = 200;
+        let rangeStart = 0;
+        let rangeLength: number | undefined;
+        if (rangeHeader) {
+          const match = /^bytes=(\\d*)-(\\d*)$/.exec(rangeHeader.trim());
+          if (!match || (!match[1] && !match[2])) {
+            return new Response(null, { status: 416, headers: { ...Object.fromEntries(headers), "Content-Range": "bytes */*" } });
+          }
+          if (!match[1]) {
+            const suffix = Number(match[2]);
+            if (!Number.isSafeInteger(suffix) || suffix <= 0) return new Response(null, { status: 416 });
+            rangeStart = Math.max(0, row.size_bytes - suffix);
+            rangeLength = Math.min(suffix, row.size_bytes);
+          } else {
+            rangeStart = Number(match[1]);
+            const end = match[2] ? Number(match[2]) : row.size_bytes - 1;
+            if (!Number.isSafeInteger(rangeStart) || !Number.isSafeInteger(end) || rangeStart < 0 || end < rangeStart || rangeStart >= row.size_bytes) {
+              return new Response(null, { status: 416, headers: { ...Object.fromEntries(headers), "Content-Range": `bytes */${row.size_bytes}` } });
+            }
+            rangeLength = Math.min(end, row.size_bytes - 1) - rangeStart + 1;
+          }
+          range = { offset: rangeStart, length: rangeLength };
+          rangeStatus = 206;
+        }
+        const object = await env.MEDIA.get(row.object_key, range ? { range } : undefined);
         if (!object) return json({ error: "Media object missing" }, 404, headers);
         const responseHeaders = new Headers(headers);
         responseHeaders.set("Content-Type", row.content_type);
-        responseHeaders.set("Content-Length", String(object.size));
+        responseHeaders.set("Content-Length", String(rangeLength ?? object.size));
         responseHeaders.set("ETag", object.httpEtag);
+        responseHeaders.set("Accept-Ranges", "bytes");
         responseHeaders.set("Cache-Control", "private, no-store");
         responseHeaders.set("X-Content-Type-Options", "nosniff");
         responseHeaders.set("Content-Disposition", "inline");
-        return new Response(object.body, { status: 200, headers: responseHeaders });
+        if (rangeStatus === 206 && rangeLength !== undefined) {
+          responseHeaders.set("Content-Range", `bytes ${rangeStart}-${rangeStart + rangeLength - 1}/${row.size_bytes}`);
+        }
+        return new Response(object.body, { status: rangeStatus, headers: responseHeaders });
       }
 
       if (request.method === "DELETE" && parts.length === 2 && parts[0] === "media") {
