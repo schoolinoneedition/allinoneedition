@@ -309,7 +309,7 @@ assert.ok(anime.includes("ownerClient.from('anime_episode_watch_links')"), 'The 
 assert.ok(!anime.includes('Open official Bing watch page'), 'The normal Watch player must not display unnecessary provider branding.');
 
 
-assert.ok(html.includes('function openAiSearchFor(query)') && html.includes("return openAiSearchFor(q)"), 'Smart Answer game and search requests must use the curated AI Search path.');
+assert.ok(html.includes('async function askAioAssistant') && html.includes("else askAioAssistant('assistantChat',q)") && html.includes("else askAioAssistant('assistantModalChat',q)"), 'Smart Answer must use real streaming AI for open-ended questions.');
 assert.ok(!html.includes("label:'Random game'") && !html.includes("const games=GAMES.map((game,index)"), 'Quick Launch must not expose unrestricted game discovery.');
 assert.ok(html.includes('Find a puzzle game to play') && html.includes('Find puzzle games'), 'AI Search suggestions must use the curated public catalogue.');
 
