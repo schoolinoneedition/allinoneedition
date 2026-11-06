@@ -17,9 +17,10 @@ interface MediaRow {
   status: "uploading" | "ready" | "deleted";
 }
 
-const MAX_OBJECT_BYTES = 5 * 1024 ** 4;
 const MAX_PARTS = 10_000;
 const MAX_PART_BYTES = 32 * 1024 * 1024;
+const MIN_PART_BYTES = 5 * 1024 * 1024;
+const MAX_OBJECT_BYTES = MAX_PARTS * MAX_PART_BYTES;
 const ALLOWED_TYPES = new Set([
   "video/mp4", "video/webm",
   "image/jpeg", "image/png", "image/webp", "image/gif",
@@ -103,6 +104,35 @@ async function dbUpdate(env: Env, row: MediaRow, patch: Record<string, unknown>)
   if (!response.ok) throw new Error("Could not update media metadata");
 }
 
+async function dbUpsertPart(env: Env, uploadId: string, partNumber: number, etag: string, sizeBytes: number) {
+  const response = await fetch(`${env.SUPABASE_URL}/rest/v1/aio_media_upload_parts?on_conflict=upload_id,part_number`, {
+    method: "POST",
+    headers: serviceHeaders(env, "resolution=merge-duplicates,return=minimal"),
+    body: JSON.stringify({ upload_id: uploadId, part_number: partNumber, etag, size_bytes: sizeBytes })
+  });
+  if (!response.ok) throw new Error("Could not save multipart progress");
+}
+
+async function dbGetParts(env: Env, uploadId: string) {
+  const query = new URLSearchParams({
+    upload_id: `eq.${uploadId}`, select: "part_number,etag,size_bytes", order: "part_number.asc"
+  });
+  const response = await fetch(`${env.SUPABASE_URL}/rest/v1/aio_media_upload_parts?${query}`, {
+    headers: serviceHeaders(env)
+  });
+  if (!response.ok) throw new Error("Could not verify multipart progress");
+  return await response.json() as Array<{ part_number: number; etag: string; size_bytes: number }>;
+}
+
+async function dbDeleteParts(env: Env, uploadId: string) {
+  const query = new URLSearchParams({ upload_id: `eq.${uploadId}` });
+  const response = await fetch(`${env.SUPABASE_URL}/rest/v1/aio_media_upload_parts?${query}`, {
+    method: "DELETE",
+    headers: serviceHeaders(env, "return=minimal")
+  });
+  if (!response.ok) throw new Error("Could not clear multipart progress");
+}
+
 function safeFilename(value: unknown) {
   if (typeof value !== "string") return "upload";
   return value.normalize("NFKC").replace(/[\\/\\0-\\x1f\\x7f]/g, "_").slice(0, 180) || "upload";
@@ -154,7 +184,7 @@ export default {
           await upload.abort();
           throw error;
         }
-        return json({ uploadId: id, partSizeBytes: 16 * 1024 * 1024, maxParts: MAX_PARTS }, 201, headers);
+        return json({ uploadId: id, partSizeBytes: MAX_PART_BYTES, maxParts: MAX_PARTS }, 201, headers);
       }
 
       if (request.method === "POST" && parts.length === 4 && parts[0] === "uploads" && parts[2] === "parts") {
@@ -171,6 +201,7 @@ export default {
         if (!row || row.status !== "uploading" || !row.multipart_upload_id) return json({ error: "Upload not found" }, 404, headers);
         const upload = env.MEDIA.resumeMultipartUpload(row.object_key, row.multipart_upload_id);
         const result = await upload.uploadPart(partNumber, request.body!);
+        await dbUpsertPart(env, id, partNumber, result.etag, length);
         return json({ partNumber, etag: result.etag }, 200, headers);
       }
 
@@ -184,16 +215,33 @@ export default {
         if (!Array.isArray(uploadedParts) || uploadedParts.length < 1 || uploadedParts.length > MAX_PARTS) {
           return json({ error: "Invalid multipart completion list" }, 400, headers);
         }
-        const valid = uploadedParts.every(p => Number.isInteger(p.partNumber) && p.partNumber >= 1 && p.partNumber <= MAX_PARTS && typeof p.etag === "string" && p.etag.length < 256);
-        if (!valid) return json({ error: "Invalid multipart part metadata" }, 400, headers);
+        const storedParts = await dbGetParts(env, id);
+        if (storedParts.length !== uploadedParts.length) return json({ error: "Some upload parts are missing" }, 400, headers);
+        const verifiedParts = storedParts.map((part, index) => {
+          const submitted = uploadedParts[index];
+          if (!submitted || submitted.partNumber !== part.part_number || submitted.etag !== part.etag) {
+            throw new Error("Multipart part list does not match server records");
+          }
+          return { partNumber: part.part_number, etag: part.etag, sizeBytes: Number(part.size_bytes) };
+        });
+        if (verifiedParts.some((part, index) => part.partNumber !== index + 1 || !Number.isSafeInteger(part.sizeBytes) || part.sizeBytes <= 0 || part.sizeBytes > MAX_PART_BYTES)) {
+          return json({ error: "Multipart parts must be sequential and within the part size limit" }, 400, headers);
+        }
+        const partSizes = verifiedParts.map(part => part.sizeBytes);
+        const uniformNonFinalParts = partSizes.slice(0, -1).every(size => size === partSizes[0] && size >= MIN_PART_BYTES);
+        if (!uniformNonFinalParts || partSizes.reduce((sum, size) => sum + size, 0) !== row.size_bytes) {
+          return json({ error: "Multipart sizes do not match the declared file size or R2 part requirements" }, 400, headers);
+        }
         const upload = env.MEDIA.resumeMultipartUpload(row.object_key, row.multipart_upload_id);
-        const object = await upload.complete(uploadedParts);
+        const object = await upload.complete(verifiedParts.map(({ partNumber, etag }) => ({ partNumber, etag })));
         if (object.size !== row.size_bytes) {
           await env.MEDIA.delete(row.object_key);
           await dbUpdate(env, row, { status: "deleted", multipart_upload_id: null });
+          await dbDeleteParts(env, id);
           return json({ error: "Uploaded size did not match the declared file size" }, 400, headers);
         }
         await dbUpdate(env, row, { status: "ready", multipart_upload_id: null, etag: object.etag, completed_at: new Date().toISOString() });
+        await dbDeleteParts(env, id);
         return json({ id: row.id, status: "ready", sizeBytes: object.size }, 200, headers);
       }
 
@@ -204,6 +252,7 @@ export default {
         if (!row || row.status !== "uploading" || !row.multipart_upload_id) return json({ error: "Upload not found" }, 404, headers);
         await env.MEDIA.resumeMultipartUpload(row.object_key, row.multipart_upload_id).abort();
         await dbUpdate(env, row, { status: "deleted", multipart_upload_id: null });
+        await dbDeleteParts(env, id);
         return json({ ok: true }, 200, headers);
       }
 
@@ -265,6 +314,7 @@ export default {
           await env.MEDIA.delete(row.object_key);
         }
         await dbUpdate(env, row, { status: "deleted", multipart_upload_id: null });
+        await dbDeleteParts(env, id);
         return json({ ok: true }, 200, headers);
       }
 
