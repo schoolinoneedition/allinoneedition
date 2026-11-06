@@ -258,3 +258,8 @@ assert.ok(social.includes(".in('post_id',pageIds)"), 'Social engagement counts s
 
 assert.ok(social.includes("let feedSort=['latest','popular','oldest']") && social.includes("feedSort==='popular'") && social.includes("localWrite(STORAGE_KEYS.feedSort,feedSort)"), 'Social sort preferences should offer persistent latest, most-liked and oldest ordering.');
 assert.ok(social.includes('function renderFeed(preserveScroll=false)') && social.includes('if(preserveScroll)feed.scrollTop=previousScrollTop') && social.includes('renderFeed(addToFeed)'), 'Loading older posts should preserve the reader scroll position.');
+
+const staffGate=backend.match(/window\\.refreshAioStaffPanel = async function\\(\\)\\{[\\s\\S]*?\\n  \\};/)?.[0]||'';
+assert.ok(staffGate.indexOf("panel.classList.add('hidden')")>=0 && staffGate.indexOf("panel.classList.add('hidden')")<staffGate.indexOf("from('staff_roles')"), 'Staff management must fail closed while the owner role is checked.');
+assert.ok(staffGate.indexOf("if(staffRole!=='owner')")>=0 && staffGate.indexOf("if(staffRole!=='owner')")<staffGate.indexOf("panel.classList.remove('hidden')"), 'Only a verified owner may reveal the staff management panel.');
+assert.ok(!staffGate.includes("aio_owner_exists"), 'Unverified accounts must not receive owner bootstrap controls in the staff panel.');
