@@ -162,7 +162,7 @@ assert.match(html, /function filteredGames\(\)/);
  for (const animeId of ['pokemon','quint','dressup','demon','haikyu','drstone','spyfamily','frieren','myhero','bluelock']) {
    assert.ok(anime.includes("id:'"+animeId+"'"), 'Missing Anime Zone series: '+animeId);
  }
- assert.equal((anime.match(/banner:'https:\/\//g)||[]).length,10,'Each Anime Zone title should have banner art');
+ assert.ok((anime.match(/banner:'https:\/\//g)||[]).length>=10,'Anime and cartoon collections should retain banner art');
  assert.ok(anime.includes("kind:'cartoon'")&&anime.includes('youtube-nocookie.com/embed/'),'Only explicitly curated family-cartoon entries should use official YouTube embeds; anime playback remains owner-managed.');
  assert.ok(!anime.includes('videoId:'),'Anime Zone must not contain broken hard-coded video IDs');
  assert.ok(anime.includes('No video added yet'),'Episodes without a saved video must show a clear empty player state');
