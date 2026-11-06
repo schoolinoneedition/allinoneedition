@@ -281,3 +281,14 @@ assert.ok(mediaWrangler.includes('binding = "MEDIA"') && mediaWrangler.includes(
 assert.ok(!html.includes('SUPABASE_SERVICE_ROLE_KEY') && !social.includes('SUPABASE_SERVICE_ROLE_KEY') && !anime.includes('SUPABASE_SERVICE_ROLE_KEY'), 'Privileged Supabase credentials must never be added to browser pages.');
 
 assert.ok(mediaWorker.includes('firstPart.byteLength !== length || !hasExpectedMagic(row.content_type, firstPart)'), 'The first uploaded part must match its declared content type before R2 stores it.');
+
+
+// Owner-only administration must fail closed in the UI and be pinned in the database.
+const ownerSchema = read('supabase/migrations/20261106203137_pin_canonical_aio_owner.sql');
+const staffGate = backend.match(/window\\.refreshAioStaffPanel = async function\\(\\)\\{[\\s\\S]*?\\n  \\};/)?.[0] || '';
+assert.ok(staffGate.indexOf("panel.classList.add('hidden')") >= 0 && staffGate.indexOf("panel.classList.add('hidden')") < staffGate.indexOf("from('staff_roles')"), 'Staff management must remain hidden while the role is verified.');
+assert.ok(staffGate.indexOf("if(staffRole!=='owner')") >= 0 && staffGate.indexOf("if(staffRole!=='owner')") < staffGate.indexOf("panel.classList.remove('hidden')"), 'Only the verified owner role may reveal staff management.');
+assert.ok(!staffGate.includes('aio_owner_exists'), 'Unverified visitors must not receive owner bootstrap controls.');
+assert.ok(ownerSchema.includes('private.aio_platform_owner') && ownerSchema.includes('private.aio_is_owner()'), 'Owner authority must be stored outside user-editable profile metadata.');
+assert.ok(ownerSchema.includes('Only the canonical owner account may hold the owner role') && ownerSchema.includes('cannot be reassigned or demoted'), 'The canonical owner role must not be granted to other accounts or removed.');
+assert.ok(ownerSchema.includes('Site owner can insert staff roles') && ownerSchema.includes('Site owner can update staff roles') && ownerSchema.includes('Site owner can delete staff roles'), 'Staff role changes must be protected by separate owner-only RLS policies.');
