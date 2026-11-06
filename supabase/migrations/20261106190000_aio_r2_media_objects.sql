@@ -28,7 +28,18 @@ alter table public.aio_media_objects enable row level security;
 
 revoke all on public.aio_media_objects from anon;
 revoke insert, update, delete on public.aio_media_objects from authenticated;
-grant select on public.aio_media_objects to authenticated;
+grant select (id, user_id, filename, content_type, size_bytes, status, created_at, completed_at)
+  on public.aio_media_objects to authenticated;
+grant all on public.aio_media_objects to service_role;
+
+create or replace view public.aio_media_library
+with (security_invoker = true)
+as
+select id, user_id, filename, content_type, size_bytes, status, created_at, completed_at
+from public.aio_media_objects
+where status <> 'deleted';
+
+grant select on public.aio_media_library to authenticated;
 
 drop policy if exists "Users can read their own private media metadata"
   on public.aio_media_objects;
