@@ -3409,7 +3409,7 @@ socialBind=function(){__oldSocialBind();socialBindPostManagement();setTimeout(()
     try{
       const response=await fetch(ENDPOINT+'/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:query,ai_search_options:{retrieval:{retrieval_type:'hybrid',max_num_results:8,match_threshold:0.25},query_rewrite:{enabled:true}}})});
       if(!response.ok)throw new Error('Search service returned '+response.status);
-      const payload=await response.json();const chunks=payload.result?.chunks||[];
+      const payload=await response.json();const chunks=payload.chunks||payload.result?.chunks||[];
       if(!chunks.length){setStatus('No matching indexed information yet. The public catalogue index may still be processing.');return}
       chunks.forEach(chunk=>{
         const key=String(chunk.item?.key||'');
