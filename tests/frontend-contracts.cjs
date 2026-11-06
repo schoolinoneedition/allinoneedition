@@ -292,3 +292,10 @@ assert.ok(!staffGate.includes('aio_owner_exists'), 'Unverified visitors must not
 assert.ok(ownerSchema.includes('private.aio_platform_owner') && ownerSchema.includes('private.aio_is_owner()'), 'Owner authority must be stored outside user-editable profile metadata.');
 assert.ok(ownerSchema.includes('Only the canonical owner account may hold the owner role') && ownerSchema.includes('cannot be reassigned or demoted'), 'The canonical owner role must not be granted to other accounts or removed.');
 assert.ok(ownerSchema.includes('Site owner can insert staff roles') && ownerSchema.includes('Site owner can update staff roles') && ownerSchema.includes('Site owner can delete staff roles'), 'Staff role changes must be protected by separate owner-only RLS policies.');
+
+
+// AI Search must be a real public-catalogue integration, not a mocked local response.
+assert.ok(html.includes('id="aiSearchOpen"') && html.includes('id="aioAiSearch"'), 'The AI Search control and dialog must be present in the live page DOM.');
+assert.ok(html.includes('59fa95cf-3fef-4c97-be4a-6328308cb959.search.ai.cloudflare.com/search') && html.includes('/chat/completions'), 'AI Search must call the configured Cloudflare AI Search endpoint.');
+assert.ok(html.includes('stream:true') && html.includes('query_rewrite:{enabled:true}'), 'AI Search chat must stream real model output and use query rewriting.');
+assert.ok(html.lastIndexOf('id="aioQuickLaunch"') > html.indexOf('</textarea>'), 'Quick Launch must exist in the live DOM, not only inside the Code Lab sample text.');
