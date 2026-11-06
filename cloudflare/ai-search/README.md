@@ -3,8 +3,8 @@
 ## Live instance
 
 - Namespace: `default`
-- Instance: `aio-platform-search`
-- Public endpoint ID: `59fa95cf-3fef-4c97-be4a-6328308cb959`
+- Instance: `aio-public-search`
+- Public endpoint ID: `16fdd2d2-aa84-4145-a0d5-be81366b07b1`
 - Search route: `https://59fa95cf-3fef-4c97-be4a-6328308cb959.search.ai.cloudflare.com/search`
 - Chat route: `https://59fa95cf-3fef-4c97-be4a-6328308cb959.search.ai.cloudflare.com/chat/completions`
 
@@ -23,7 +23,7 @@ The public endpoint is restricted to the production site origin and has a 20-req
 ## Current indexed material
 
 - `platform-guide.md`: public site sections and privacy boundaries.
-- `games-catalogue.md`: 297 catalogue entries from puzzle, racing, sports, word, memory, idle, board, simulation and music categories, with titles associated with unsafe real-world challenges excluded. No external launch URLs or provider metadata are indexed.
+- `games-catalogue.md`: 118 curated catalogue entries from puzzle, word, memory, board, simulation, idle and rhythm categories. No external launch URLs or provider metadata are indexed.
 
 The Watch series document was removed because episode availability is not yet verified. Watch results must not invent episodes or claim playback availability based on series names alone.
 
