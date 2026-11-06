@@ -318,3 +318,5 @@ assert.ok(html.includes("'games-puzzle.md':'Puzzle games'") && html.includes("'g
 assert.ok(html.includes('Do not help locate dangerous or age-restricted content'), 'AI Search chat must enforce the platform safety boundary.');
 
 assert.ok(html.includes('payload.chunks||payload.result?.chunks'), 'AI Search must parse the public endpoint response shape.');
+
+assert.ok(html.includes('id="assistantBtn" type="button" onclick="openAssistant()"'), 'The top-bar Smart Answer button must open the assistant modal when clicked.');
