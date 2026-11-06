@@ -294,7 +294,17 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
    {number:1,title:'Umbrella!',start:39},{number:2,title:'Drum Roll Please',start:440},{number:3,title:'Swept Away',start:836},{number:4,title:"Who's On The Phone?",start:1236},{number:5,title:'Fetch Loula Fetch!',start:1637},{number:6,title:'A Little Cloud',start:2037},{number:7,title:'A Present for Elly',start:2437},{number:8,title:'Pocoyo Dance',start:2839},{number:9,title:'The Big Sneeze',start:3239},{number:10,title:'A Mystery Most Puzzling',start:3638},{number:11,title:'Hush!',start:4039},{number:12,title:'Double Bubble',start:4441},{number:13,title:'Key to It All',start:4841}
   ]}]},
   {id:'bing',kind:'cartoon',title:'Bing',jp:'BING',symbol:'🐰',tone:'#e47d45',banner:'https://assets.bingbunny.com/sites/default/files/styles/sc_072000_1152x1152/public/2023-06/DIG_1012_Footer%20topper_0.png.webp?itok=Ic6hAT6y',type:'Family cartoon',rating:'Family',meta:'Official episode guide · four series',description:'Bing explores the small surprises of everyday life with his friends. Browse the official episode guide and watch through the publisher’s listed services.',episodeGuideUrl:'https://uk.bingbunny.com/spis-odcinkow',watch:[{label:'Bing official watch page',url:'https://uk.bingbunny.com/watch',hint:'Official full episodes and viewing options'},{label:'Bing official episode guide',url:'https://uk.bingbunny.com/spis-odcinkow',hint:'Episode titles and series filters'}],seasons:[{name:'Series One · selected episodes',episodes:makeEpisodes(['Fireworks','Bye Bye','Blocks','Smoothie','Frog','Car Park','Shadow','Musical Statues'])}]}
+
  ];
+ series.unshift({
+  id:'pokemon-tv-official',kind:'anime',title:'Pokémon TV · Official Episode',jp:'ポケモンTV',symbol:'⚡',tone:'#e8a52d',
+  banner:'https://in.portal-pokemon.com/images/in_anime_1_1_kv1.png',type:'Official full episode',rating:'U',
+  meta:'Verified Pokémon TV · official YouTube upload',
+  description:'Watch an officially published Pokémon episode from the verified Pokémon TV channel. More official uploads are available on the channel; availability can vary by region.',
+  embedVideoId:'jD4fwPpX1bU',
+  watch:[{label:'Pokémon TV · verified YouTube channel',url:'https://www.youtube.com/@OfficialPokemonTV',hint:'Official Pokémon TV channel and full episodes'},{label:'Official Pokémon episode hub',url:'https://www.pokemon.com/uk/pokemon-episodes',hint:'Episode information and viewing options'}],
+  seasons:[{name:'Featured official upload',episodes:[{number:1,title:'Wild In The Streets! · Full Episode 17',start:0}]}]
+ });
  const key=(sid,season,ep)=>sid+':'+season+':'+ep;
  const watchLinkKey=(sid,season,ep)=>sid+':'+season+':'+ep;
  function validateSelfHostedVideoUrl(raw){
@@ -468,7 +478,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   $('playerSubtitle').textContent=s.seasons[si].name+' · Episode '+ep.number;
   updateOwnerEditor(s,si,ep);
   const stage=$('playerStage');stage.replaceChildren();
-  if(s.kind==='cartoon'&&s.embedVideoId){
+  if(s.embedVideoId){
    const wrap=document.createElement('div');wrap.className='watch-embed-wrap';
    const frame=document.createElement('iframe');frame.className='watch-episode-embed';frame.title=s.title+' · '+ep.title;frame.loading='lazy';frame.referrerPolicy='strict-origin-when-cross-origin';frame.allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share';frame.allowFullscreen=true;
    const start=Math.max(0,Number(ep.start)||0),origin=encodeURIComponent(location.origin);
@@ -478,7 +488,9 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
    const pause=document.createElement('button');pause.type='button';let paused=false;pause.textContent='Ⅱ Pause';pause.setAttribute('aria-label','Pause video');pause.addEventListener('click',()=>{paused=!paused;command(paused?'pauseVideo':'playVideo');pause.textContent=paused?'▶ Play':'Ⅱ Pause';pause.setAttribute('aria-label',paused?'Play video':'Pause video')});
    const sound=document.createElement('button');sound.type='button';sound.textContent='Sound on';sound.setAttribute('aria-pressed','true');let muted=false;sound.addEventListener('click',()=>{muted=!muted;command(muted?'mute':'unMute');sound.textContent=muted?'Sound off':'Sound on';sound.setAttribute('aria-pressed',String(!muted))});
    const auto=document.createElement('button');auto.type='button';auto.textContent='Auto-play: On';auto.setAttribute('aria-pressed','true');auto.addEventListener('click',()=>{cartoonAutoPlay=!cartoonAutoPlay;auto.textContent='Auto-play: '+(cartoonAutoPlay?'On':'Off');auto.setAttribute('aria-pressed',String(cartoonAutoPlay));if(cartoonAutoPlay)command('playVideo')});
-   controls.append(pause,sound,auto);wrap.append(frame,controls);stage.append(wrap);
+   const fullscreen=document.createElement('button');fullscreen.type='button';fullscreen.textContent='⛶ Fullscreen';fullscreen.addEventListener('click',async()=>{try{if(!document.fullscreenElement)await wrap.requestFullscreen();else await document.exitFullscreen()}catch{$('playerNote').textContent='Fullscreen is not available in this browser.'}});
+   const openOfficial=document.createElement('a');openOfficial.className='action';openOfficial.href='https://www.youtube.com/watch?v='+encodeURIComponent(s.embedVideoId);openOfficial.target='_blank';openOfficial.rel='noopener noreferrer';openOfficial.textContent='Open official video';
+   controls.append(pause,sound,auto,fullscreen,openOfficial);wrap.append(frame,controls);stage.append(wrap);
    $('playerNote').textContent='Custom pause, sound and auto-play controls are enabled. The video is from the official publisher on YouTube, so YouTube branding may still appear. Autoplay with sound depends on browser permissions.';return;
   }
   if(s.kind==='cartoon'&&s.episodeGuideUrl){
