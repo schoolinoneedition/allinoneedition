@@ -1370,7 +1370,7 @@ function copyCode(){navigator.clipboard?.writeText($('codeEditor')?.value||'').t
 function resetCode(){const ed=$('codeEditor');if(!ed)return;ed.value='<!doctype html>\n<html>\n<body style="font-family:system-ui;padding:20px">\n<h1>Hello from All in One</h1>\n<button onclick="document.body.style.background=\'#eaf2ff\'">Click me</button>\n</body>\n</html>';runCode();}
 function clearGameProgress(){gameProgress={};storage.setItem(GAME_PROGRESS_KEY,'{}');updateResumeCard();renderGames();updateStudyProgress();showToast('Game progress cleared');}
 function saveChatHistory(){if(storage.getItem('aio-chat-history')==='0')return;storage.setItem('aio-chat-history',JSON.stringify(window.__aioChat||[]));}
-function addChatMessage(containerId,text,isUser=false,save=true){const box=$(containerId);if(!box)return;const row=document.createElement('div');row.className='chatrow '+(isUser?'user':'ai');const avatar=document.createElement('div');avatar.className='avatar';avatar.textContent=isUser?'You':'AI';const bubble=document.createElement('div');bubble.className='bubble';bubble.innerHTML=`<strong>${isUser?'You':'Smart answer'}</strong>${esc(text)}`;row.append(avatar,bubble);box.appendChild(row);box.scrollTop=box.scrollHeight;if(save){const arr=window.__aioChat||[];arr.push({text:String(text),user:!!isUser,ts:Date.now()});window.__aioChat=arr.slice(-40);saveChatHistory();}}
+function addChatMessage(containerId,text,isUser=false,save=true){const box=$(containerId);if(!box)return null;const row=document.createElement('div');row.className='chatrow '+(isUser?'user':'ai');const avatar=document.createElement('div');avatar.className='avatar';avatar.textContent=isUser?'You':'AI';const bubble=document.createElement('div');bubble.className='bubble';bubble.innerHTML=`<strong>${isUser?'You':'Smart answer'}</strong>${esc(text)}`;row.append(avatar,bubble);box.appendChild(row);box.scrollTop=box.scrollHeight;if(save){const arr=window.__aioChat||[];arr.push({text:String(text),user:!!isUser,ts:Date.now()});window.__aioChat=arr.slice(-40);saveChatHistory();}return bubble;}
 function renderChatHistory(){const arr=loadJSON('aio-chat-history',[]);window.__aioChat=Array.isArray(arr)?arr:[];const boxes=[$('assistantChat'),$('assistantModalChat')].filter(Boolean);boxes.forEach(b=>{b.innerHTML='';window.__aioChat.slice(-40).forEach(m=>addChatMessage(b.id,m.text,!!m.user,false));if(!b.children.length)addChatMessage(b.id,'I can launch games, make notes/tasks, change language, manage settings, read the time, solve maths and open tools/music.',false,false);});}
 function addChatNote(raw){let s=String(raw).replace(/^(?:make|create|add)\s+(?:a\s+)?(?:sticky\s+)?note\b/i,'').trim(),title='Smart note',body=s;let m=s.match(/^called?\s+[\"“]?(.+?)[\"”]?\s+(?:that\s+)?(?:says|say|:|—)\s+(.+)$/i);if(m){title=m[1].trim();body=m[2].trim();}else if(/^(?:that\s+)?(?:says|say)\s+/i.test(s)){body=s.replace(/^(?:that\s+)?(?:says|say)\s+/i,'').trim();}else if(/^title[:\-]/i.test(s)){const parts=s.split(/[:\-]/);title=parts.shift().trim()||title;body=parts.join(':').trim();}if(!body)body='Note from Smart answer';notesData.unshift({id:Date.now(),title,body});notesData=notesData.slice(0,100);storage.setItem('aio-notes-v2',JSON.stringify(notesData));renderNotes();return `Created sticky note “${title}”.`;}
 function addChatTodo(raw){let text=String(raw).replace(/^(?:add|make|create)\s+(?:a\s+)?(?:todo|to-do|task|reminder)\b/i,'').trim();if(/^called?\s+/i.test(text))text=text.replace(/^called?\s+/i,'');if(!text)text='New task';todoData.push({id:Date.now(),text,done:false});storage.setItem('aio-todos-v2',JSON.stringify(todoData));renderTodos();return `Added task “${text}”.`;}
@@ -1380,14 +1380,6 @@ function hometimeText(){const now=new Date(),t=new Date(now);t.setHours(15,30,0,
 function languageCodeFromText(x){const map={english:'en',en:'en',spanish:'es',es:'es',french:'fr',fr:'fr',german:'de',de:'de',polish:'pl',pl:'pl',portuguese:'pt',pt:'pt',turkish:'tr',tr:'tr',arabic:'ar',ar:'ar',italian:'it',it:'it',dutch:'nl',nl:'nl',japanese:'ja',ja:'ja',korean:'ko',ko:'ko'};return map[normalizeText(x).replace(/[^a-z\u00c0-\uFFFF]/g,'')]||null;}
 function smartMath(raw){let x=normalizeText(raw).replace(/^(what is|calculate|calc|work out|solve|answer)\s+/,'').replace(/multiplied by|multiply by|times|multiply/g,'*').replace(/divided by|divide by|over|divide/g,'/').replace(/\bplus\b/g,'+').replace(/\bminus\b/g,'-').replace(/\bpercent of\b/g,'%').replace(/×/g,'*').replace(/÷/g,'/').replace(/\bx\b/g,'*').replace(/,/g,'').replace(/\s+/g,'');if(!/^[0-9+\-*/().%]+$/.test(x)||!/[+\-*/%]/.test(x))return null;const v=evaluateCalc(x);return v===null?null:`Answer: ${v}`;}
 function openGameByText(q){return null;}
-function openAiSearchFor(query){
-  const trigger=$('aiSearchOpen'),input=$('aioAiQuery'),form=$('aioAiForm');
-  if(!trigger||!input||!form)return null;
-  trigger.click();
-  input.value=String(query||'').slice(0,500);
-  setTimeout(()=>form.requestSubmit(),0);
-  return 'Searching the curated public catalogue.';
-}
 function executeSmartCommand(raw){
   const x=normalizeText(raw);if(!x)return'Ask me something.';
   const lang=x.match(/(?:change|switch|set)\s+(?:the\s+)?(?:language|lang)\s+(?:to|into)\s+(.+)/);
@@ -1416,10 +1408,10 @@ function executeSmartCommand(raw){
   if(/clear (?:todo|to-do|tasks)/.test(x)){todoData=[];storage.setItem('aio-todos-v2','[]');renderTodos();return'Tasks cleared.'}
   if(/(?:make|create|add)\s+(?:a\s+)?(?:sticky\s+)?note|^note\b/.test(x))return addChatNote(raw);
   if(/(?:add|make|create)\s+(?:a\s+)?(?:todo|to-do|task|reminder)\b/.test(x))return addChatTodo(raw);
-  if(/random game|surprise me|pick a game/.test(x)){return openAiSearchFor('Find a puzzle game to play')||'Open AI Search to browse the curated catalogue.'}
-  if(/continue last game|resume last game/.test(x)){continueLastGame();return'Continuing your last game.'}
-  if(/^search\s+/.test(x)){const q=raw.replace(/^search\s+/i,'').trim();return openAiSearchFor(q)||'Open AI Search to search the curated public catalogue.'}
-  if(/^(play|launch|open|start|run|load)\s+/.test(x)){const q=raw.replace(/^(play|launch|open|start|run|load)\s+/i,'').trim();return openAiSearchFor(q)||'Open AI Search to search the curated public catalogue.'}
+  if(/random game|surprise me|pick a game/.test(x))return null;
+  if(/continue last game|resume last game/.test(x))return null;
+  if(/^search\s+/.test(x))return null;
+  if(/^(play|launch|open|start|run|load)\s+/.test(x))return null;
   const m=smartMath(raw);if(m)return m;
   if(/calculator|calc/.test(x)){scrollToId('tools');return'Calculator is in Useful things.'}
   if(/unit converter|convert /.test(x)){scrollToId('tools');return'Unit converter is in Useful things.'}
@@ -1428,12 +1420,44 @@ function executeSmartCommand(raw){
   if(/\bdate\b|what day|today/.test(x))return`Today is ${new Date().toLocaleDateString(document.documentElement.lang||'en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}.`;
   if(/hometime|home time|finish time/.test(x))return hometimeText();
   if(/how many games|game count|number of games/.test(x))return`There are ${GAMES.length} games in the catalogue.`;
-  if(/help|commands|what can you do/.test(x))return'I can launch games, manage accounts and Community, create notes/tasks, change language, open settings/music/tools, start Magma Maths, enter AFK mode, read the time/date/hometime, solve maths and control game audio.';
-  return'I can control the site and answer common questions. Try “play Crossy Road”, “make a note called homework that says do maths”, “sign up”, “create party”, “open settings”, “what time is it?” or “25 times 8”.';
+  if(/help|commands|what can you do/.test(x))return'I can manage settings, create notes and tasks, open site sections, read the time/date/hometime, solve maths and answer questions from the public catalogue.';
+  return null;
 }
 function smartQuick(text){if($('assistantInput'))$('assistantInput').value='';answerQuestion(text);}
-function answerQuestion(forced){const input=forced ?? ($('assistantInput')?.value || '');const q=String(input).trim();if(!q)return;addChatMessage('assistantChat',q,true,true);if($('assistantInput'))$('assistantInput').value='';setTimeout(()=>addChatMessage('assistantChat',executeSmartCommand(q),false,true),120);}
-function answerModalQuestion(){const input=$('assistantModalInput'),q=String(input?.value||'').trim();if(!q)return;addChatMessage('assistantModalChat',q,true,true);if(input)input.value='';setTimeout(()=>addChatMessage('assistantModalChat',executeSmartCommand(q),false,true),120);}
+async function askAioAssistant(containerId,question){
+  const endpoint='https://16fdd2d2-aa84-4145-a0d5-be81366b07b1.search.ai.cloudflare.com';
+  const system='You are All in One Edition Smart Answer. Answer only from the indexed public platform catalogue. Do not invent games, tools, episodes, release dates, features or playable links. The public index does not contain private notes, account data or Social posts. If the answer is not in the indexed material, say it is not currently indexed. Do not help locate dangerous or age-restricted content; redirect to safe puzzles, study tools and general platform help. Never expose internal storage keys or provider metadata.';
+  const bubble=addChatMessage(containerId,'Thinking…',false,false);if(!bubble)return;
+  bubble.innerHTML='<strong>Smart answer</strong>';
+  const output=document.createElement('span');bubble.appendChild(output);
+  const context=window.__aioAssistantContext||[];
+  context.push({role:'user',content:String(question).slice(0,2000)});
+  window.__aioAssistantContext=context.slice(-8);
+  try{
+    const response=await fetch(endpoint+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'system',content:system}].concat(window.__aioAssistantContext),stream:true,ai_search_options:{retrieval:{retrieval_type:'hybrid',max_num_results:6,match_threshold:0.25},query_rewrite:{enabled:true}}})});
+    if(!response.ok)throw new Error('AI service returned '+response.status);
+    const reader=response.body.getReader(),decoder=new TextDecoder();let buffer='',answer='';
+    while(true){
+      const part=await reader.read();if(part.done)break;
+      buffer+=decoder.decode(part.value,{stream:true});
+      const lines=buffer.split(/\\r?\\n/);buffer=lines.pop()||'';
+      for(const line of lines){
+        if(!line.startsWith('data:'))continue;
+        const data=line.slice(5).trim();if(!data||data==='[DONE]')continue;
+        try{const item=JSON.parse(data),token=item.choices?.[0]?.delta?.content;if(token){answer+=token;output.textContent=answer}}catch{}
+      }
+    }
+    if(!answer)answer='I could not find an answer in the public catalogue yet.';
+    window.__aioAssistantContext=window.__aioAssistantContext.concat({role:'assistant',content:answer}).slice(-10);
+    const history=window.__aioChat||[];history.push({text:answer,user:false,ts:Date.now()});window.__aioChat=history.slice(-40);saveChatHistory();
+  }catch(error){
+    output.textContent='AI is temporarily unavailable. Try a site command or use AI Search again.';
+    console.warn('Smart Answer request failed:',error);
+  }
+  const box=$(containerId);if(box)box.scrollTop=box.scrollHeight;
+}
+function answerQuestion(forced){const input=forced ?? ($('assistantInput')?.value || '');const q=String(input).trim();if(!q)return;addChatMessage('assistantChat',q,true,true);if($('assistantInput'))$('assistantInput').value='';const local=executeSmartCommand(q);if(local!==null&&local!==undefined)setTimeout(()=>addChatMessage('assistantChat',local,false,true),120);else askAioAssistant('assistantChat',q);}
+function answerModalQuestion(){const input=$('assistantModalInput'),q=String(input?.value||'').trim();if(!q)return;addChatMessage('assistantModalChat',q,true,true);if(input)input.value='';const local=executeSmartCommand(q);if(local!==null&&local!==undefined)setTimeout(()=>addChatMessage('assistantModalChat',local,false,true),120);else askAioAssistant('assistantModalChat',q);}
 function openAssistant(){$('assistantModal')?.classList.add('open');renderChatHistory();setTimeout(()=>$('assistantModalInput')?.focus(),20)}
 function closeAssistant(){$('assistantModal')?.classList.remove('open')}
 function openSettings(){$('settingsModal')?.classList.add('open');initSettings();}
