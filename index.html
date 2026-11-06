@@ -772,7 +772,7 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
 <div id="aioQuickLaunch" class="aio-command-backdrop" hidden aria-hidden="true">
   <section class="aio-command-dialog" role="dialog" aria-modal="true" aria-labelledby="aioCommandTitle">
     <div class="aio-command-head"><span class="aio-command-mark">A</span><span class="aio-command-head-copy"><strong id="aioCommandTitle">Quick Launch</strong><small>Jump anywhere in All in One Edition</small></span><kbd>ESC</kbd></div>
-    <div class="aio-command-input-wrap"><input id="aioCommandInput" type="search" autocomplete="off" spellcheck="false" placeholder="Search pages, tools or games…" aria-label="Search pages, tools or games"></div>
+    <div class="aio-command-input-wrap"><input id="aioCommandInput" type="search" autocomplete="off" spellcheck="false" placeholder="Search pages and tools, or open AI Search…" aria-label="Search pages, tools or games"></div>
     <div id="aioCommandResults" class="aio-command-results" role="listbox" aria-label="Quick launch results"></div>
     <div class="aio-command-foot"><span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span><span><kbd>↵</kbd> Open</span><span><kbd>Ctrl</kbd><kbd>K</kbd> Toggle</span></div>
   </section>
@@ -802,7 +802,7 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
     {label:'Code Lab',detail:'Open the HTML, CSS and JavaScript editor',icon:'</>',group:'Pages',run:()=>scrollToId('code')},
     {label:'Settings',detail:'Personalisation, themes and preferences',icon:'⚙',group:'Actions',run:()=>document.getElementById('settingsBtn')?.click()},
     {label:'A-Coins & Quests',detail:'View rewards, quests and game shop',icon:'◈',group:'Actions',run:()=>window.openAioEconomy?.()},
-    {label:'Random game',detail:'Launch a random game from the library',icon:'⤨',group:'Actions',run:()=>{if(typeof GAMES!=='undefined'&&GAMES.length&&typeof openGame==='function')openGame(Math.floor(Math.random()*GAMES.length));else scrollToId('games')}}
+    {label:'AI Search',detail:'Search the curated public catalogue',icon:'⌕',group:'Actions',run:()=>document.getElementById('aiSearchOpen')?.click()}
   ];
   function makeOption(item,index){
     const button=document.createElement('button');
@@ -828,15 +828,10 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
   function render(){
     const query=input.value.trim().toLowerCase();
     let base=commands.filter(item=>(item.label+' '+item.detail).toLowerCase().includes(query));
-    if(typeof GAMES!=='undefined'&&Array.isArray(GAMES)&&query){
-      const games=GAMES.map((game,index)=>({game,index})).filter(x=>(String(x.game.name||'')+' '+String(x.game.cat||'')).toLowerCase().includes(query)).slice(0,8)
-      .map(x=>({label:x.game.name,detail:(x.game.cat||'Game')+' · Open in the game player',icon:'🎮',group:'Game',run:()=>{scrollToId('games');openGame(x.index)}}));
-      base=base.concat(games);
-    }
     visible=base;
     selected=Math.max(0,Math.min(selected,visible.length-1));
     results.replaceChildren();
-    if(!visible.length){const empty=document.createElement('div');empty.className='aio-command-empty';empty.textContent='No matching pages, tools or games. Try a shorter search.';results.append(empty);return}
+    if(!visible.length){const empty=document.createElement('div');empty.className='aio-command-empty';empty.textContent='No matching pages or tools. Try a shorter search.';results.append(empty);return}
     let lastGroup='';
     visible.forEach((item,index)=>{
       if(item.group!==lastGroup){const heading=document.createElement('div');heading.className='aio-command-group';heading.textContent=item.group;results.append(heading);lastGroup=item.group}
@@ -1384,7 +1379,15 @@ function currentTimeText(){return new Date().toLocaleTimeString(document.documen
 function hometimeText(){const now=new Date(),t=new Date(now);t.setHours(15,30,0,0);if(now>=t||now.getDay()===0||now.getDay()===6){do{t.setDate(t.getDate()+1)}while(t.getDay()===0||t.getDay()===6);t.setHours(15,30,0,0);}const ms=Math.max(0,t-now),h=Math.floor(ms/3600000),m=Math.floor(ms%3600000/60000),sec=Math.floor(ms%60000/1000);return `Hometime is 15:30. ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')} remaining.`;}
 function languageCodeFromText(x){const map={english:'en',en:'en',spanish:'es',es:'es',french:'fr',fr:'fr',german:'de',de:'de',polish:'pl',pl:'pl',portuguese:'pt',pt:'pt',turkish:'tr',tr:'tr',arabic:'ar',ar:'ar',italian:'it',it:'it',dutch:'nl',nl:'nl',japanese:'ja',ja:'ja',korean:'ko',ko:'ko'};return map[normalizeText(x).replace(/[^a-z\u00c0-\uFFFF]/g,'')]||null;}
 function smartMath(raw){let x=normalizeText(raw).replace(/^(what is|calculate|calc|work out|solve|answer)\s+/,'').replace(/multiplied by|multiply by|times|multiply/g,'*').replace(/divided by|divide by|over|divide/g,'/').replace(/\bplus\b/g,'+').replace(/\bminus\b/g,'-').replace(/\bpercent of\b/g,'%').replace(/×/g,'*').replace(/÷/g,'/').replace(/\bx\b/g,'*').replace(/,/g,'').replace(/\s+/g,'');if(!/^[0-9+\-*/().%]+$/.test(x)||!/[+\-*/%]/.test(x))return null;const v=evaluateCalc(x);return v===null?null:`Answer: ${v}`;}
-function openGameByText(q){const n=normalizeText(q).replace(/^(play|launch|open|start|run|load)\s+/,'').trim();if(!n)return null;let idx=GAMES.findIndex(g=>normalizeText(g.name)===n);if(idx<0)idx=GAMES.findIndex(g=>normalizeText(g.name).includes(n)||n.includes(normalizeText(g.name)));if(idx>=0){openGame(idx);return `Launching ${GAMES[idx].name}.`;}return null;}
+function openGameByText(q){return null;}
+function openAiSearchFor(query){
+  const trigger=$('aiSearchOpen'),input=$('aioAiQuery'),form=$('aioAiForm');
+  if(!trigger||!input||!form)return null;
+  trigger.click();
+  input.value=String(query||'').slice(0,500);
+  setTimeout(()=>form.requestSubmit(),0);
+  return 'Searching the curated public catalogue.';
+}
 function executeSmartCommand(raw){
   const x=normalizeText(raw);if(!x)return'Ask me something.';
   const lang=x.match(/(?:change|switch|set)\s+(?:the\s+)?(?:language|lang)\s+(?:to|into)\s+(.+)/);
@@ -1413,10 +1416,10 @@ function executeSmartCommand(raw){
   if(/clear (?:todo|to-do|tasks)/.test(x)){todoData=[];storage.setItem('aio-todos-v2','[]');renderTodos();return'Tasks cleared.'}
   if(/(?:make|create|add)\s+(?:a\s+)?(?:sticky\s+)?note|^note\b/.test(x))return addChatNote(raw);
   if(/(?:add|make|create)\s+(?:a\s+)?(?:todo|to-do|task|reminder)\b/.test(x))return addChatTodo(raw);
-  if(/random game|surprise me|pick a game/.test(x)){const i=Math.floor(Math.random()*GAMES.length);openGame(i);return`Launching ${GAMES[i].name}.`}
+  if(/random game|surprise me|pick a game/.test(x)){return openAiSearchFor('Find a puzzle game to play')||'Open AI Search to browse the curated catalogue.'}
   if(/continue last game|resume last game/.test(x)){continueLastGame();return'Continuing your last game.'}
-  if(/^search\s+/.test(x)){const q=raw.replace(/^search\s+/i,'').trim();if($('search')){$('search').value=q;$('search').dispatchEvent(new Event('input'));}scrollToId('games');return`Searching games for “${q}”.`}
-  if(/^(play|launch|open|start|run|load)\s+/.test(x)){const launched=openGameByText(raw);if(launched)return launched}
+  if(/^search\s+/.test(x)){const q=raw.replace(/^search\s+/i,'').trim();return openAiSearchFor(q)||'Open AI Search to search the curated public catalogue.'}
+  if(/^(play|launch|open|start|run|load)\s+/.test(x)){const q=raw.replace(/^(play|launch|open|start|run|load)\s+/i,'').trim();return openAiSearchFor(q)||'Open AI Search to search the curated public catalogue.'}
   const m=smartMath(raw);if(m)return m;
   if(/calculator|calc/.test(x)){scrollToId('tools');return'Calculator is in Useful things.'}
   if(/unit converter|convert /.test(x)){scrollToId('tools');return'Unit converter is in Useful things.'}
@@ -3232,7 +3235,7 @@ socialBind=function(){__oldSocialBind();socialBindPostManagement();setTimeout(()
 <div id="aioQuickLaunch" class="aio-command-backdrop" hidden aria-hidden="true">
   <section class="aio-command-dialog" role="dialog" aria-modal="true" aria-labelledby="aioCommandTitle">
     <div class="aio-command-head"><span class="aio-command-mark">A</span><span class="aio-command-head-copy"><strong id="aioCommandTitle">Quick Launch</strong><small>Jump anywhere in All in One Edition</small></span><kbd>ESC</kbd></div>
-    <div class="aio-command-input-wrap"><input id="aioCommandInput" type="search" autocomplete="off" spellcheck="false" placeholder="Search pages, tools or games…" aria-label="Search pages, tools or games"></div>
+    <div class="aio-command-input-wrap"><input id="aioCommandInput" type="search" autocomplete="off" spellcheck="false" placeholder="Search pages and tools, or open AI Search…" aria-label="Search pages, tools or games"></div>
     <div id="aioCommandResults" class="aio-command-results" role="listbox" aria-label="Quick launch results"></div>
     <div class="aio-command-foot"><span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span><span><kbd>↵</kbd> Open</span><span><kbd>Ctrl</kbd><kbd>K</kbd> Toggle</span></div>
   </section>
@@ -3250,12 +3253,12 @@ socialBind=function(){__oldSocialBind();socialBindPostManagement();setTimeout(()
       <button type="button" data-ai-mode="chat" aria-pressed="false">Ask AI</button>
     </div>
     <form id="aioAiForm" class="aio-ai-form">
-      <input id="aioAiQuery" type="search" autocomplete="off" maxlength="500" placeholder="Try “find racing games” or “what tools are available?”" aria-label="Search All in One Edition">
+      <input id="aioAiQuery" type="search" autocomplete="off" maxlength="500" placeholder="Try “find puzzle games” or “what tools are available?”" aria-label="Search All in One Edition">
       <button type="button" id="aioAiVoice" aria-label="Voice search">🎙</button>
       <button type="submit" id="aioAiSubmit">Search</button>
     </form>
     <div class="aio-ai-suggestions" id="aioAiSuggestions">
-      <button type="button" data-ai-query="Find racing games">Racing games</button>
+      <button type="button" data-ai-query="Find puzzle games">Puzzle games</button>
       <button type="button" data-ai-query="What tools are available?">Available tools</button>
       <button type="button" data-ai-query="How do I use the Study Hub?">Study Hub</button>
     </div>
@@ -3288,7 +3291,7 @@ socialBind=function(){__oldSocialBind();socialBindPostManagement();setTimeout(()
     {label:'Code Lab',detail:'Open the HTML, CSS and JavaScript editor',icon:'</>',group:'Pages',run:()=>scrollToId('code')},
     {label:'Settings',detail:'Personalisation, themes and preferences',icon:'⚙',group:'Actions',run:()=>document.getElementById('settingsBtn')?.click()},
     {label:'A-Coins & Quests',detail:'View rewards, quests and game shop',icon:'◈',group:'Actions',run:()=>window.openAioEconomy?.()},
-    {label:'Random game',detail:'Launch a random game from the library',icon:'⤨',group:'Actions',run:()=>{if(typeof GAMES!=='undefined'&&GAMES.length&&typeof openGame==='function')openGame(Math.floor(Math.random()*GAMES.length));else scrollToId('games')}}
+    {label:'AI Search',detail:'Search the curated public catalogue',icon:'⌕',group:'Actions',run:()=>document.getElementById('aiSearchOpen')?.click()}
   ];
   function makeOption(item,index){
     const button=document.createElement('button');
@@ -3314,15 +3317,10 @@ socialBind=function(){__oldSocialBind();socialBindPostManagement();setTimeout(()
   function render(){
     const query=input.value.trim().toLowerCase();
     let base=commands.filter(item=>(item.label+' '+item.detail).toLowerCase().includes(query));
-    if(typeof GAMES!=='undefined'&&Array.isArray(GAMES)&&query){
-      const games=GAMES.map((game,index)=>({game,index})).filter(x=>(String(x.game.name||'')+' '+String(x.game.cat||'')).toLowerCase().includes(query)).slice(0,8)
-      .map(x=>({label:x.game.name,detail:(x.game.cat||'Game')+' · Open in the game player',icon:'🎮',group:'Game',run:()=>{scrollToId('games');openGame(x.index)}}));
-      base=base.concat(games);
-    }
     visible=base;
     selected=Math.max(0,Math.min(selected,visible.length-1));
     results.replaceChildren();
-    if(!visible.length){const empty=document.createElement('div');empty.className='aio-command-empty';empty.textContent='No matching pages, tools or games. Try a shorter search.';results.append(empty);return}
+    if(!visible.length){const empty=document.createElement('div');empty.className='aio-command-empty';empty.textContent='No matching pages or tools. Try a shorter search.';results.append(empty);return}
     let lastGroup='';
     visible.forEach((item,index)=>{
       if(item.group!==lastGroup){const heading=document.createElement('div');heading.className='aio-command-group';heading.textContent=item.group;results.append(heading);lastGroup=item.group}
@@ -3384,7 +3382,7 @@ socialBind=function(){__oldSocialBind();socialBindPostManagement();setTimeout(()
     mode=next;
     modeButtons.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.aiMode===mode)));
     submit.textContent=mode==='chat'?'Ask AI':'Search';
-    input.placeholder=mode==='chat'?'Ask a question about All in One Edition…':'Try “find racing games” or “what tools are available?”';
+    input.placeholder=mode==='chat'?'Ask a question about All in One Edition…':'Try “find puzzle games” or “what tools are available?”';
     suggestions.hidden=mode==='chat';
   }
   function open(){
