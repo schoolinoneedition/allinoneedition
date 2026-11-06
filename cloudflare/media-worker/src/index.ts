@@ -217,13 +217,15 @@ export default {
         }
         const storedParts = await dbGetParts(env, id);
         if (storedParts.length !== uploadedParts.length) return json({ error: "Some upload parts are missing" }, 400, headers);
-        const verifiedParts = storedParts.map((part, index) => {
+        const verifiedParts: Array<{ partNumber: number; etag: string; sizeBytes: number }> = [];
+        for (let index = 0; index < storedParts.length; index++) {
+          const part = storedParts[index];
           const submitted = uploadedParts[index];
           if (!submitted || submitted.partNumber !== part.part_number || submitted.etag !== part.etag) {
-            throw new Error("Multipart part list does not match server records");
+            return json({ error: "Multipart part list does not match server records" }, 400, headers);
           }
-          return { partNumber: part.part_number, etag: part.etag, sizeBytes: Number(part.size_bytes) };
-        });
+          verifiedParts.push({ partNumber: part.part_number, etag: part.etag, sizeBytes: Number(part.size_bytes) });
+        }
         if (verifiedParts.some((part, index) => part.partNumber !== index + 1 || !Number.isSafeInteger(part.sizeBytes) || part.sizeBytes <= 0 || part.sizeBytes > MAX_PART_BYTES)) {
           return json({ error: "Multipart parts must be sequential and within the part size limit" }, 400, headers);
         }
@@ -284,7 +286,7 @@ export default {
             }
             rangeLength = Math.min(end, row.size_bytes - 1) - rangeStart + 1;
           }
-          range = { offset: rangeStart, length: rangeLength };
+          range = { offset: rangeStart, length: rangeLength! };
           rangeStatus = 206;
         }
         const object = await env.MEDIA.get(row.object_key, range ? { range } : undefined);
