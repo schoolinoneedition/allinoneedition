@@ -285,7 +285,7 @@ assert.ok(mediaWorker.includes('firstPart.byteLength !== length || !hasExpectedM
 
 // Owner-only administration must fail closed in the UI and be pinned in the database.
 const ownerSchema = read('supabase/migrations/20261106203137_pin_canonical_aio_owner.sql');
-const staffGate = backend.match(/window\\.refreshAioStaffPanel = async function\\(\\)\\{[\\s\\S]*?\\n  \\};/)?.[0] || '';
+const staffGate = backend.match(/window\.refreshAioStaffPanel = async function\(\)\{[\s\S]*?\n  \};/)?.[0] || '';
 assert.ok(staffGate.indexOf("panel.classList.add('hidden')") >= 0 && staffGate.indexOf("panel.classList.add('hidden')") < staffGate.indexOf("from('staff_roles')"), 'Staff management must remain hidden while the role is verified.');
 assert.ok(staffGate.indexOf("if(staffRole!=='owner')") >= 0 && staffGate.indexOf("if(staffRole!=='owner')") < staffGate.indexOf("panel.classList.remove('hidden')"), 'Only the verified owner role may reveal staff management.');
 assert.ok(!staffGate.includes('aio_owner_exists'), 'Unverified visitors must not receive owner bootstrap controls.');
