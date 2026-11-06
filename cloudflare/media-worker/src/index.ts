@@ -135,7 +135,7 @@ async function dbDeleteParts(env: Env, uploadId: string) {
 
 function safeFilename(value: unknown) {
   if (typeof value !== "string") return "upload";
-  return value.normalize("NFKC").replace(/[\\/\\0-\\x1f\\x7f]/g, "_").slice(0, 180) || "upload";
+  return value.normalize("NFKC").replace(/[\\/\0-\x1f\x7f]/g, "_").slice(0, 180) || "upload";
 }
 
 function safeId(value: string) {
@@ -194,7 +194,7 @@ export default {
           return json({ error: "Invalid upload or part number" }, 400, headers);
         }
         const contentLength = request.headers.get("Content-Length");
-        if (!contentLength || !/^\\d+$/.test(contentLength)) return json({ error: "Content-Length is required for multipart parts" }, 411, headers);
+        if (!contentLength || !/^\d+$/.test(contentLength)) return json({ error: "Content-Length is required for multipart parts" }, 411, headers);
         const length = Number(contentLength);
         if (length <= 0 || length > MAX_PART_BYTES) return json({ error: "Part must be between 1 byte and 32 MiB" }, 413, headers);
         const row = await dbGet(env, id, user.id);
@@ -267,7 +267,7 @@ export default {
         let rangeStart = 0;
         let rangeLength: number | undefined;
         if (rangeHeader) {
-          const match = /^bytes=(\\d*)-(\\d*)$/.exec(rangeHeader.trim());
+          const match = /^bytes=(\d*)-(\d*)$/.exec(rangeHeader.trim());
           if (!match || (!match[1] && !match[2])) {
             return new Response(null, { status: 416, headers: { ...Object.fromEntries(headers), "Content-Range": "bytes */*" } });
           }
