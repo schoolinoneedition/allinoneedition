@@ -23,7 +23,7 @@ The public endpoint is restricted to the production site origin and has a 20-req
 ## Current indexed material
 
 - `platform-guide.md`: public site sections and privacy boundaries.
-- `games-catalogue.md`: 320 catalogue entries in non-weapon-focused categories. No external launch URLs or provider metadata are indexed.
+- `games-catalogue.md`: 318 catalogue entries in non-weapon-focused categories, with additional title-level filtering for known shooter franchises and weapon terms. No external launch URLs or provider metadata are indexed.
 
 The Watch series document was removed because episode availability is not yet verified. Watch results must not invent episodes or claim playback availability based on series names alone.
 
