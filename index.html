@@ -1985,7 +1985,7 @@ async function submitAuth(){
   finally{if(button){button.disabled=false;button.textContent='Continue';}}
 }
 async function signOutUser(){if(!supabaseClient)return;try{const {error}=await supabaseClient.auth.signOut();if(error)throw error;showToast('Signed out');}catch(e){showToast('Sign out failed: '+(e?.message||'try again'));}}
-function openProfileEditor(){if(!currentUser)return openAuth('signin');$('profileEditName').value=currentProfile?.username||'';$('profileEditAvatar').value=currentProfile?.avatar_url||'';$('profileModal').classList.add('open');}
+function openProfileEditor(){if(!currentUser)return openAuth('signin');$('profileEditName').value=currentProfile?.username||'';$('profileEditAvatar').value=currentProfile?.avatar_url||'';if($('profileEditAvatarFile'))$('profileEditAvatarFile').value='';$('profileModal').classList.add('open');}
 function closeProfileEditor(){$('profileModal').classList.remove('open')}
 async function profileImageDataURL(file){
   if(!file)return null;
