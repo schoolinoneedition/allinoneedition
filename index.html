@@ -1463,8 +1463,19 @@ function closeAssistant(){$('assistantModal')?.classList.remove('open')}
 function openSettings(){$('settingsModal')?.classList.add('open');initSettings();}
 function closeSettings(){$('settingsModal')?.classList.remove('open')}
 function initSettings(){
-  const binds=[['progressControlsToggle','aio-show-progress',v=>{progressControlsEnabled=v;document.querySelectorAll('.progressbarbox').forEach(e=>e.classList.toggle('progress-visible',v));}],['progressCardsToggle','aio-show-card-progress',v=>{progressCardsEnabled=v;renderGames();}],['chatHistoryToggle','aio-chat-history-enabled',v=>{if(!v){storage.setItem('aio-chat-history','[]');window.__aioChat=[];window.__aioAssistantContext=[];[$('assistantChat'),$('assistantModalChat')].filter(Boolean).forEach(box=>box.innerHTML='');renderChatHistory();}}],['introToggle','aio-show-intro',v=>{}],['reducedMotionToggle','aio-reduced-motion',v=>{document.documentElement.classList.toggle('reduced-motion',v);}],];
+  const binds=[['progressControlsToggle','aio-show-progress',v=>{progressControlsEnabled=v;document.querySelectorAll('.progressbarbox').forEach(e=>e.classList.toggle('progress-visible',v));}],['progressCardsToggle','aio-show-card-progress',v=>{progressCardsEnabled=v;renderGames();}],['chatHistoryToggle','aio-chat-history-enabled',v=>{}],['introToggle','aio-show-intro',v=>{}],['reducedMotionToggle','aio-reduced-motion',v=>{document.documentElement.classList.toggle('reduced-motion',v);}],];
   for(const [id,key,cb] of binds){const e=$(id);if(!e)continue;if(e.dataset.aioBound)continue;const saved=storage.getItem(key);if(saved!==null)e.checked=saved==='1';else if(id==='chatHistoryToggle'||id==='introToggle')e.checked=true;e.addEventListener('change',()=>{storage.setItem(key,e.checked?'1':'0');cb(e.checked);});e.dataset.aioBound='1';cb(e.checked);}
+  const historyToggle=$('chatHistoryToggle');
+  if(historyToggle&&!historyToggle.dataset.aioHistoryBound){
+    historyToggle.addEventListener('change',()=>{
+      storage.setItem('aio-chat-history','[]');
+      window.__aioChat=[];
+      window.__aioAssistantContext=[];
+      [$('assistantChat'),$('assistantModalChat')].filter(Boolean).forEach(box=>box.innerHTML='');
+      renderChatHistory();
+    });
+    historyToggle.dataset.aioHistoryBound='1';
+  }
   $('settingsBtn')?.addEventListener('click',openSettings);
 }
 function getSpotifyTarget(raw){try{const u=new URL(String(raw||''));if(!/^(?:www\.)?open\.spotify\.com$/i.test(u.hostname))return null;const parts=u.pathname.split('/').filter(Boolean);const type=parts[0],id=parts[1];if(!['track','album','playlist','artist','episode','show'].includes(type)||!id)return null;return{type,id,url:`https://open.spotify.com/${type}/${id}`};}catch{return null}}
