@@ -17,4 +17,3 @@ The binding is configured in wrangler.toml as BROWSER. The account must have Bro
 
 A normal website cannot obtain unrestricted access to Chrome tabs from a browser permission prompt. Full interactive sessions would need a separate session-backed browser runtime and an explicit user-controlled approval flow; this Worker does not claim those capabilities.
 
-[executed on device: LAPTOP-JNKSJO8S (8c067cab-cf3c-4f9e-b27e-b63f21df62a2)]
