@@ -39,3 +39,5 @@ assert.ok(html.includes("'bollocks'") && html.includes("'bloody'") && html.inclu
 assert.ok(html.includes("className='typing-indicator'") && html.includes("@keyframes elementor-typing"), "A visible typing indicator must appear while the model is preparing its first streamed token.");
 assert.ok(html.includes("id=\"workConsent\"") && html.includes("!$('workConsent').checked") && html.includes("body.userConsent!==true"), "Work Mode must require fresh browser consent and enforce it again on the server.");
 assert.ok(html.includes("hasPluginPermission('image-studio')") && html.includes("hasPluginPermission('browser-research')"), "Each built-in capability must check its own permission before use.");
+
+assert.ok(worker.includes("blockedOutputTerms.some") && worker.includes("Any visible text must be family-friendly"), "Image requests must reject prohibited wording and ask the image model for family-friendly visible text.");
