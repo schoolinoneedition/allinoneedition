@@ -1,3 +1,5 @@
+import { AwsClient } from "aws4fetch";
+
 interface Env {
   B2_ENDPOINT: string;
   B2_REGION: string;
@@ -127,29 +129,19 @@ async function b2Request(env: Env, key: string, method: string, query: Record<st
   const path = `/${awsEncode(env.B2_BUCKET)}/${key.split("/").map(awsEncode).join("/")}`;
   const url = new URL(endpoint.origin + path);
   for (const [k, v] of Object.entries(query)) url.searchParams.append(k, v);
-  const now = new Date();
-  const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, "");
-  const date = amzDate.slice(0, 8);
-  const payloadHash = await sha256(body ?? "");
-  const headers: Record<string, string> = { host: url.host, "x-amz-content-sha256": payloadHash, "x-amz-date": amzDate, ...extraHeaders };
-  const signedNames = Object.keys(headers).map(k => k.toLowerCase()).sort();
-  // The join below supplies the single newline after the canonical header block.
-  // Do not append a trailing newline here or SigV4 receives an extra blank line.
-  const canonicalHeaders = signedNames.map(k => `${k}:${headers[Object.keys(headers).find(x => x.toLowerCase() === k)!].trim().replace(/\s+/g, " ")}`).join("\n");
-  const canonicalQuery = [...url.searchParams.entries()].map(([k,v]) => [awsEncode(k), awsEncode(v)] as const).sort((a,b) => a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0).map(([k,v]) => `${k}=${v}`).join("&");
-  const canonicalRequest = [method, url.pathname, canonicalQuery, canonicalHeaders, signedNames.join(";"), payloadHash].join("\n");
-  const scope = `${date}/${env.B2_REGION}/s3/aws4_request`;
-  const toSign = `AWS4-HMAC-SHA256\n${amzDate}\n${scope}\n${await sha256(canonicalRequest)}`;
-  const kDate = await hmac(new TextEncoder().encode(`AWS4${env.B2_APPLICATION_KEY}`), date);
-  const kRegion = await hmac(kDate, env.B2_REGION);
-  const kService = await hmac(kRegion, "s3");
-  const kSigning = await hmac(kService, "aws4_request");
-  const signature = hex(await crypto.subtle.sign("HMAC", await crypto.subtle.importKey("raw", kSigning, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]), new TextEncoder().encode(toSign)));
-  headers.Authorization = `AWS4-HMAC-SHA256 Credential=${env.B2_KEY_ID}/${scope}, SignedHeaders=${signedNames.join(";")}, Signature=${signature}`;
-  // Host is part of the SigV4 canonical request, but Workers derives it from the URL.
-  // Sending an explicit Host header can be rejected by the Fetch runtime.
-  delete headers.host;
-  const response = await fetch(url, { method, headers, body: body as BodyInit | null | undefined });
+  // Use a fetch/WebCrypto-compatible SigV4 implementation for exact canonicalization.
+  const client = new AwsClient({
+    accessKeyId: env.B2_KEY_ID,
+    secretAccessKey: env.B2_APPLICATION_KEY,
+    service: "s3",
+    region: env.B2_REGION,
+    retries: 0,
+  });
+  const response = await client.fetch(url, {
+    method,
+    headers: extraHeaders,
+    body: body as BodyInit | null | undefined,
+  });
   if (!response.ok) throw new Error(`Backblaze storage request failed (${response.status}): ${(await response.text()).slice(0, 400)}`);
   return response;
 }
