@@ -114,10 +114,11 @@ export default {
     if(body.userConsent!==true)return json({error:"Explicit permission is required before image generation."},403);
     const prompt=String(body.prompt||"").trim();
     if(prompt.length<4||prompt.length>1200)return json({error:"Prompt must be 4 to 1,200 characters"},400);
+    if(blockedOutputTerms.some(word=>new RegExp("\\b"+word+"\\b","i").test(prompt)))return json({error:"Please rewrite the image prompt using family-friendly wording."},400);
     if(unsafePrompt.test(prompt))return json({error:"That image request is not supported. Try a safe, non-explicit concept."},400);
     if(user&&!allowRate(recentImages,rateKey,3))return json({error:"Image limit reached. Try again in 10 minutes."},429);
     try{
-      const result=await env.AI.run("@cf/black-forest-labs/flux-1-schnell",{prompt,steps:4});
+      const result=await env.AI.run("@cf/black-forest-labs/flux-1-schnell",{prompt:prompt+"\n\nAny visible text must be family-friendly. Do not include profanity or inappropriate language.",steps:4});
       if(!result.image)throw new Error("No image returned");
       const binary=atob(result.image),bytes=Uint8Array.from(binary,char=>char.charCodeAt(0));
       return new Response(bytes,{headers:{...CORS,"Content-Type":"image/jpeg","Cache-Control":"no-store","X-Content-Type-Options":"nosniff"}});
