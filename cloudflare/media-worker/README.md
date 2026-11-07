@@ -50,3 +50,14 @@ The browser never receives B2 credentials, object keys, or Supabase service-role
 ## Important integration note
 
 This Worker is an infrastructure foundation. The Social and Watch frontends must be migrated to its upload and playback API before existing Supabase Storage paths can be retired. Keep existing storage and media intact until end-to-end upload, playback, and delete tests pass.
+
+## Backblaze B2 credentials
+
+Configure these as **Worker secrets** in Cloudflare, not as committed values:
+
+- `B2_KEY_ID`: the Backblaze **Application Key ID** (not the key name or account ID).
+- `B2_APPLICATION_KEY`: the matching **Application Key** secret.
+
+Use an application key scoped to the `aio-media-storage` bucket with the list, read, write, and delete capabilities required by this Worker. Do not use the Backblaze master application key. Never commit or paste either secret into source control, issue comments, or chat.
+
+The `GET /health` check first validates the key pair against Backblaze account authentication, then performs an authenticated S3 bucket-list request. A `credentials_rejected` result with HTTP 401 means the key ID and application key are invalid, mismatched, or swapped. A `SignatureDoesNotMatch` response indicates an S3 signing, endpoint, region, or credential-pair mismatch.
