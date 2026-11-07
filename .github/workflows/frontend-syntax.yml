@@ -26,7 +26,9 @@ jobs:
       - name: Build Elementor AI Worker without deploying
         run: npx --yes wrangler@4 deploy --dry-run --config cloudflare/elementor-ai/wrangler.toml --outdir /tmp/aio-elementor-worker-build
       - name: Check appearance, auth, game and security wiring
-        run: node tests/frontend-contracts.cjs
+        run: |
+          node tests/frontend-contracts.cjs
+          node tests/elementor-work-mode.cjs
       - name: Audit game catalogue duplicates and required fields
         run: node scripts/audit-games.cjs
       - name: Check inline JavaScript in app and original games
