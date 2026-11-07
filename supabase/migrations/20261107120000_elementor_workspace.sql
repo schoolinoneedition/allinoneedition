@@ -10,6 +10,7 @@ create table if not exists public.elementor_profiles (
 alter table public.elementor_profiles enable row level security;
 revoke all on public.elementor_profiles from public, anon;
 grant select, insert, update on public.elementor_profiles to authenticated;
+drop policy if exists "Users manage their Elementor profile" on public.elementor_profiles;
 create policy "Users manage their Elementor profile" on public.elementor_profiles for all to authenticated
 using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
 
@@ -24,6 +25,7 @@ create index if not exists elementor_conversations_user_updated_idx on public.el
 alter table public.elementor_conversations enable row level security;
 revoke all on public.elementor_conversations from public, anon;
 grant select, insert, update, delete on public.elementor_conversations to authenticated;
+drop policy if exists "Users manage their Elementor conversations" on public.elementor_conversations;
 create policy "Users manage their Elementor conversations" on public.elementor_conversations for all to authenticated
 using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
 
@@ -40,6 +42,7 @@ create index if not exists elementor_messages_conversation_created_idx on public
 alter table public.elementor_messages enable row level security;
 revoke all on public.elementor_messages from public, anon;
 grant select, insert, delete on public.elementor_messages to authenticated;
+drop policy if exists "Users manage their Elementor messages" on public.elementor_messages;
 create policy "Users manage their Elementor messages" on public.elementor_messages for all to authenticated
 using ((select auth.uid()) = user_id and exists (select 1 from public.elementor_conversations c where c.id = conversation_id and c.user_id = (select auth.uid())))
 with check ((select auth.uid()) = user_id and exists (select 1 from public.elementor_conversations c where c.id = conversation_id and c.user_id = (select auth.uid())));
@@ -54,7 +57,9 @@ alter table public.aio_elementor_site_settings enable row level security;
 revoke all on public.aio_elementor_site_settings from public, anon;
 grant select on public.aio_elementor_site_settings to anon, authenticated;
 grant insert, update, delete on public.aio_elementor_site_settings to authenticated;
+drop policy if exists "Public can read Elementor announcements" on public.aio_elementor_site_settings;
 create policy "Public can read Elementor announcements" on public.aio_elementor_site_settings for select to anon, authenticated using (setting_key = 'announcement');
+drop policy if exists "Owner manages Elementor site settings" on public.aio_elementor_site_settings;
 create policy "Owner manages Elementor site settings" on public.aio_elementor_site_settings for all to authenticated
 using (exists (select 1 from public.staff_roles s where s.user_id = (select auth.uid()) and s.role = 'owner'))
 with check (exists (select 1 from public.staff_roles s where s.user_id = (select auth.uid()) and s.role = 'owner') and updated_by = (select auth.uid()));
