@@ -129,7 +129,9 @@ const MEDIA_API='https://all-in-one-edition-media.plsgivemediscord981.workers.de
 const AVATARS=['✦','✧','◈','✺','⚡','🌙','🪐','🎮','🦊','🐼','🐸','🤖','🌸','☀️','💎','🦋'];
 const $=id=>document.getElementById(id);
 const db=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-let codeMode=false,voiceOutput=false,voiceChatMode=false,voiceTimer=null,voiceTranscript='',recognition=null,session=null,user=null,profile={display_name:'Elementor',avatar:'✦',instructions:'',response_style:'balanced'},currentId=null,messages=[],isSending=false,imageMode=false,isOwner=false,objectUrls=[];
+let codeMode=false,voiceOutput=false,voiceChatMode=false,voiceTimer=null,voiceTranscript='',recognition=null,session=null,user=null,profile={display_name:'Elementor',avatar:'✦',instructions:'',response_style:'balanced'},currentId=null,messages=[],isSending=false,imageMode=false,isOwner=false,objectUrls=[],guestId=sessionStorage.getItem('elementor_guest_id')||crypto.randomUUID(),guestChats=JSON.parse(sessionStorage.getItem('elementor_guest_chats')||'{}');
+sessionStorage.setItem('elementor_guest_id',guestId);
+function saveGuestChats(){sessionStorage.setItem('elementor_guest_chats',JSON.stringify(guestChats));}
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function toast(s){$('profileStatus').textContent=s;}
 function openModal(id){$(id).classList.remove('hidden');}
@@ -137,7 +139,7 @@ function closeModal(id){$(id).classList.add('hidden');}
 function token(){return session?.access_token||'';}
 function avatarMarkup(value){return AVATARS.includes(value)?escape(value):'✦';}
 function setAvatar(){ const el=$('accountAvatar');el.replaceChildren();if(profile.avatar_media_id){const img=document.createElement('img');img.alt='Elementor profile picture';el.append(img);attachMediaImage(img,profile.avatar_media_id);}else{el.textContent=avatarMarkup(profile.avatar);} $('accountName').textContent=profile.display_name||user?.email||'Elementor';$('accountState').textContent=user?.email||'Not signed in'; }
-function showAuth(){ $('welcome').innerHTML='<div class="orb">✦</div><h2>Sign in to Elementor</h2><p>Your chats and personalisation are saved to your All in One Edition account.</p><div style="max-width:360px;margin:18px auto 0;display:grid;gap:9px"><input id="elementorEmail" type="email" autocomplete="email" placeholder="Email address" style="padding:12px;border:1px solid var(--line);border-radius:10px"><input id="elementorPassword" type="password" autocomplete="current-password" placeholder="Password" style="padding:12px;border:1px solid var(--line);border-radius:10px"><button id="elementorSignIn" class="send">Sign in</button><div id="authStatus" class="status"></div><a href="/signup" style="font-size:11px;color:var(--accent)">Create an All in One Edition account</a></div>'; $('elementorSignIn').onclick=async()=>{const status=$('authStatus');if(!db){status.textContent='Account service is unavailable. Refresh and try again.';return;}status.textContent='Signing in…';const {error}=await db.auth.signInWithPassword({email:$('elementorEmail').value.trim(),password:$('elementorPassword').value});status.textContent=error?error.message:'Signed in.';}; }
+function showAuth(){ $('welcome').innerHTML='<div class="orb">✦</div><h2>Welcome to Elementor</h2><p>Start chatting instantly as a guest. Sign in only when you want synced conversations and saved personalisation.</p><div style="display:flex;justify-content:center;gap:8px;margin-top:16px;flex-wrap:wrap"><span class="pill">Guest access · 5 messages / 10 min</span><a class="tool-btn" href="/login">Sign in</a><a class="tool-btn" href="/signup">Create account</a></div>'; }
 async function init(){
  if(!db){showAuth();return;}
  const {data}=await db.auth.getSession();session=data.session;user=session?.user||null;
@@ -145,7 +147,7 @@ async function init(){
  await boot();
 }
 async function boot(){
- if(!user){$('accountName').textContent='Not signed in';$('accountState').textContent='Sign in to use Elementor';$('history').innerHTML='<div class="status">Sign in to sync your chats.</div>';showAuth();return;}
+ if(!user){$('accountName').textContent='Guest';$('accountState').textContent='Chats stay in this browser session';$('welcome').classList.remove('hidden');showAuth();await loadHistory();return;}
  $('accountName').textContent=user.email||'Your account';$('accountState').textContent='Signed in';$('welcome').classList.remove('hidden');
  await loadProfile();await loadHistory();
 }
@@ -156,6 +158,7 @@ async function loadProfile(){
  setAvatar();
 }
 async function loadHistory(){
+ if(!user){$('history').replaceChildren();const filter=String($('historySearch')?.value||'').toLowerCase();Object.values(guestChats).sort((a,b)=>(b.updated_at||0)-(a.updated_at||0)).filter(row=>(row.title||'').toLowerCase().includes(filter)).forEach(row=>{const b=document.createElement('button');b.className='chat-link'+(row.id===currentId?' active':'');b.textContent=row.title;b.onclick=()=>openChat(row.id,row.title);$('history').append(b);});if(!currentId)await newChat();return;}
  const {data,error}=await db.from('elementor_conversations').select('id,title,updated_at').eq('user_id',user.id).order('updated_at',{ascending:false}).limit(80);
  if(error){$('history').innerHTML='<div class="status">Could not load chat history. Apply the Elementor database migration.</div>';return;}
  $('history').replaceChildren();
@@ -164,12 +167,13 @@ async function loadHistory(){
  if(!data?.length)await newChat();
 }
 async function newChat(){
- if(!user)return;const {data,error}=await db.from('elementor_conversations').insert({user_id:user.id,title:'New chat'}).select('id,title').single();
+ if(!user){const id='guest-'+crypto.randomUUID();guestChats[id]={id,title:'New chat',updated_at:Date.now(),messages:[]};saveGuestChats();currentId=id;messages=[];$('chatTitle').textContent='New chat';renderMessages();await loadHistory();return;}
+ const {data,error}=await db.from('elementor_conversations').insert({user_id:user.id,title:'New chat'}).select('id,title').single();
  if(error){alert('Could not create a chat: '+error.message);return;}
  currentId=data.id;messages=[];$('chatTitle').textContent=data.title;renderMessages();await loadHistory();
 }
 async function openChat(id,title){
- currentId=id;$('chatTitle').textContent=title||'Chat';const {data,error}=await db.from('elementor_messages').select('id,role,content,image_media_id,created_at').eq('conversation_id',id).order('created_at',{ascending:true}).limit(200);
+ currentId=id;$('chatTitle').textContent=title||'Chat';if(!user){messages=guestChats[id]?.messages||[];renderMessages();return;}const {data,error}=await db.from('elementor_messages').select('id,role,content,image_media_id,created_at').eq('conversation_id',id).order('created_at',{ascending:true}).limit(200);
  if(error){console.warn(error);return;}messages=data||[];renderMessages();await loadHistoryImages();
 }
 async function loadHistoryImages(){
@@ -184,22 +188,23 @@ function renderRichText(container,text){
 }
 function renderMessages(){
  $('welcome').classList.toggle('hidden',messages.length>0);$('messages').replaceChildren();
- for(const m of messages){const row=document.createElement('div');row.className='message '+m.role;const av=document.createElement('div');av.className='bubble-avatar';av.textContent=m.role==='assistant'?'✦':(profile.avatar||'U');const bubble=document.createElement('div');bubble.className='bubble';const body=document.createElement('div');renderRichText(body,m.content|| (m.image_media_id?'Generated image':''));bubble.append(body);if(m.image_media_id){const img=document.createElement('img');img.alt='Image generated in this chat';img.dataset.image=m.id;bubble.append(img);attachMediaImage(img,m.image_media_id);}row.append(av,bubble);$('messages').append(row);}
+ for(const m of messages){const row=document.createElement('div');row.className='message '+m.role;const av=document.createElement('div');av.className='bubble-avatar';av.textContent=m.role==='assistant'?'✦':(profile.avatar||'U');const bubble=document.createElement('div');bubble.className='bubble';const body=document.createElement('div');renderRichText(body,m.content|| (m.image_media_id?'Generated image':''));bubble.append(body);if(m.image_media_id){const img=document.createElement('img');img.alt='Image generated in this chat';img.dataset.image=m.id;bubble.append(img);if(user)attachMediaImage(img,m.image_media_id);}else if(m.image_url){const img=document.createElement('img');img.alt='Image generated in this guest session';img.src=m.image_url;bubble.append(img);}row.append(av,bubble);$('messages').append(row);}
  const scroller=$('messages');scroller.scrollTop=scroller.scrollHeight;
 }
 function addLocalMessage(role,content,imageId=null){
  const m={id:'local-'+Math.random().toString(36).slice(2),role,content,image_media_id:imageId};messages.push(m);renderMessages();return m;
 }
 async function saveMessage(role,content,imageId=null){
+ if(!user){const data={id:'guest-msg-'+crypto.randomUUID(),role,content,image_media_id:imageId,created_at:new Date().toISOString()};messages.push(data);if(guestChats[currentId]){guestChats[currentId].messages=messages;guestChats[currentId].updated_at=Date.now();saveGuestChats();}renderMessages();return data;}
  const {data,error}=await db.from('elementor_messages').insert({conversation_id:currentId,user_id:user.id,role,content,image_media_id:imageId}).select('*').single();
  if(error)throw error;messages.push(data);renderMessages();return data;
 }
 async function updateTitle(text){
- const title=text.trim().slice(0,48)||'New chat';await db.from('elementor_conversations').update({title,updated_at:new Date().toISOString()}).eq('id',currentId).eq('user_id',user.id);$('chatTitle').textContent=title;await loadHistory();
+ const title=text.trim().slice(0,48)||'New chat';if(!user){if(guestChats[currentId]){guestChats[currentId].title=title;guestChats[currentId].updated_at=Date.now();saveGuestChats();}$('chatTitle').textContent=title;await loadHistory();return;}await db.from('elementor_conversations').update({title,updated_at:new Date().toISOString()}).eq('id',currentId).eq('user_id',user.id);$('chatTitle').textContent=title;await loadHistory();
 }
 async function callAI(){
  const context=messages.filter(m=>m.role==='user'||m.role==='assistant').slice(-14).map(m=>({role:m.role,content:m.content||''}));
- const res=await fetch(AI_API+'/chat',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token()},body:JSON.stringify({messages:context,profile:{displayName:profile.display_name,style:profile.response_style,instructions:(profile.instructions||'')+(codeMode?'\\nUse Code mode: provide complete runnable code in fenced blocks, explain where it goes, and mention assumptions.':'')},site:'All in One Edition'})});
+ const headers={'Content-Type':'application/json','X-Guest-Id':guestId};if(token())headers.Authorization='Bearer '+token();const res=await fetch(AI_API+'/chat',{method:'POST',headers,body:JSON.stringify({messages:context,profile:{displayName:profile.display_name,style:profile.response_style,instructions:(profile.instructions||'')+(codeMode?'\\nUse Code mode: provide complete runnable code in fenced blocks, explain where it goes, and mention assumptions.':'')},site:'All in One Edition'})});
  const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error||'Elementor could not reply.');return data.answer||'I could not produce a reply.';
 }
 async function uploadImage(blob,name){
@@ -214,9 +219,9 @@ async function attachMediaImage(img,id){
  try{const res=await fetch(MEDIA_API+'/media/'+encodeURIComponent(id),{headers:{Authorization:'Bearer '+token()}});if(!res.ok)throw new Error('Private image unavailable');const blob=await res.blob();const src=URL.createObjectURL(blob);objectUrls.push(src);img.src=src;}catch(e){img.alt='Image is unavailable. Sign in again to load private media.';}
 }
 async function createImage(prompt){
- const r=await fetch(AI_API+'/generate',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token()},body:JSON.stringify({prompt})});
+ const headers={'Content-Type':'application/json','X-Guest-Id':guestId};if(token())headers.Authorization='Bearer '+token();const r=await fetch(AI_API+'/generate',{method:'POST',headers,body:JSON.stringify({prompt})});
  if(!r.ok){const d=await r.json().catch(()=>({}));throw new Error(d.error||'Image generation failed.');}
- const blob=await r.blob();let id=null;try{id=await uploadImage(blob,'elementor-'+Date.now()+'.jpg');}catch(e){throw new Error('Image generated, but private B2 saving failed: '+e.message);}
+ const blob=await r.blob();if(!user){const src=URL.createObjectURL(blob);objectUrls.push(src);const m={id:'guest-image-'+crypto.randomUUID(),role:'assistant',content:'Created an image from: '+prompt,image_url:src,created_at:new Date().toISOString()};messages.push(m);if(guestChats[currentId]){guestChats[currentId].messages=messages;saveGuestChats();}renderMessages();return;}let id=null;try{id=await uploadImage(blob,'elementor-'+Date.now()+'.jpg');}catch(e){throw new Error('Image generated, but private B2 saving failed: '+e.message);}
  await saveMessage('assistant','Created an image from: '+prompt,id);
 }
 async function handleSiteCommand(text){
@@ -232,7 +237,7 @@ async function handleSiteCommand(text){
  return true;
 }
 async function send(){
- if(!user||!currentId||isSending)return;const input=$('prompt'),text=input.value.trim();if(!text)return;
+ if(!currentId||isSending)return;const input=$('prompt'),text=input.value.trim();if(!text)return;
  isSending=true;$('send').disabled=true;input.value='';
  try{
   await saveMessage('user',(imageMode?'Create an image: ':'')+text);
@@ -248,7 +253,7 @@ async function send(){
  finally{isSending=false;$('send').disabled=false;input.focus();if(voiceChatMode)setTimeout(startVoiceListening,350);}
 }
 async function openProfile(){
- if(!user){showAuth();return;}$('displayName').value=profile.display_name||'Elementor';$('instructions').value=profile.instructions||'';$('responseStyle').value=profile.response_style||'balanced';$('avatarChoices').replaceChildren();
+ if(!user)profile=JSON.parse(sessionStorage.getItem('elementor_guest_profile')||'null')||profile;$('displayName').value=profile.display_name||'Elementor';$('instructions').value=profile.instructions||'';$('responseStyle').value=profile.response_style||'balanced';$('avatarChoices').replaceChildren();
  AVATARS.forEach(a=>{const b=document.createElement('button');b.className='avatar-choice'+(a===profile.avatar?' selected':'');b.type='button';b.textContent=a;b.onclick=()=>{$('avatarChoices').querySelectorAll('button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');b.dataset.selected='1';};if(a===profile.avatar)b.dataset.selected='1';$('avatarChoices').append(b);});
  $('profileStatus').textContent='';openModal('profileModal');
 }
@@ -256,7 +261,7 @@ async function saveProfile(){
  const selected=$('avatarChoices').querySelector('[data-selected="1"]')?.textContent||profile.avatar;
  let avatarMediaId=profile.avatar_media_id||null;const file=$('avatarUpload').files?.[0];if(file){if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>4*1024*1024){toast('Choose a PNG, JPG or WebP image under 4 MB.');return;}try{avatarMediaId=await uploadImage(file,file.name||'elementor-avatar');}catch(e){toast('Profile picture upload failed: '+e.message);return;}}
  const next={user_id:user.id,display_name:$('displayName').value.trim()||'Elementor',avatar:selected,avatar_media_id:avatarMediaId,instructions:$('instructions').value.trim(),response_style:$('responseStyle').value,updated_at:new Date().toISOString()};
- const {error}=await db.from('elementor_profiles').upsert(next,{onConflict:'user_id'});if(error){toast(error.message);return;}profile={...profile,...next};setAvatar();closeModal('profileModal');
+ if(user){const {error}=await db.from('elementor_profiles').upsert(next,{onConflict:'user_id'});if(error){toast(error.message);return;}}profile={...profile,...next};if(!user)sessionStorage.setItem('elementor_guest_profile',JSON.stringify(profile));setAvatar();closeModal('profileModal');
 }
 async function openControls(){
  if(!user){$('controlStatus').textContent='Sign in with the owner account first.';openModal('controlsModal');return;}
@@ -308,8 +313,8 @@ $('voiceInput').onclick=()=>{
  try{recognition.start();}catch{$('voiceStatus').textContent='Could not start microphone. Try again.';recognition=null;}
 };
 $('historySearch').addEventListener('input',loadHistory);
-$('renameChat').onclick=async()=>{if(!currentId)return;const title=window.prompt('Rename this conversation',$('chatTitle').textContent);if(!title?.trim())return;await db.from('elementor_conversations').update({title:title.trim().slice(0,100),updated_at:new Date().toISOString()}).eq('id',currentId).eq('user_id',user.id);$('chatTitle').textContent=title.trim().slice(0,100);await loadHistory();};
-$('deleteChat').onclick=async()=>{if(!currentId||!window.confirm('Delete this conversation and its messages?'))return;const {error}=await db.from('elementor_conversations').delete().eq('id',currentId).eq('user_id',user.id);if(error){alert('Could not delete chat: '+error.message);return;}currentId=null;messages=[];$('messages').replaceChildren();await loadHistory();};$('prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
+$('renameChat').onclick=async()=>{if(!currentId)return;const title=window.prompt('Rename this conversation',$('chatTitle').textContent);if(!title?.trim())return;const clean=title.trim().slice(0,100);if(!user&&guestChats[currentId]){guestChats[currentId].title=clean;guestChats[currentId].updated_at=Date.now();saveGuestChats();}else if(user)await db.from('elementor_conversations').update({title:clean,updated_at:new Date().toISOString()}).eq('id',currentId).eq('user_id',user.id);$('chatTitle').textContent=clean;await loadHistory();};
+$('deleteChat').onclick=async()=>{if(!currentId||!window.confirm('Delete this conversation and its messages?'))return;if(!user)delete guestChats[currentId];else{const {error}=await db.from('elementor_conversations').delete().eq('id',currentId).eq('user_id',user.id);if(error){alert('Could not delete chat: '+error.message);return;}}saveGuestChats();currentId=null;messages=[];$('messages').replaceChildren();await loadHistory();};$('prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
 $('imageMode').onclick=()=>{imageMode=!imageMode;$('imageMode').classList.toggle('active',imageMode);$('prompt').placeholder=imageMode?'Describe the image you want Elementor to create…':'Message Elementor…';$('prompt').focus();};
 $('clearMode').onclick=()=>{imageMode=false;$('imageMode').classList.remove('active');$('prompt').placeholder='Message Elementor…';};
 $('profileOpen').onclick=openProfile;$('profileTop').onclick=openProfile;$('saveProfile').onclick=saveProfile;$('controlsOpen').onclick=openControls;$('saveAnnouncement').onclick=()=>saveAnnouncement(false);$('clearAnnouncement').onclick=()=>saveAnnouncement(true);
