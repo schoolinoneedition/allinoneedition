@@ -1,4 +1,4 @@
--- Server-only per-part state for resumable Cloudflare R2 uploads.
+-- Server-only per-part state for resumable Backblaze B2 uploads.
 create table if not exists public.aio_media_upload_parts (
   upload_id uuid not null references public.aio_media_objects(id) on delete cascade,
   part_number integer not null check (part_number between 1 and 10000),
