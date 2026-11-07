@@ -37,7 +37,7 @@ assert.ok(worker.includes("function sanitizeAssistantText") && worker.includes("
 assert.ok(worker.includes("blockedOutputTerms") && worker.includes('"[filtered]"'), "The server-side output guard must replace prohibited terms before sending a response.");
 assert.ok(html.includes("'bollocks'") && html.includes("'bloody'") && html.includes("function sanitizeElementorOutput(value)"), "The browser must apply a second general-audience output filter.");
 assert.ok(html.includes("className='typing-indicator'") && html.includes("@keyframes elementor-typing"), "A visible typing indicator must appear while the model is preparing its first streamed token.");
-assert.ok(html.includes("id=\"workConsent\"") && html.includes("!$('workConsent').checked") && html.includes("body.userConsent!==true"), "Work Mode must require fresh browser consent and enforce it again on the server.");
+assert.ok(html.includes('id="workConsent"') && html.includes("!$('workConsent').checked") && worker.includes("body.userConsent!==true"), "Work Mode must require fresh browser consent and enforce it again on the server.");
 assert.ok(html.includes("hasPluginPermission('image-studio')") && html.includes("hasPluginPermission('browser-research')"), "Each built-in capability must check its own permission before use.");
 
 assert.ok(worker.includes("blockedOutputTerms.some") && worker.includes("Any visible text must be family-friendly"), "Image requests must reject prohibited wording and ask the image model for family-friendly visible text.");
