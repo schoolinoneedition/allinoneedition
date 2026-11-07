@@ -22,3 +22,13 @@ assert.ok(worker.includes("body.workContext===true?(index===raw.length-1?12000:5
 console.log("Elementor Work Mode contracts passed: first-class mode, extension-free read-only page research, cancellation, progress, startup experience and preferences.");
 
 [executed on device: LAPTOP-JNKSJO8S (8c067cab-cf3c-4f9e-b27e-b63f21df62a2)]
+
+assert.ok(html.includes('id="pluginsOpen"') && html.includes('id="pluginsModal"'), "The plugin marketplace must be reachable and rendered in the existing workspace.");
+assert.ok(html.includes("function getPluginPermissions()") && html.includes("function savePluginPermissions()"), "Plugin permissions must be explicit, persisted and revocable.");
+assert.ok(html.includes("hasPluginPermission('browser-research')") && html.includes("hasPluginPermission('image-studio')"), "Cloud Browser and Image Studio must check their separate permissions before running.");
+assert.ok(html.includes('id="workConsent"') && html.includes("!$('workConsent').checked"), "Every cloud browser task must require fresh, explicit user consent.");
+assert.ok(html.includes("body:JSON.stringify({url:parsed.href,userConsent:true})") && html.includes("body:JSON.stringify({prompt,userConsent:true})"), "Consent must be carried to the server for each privileged built-in action.");
+assert.ok(worker.includes('body.userConsent!==true') && worker.includes('Explicit permission is required'), "The AI Worker must reject browser and image requests without explicit consent.");
+assert.ok(html.includes("function sanitizeElementorOutput(value)") && html.includes("sanitizeElementorOutput(text)") && html.includes("content=role==='assistant'?sanitizeElementorOutput(content)"), "Assistant output must be filtered before rendering and persistence.");
+assert.ok(html.includes(".code-wrap{overflow:hidden;contain:inline-size") && html.includes(".code-wrap pre{display:block;width:100%;min-width:0;max-width:100%;overflow-x:auto"), "Long code blocks must scroll inside their own bounded container.");
+assert.ok(worker.includes("Never use profanity, insults, vulgar language, or mild swear words."), "The model instruction must prohibit profanity in all assistant replies.");
