@@ -175,6 +175,12 @@ assert.ok(elementor.includes('id="stop"')&&elementor.includes('activeController.
 assert.ok(elementor.includes("res.body.getReader()")&&elementor.includes("decoder.decode(value"), 'Chat replies must render from the actual backend stream.');
 assert.ok(elementor.includes('function regenerateLast()')&&elementor.includes('navigator.clipboard.writeText(m.content'), 'Assistant replies must support regenerate and copy.');
 assert.ok(elementor.includes('const wantsImage=imageMode||')&&elementor.includes('await createImage(text)'), 'Explicit image intent must automatically invoke the existing image endpoint.');
+assert.ok(elementor.includes('function renderMarkdownText(')&&elementor.includes('document.createElement(ri===0?\'th\':\'td\')'), 'Chat messages must render safe Markdown blocks and tables.');
+assert.ok(elementor.includes('highlight.js@11.11.1')&&elementor.includes('window.hljs.highlightElement(node)'), 'Fenced code blocks must use syntax highlighting when the highlighter loads.');
+assert.ok(elementor.includes('id="themeToggle"')&&elementor.includes("elementor_theme"), 'The chat must provide a persistent light/dark theme choice for the current session.');
+assert.ok(elementor.includes('id="scrollBottom"')&&elementor.includes('id="stop"'), 'The chat must provide scroll-to-latest and stop-generation controls.');
+assert.ok(elementor.includes('const resizePrompt=()=>'), 'The message composer must auto-resize while typing.');
+
 assert.ok(elementorWorker.includes('@cf/zai-org/glm-4.7-flash')&&elementorWorker.includes('stream:true'), 'Worker must use a real reasoning model in Think mode and stream model output.');
 
 
