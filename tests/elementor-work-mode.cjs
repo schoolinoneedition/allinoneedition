@@ -8,9 +8,9 @@ assert.ok(html.indexOf('id="workPanel"') < html.indexOf('id="messages"'), "The W
 assert.ok(html.includes("AI_API+'/browse'") && html.includes("runWorkTask"), "Work Mode must call the real webpage research endpoint.");
 assert.ok(html.includes("workController?.abort()") && html.includes("activeController?.abort()"), "Cancel must abort the active page fetch or AI request.");
 assert.ok(html.includes("waitForWorkResume") && html.includes("workPaused"), "Pause and resume must gate subsequent task steps.");
-assert.ok(!/elementor-work-bridge|Browser Bridge|workAllow|workConsent|workModeModal|chrome\.tabs/i.test(html), "The UI must not depend on a browser extension or claim Chrome tab access.");
+assert.ok(!/elementor-work-bridge|Browser Bridge|workAllow|workModeModal|chrome\.tabs/i.test(html), "The UI must not depend on a browser extension or claim Chrome tab access.");
 assert.ok(worker.includes('url.pathname==="/browse"') && worker.includes('env.BROWSER.quickAction("markdown"'), "The worker must fetch public webpages without following redirects blindly.");
-assert.ok(worker.includes('gotoOptions:{waitUntil:"networkidle2",timeout:25000}') && worker.includes('data.result'), "Page fetches must be streamed and size-limited.");
+assert.ok(worker.includes('gotoOptions:{waitUntil:"networkidle2",timeout:25000}') && worker.includes('data.result'), "Page fetches must have a bounded timeout and returned page size.");
 assert.ok(worker.includes('host.endsWith(".local")') && worker.includes('Private, local and internal network addresses are not allowed.'), "Redirects and private network targets must be rejected.");
 assert.ok(worker.includes('mode:"browser-run-read-only"') && worker.includes('Cloudflare Browser Run'), "Only HTML page reading is supported and must be labelled read-only.");
 assert.ok(!html.includes('Install the Elementor Browser Bridge') && !html.includes('grant its site access'), "No extension installation instructions may remain.");
@@ -32,3 +32,10 @@ assert.ok(worker.includes('body.userConsent!==true') && worker.includes('Explici
 assert.ok(html.includes("function sanitizeElementorOutput(value)") && html.includes("sanitizeElementorOutput(text)") && html.includes("content=role==='assistant'?sanitizeElementorOutput(content)"), "Assistant output must be filtered before rendering and persistence.");
 assert.ok(html.includes(".code-wrap{overflow:hidden;contain:inline-size") && html.includes(".code-wrap pre{display:block;width:100%;min-width:0;max-width:100%;overflow-x:auto"), "Long code blocks must scroll inside their own bounded container.");
 assert.ok(worker.includes("Never use profanity, insults, vulgar language, or mild swear words."), "The model instruction must prohibit profanity in all assistant replies.");
+
+assert.ok(worker.includes("function sanitizeAssistantText") && worker.includes("function filterAssistantStream") && worker.includes("new Response(filterAssistantStream(stream)"), "The AI Worker must filter streamed model text before it reaches the browser.");
+assert.ok(worker.includes("blockedOutputTerms") && worker.includes('"[filtered]"'), "The server-side output guard must replace prohibited terms before sending a response.");
+assert.ok(html.includes("'bollocks'") && html.includes("'bloody'") && html.includes("function sanitizeElementorOutput(value)"), "The browser must apply a second general-audience output filter.");
+assert.ok(html.includes("className='typing-indicator'") && html.includes("@keyframes elementor-typing"), "A visible typing indicator must appear while the model is preparing its first streamed token.");
+assert.ok(html.includes("id=\"workConsent\"") && html.includes("!$('workConsent').checked") && html.includes("body.userConsent!==true"), "Work Mode must require fresh browser consent and enforce it again on the server.");
+assert.ok(html.includes("hasPluginPermission('image-studio')") && html.includes("hasPluginPermission('browser-research')"), "Each built-in capability must check its own permission before use.");
