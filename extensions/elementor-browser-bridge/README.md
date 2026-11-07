@@ -13,11 +13,12 @@ This is an optional Manifest V3 extension that supplies real browser actions to 
 ## Supported actions
 - List tabs and open an HTTP(S) URL after that site's permission has been granted.
 - Read the current page title, URL and visible text.
-- Scroll the page.
+- Capture a screenshot of the selected visible tab.
+- Switch tabs and scroll the page.
 - Click a CSS selector after an in-page confirmation.
 - Type into ordinary text fields after an in-page confirmation.
 
 Passwords, one-time codes, tokens and payment fields are blocked. Purchases, payments, sending and deleting are not automated by this bridge. Disconnect in the extension popup or revoke site permissions in the browser's extension settings at any time.
 
 ## Limits
-The extension must be installed by the user. The Elementor page cannot install it or grant browser permissions itself. This is a user-directed browser control panel, not an autonomous AI agent: users choose each browser action. Multi-step AI task planning, screenshot capture and automatic recovery are not implemented in this first bridge.
+The extension must be installed by the user. The Elementor page cannot install it or grant browser permissions itself. This is a user-directed browser control panel, not an autonomous AI agent: users choose each browser action. Multi-step AI task planning and automatic recovery are not implemented in this first bridge.
