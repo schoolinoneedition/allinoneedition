@@ -502,6 +502,34 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
 <link rel="stylesheet" href="./appearance.css">
 <link rel="stylesheet" href="./ultimate-experience.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* Unified games search + compact responsive header */
+.search{position:relative;display:flex;align-items:center;gap:6px;min-width:0}
+.search input{min-width:0;flex:1}
+.search-sparkle{width:40px;height:40px;flex:none;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--accent);font-size:19px;font-weight:900;display:grid;place-items:center}
+.search-sparkle[aria-expanded="true"]{background:var(--accent-soft);border-color:#cbd7ff}
+.search-dropdown{position:absolute;z-index:60;right:0;top:calc(100% + 8px);width:min(310px,calc(100vw - 28px));padding:8px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 48px rgba(20,28,48,.16)}
+.search-dropdown[hidden]{display:none}
+.search-dropdown-title{padding:7px 9px 8px;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:900}
+.search-dropdown button{width:100%;border:0;background:transparent;color:var(--text);border-radius:9px;padding:10px;text-align:left;display:flex;align-items:center;gap:10px;font-weight:750;font-size:12px}
+.search-dropdown button:hover,.search-dropdown button:focus-visible{background:var(--soft);outline:0}
+.search-dropdown button .search-icon{width:25px;height:25px;border-radius:8px;display:grid;place-items:center;background:var(--soft);color:var(--accent);font-size:14px;flex:none}
+.search-dropdown .search-divider{height:1px;background:var(--line);margin:5px 3px}
+.top>#aiSearchOpen{display:none}
+@media(max-width:700px){
+ .top{display:flex;flex-wrap:wrap;gap:7px;padding:8px 10px 9px;overflow:visible}
+ .brand{flex:1 1 auto;min-width:0}.brandtext{font-size:17px}.owner{display:none}
+ .search{order:5;flex:1 1 100%;width:100%;min-width:0}
+ .search input{height:42px;font-size:16px}
+ .search-sparkle{height:42px;width:42px}
+ .top>#quickLaunchOpen,.top>#assistantBtn,.top>#afkBtn,.top>#hideBtn,.top>#darkBtn,.top>.lang-select{display:none}
+ .top>#accountBtn,.top>#settingsBtn{height:37px;padding:0 9px;font-size:11px}
+ .aio-live-clock{min-width:48px;padding:7px 6px;font-size:10px}
+ .nav{padding:0 10px 8px;gap:4px;scrollbar-width:none}
+ .nav::-webkit-scrollbar{display:none}
+}
+@media(max-width:390px){.brandtext{font-size:15px}.brandmark{width:30px}.brandmark img{width:30px;height:30px}.top>#accountBtn{font-size:0}.top>#accountBtn .account-avatar{font-size:12px}}
+</style>
 </head>
 <body>
 <div id="siteLoader" aria-live="polite">
@@ -541,7 +569,22 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
    <div class="brandmark"><img src="./favicon.svg" alt="" width="38" height="38"></div>
    <div class="brandtext">All in One Edition</div><div class="owner">Roy owner</div>
   </div>
-  <div class="search"><input id="search" autocomplete="off" placeholder="Search games, tools, pages… ( / )" aria-label="Search games, tools and pages"></div>
+  <div class="search" id="unifiedGameSearch">
+   <input id="search" autocomplete="off" placeholder="Search games, tools and pages… ( / )" aria-label="Search games, tools and pages">
+   <button class="search-sparkle" id="searchSparkle" type="button" aria-label="Search options and AI Search" aria-haspopup="menu" aria-expanded="false">✧</button>
+   <div class="search-dropdown" id="searchDropdown" role="menu" hidden>
+    <div class="search-dropdown-title">Search All in One Edition</div>
+    <button type="button" data-search-action="ai"><span class="search-icon">✧</span><span><strong>AI Search</strong><br><small>Find games by describing what you want</small></span></button>
+    <button type="button" data-search-action="ask"><span class="search-icon">✦</span><span><strong>Ask Elementor</strong><br><small>Ask a question about the hub</small></span></button>
+    <div class="search-divider"></div>
+    <div class="search-dropdown-title">Browse games</div>
+    <button type="button" data-search-term=""><span class="search-icon">▦</span>All games</button>
+    <button type="button" data-search-term="Puzzle"><span class="search-icon">◇</span>Puzzle and brain games</button>
+    <button type="button" data-search-term="Racing"><span class="search-icon">↗</span>Racing games</button>
+    <button type="button" data-search-term="Multiplayer"><span class="search-icon">◎</span>Multiplayer games</button>
+    <button type="button" data-search-term="Sports"><span class="search-icon">⚽</span>Sports games</button>
+   </div>
+  </div>
   <button class="btn quick-launch-trigger" id="quickLaunchOpen" type="button" aria-haspopup="dialog" aria-controls="aioQuickLaunch">Quick open <kbd>Ctrl K</kbd></button><button class="btn" id="aiSearchOpen" type="button" aria-haspopup="dialog" aria-controls="aioAiSearch">AI Search</button>
   <button class="btn" id="assistantBtn" type="button" onclick="location.href='/elementor'">Elementor AI</button><button class="btn account-btn" id="accountBtn" type="button" onclick="handleAccountClick()"><span class="account-avatar" id="accountAvatar">?</span><span id="accountLabel">Account</span></button><span class="aio-live-clock" id="aioLiveClock" aria-label="Current local time">00:00</span><button class="btn" id="settingsBtn">Settings</button><select class="lang-select" id="languageSelect" aria-label="Language"><option value="en">EN</option><option value="es">ES</option><option value="fr">FR</option><option value="de">DE</option><option value="pl">PL</option><option value="pt">PT</option><option value="tr">TR</option><option value="ar">AR</option><option value="it">IT</option><option value="nl">NL</option><option value="ja">JA</option><option value="ko">KO</option></select><button class="btn" id="darkBtn">Dark</button><button class="btn" id="afkBtn" title="Pause your current game and enter AFK mode">AFK</button><button class="btn" id="hideBtn">Hide</button>
  </div>
@@ -1043,7 +1086,22 @@ function renderGames(){currentFiltered=filteredGames();if(visibleLimit>currentFi
 function loadMoreGames(){visibleLimit+=48;renderGames();window.scrollBy({top:140,behavior:'smooth'})}
 function setCat(c){activeCat=c;visibleLimit=48;renderFilters();renderGames()}
 function toggleFavourite(event,index){if(event){event.preventDefault();event.stopPropagation()}const game=GAMES[index];if(!game)return;const key=gameKey(game);if(favouriteGames.has(key)){favouriteGames.delete(key);showToast('Removed from favourites')}else{favouriteGames.add(key);showToast('Added to favourites')}storage.setItem(FAVOURITES_KEY,JSON.stringify([...favouriteGames]));renderFilters();renderGames()}
-let gameSearchTimer=0;$('search').addEventListener('input',()=>{clearTimeout(gameSearchTimer);gameSearchTimer=setTimeout(()=>{visibleLimit=48;renderGames()},100)});$('search').addEventListener('keydown',event=>{if(event.key==='Enter'&&$('search').value.trim().length>2&&/^(find|show|recommend|what|where|how|best)\\b/i.test($('search').value.trim())){event.preventDefault();window.openAioAISearch?.($('search').value.trim())}})
+let gameSearchTimer=0;$('search').addEventListener('input',()=>{clearTimeout(gameSearchTimer);gameSearchTimer=setTimeout(()=>{visibleLimit=48;renderGames()},100)});$('search').addEventListener('keydown',event=>{if(event.key==='Enter'&&$('search').value.trim().length>2&&/^(find|show|recommend|what|where|how|best)\\b/i.test($('search').value.trim())){event.preventDefault();window.openAioAISearch?.($('search').value.trim())}});
+const searchMenu=document.getElementById('searchDropdown'),searchSparkle=document.getElementById('searchSparkle'),mainSearch=document.getElementById('search');
+function closeSearchMenu(){searchMenu.hidden=true;searchSparkle.setAttribute('aria-expanded','false');}
+searchSparkle.addEventListener('click',()=>{const open=searchMenu.hidden;searchMenu.hidden=!open;searchSparkle.setAttribute('aria-expanded',String(open));if(open)searchMenu.querySelector('button')?.focus();});
+searchMenu.addEventListener('click',event=>{
+ const button=event.target.closest('button');if(!button)return;const action=button.dataset.searchAction;
+ if(action==='ai'||action==='ask'){
+  const query=mainSearch.value.trim();closeSearchMenu();window.openAioAISearch?.(query);
+  if(action==='ask')setTimeout(()=>document.querySelector('[data-ai-mode="chat"]')?.click(),80);
+  return;
+ }
+ if(button.hasAttribute('data-search-term')){mainSearch.value=button.dataset.searchTerm||'';mainSearch.dispatchEvent(new Event('input',{bubbles:true}));closeSearchMenu();document.getElementById('games')?.scrollIntoView({behavior:'smooth',block:'start'});mainSearch.focus();}
+});
+document.addEventListener('click',event=>{if(!document.getElementById('unifiedGameSearch').contains(event.target))closeSearchMenu();});
+mainSearch.addEventListener('focus',()=>{if(window.matchMedia('(max-width:700px)').matches){}});
+
 const ONLINE_GAMES_FEED='https://www.onlinegames.io/media/plugins/genGames/embed.json';
 let onlineCatalogLoaded=false;
 function categoryFromOnlineTags(tags){
