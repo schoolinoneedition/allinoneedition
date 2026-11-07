@@ -179,8 +179,11 @@ export default {
       try {
         await b2Request(env, "", "GET", { "list-type": "2", "max-keys": "1" });
         return json({ ok: true, storage: "connected" }, 200, headers);
-      } catch {
-        return json({ ok: false, storage: "unavailable" }, 503, headers);
+      } catch (error) {
+        const detail = error instanceof Error ? error.message : String(error);
+        const status = /Backblaze storage request failed \((\d{3})\)/.exec(detail)?.[1] || "network_error";
+        console.error("B2 health check failed", { status, detail: detail.slice(0, 180) });
+        return json({ ok: false, storage: "unavailable", code: status }, 503, headers);
       }
     }
     const user = await authenticate(request, env);
