@@ -182,8 +182,9 @@ export default {
       } catch (error) {
         const detail = error instanceof Error ? error.message : String(error);
         const status = /Backblaze storage request failed \((\d{3})\)/.exec(detail)?.[1] || "network_error";
-        console.error("B2 health check failed", { status, detail: detail.slice(0, 180) });
-        return json({ ok: false, storage: "unavailable", code: status }, 503, headers);
+        const providerCode = /<Code>([^<]+)<\/Code>/i.exec(detail)?.[1] || "unknown";
+        console.error("B2 health check failed", { status, providerCode, detail: detail.slice(0, 180) });
+        return json({ ok: false, storage: "unavailable", code: status, providerCode }, 503, headers);
       }
     }
     const user = await authenticate(request, env);
