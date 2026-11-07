@@ -410,7 +410,7 @@ async function attachMediaImage(img,id){
 }
 async function createImage(prompt){
  if(!hasPluginPermission('image-studio'))throw new Error('Image Studio permission is off. Open Plugin marketplace and allow it before generating an image.');
- const headers={'Content-Type':'application/json','X-Guest-Id':guestId};if(token())headers.Authorization='Bearer '+token();const r=await fetch(AI_API+'/generate',{method:'POST',headers,body:JSON.stringify({prompt})});
+ const headers={'Content-Type':'application/json','X-Guest-Id':guestId};if(token())headers.Authorization='Bearer '+token();const r=await fetch(AI_API+'/generate',{method:'POST',headers,body:JSON.stringify({prompt,userConsent:true})});
  if(!r.ok){const d=await r.json().catch(()=>({}));throw new Error(d.error||'Image generation failed.');}
  const blob=await r.blob();if(!user){const src=URL.createObjectURL(blob);objectUrls.push(src);const m={id:'guest-image-'+crypto.randomUUID(),role:'assistant',content:'Created an image from: '+prompt,image_url:src,created_at:new Date().toISOString()};messages.push(m);if(guestChats[currentId]){guestChats[currentId].messages=messages;saveGuestChats();}renderMessages();return;}let id=null;try{id=await uploadImage(blob,'elementor-'+Date.now()+'.jpg');}catch(e){throw new Error('Image generated, but private B2 saving failed: '+e.message);}
  await saveMessage('assistant','Created an image from: '+prompt,id);
@@ -556,7 +556,7 @@ async function runWorkTask(instruction){
  try{
   await waitForWorkResume();setWorkProgress(1,total,'Requesting public webpage');
   const headers={'Content-Type':'application/json','X-Guest-Id':guestId};if(token())headers.Authorization='Bearer '+token();
-  const response=await fetch(AI_API+'/browse',{method:'POST',headers,signal:workController.signal,body:JSON.stringify({url:parsed.href})});
+  const response=await fetch(AI_API+'/browse',{method:'POST',headers,signal:workController.signal,body:JSON.stringify({url:parsed.href,userConsent:true})});
   const data=await response.json();if(!response.ok)throw new Error(data.error||'The page could not be fetched.');
   await waitForWorkResume();setWorkProgress(2,total,'Extracting page content');
   if(!data.text)throw new Error('The page did not contain readable text. It may require JavaScript or sign-in.');
