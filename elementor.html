@@ -298,8 +298,7 @@ function renderMarkdownText(container,source){
 function renderRichText(container,text){
  const chunks=String(text||'').split(/```/);
  chunks.forEach((chunk,index)=>{
-  if(index%2===1){const first=chunk.indexOf('
-'),lang=first>=0?chunk.slice(0,first).trim():'',code=first>=0?chunk.slice(first+1):chunk;const wrap=document.createElement('div');wrap.className='code-wrap';const pre=document.createElement('pre'),node=document.createElement('code');node.textContent=code.replace(/
+  if(index%2===1){const first=chunk.indexOf(String.fromCharCode(10)),lang=first>=0?chunk.slice(0,first).trim():'',code=first>=0?chunk.slice(first+1):chunk;const wrap=document.createElement('div');wrap.className='code-wrap';const pre=document.createElement('pre'),node=document.createElement('code');node.textContent=code.replace(/
 $/,'');if(lang)node.className='language-'+lang.toLowerCase().replace(/[^a-z0-9-]/g,'');pre.append(node);const copy=document.createElement('button');copy.className='copy-code';copy.type='button';copy.textContent='Copy';copy.onclick=async()=>{try{await navigator.clipboard.writeText(node.textContent);copy.textContent='Copied';setTimeout(()=>copy.textContent='Copy',1200);}catch{copy.textContent='Unavailable';}};wrap.append(pre,copy);container.append(wrap);if(window.hljs)window.hljs.highlightElement(node);
   }else renderMarkdownText(container,chunk);
  });
@@ -500,19 +499,8 @@ async function runWorkTask(instruction){
   $('workPlan').innerHTML='<strong>Task plan</strong><ol><li>Validate URL <span>?</span></li><li>Fetch public page <span>?</span></li><li>Extract readable content <span>?</span></li><li>Analyse and summarise in chat</li></ol>';
   await waitForWorkResume();setWorkProgress(3,total,'Analysing '+data.title);
   const prior=messages.slice(-10).map(m=>({role:m.role,content:m.content}));
-  const task='Work Mode task: '+instruction+'
-
-Public webpage fetched read-only:
-Title: '+data.title+'
-URL: '+data.url+'
-Description: '+(data.description||'')+'
-Links: '+(data.links||[]).slice(0,30).map(x=>x.text+' ('+x.url+')').join('
-')+'
-
-Extracted page text:
-'+data.text.slice(0,14000)+'
-
-Analyse only this fetched evidence. State clearly if information is missing. Do not claim to click, submit forms, sign in, or control browser tabs.';
+  const newline=String.fromCharCode(10);
+  const task=['Work Mode task: '+instruction,'','Public webpage fetched read-only:','Title: '+data.title,'URL: '+data.url,'Description: '+(data.description||''),'Links: '+(data.links||[]).slice(0,30).map(x=>x.text+' ('+x.url+')').join(newline),'','Extracted page text:',data.text.slice(0,14000),'','Analyse only this fetched evidence. State clearly if information is missing. Do not claim to click, submit forms, sign in, or control browser tabs.'].join(newline);
   const result=await callAI();
   await waitForWorkResume();setWorkProgress(4,total,'Completed research');
   if(result.answer)await saveMessage('assistant',result.answer);else throw new Error('The AI analysis returned no answer.');
