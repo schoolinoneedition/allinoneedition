@@ -11,7 +11,7 @@ The `Media Worker build check` GitHub Actions workflow is configured to run Wran
 The Wrangler configuration supplies these non-secret values for the configured bucket:
 - `B2_ENDPOINT`: `https://s3.us-east-005.backblazeb2.com`
 - `B2_REGION`: `us-east-005`
-- `B2_BUCKET`: `aio111`
+- `B2_BUCKET`: `allinoneedition-media`
 
 For `B2_KEY_ID`, use the actual Backblaze Application Key ID, not the key name or bucket name.
 
@@ -21,7 +21,7 @@ Set these Worker secrets in Cloudflare (never commit them):
 - `SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY` (secret; never expose to the browser)
 
-The Backblaze Application Key should be restricted to the `aio111` bucket and have the list, read, write, and delete capabilities required by this Worker. Keep the bucket private. Deploy from this directory after the database migration is applied and all secrets are configured.
+The Backblaze Application Key should be restricted to the `allinoneedition-media` bucket and have the list, read, write, and delete capabilities required by this Worker. Keep the bucket private. Deploy from this directory after the database migration is applied and all secrets are configured.
 
 ## API
 
