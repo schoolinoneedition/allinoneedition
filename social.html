@@ -537,7 +537,7 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
         <div><label class="field-label" for="postAvatar">Avatar image URL (optional)</label><input class="field" id="postAvatar" maxlength="500" placeholder="https://…"></div>
         <div><label class="field-label" for="postCaption">Caption</label><textarea class="text-field" id="postCaption" maxlength="500" placeholder="Write a caption…"></textarea></div>
         <div><label class="field-label" for="mediaUrl">Direct image or MP4 URL</label><input class="field" id="mediaUrl" maxlength="2000" placeholder="https://example.com/video.mp4"></div>
-        <div><label class="field-label" for="mediaFile">Or choose a file</label><label class="file-label">Choose image / video <input id="mediaFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/*,.jpg,.jpeg,.png,.webp,.gif,.mp4,.m4v,.webm,.ogv,.ogg,.mov,.3gp,.mkv,.avi,.wmv,.flv,.mpeg,.mpg,.hevc,.h265,.h264,.264,.av1,.ivf,.m2v,.ts,.mts,.m2ts"></label><p class="note-small" style="margin-top:7px">Images up to 15 MB; videos up to 100 MB. Videos upload as selected, without conversion. For a more widely compatible MP4, use the Video converter in Tools first. File uploads require your account.</p></div>
+        <div><label class="field-label" for="mediaFile">Or choose a file</label><label class="file-label">Choose image / video <input id="mediaFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/*,.jpg,.jpeg,.png,.webp,.gif,.mp4,.m4v,.webm,.ogv,.ogg,.mov,.3gp,.mkv,.avi,.wmv,.flv,.mpeg,.mpg,.hevc,.h265,.h264,.264,.av1,.ivf,.m2v,.ts,.mts,.m2ts"></label><p class="note-small" style="margin-top:7px">No app-level image or video size cap. Large files upload in chunks; Backblaze and the media service's technical limits still apply. File uploads require your account.</p></div>
         <div><label class="field-label" for="postStatus">Post status</label><div id="postStatus" class="status-text" role="status">Nothing has been posted yet.</div></div>
         <div class="form-foot"><button class="btn" type="button" data-close="composeOverlay">Cancel</button><button class="btn primary" id="submitPost" type="submit">Publish post</button></div>
       </form>
@@ -575,6 +575,56 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
 (() => {
   'use strict';
   const SUPABASE_URL = 'https://btnbuchsrfllpzlypjtn.supabase.co';
+  const AIO_MEDIA_API = 'https://all-in-one-edition-media.plsgivemediscord981.workers.dev';
+  async function aioMediaToken(){
+    const result=await client.auth.getSession();
+    const token=result?.data?.session?.access_token;
+    if(!token)throw new Error('Sign in again before uploading media.');
+    return token;
+  }
+  async function aioMediaUpload(file,visibility='public'){
+    const token=await aioMediaToken();
+    const request=async(path,options={})=>{
+      const response=await fetch(AIO_MEDIA_API+path,{...options,headers:{Authorization:'Bearer '+token,...(options.headers||{})}});
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok)throw new Error(data.error||'Media service request failed ('+response.status+').');
+      return data;
+    };
+    const init=await request('/uploads/initiate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({filename:file.name,contentType:file.type,sizeBytes:file.size,visibility})});
+    const partSize=Number(init.partSizeBytes)||32*1024*1024,parts=[];
+    try{
+      let partNumber=1;
+      for(let offset=0;offset<file.size;offset+=partSize,partNumber++){
+        const chunk=file.slice(offset,Math.min(file.size,offset+partSize));
+        const result=await request('/uploads/'+encodeURIComponent(init.uploadId)+'/parts/'+partNumber,{method:'POST',headers:{'Content-Type':'application/octet-stream','X-Part-Size':String(chunk.size)},body:chunk});
+        parts.push({partNumber,etag:result.etag});
+      }
+      await request('/uploads/'+encodeURIComponent(init.uploadId)+'/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parts})});
+      return {id:init.uploadId,url:AIO_MEDIA_API+'/media/'+init.uploadId};
+    }catch(error){
+      try{await request('/uploads/'+encodeURIComponent(init.uploadId)+'/abort',{method:'POST'})}catch{}
+      throw error;
+    }
+  }
+  async function aioMediaSignedURL(raw){
+    const value=String(raw||'').trim();
+    try{
+      const url=new URL(value);
+      if(url.origin!==AIO_MEDIA_API||!/^\/media\/[0-9a-f-]{36}$/i.test(url.pathname))return value;
+      const response=await fetch(AIO_MEDIA_API+url.pathname+'/signed-url');
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok||!data.url)throw new Error(data.error||'Could not prepare this media.');
+      return data.url;
+    }catch(error){throw error}
+  }
+  async function aioMediaDeleteById(id){
+    const token=await aioMediaToken();
+    const response=await fetch(AIO_MEDIA_API+'/media/'+encodeURIComponent(id),{method:'DELETE',headers:{Authorization:'Bearer '+token}});
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok)throw new Error(data.error||'Could not remove uploaded media.');
+    return true;
+  }
+
   const SUPABASE_KEY = 'sb_publishable_a1gdNTiQdF9587p5K-Sw-Q_nFbvWRmp';
   const $ = (id) => document.getElementById(id);
   const byNorm = (value) => String(value || '').toLowerCase().trim();
@@ -669,7 +719,7 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
   function updatePostIdentityControls(){
     const file=$('mediaFile'),note=document.querySelector('#composeForm .note-small');
     if(file)file.title=currentUser?'Files upload to your account folder.':'Sign in to upload files.';
-    if(note)note.textContent='Images up to 15 MB; videos up to 100 MB. Videos upload as selected. For a more widely compatible MP4, use the Video converter in Tools first.';
+    if(note)note.textContent='No app-level image or video size cap. Large files upload in chunks; provider and service limits still apply.';
   }
   function statFor(id){
     const key=String(id);if(!postStats.has(key))postStats.set(key,{likes:0,comments:0});
@@ -807,6 +857,10 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
     }
     $('emptyState').hidden=true;
     feed.innerHTML=list.map(renderPost).join('');
+    feed.querySelectorAll('img[data-post-image][data-media-src]').forEach(async img=>{
+      try{img.src=await aioMediaSignedURL(img.dataset.mediaSrc);if(img.isConnected&&img.naturalWidth)fitSocialPost(img.closest('[data-social-post]'),img.naturalWidth,img.naturalHeight);}
+      catch{const message=img.parentElement?.querySelector('.media-error');if(message)message.hidden=false;}
+    });
     appendFeedSentinel(feed);
     feed.querySelectorAll('[data-social-video]').forEach(v=>{
       const stage=v.closest('.video-stage');
@@ -958,7 +1012,7 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
     const avatar=p.avatar_url?'<img src="'+escapeHTML(p.avatar_url)+'" alt="" loading="lazy">':escapeHTML(safeInitials(p.username));
     const media=isVideo
       ?'<div class="video-stage" role="button" tabindex="0" aria-label="Play video" aria-pressed="false"><video data-video-src="'+escapeHTML(p.media_url)+'" data-social-video data-post-id="'+escapeHTML(id)+'" playsinline webkit-playsinline preload="none" loading="lazy" width="1280" height="720" disablepictureinpicture disableremoteplayback aria-label="Tap the video to play or pause" tabindex="-1"></video><div class="media-error" hidden><span class="media-error-copy">This video could not be loaded.</span><div class="media-error-actions"><button type="button" class="media-retry" data-action="retry-video" data-id="'+escapeHTML(id)+'">Try again</button></div></div></div>'
-      :'<img data-post-image src="'+escapeHTML(p.media_url)+'" alt="Image posted by '+escapeHTML(p.username)+'" loading="lazy" decoding="async"><div class="media-error" hidden>This image could not be loaded.</div>';
+      :'<img data-post-image data-media-src="'+escapeHTML(p.media_url)+'" alt="Image posted by '+escapeHTML(p.username)+'" loading="lazy" decoding="async"><div class="media-error" hidden>This image could not be loaded.</div>';
     return '<article class="post" data-social-post="'+escapeHTML(id)+'"><div class="post-media">'+media+'</div><div class="post-shade"></div><div class="post-top"><span class="post-pill">'+(isVideo?'Video':'Image')+' · public post</span><span class="post-time">'+escapeHTML(timeSince(p.created_at))+'</span>'+ownerTools+'</div><div class="post-rail"><button type="button" class="rail-action '+(liked?'liked':'')+'" data-action="like" data-id="'+escapeHTML(id)+'" aria-label="'+(liked?'Unlike':'Like')+' post">'+(liked?'♥':'♡')+'</button><span class="rail-count" data-like-count="'+escapeHTML(id)+'">'+formatCount(stat.likes+(liked&&!currentUser?1:0))+'</span><button type="button" class="rail-action" data-action="comments" data-id="'+escapeHTML(id)+'" aria-label="Comments">▤</button><span class="rail-count" data-comment-count="'+escapeHTML(id)+'">'+formatCount(stat.comments)+'</span><button type="button" class="rail-action '+(saved?'saved':'')+'" data-action="save" data-id="'+escapeHTML(id)+'" aria-label="'+(saved?'Unsave':'Save')+' post">▣</button><span class="rail-count">'+(saved?'Saved':'')+'</span><button type="button" class="rail-action" data-action="share" data-id="'+escapeHTML(id)+'" aria-label="Share post">↗</button></div><div class="post-bottom"><div class="creator-row"><div class="creator-avatar">'+avatar+'</div><div class="creator-copy"><strong>'+escapeHTML(p.username||'Guest')+'</strong><small>'+escapeHTML(timeSince(p.created_at))+'</small></div><button type="button" class="follow-btn '+(followed?'following':'')+'" data-action="follow" data-name="'+escapeHTML(p.username||'Guest')+'">'+(followed?'Following':'Follow')+'</button></div><div class="post-caption">'+escapeHTML(p.caption||'')+'</div></div></article>';
   }
   async function loadFeed(append=false){
@@ -1292,14 +1346,14 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
     const direct=String($('mediaUrl').value||'').trim();
     if(!file&&!direct){setStatus('postStatus','Add a direct media URL or choose a file.','bad');return;}
     if(file&&!currentUser){$('authPanel').hidden=false;setStatus('postStatus','Sign in first to upload a file.','bad');setStatus('authStatus','Sign in or create your existing account to upload media.');return;}
-    let mediaType='',mediaURL=direct,storagePath='';
+    let mediaType='',mediaURL=direct,storagePath='',aioMediaId='';
     if(file){
       const videoMime=videoMimeType(file);
       const isVideo=!!videoMime||String(file.type||'').toLowerCase().startsWith('video/');
       const isImage=['image/jpeg','image/png','image/webp','image/gif'].includes(file.type)||/\.(jpe?g|png|webp|gif)$/i.test(file.name);
       if(!isVideo&&!isImage){setStatus('postStatus','Use JPG, PNG, WebP, GIF or a video file.','bad');return;}
-      if(isImage&&file.size>15*1024*1024){setStatus('postStatus','Images must be 15 MB or smaller.','bad');return;}
-      if(isVideo&&file.size>100*1024*1024){setStatus('postStatus','Videos must be 100 MB or smaller.','bad');return;}
+      
+      
       mediaType=isVideo?'video':'image';
     }else{
       mediaType=mediaTypeFromURL(direct);
@@ -1308,16 +1362,19 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
     }
     if(!client){setStatus('postStatus','Cloud service is unavailable. Nothing was published.','bad');return;}
     postBusy=true;const submit=$('submitPost');submit.disabled=true;submit.textContent='Publishing…';
-    setStatus('postStatus',file?'Uploading media to XBT storage…':'Publishing your post…');
+    setStatus('postStatus',file?'Uploading media to Backblaze B2…':'Publishing your post…');
     try{
       if(file){
         const extensionMatch=String(file.name||'').toLowerCase().match(/\.([a-z0-9]{1,8})$/);
         const ext=extensionMatch?.[1]||(mediaType==='video'?'mp4':'jpg');
         const uploadContentType=mediaType==='video'?(videoMimeType(file)||String(file.type||'video/mp4')):(file.type||'image/jpeg');
-        storagePath='social/'+currentUser.id+'/'+(window.crypto?.randomUUID?window.crypto.randomUUID():Date.now().toString(36)+'-'+Math.random().toString(36).slice(2))+'.'+ext;
-        const up=await client.storage.from('social-media').upload(storagePath,file,{upsert:false,contentType:uploadContentType,cacheControl:'31536000'});
-        if(up.error)throw up.error;
-        mediaURL=client.storage.from('social-media').getPublicUrl(storagePath).data.publicUrl;
+        if(!['video/mp4','video/webm','video/quicktime','image/jpeg','image/png','image/webp','image/gif'].includes(uploadContentType)){
+          throw new Error('Backblaze uploads currently support MP4, WebM, MOV, JPG, PNG, WebP and GIF. Convert unsupported video formats in Tools first.');
+        }
+        const uploadFile=new File([file],file.name,{type:uploadContentType,lastModified:file.lastModified});
+        const uploaded=await aioMediaUpload(uploadFile,'public');
+        aioMediaId=uploaded.id;
+        mediaURL=uploaded.url;
       }
       const payload={visitor_id:visitorId(),username:username||'Guest',avatar_url:avatarURL()||null,caption,media_type:mediaType,media_url:mediaURL};
       const q=await client.from('social_posts').insert(payload).select('id,visitor_id,username,avatar_url,caption,media_type,media_url,created_at').single();
@@ -1328,7 +1385,7 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
       setStatus('postStatus','Post published successfully.','good');
     }catch(e){
       console.error('Social post create failed:',e);
-      if(storagePath){try{await client.storage.from('social-media').remove([storagePath]);}catch{}}
+      if(aioMediaId){try{await aioMediaDeleteById(aioMediaId);}catch{}}
       setStatus('postStatus','Post was not published: '+String(e?.message||'connection error')+'. Try again.','bad');
     }finally{postBusy=false;submit.disabled=false;submit.textContent='Publish post';}
   }
@@ -1360,12 +1417,16 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
       let mediaCleanupFailed=false;
       try{
         const media=new URL(String(post.media_url||''));
-        const marker='/storage/v1/object/public/social-media/';
-        if(media.origin===new URL(SUPABASE_URL).origin&&media.pathname.includes(marker)){
-          const path=decodeURIComponent(media.pathname.split(marker)[1]||'');
-          if(path.startsWith('social/'+String(currentUser.id)+'/')){
-            const removal=await client.storage.from('social-media').remove([path]);
-            if(removal.error)mediaCleanupFailed=true;
+        if(media.origin===AIO_MEDIA_API&&/^\/media\/[0-9a-f-]{36}$/i.test(media.pathname)){
+          await aioMediaDeleteById(media.pathname.split('/').pop());
+        }else{
+          const marker='/storage/v1/object/public/social-media/';
+          if(media.origin===new URL(SUPABASE_URL).origin&&media.pathname.includes(marker)){
+            const path=decodeURIComponent(media.pathname.split(marker)[1]||'');
+            if(path.startsWith('social/'+String(currentUser.id)+'/')){
+              const removal=await client.storage.from('social-media').remove([path]);
+              if(removal.error)mediaCleanupFailed=true;
+            }
           }
         }
       }catch{mediaCleanupFailed=true;}
@@ -1373,35 +1434,47 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
       showToast(mediaCleanupFailed?'Post deleted. Its uploaded file could not be cleaned up.':'Post deleted');
     }catch(e){showToast('Could not delete post: '+String(e?.message||'try again'));}
   }
-  function prepareSocialVideo(video,preload='auto',priority='low'){
+  async function prepareSocialVideo(video,preload='auto',priority='low'){
     if(!video)return false;
-    // Raise the current video's loading priority when playback is requested.
     video.preload=preload==='none'?'none':preload==='metadata'?'metadata':'auto';
     try{video.fetchPriority=priority==='high'?'high':'low';}catch{}
-    if(video.dataset.sourceReady==='1')return false;
+    if(video.dataset.sourceReady==='1')return true;
+    // If background warming is already resolving the signed URL, playback must
+    // await that same request instead of treating it as a failed preparation.
+    if(video.__aioSourcePromise)return video.__aioSourcePromise;
     const src=String(video.dataset.videoSrc||'').trim();
     if(!src)return false;
-    video.src=socialMediaPlaybackURL(src);
-    video.dataset.sourceReady='1';
-    video.load();
-    return true;
+    video.dataset.sourceResolving='1';
+    const task=(async()=>{
+      try{
+        const resolved=await aioMediaSignedURL(src);
+        if(!video.isConnected)return false;
+        video.src=socialMediaPlaybackURL(resolved);
+        video.dataset.sourceReady='1';
+        video.load();
+        return true;
+      }catch(error){
+        const stage=video.closest('.video-stage'),message=stage?.querySelector('.media-error'),copy=message?.querySelector('.media-error-copy');
+        if(copy)copy.textContent=error?.message||'This video could not be prepared.';
+        if(message)message.hidden=false;
+        return false;
+      }finally{video.dataset.sourceResolving='0';}
+    })();
+    video.__aioSourcePromise=task;
+    try{return await task;}
+    finally{if(video.__aioSourcePromise===task)delete video.__aioSourcePromise;}
   }
-  function startVideo(id){
+  async function startVideo(id){
     const post=document.querySelector('[data-social-post="'+CSS.escape(String(id))+'"]');
     const video=post?.querySelector('[data-social-video]');
     if(!video)return;
-    prepareSocialVideo(video,'auto','high');
     pauseAllVideos(video);
+    const ready=await prepareSocialVideo(video,'auto','high');
+    if(!ready&&!video.dataset.sourceReady)return;
     video.dataset.autoplayBlocked='false';
-    video.muted=false;
-    video.defaultMuted=false;
-    video.volume=1;
-    try{
-      const play=video.play();
-      if(play?.catch)play.catch(()=>{video.dataset.autoplayBlocked='true';});
-    }catch{
-      video.dataset.autoplayBlocked='true';
-    }
+    video.muted=false;video.defaultMuted=false;video.volume=1;
+    try{const play=video.play();if(play?.catch)play.catch(()=>{video.dataset.autoplayBlocked='true';});}
+    catch{video.dataset.autoplayBlocked='true';}
   }
   function formatVideoTime(value){
     const seconds=Number(value);
@@ -1457,8 +1530,9 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
           const source=String(video.dataset.videoSrc||'').trim();
           if(source){
             video.pause();
-            video.dataset.sourceReady='1';
-            video.src=source;
+            video.dataset.sourceReady='0';
+            video.dataset.sourceResolving='0';
+            video.removeAttribute('src');
             video.load();
             const message=post.querySelector('.media-error');
             if(message)message.hidden=true;

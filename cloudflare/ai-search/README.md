@@ -5,8 +5,8 @@
 - Namespace: `default`
 - Instance: `aio-public-search`
 - Public endpoint ID: `16fdd2d2-aa84-4145-a0d5-be81366b07b1`
-- Search route: `https://59fa95cf-3fef-4c97-be4a-6328308cb959.search.ai.cloudflare.com/search`
-- Chat route: `https://59fa95cf-3fef-4c97-be4a-6328308cb959.search.ai.cloudflare.com/chat/completions`
+- Search route: `https://16fdd2d2-aa84-4145-a0d5-be81366b07b1.search.ai.cloudflare.com/search`
+- Chat route: `https://16fdd2d2-aa84-4145-a0d5-be81366b07b1.search.ai.cloudflare.com/chat/completions`
 
 The public endpoint is restricted to the production site origin and has a 20-request-per-minute fixed rate limit. It contains public catalogue information only. Never index private notes, account records, staff data, private messages, or user-specific social content in this shared instance.
 

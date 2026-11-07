@@ -1,0 +1,36 @@
+name: Media Worker build check
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - codex/backblaze-b2-media-worker
+    paths:
+      - "cloudflare/media-worker/**"
+      - ".github/workflows/media-worker-build.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "cloudflare/media-worker/**"
+      - ".github/workflows/media-worker-build.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Worker dependencies
+        working-directory: cloudflare/media-worker
+        run: npm install --no-audit --no-fund
+      - name: Build Worker without deploying
+        working-directory: cloudflare/media-worker
+        run: npx --yes wrangler@4.158.0 deploy --dry-run --outdir=dist
