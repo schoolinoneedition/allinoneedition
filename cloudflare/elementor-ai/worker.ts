@@ -76,10 +76,11 @@ export default {
    "Website context: All in One Edition is a gaming, school, tools and community platform. Keep existing functionality intact when proposing improvements."
   ].join("\n");
   try{
-    const result=await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast",{messages:[{role:"system",content:system},...messages],max_tokens:1200,temperature:0.55});
-    const answer=String(result?.response||result?.result?.response||"").trim();
-    if(!answer)throw new Error("Empty model response");
-    return json({answer,guest:!user});
+    const think=body.think===true;
+    const model=think?"@cf/zai-org/glm-4.7-flash":"@cf/meta/llama-3.3-70b-instruct-fp8-fast";
+    const stream=await env.AI.run(model,{messages:[{role:"system",content:system},...messages],max_tokens:think?1800:1200,temperature:0.55,stream:true,...(think?{reasoning_effort:"high"}:{})});
+    if(!stream)throw new Error("Model did not return a stream");
+    return new Response(stream,{headers:{...CORS,"Content-Type":"text/event-stream; charset=utf-8","Cache-Control":"no-store","X-Accel-Buffering":"no"}});
   }catch(error){console.error("Elementor chat failed",error);return json({error:"Elementor could not reply right now. Try again shortly."},502);}
  }
 };
