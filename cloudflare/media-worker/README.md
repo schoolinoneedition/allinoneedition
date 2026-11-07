@@ -4,7 +4,7 @@ This Worker is the private media gateway for All in One Edition. It stores objec
 
 ## Build validation
 
-The `Media Worker build check` GitHub Actions workflow runs Wrangler's dry-run build for this directory on changes. It compiles the TypeScript bundle without deploying it.
+The `Media Worker build check` GitHub Actions workflow is configured to run Wrangler's dry-run build for this directory on relevant changes and via manual dispatch. It compiles the TypeScript bundle without deploying it. A successful workflow run must be confirmed before deployment.
 
 ## Required configuration
 
@@ -26,7 +26,7 @@ The Backblaze application key should be restricted to this bucket and have read/
 
 ## API
 
-All routes require a Supabase access token in the Authorization bearer header.
+Upload, abort, complete, owner-read, and delete routes require a Supabase access token in the Authorization bearer header. Health checks and signed public playback-link requests are intentionally unauthenticated.
 
 - `GET /health` checks the configured private B2 bucket without exposing credentials or object names
 - `POST /uploads/initiate` with `{ filename, contentType, sizeBytes, visibility }` (`visibility` is `private` by default; use `public` only for content intended for public posts or published episodes)
