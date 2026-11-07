@@ -7,7 +7,7 @@ const ORIGIN = "https://allinoneedition.vercel.app";
 const CORS = {
   "Access-Control-Allow-Origin": ORIGIN,
   "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Guest-Id",
   "Vary": "Origin"
 };
 const recentImages = new Map<string, number[]>();
