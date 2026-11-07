@@ -30,30 +30,36 @@
   window.refreshAioStaffPanel = async function(){
     const panel=byId('aioStaffPanel');
     if(!panel)return;
-    if(typeof supabaseClient==='undefined'||!supabaseClient||typeof currentUser==='undefined'||!currentUser){panel.classList.add('hidden');return;}
-    panel.classList.remove('hidden');
     const status=byId('aioStaffStatus'),setup=byId('aioStaffOwnerSetup'),controls=byId('aioStaffControls');
-    const {data,error}=await supabaseClient.from('staff_roles').select('role').eq('user_id',currentUser.id).maybeSingle();
-    if(error){
-      if(status)status.textContent='Could not check staff permissions. Check the XBT staff_roles policy.';
-      setup?.classList.add('hidden');controls?.classList.add('hidden');return;
-    }
-    staffRole=data?.role||null;
-    if(staffRole==='owner'){
-      if(status)status.textContent='Site owner · you can assign and revoke staff roles.';
-      setup?.classList.add('hidden');controls?.classList.remove('hidden');
-      await window.loadAioStaffList();
-      return;
-    }
+    // Fail closed: keep the entire privileged panel hidden until the server-backed
+    // staff_roles lookup has positively verified the site owner account.
+    panel.classList.add('hidden');
+    setup?.classList.add('hidden');
     controls?.classList.add('hidden');
-    const ownerResult=await supabaseClient.rpc('aio_owner_exists');
-    if(!ownerResult.error&&ownerResult.data===false){
-      if(status)status.textContent='Owner setup required.';
-      setup?.classList.remove('hidden');
-      if(byId('aioStaffCurrentId'))byId('aioStaffCurrentId').value=currentUser.id;
-    }else{
+    staffRole=null;
+    if(typeof supabaseClient==='undefined'||!supabaseClient||typeof currentUser==='undefined'||!currentUser)return;
+    try{
+      const {data,error}=await supabaseClient.from('staff_roles').select('role').eq('user_id',currentUser.id).maybeSingle();
+      if(error){
+        if(status)status.textContent='Could not verify staff permissions. The management panel remains hidden.';
+        return;
+      }
+      staffRole=data?.role||null;
+      if(staffRole!=='owner'){
+        if(status)status.textContent='Staff management is restricted to the verified site owner.';
+        return;
+      }
+      if(status)status.textContent='Site owner · you can assign and revoke staff roles.';
+      controls?.classList.remove('hidden');
+      panel.classList.remove('hidden');
+      await window.loadAioStaffList();
+    }catch(error){
+      staffRole=null;
+      panel.classList.add('hidden');
       setup?.classList.add('hidden');
-      if(status)status.textContent=staffRole?('Your role: '+staffRole+'. Staff assignment is owner-only.'):'Staff management is restricted to the site owner.';
+      controls?.classList.add('hidden');
+      if(status)status.textContent='Could not verify staff permissions. The management panel remains hidden.';
+      console.warn('Staff permission verification failed:',error);
     }
   };
 
