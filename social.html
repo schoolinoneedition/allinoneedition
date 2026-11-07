@@ -1362,12 +1362,15 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
     }
     if(!client){setStatus('postStatus','Cloud service is unavailable. Nothing was published.','bad');return;}
     postBusy=true;const submit=$('submitPost');submit.disabled=true;submit.textContent='Publishing…';
-    setStatus('postStatus',file?'Uploading media to XBT storage…':'Publishing your post…');
+    setStatus('postStatus',file?'Uploading media to Backblaze B2…':'Publishing your post…');
     try{
       if(file){
         const extensionMatch=String(file.name||'').toLowerCase().match(/\.([a-z0-9]{1,8})$/);
         const ext=extensionMatch?.[1]||(mediaType==='video'?'mp4':'jpg');
         const uploadContentType=mediaType==='video'?(videoMimeType(file)||String(file.type||'video/mp4')):(file.type||'image/jpeg');
+        if(!['video/mp4','video/webm','video/quicktime','image/jpeg','image/png','image/webp','image/gif'].includes(uploadContentType)){
+          throw new Error('Backblaze uploads currently support MP4, WebM, MOV, JPG, PNG, WebP and GIF. Convert unsupported video formats in Tools first.');
+        }
         const uploadFile=new File([file],file.name,{type:uploadContentType,lastModified:file.lastModified});
         const uploaded=await aioMediaUpload(uploadFile,'public');
         aioMediaId=uploaded.id;
