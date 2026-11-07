@@ -133,8 +133,10 @@ async function b2Request(env: Env, key: string, method: string, query: Record<st
   const payloadHash = await sha256(body ?? "");
   const headers: Record<string, string> = { host: url.host, "x-amz-content-sha256": payloadHash, "x-amz-date": amzDate, ...extraHeaders };
   const signedNames = Object.keys(headers).map(k => k.toLowerCase()).sort();
-  const canonicalHeaders = signedNames.map(k => `${k}:${headers[Object.keys(headers).find(x => x.toLowerCase() === k)!].trim().replace(/\s+/g, " ")}\n`).join("");
-  const canonicalQuery = [...url.searchParams.entries()].map(([k,v]) => [awsEncode(k), awsEncode(v)] as const).sort((a,b) => a[0].localeCompare(b[0]) || a[1].localeCompare(b[1])).map(([k,v]) => `${k}=${v}`).join("&");
+  // The join below supplies the single newline after the canonical header block.
+  // Do not append a trailing newline here or SigV4 receives an extra blank line.
+  const canonicalHeaders = signedNames.map(k => `${k}:${headers[Object.keys(headers).find(x => x.toLowerCase() === k)!].trim().replace(/\s+/g, " ")}`).join("\n");
+  const canonicalQuery = [...url.searchParams.entries()].map(([k,v]) => [awsEncode(k), awsEncode(v)] as const).sort((a,b) => a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0).map(([k,v]) => `${k}=${v}`).join("&");
   const canonicalRequest = [method, url.pathname, canonicalQuery, canonicalHeaders, signedNames.join(";"), payloadHash].join("\n");
   const scope = `${date}/${env.B2_REGION}/s3/aws4_request`;
   const toSign = `AWS4-HMAC-SHA256\n${amzDate}\n${scope}\n${await sha256(canonicalRequest)}`;
