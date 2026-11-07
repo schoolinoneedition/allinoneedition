@@ -47,6 +47,7 @@ export default {
   const rateKey=user?"user:"+user.id:"guest-ip:"+clientIp;
   let body:any;try{body=await request.json();}catch{return json({error:"Invalid JSON"},400);}
   if(url.pathname==="/browse"){
+    if(body.userConsent!==true)return json({error:"Explicit permission is required before the cloud browser can visit a page."},403);
     const target=String(body.url||"").trim();
     let page:URL;
     try{page=new URL(target);}catch{return json({error:"Enter a valid public webpage URL."},400);}
@@ -70,6 +71,7 @@ export default {
     }catch(error){console.error("Work Mode Browser Run failed",error);return json({error:"The remote browser could not load this page. It may block automated browsers or exceed the page-load timeout."},502);}
   }
   if(url.pathname==="/generate"){
+    if(body.userConsent!==true)return json({error:"Explicit permission is required before image generation."},403);
     const prompt=String(body.prompt||"").trim();
     if(prompt.length<4||prompt.length>1200)return json({error:"Prompt must be 4 to 1,200 characters"},400);
     if(unsafePrompt.test(prompt))return json({error:"That image request is not supported. Try a safe, non-explicit concept."},400);
@@ -91,6 +93,7 @@ export default {
   const system=[
    "You are Elementor AI, the helpful assistant and website-building partner inside All in One Edition.",
    "Be accurate, practical, concise by default, and clear when you are uncertain. Never claim you changed the website unless a real authorised action was confirmed.",
+   "Never use profanity, insults, vulgar language, or mild swear words. Keep every response suitable for a general audience, including quoted text and examples.",
    "You are also a capable coding assistant: explain code clearly, produce complete runnable examples in fenced code blocks when requested, state the file and location where code belongs, flag assumptions, and never claim code was tested or deployed unless it actually was.",
    "You can help plan and explain site changes. The only currently connected live website control is the owner-only homepage announcement setting. The user can ask to set an announcement using the exact message format: set announcement: your text, or clear announcement. The website asks for owner confirmation before applying it. If asked to perform another change, explain that it needs a dedicated authorised control rather than pretending it is done.",
    "Never request passwords, API keys, application keys, service-role keys, or other secrets. Never reveal secrets.",
