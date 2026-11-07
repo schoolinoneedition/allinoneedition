@@ -92,6 +92,21 @@ body{min-height:100dvh}
 #stop{color:#a33;border-color:#e8caca}
 #prompt{resize:none;overflow-y:auto}
 .bubble{white-space:normal}
+
+/* Responsive theme and spacing pass */
+:root.dark{color-scheme:dark;--bg:#111318;--panel:#191c22;--ink:#f2f3f5;--muted:#a1a6b1;--line:#2a2e37;--soft:#20242c;--accent:#86a5ff;--accent-soft:#202b48;--shadow:0 9px 24px rgba(0,0,0,.28)}
+:root.dark .side,:root.dark .top,:root.dark .composer,:root.dark .modal,:root.dark .control-card,:root.dark .suggestion{background:var(--panel);color:var(--ink);border-color:var(--line)}
+:root.dark .history-search,:root.dark .field input,:root.dark .field textarea,:root.dark .field select{background:#15181e;color:var(--ink);border-color:var(--line)}
+:root.dark .tool-btn,:root.dark .icon-btn,:root.dark .back,:root.dark .side-action{background:#1b1f27;color:var(--ink);border-color:var(--line)}
+:root.dark .message.user .bubble{background:#202b48;border-color:#34466f}
+:root.dark .bubble code.inline-code{background:#2a303a;color:#f2f3f5}
+.content{width:min(1100px,100%);padding-left:clamp(16px,4vw,48px);padding-right:clamp(16px,4vw,48px)}
+.messages{gap:22px}
+.bubble{max-width:min(900px,calc(100% - 48px));padding:15px 18px;font-size:14px;line-height:1.7}
+.composer textarea{min-height:68px;max-height:200px;resize:none}
+.scroll-bottom{position:absolute;right:clamp(16px,4vw,48px);bottom:116px;z-index:4;box-shadow:var(--shadow)}
+.content{position:relative}
+@media(max-width:700px){.content{padding-left:10px;padding-right:10px}.bubble{max-width:calc(100% - 34px);padding:11px 13px;font-size:13px}.scroll-bottom{right:14px;bottom:108px}}
 </style>
 </head>
 <body>
@@ -108,12 +123,12 @@ body{min-height:100dvh}
  </div>
 </aside>
 <section class="main">
- <header class="top"><div style="display:flex;align-items:center;gap:10px"><button class="icon-btn mobile-menu" id="menuBtn" aria-label="Open menu">☰</button><h1 id="chatTitle">New chat</h1></div><div class="top-right"><span class="pill">Elementor workspace</span><button class="icon-btn" id="renameChat" aria-label="Rename chat" title="Rename chat">✎</button><button class="icon-btn" id="deleteChat" aria-label="Delete chat" title="Delete chat">⌫</button><button class="icon-btn" id="profileTop" aria-label="Personalisation">⚙</button></div></header>
+ <header class="top"><div style="display:flex;align-items:center;gap:10px"><button class="icon-btn mobile-menu" id="menuBtn" aria-label="Open menu">☰</button><h1 id="chatTitle">New chat</h1></div><div class="top-right"><span class="pill">Elementor workspace</span><button class="icon-btn" id="renameChat" aria-label="Rename chat" title="Rename chat">✎</button><button class="icon-btn" id="deleteChat" aria-label="Delete chat" title="Delete chat">⌫</button><button class="icon-btn" id="themeToggle" aria-label="Switch colour theme" title="Switch colour theme">◐</button><button class="icon-btn" id="profileTop" aria-label="Personalisation">⚙</button></div></header>
  <div class="content">
   <div class="welcome" id="welcome"><div class="orb">✦</div><h2>What are we building today?</h2><p>Ask questions, create images, or manage parts of All in One Edition.</p>
    <div class="suggestions"><button class="suggestion" data-prompt="Help me improve the All in One Edition homepage."><strong>Improve my website</strong>Review ideas and suggest practical upgrades</button><button class="suggestion" data-prompt="Create an image of a cosy futuristic gaming room with soft blue lighting."> <strong>Create an image</strong>Turn an idea into an original image</button><button class="suggestion" data-prompt="Explain how to organise my games catalogue better."><strong>Organise my games</strong>Plan a cleaner games catalogue</button><button class="suggestion" data-prompt="Give me a quick overview of what Elementor can do."><strong>Explore Elementor</strong>See what your AI workspace can do</button></div>
   </div>
-  <div class="messages" id="messages"></div>
+  <div class="messages" id="messages"></div><button class="tool-btn scroll-bottom hidden" id="scrollBottom" type="button">↓ Latest</button>
   <div class="composer-wrap"><div class="composer"><textarea id="prompt" placeholder="Message Elementor…" rows="2"></textarea><div class="composer-bottom"><div class="tools"><button class="tool-btn" id="imageMode" title="Optional explicit image mode">▧ Image</button><button class="tool-btn" id="thinkMode" aria-pressed="false" title="Use a reasoning-capable model">✧ Think</button><button class="tool-btn" id="codeMode">⌘ Code mode</button><button class="tool-btn" id="voiceInput" title="Dictate a message">🎙 Dictate</button><button class="tool-btn" id="voiceChat" title="Hands-free voice conversation">◉ Voice chat</button><button class="tool-btn" id="voiceOutput" title="Read replies aloud">🔊 Read replies</button><button class="tool-btn" id="clearMode">Clear mode</button><span class="voice-status" id="voiceStatus" aria-live="polite"></span></div><button class="tool-btn hidden" id="stop" type="button">Stop ■</button><button class="send" id="send">Send ↑</button></div></div><p class="fine">Elementor can make mistakes. Check important changes before applying them.</p></div>
  </div>
 </section>
@@ -341,6 +356,12 @@ $('voiceInput').onclick=()=>{
  try{recognition.start();}catch{$('voiceStatus').textContent='Could not start microphone. Try again.';recognition=null;}
 };
 $('historySearch').addEventListener('input',loadHistory);
+const savedTheme=sessionStorage.getItem('elementor_theme')||'light';document.documentElement.classList.toggle('dark',savedTheme==='dark');
+$('themeToggle').onclick=()=>{const dark=document.documentElement.classList.toggle('dark');sessionStorage.setItem('elementor_theme',dark?'dark':'light');$('themeToggle').textContent=dark?'☀':'◐';};
+$('themeToggle').textContent=document.documentElement.classList.contains('dark')?'☀':'◐';
+const resizePrompt=()=>{$('prompt').style.height='auto';$('prompt').style.height=Math.min($('prompt').scrollHeight,200)+'px';};$('prompt').addEventListener('input',resizePrompt);
+const updateScrollButton=()=>{$('scrollBottom').classList.toggle('hidden',$('messages').scrollHeight-$('messages').scrollTop-$('messages').clientHeight<120);};$('messages').addEventListener('scroll',updateScrollButton);$('scrollBottom').onclick=()=>{$('messages').scrollTo({top:$('messages').scrollHeight,behavior:'smooth'});};
+
 $('thinkMode').classList.toggle('active',thinkMode);$('thinkMode').setAttribute('aria-pressed',String(thinkMode));$('thinkMode').onclick=()=>{thinkMode=!thinkMode;sessionStorage.setItem('elementor_think_mode',thinkMode?'1':'0');$('thinkMode').classList.toggle('active',thinkMode);$('thinkMode').setAttribute('aria-pressed',String(thinkMode));$('voiceStatus').textContent=thinkMode?'Think mode enabled · reasoning model':'Think mode disabled · standard model';};
 $('stop').onclick=()=>{if(activeController)activeController.abort();};
 $('renameChat').onclick=async()=>{if(!currentId)return;const title=window.prompt('Rename this conversation',$('chatTitle').textContent);if(!title?.trim())return;const clean=title.trim().slice(0,100);if(!user&&guestChats[currentId]){guestChats[currentId].title=clean;guestChats[currentId].updated_at=Date.now();saveGuestChats();}else if(user)await db.from('elementor_conversations').update({title:clean,updated_at:new Date().toISOString()}).eq('id',currentId).eq('user_id',user.id);$('chatTitle').textContent=clean;await loadHistory();};
