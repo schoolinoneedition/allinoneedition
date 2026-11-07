@@ -541,7 +541,7 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
    <div class="brandmark"><img src="./favicon.svg" alt="" width="38" height="38"></div>
    <div class="brandtext">All in One Edition</div><div class="owner">Roy owner</div>
   </div>
-  <div class="search"><input id="search" autocomplete="off" placeholder="Search games… ( / )" aria-label="Search games"></div>
+  <div class="search"><input id="search" autocomplete="off" placeholder="Search games, tools, pages… ( / )" aria-label="Search games, tools and pages"></div>
   <button class="btn quick-launch-trigger" id="quickLaunchOpen" type="button" aria-haspopup="dialog" aria-controls="aioQuickLaunch">Quick open <kbd>Ctrl K</kbd></button><button class="btn" id="aiSearchOpen" type="button" aria-haspopup="dialog" aria-controls="aioAiSearch">AI Search</button>
   <button class="btn" id="assistantBtn" type="button" onclick="openAssistant()">Elementor AI</button><button class="btn account-btn" id="accountBtn" type="button" onclick="handleAccountClick()"><span class="account-avatar" id="accountAvatar">?</span><span id="accountLabel">Account</span></button><span class="aio-live-clock" id="aioLiveClock" aria-label="Current local time">00:00</span><button class="btn" id="settingsBtn">Settings</button><select class="lang-select" id="languageSelect" aria-label="Language"><option value="en">EN</option><option value="es">ES</option><option value="fr">FR</option><option value="de">DE</option><option value="pl">PL</option><option value="pt">PT</option><option value="tr">TR</option><option value="ar">AR</option><option value="it">IT</option><option value="nl">NL</option><option value="ja">JA</option><option value="ko">KO</option></select><button class="btn" id="darkBtn">Dark</button><button class="btn" id="afkBtn" title="Pause your current game and enter AFK mode">AFK</button><button class="btn" id="hideBtn">Hide</button>
  </div>
@@ -1025,12 +1025,12 @@ const I18N={
 };
 function applyLanguage(lang){const t=I18N[lang]||I18N.en;storage.setItem('aio-lang',lang);document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';const set=(id,key)=>{const e=$(id);if(e&&t[key]!=null)e.textContent=t[key]};set('assistantBtn','assistant');set('settingsBtn','settings');set('darkBtn',document.documentElement.classList.contains('dark')?'light':'dark');set('hideBtn',hidden?'show':'hide');document.querySelectorAll('.nav button').forEach((b,i)=>{const k=['home','games','school','social','community','chat','live','tools','notes','music','code'][i];if(t[k])b.textContent=t[k];else if(k==='music')b.textContent='Music'});const h=document.querySelector('#home h1');if(h)h.textContent=t.hero;const hp=document.querySelector('#home .hero-card p');if(hp)hp.textContent=t.heroSub;const chips=document.querySelectorAll('#home .chip');if(chips[0])chips[0].textContent=t.browse;if(chips[1])chips[1].textContent=t.schoolApps;if(chips[2])chips[2].textContent=t.liveInfo;if(chips[3])chips[3].textContent=t.useful;if(chips[4])chips[4].textContent=t.ask;const hs=document.querySelector('#continueSection h2');if(hs)hs.textContent=t.continueTitle;const hss=document.querySelector('#continueSection small');if(hss)hss.textContent=t.continueSub;const gs=document.querySelector('#games h2');if(gs)gs.textContent=t.games;const gss=document.querySelector('#games .section-head small');if(gss)gss.textContent=t.gamesSub;const sh=document.querySelector('#school h2');if(sh)sh.textContent=t.schoolApps;const liveh=document.querySelector('#live h2');if(liveh)liveh.textContent=t.liveTitle;const th=document.querySelector('#tools h2');if(th)th.textContent=t.toolsTitle;const nh=document.querySelector('#notes h2');if(nh)nh.textContent=t.notesTitle;const ch=document.querySelector('#code h2');if(ch)ch.textContent=t.codeTitle;const mh=document.querySelector('#music h2');if(mh)mh.textContent=MUSIC_TITLES[lang]||'Music streamer';const search=$('search');if(search)search.placeholder=t.games+', '+t.tools+', '+t.schoolApps+'...  ( / )';const sel=$('languageSelect');if(sel)sel.value=lang}function initLanguage(){const lang=storage.getItem('aio-lang')||'en';applyLanguage(lang);$('languageSelect')?.addEventListener('change',e=>applyLanguage(e.target.value))}
 let visibleLimit=48;let currentFiltered=[];function renderFilters(){const filters=['All','New','Favourites',...CATEGORIES.filter(c=>c!=='All')];const favouriteCount=GAMES.filter(g=>favouriteGames.has(gameKey(g))).length;$('filters').innerHTML=filters.map(c=>{const label=c==='Favourites'?'★ Favourites ('+favouriteCount+')':esc(c);return `<button class="filter ${c===activeCat?'active':''}" onclick='setCat(${JSON.stringify(c)})'>${label}</button>`}).join('')}
-function filteredGames(){let q=$('search').value.trim().toLowerCase();let list=GAMES.map((g,i)=>({g,i})).filter(x=>{const matchesCategory=activeCat==='All'||(activeCat==='New'?x.g.source==='Mashukui Web Games':activeCat==='Favourites'?favouriteGames.has(gameKey(x.g)):x.g.cat===activeCat);return matchesCategory&&(!safeMode||!['Horror','Adventure'].includes(x.g.cat))&&(!q||x.g.name.toLowerCase().includes(q)||x.g.cat.toLowerCase().includes(q))});if(activeCat==='All'&&!q)list.sort((a,b)=>{const rank=x=>/featured/i.test(x.g.tag)?0:/popular/i.test(x.g.tag)?1:2;return rank(a)-rank(b)||a.i-b.i});return list;}
+function filteredGames(){const q=$('search').value.trim().toLowerCase();const aliases={'brain teaser':'puzzle','brain games':'puzzle','thinking games':'puzzle','word games':'word','typing games':'word','memory games':'memory','driving games':'racing','car games':'racing','football games':'sports','soccer games':'sports','2 player':'multiplayer','two player':'multiplayer','relaxing games':'casual','school games':'educational'};const expanded=aliases[q]||q;const terms=expanded.split(/\s+/).filter(Boolean);let list=GAMES.map((g,i)=>({g,i})).filter(x=>{const matchesCategory=activeCat==='All'||(activeCat==='New'?x.g.source==='Mashukui Web Games':activeCat==='Favourites'?favouriteGames.has(gameKey(x.g)):x.g.cat===activeCat);const haystack=[x.g.name,x.g.cat,x.g.tag,x.g.description,x.g.desc,x.g.source,...(Array.isArray(x.g.tags)?x.g.tags:[])].filter(Boolean).join(' ').toLowerCase();const matchesQuery=!q||haystack.includes(q)||terms.every(term=>haystack.includes(term))||haystack.includes(expanded);return matchesCategory&&(!safeMode||!['Horror','Adventure'].includes(x.g.cat))&&matchesQuery});if(q)list.sort((a,b)=>{const score=x=>{const n=x.g.name.toLowerCase(),cat=x.g.cat.toLowerCase();return(n===q?100:n.startsWith(q)?60:n.includes(q)?35:0)+(cat===expanded?30:0)+(String(x.g.tag||'').toLowerCase().includes('featured')?3:0)};return score(b)-score(a)||a.i-b.i});else if(activeCat==='All')list.sort((a,b)=>{const rank=x=>/featured/i.test(x.g.tag)?0:/popular/i.test(x.g.tag)?1:2;return rank(a)-rank(b)||a.i-b.i});return list;}
 function renderGames(){currentFiltered=filteredGames();if(visibleLimit>currentFiltered.length)visibleLimit=currentFiltered.length;const shown=currentFiltered.slice(0,visibleLimit);$('gameGrid').innerHTML=shown.length?shown.map(x=>cardHTML(x.g,x.i)).join(''):`<div class="panel" style="grid-column:1/-1">No games match that search.</div>`;$('gameCount').textContent=String(GAMES.length);$('librarySummary').textContent=`${GAMES.length} games ready`;const wrap=$('loadMoreWrap'),btn=$('loadMoreBtn');if(wrap&&btn){wrap.style.display=currentFiltered.length>visibleLimit?'flex':'none';btn.textContent=`Load more games (${Math.min(48,currentFiltered.length-visibleLimit)} more)`}hydrateImages();setupGameConnectionWarmup();}
 function loadMoreGames(){visibleLimit+=48;renderGames();window.scrollBy({top:140,behavior:'smooth'})}
 function setCat(c){activeCat=c;visibleLimit=48;renderFilters();renderGames()}
 function toggleFavourite(event,index){if(event){event.preventDefault();event.stopPropagation()}const game=GAMES[index];if(!game)return;const key=gameKey(game);if(favouriteGames.has(key)){favouriteGames.delete(key);showToast('Removed from favourites')}else{favouriteGames.add(key);showToast('Added to favourites')}storage.setItem(FAVOURITES_KEY,JSON.stringify([...favouriteGames]));renderFilters();renderGames()}
-let gameSearchTimer=0;$('search').addEventListener('input',()=>{clearTimeout(gameSearchTimer);gameSearchTimer=setTimeout(()=>{visibleLimit=48;renderGames()},100)})
+let gameSearchTimer=0;$('search').addEventListener('input',()=>{clearTimeout(gameSearchTimer);gameSearchTimer=setTimeout(()=>{visibleLimit=48;renderGames()},100)});$('search').addEventListener('keydown',event=>{if(event.key==='Enter'&&$('search').value.trim().length>2&&/^(find|show|recommend|what|where|how|best)\\b/i.test($('search').value.trim())){event.preventDefault();window.openAioAISearch?.($('search').value.trim())}})
 const ONLINE_GAMES_FEED='https://www.onlinegames.io/media/plugins/genGames/embed.json';
 let onlineCatalogLoaded=false;
 function categoryFromOnlineTags(tags){
@@ -3280,15 +3280,16 @@ socialBind=function(){__oldSocialBind();socialBindPostManagement();setTimeout(()
   <section class="aio-ai-dialog" role="dialog" aria-modal="true" aria-labelledby="aioAiTitle">
     <header class="aio-ai-head">
       <div class="aio-ai-brand">AI</div>
-      <div class="aio-ai-head-copy"><strong id="aioAiTitle">AI Search</strong><small>Search the public All in One Edition catalogue</small></div>
+      <div class="aio-ai-head-copy"><strong id="aioAiTitle">AI Search</strong><small>Search games, tools, pages and public platform information</small></div>
       <button type="button" class="aio-ai-close" id="aioAiClose" aria-label="Close AI Search">×</button>
     </header>
     <div class="aio-ai-modes">
       <button type="button" data-ai-mode="search" aria-pressed="true">Search</button>
       <button type="button" data-ai-mode="chat" aria-pressed="false">Ask AI</button>
+      <button type="button" data-ai-mode="images" aria-pressed="false">Create image</button>
     </div>
     <form id="aioAiForm" class="aio-ai-form">
-      <input id="aioAiQuery" type="search" autocomplete="off" maxlength="500" placeholder="Try “find puzzle games” or “what tools are available?”" aria-label="Search All in One Edition">
+      <input id="aioAiQuery" type="search" autocomplete="off" maxlength="500" placeholder="Search by idea, category, game name or ask a question" aria-label="Search All in One Edition">
       <button type="button" id="aioAiVoice" aria-label="Voice search">🎙</button>
       <button type="submit" id="aioAiSubmit">Search</button>
     </form>
@@ -3297,7 +3298,7 @@ socialBind=function(){__oldSocialBind();socialBindPostManagement();setTimeout(()
       <button type="button" data-ai-query="What tools are available?">Available tools</button>
       <button type="button" data-ai-query="How do I use the Study Hub?">Study Hub</button>
     </div>
-    <div id="aioAiStatus" class="aio-ai-status" role="status">Search public catalogue information. Private notes and Social posts are not included.</div>
+    <div id="aioAiStatus" class="aio-ai-status" role="status">Search the public catalogue or create an image. Private notes and Social posts are not included.</div>
     <div id="aioAiResults" class="aio-ai-results" aria-live="polite"></div>
   </section>
 </div>
@@ -3416,9 +3417,9 @@ socialBind=function(){__oldSocialBind();socialBindPostManagement();setTimeout(()
   function setMode(next){
     mode=next;
     modeButtons.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.aiMode===mode)));
-    submit.textContent=mode==='chat'?'Ask AI':'Search';
-    input.placeholder=mode==='chat'?'Ask a question about All in One Edition…':'Try “find puzzle games” or “what tools are available?”';
-    suggestions.hidden=mode==='chat';
+    submit.textContent=mode==='chat'?'Ask AI':mode==='images'?'Generate image':'Search';
+    input.placeholder=mode==='chat'?'Ask Elementor about the site…':mode==='images'?'Describe the image you want to create…':'Search games, tools, pages or describe what you need…';
+    suggestions.hidden=mode!=='search';
   }
   function open(){
     modal.hidden=false;modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
@@ -3479,11 +3480,25 @@ socialBind=function(){__oldSocialBind();socialBindPostManagement();setTimeout(()
       setStatus(answer?'Answer generated from the indexed public catalogue.':'No answer was returned. Try a more specific question.');
     }catch(error){answerNode.textContent='AI Search is temporarily unavailable.';setStatus(String(error.message||''));messages.pop()}
   }
+  async function runImage(query){
+    clearResults();setStatus('Creating your image with Cloudflare Workers AI… This can take a little while.');
+    const card=document.createElement('article');card.className='aio-ai-result aio-ai-image-result';
+    const title=document.createElement('strong');title.textContent='Elementor image';
+    const loading=document.createElement('p');loading.textContent='Generating image…';card.append(title,loading);results.append(card);
+    try{
+      const response=await fetch('https://aio-elementor-ai.plsgivemediscord981.workers.dev/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:query})});
+      if(!response.ok){let detail='Image generation failed.';try{detail=(await response.json()).error||detail}catch{}throw new Error(detail)}
+      const blob=await response.blob();const url=URL.createObjectURL(blob);const image=document.createElement('img');image.src=url;image.alt='Image generated from: '+query;image.loading='lazy';image.style.cssText='display:block;width:100%;height:auto;border-radius:12px;margin-top:12px';
+      const actions=document.createElement('div');actions.className='aio-ai-image-actions';
+      const save=document.createElement('a');save.href=url;save.download='elementor-image.png';save.textContent='Save image';save.className='btn mini primary';actions.append(save);
+      loading.remove();card.append(image,actions);setStatus('Image created. Save it to your device when ready.');
+    }catch(error){loading.textContent=String(error.message||'Image generation is unavailable.');setStatus('Image generation could not complete.');}
+  }
   async function submitQuery(){
     if(busy)return;
     const query=input.value.trim();if(query.length<2){setStatus('Enter at least two characters.');return}
     busy=true;submit.disabled=true;voice.disabled=true;
-    try{if(mode==='chat')await runChat(query);else await runSearch(query)}
+    try{if(mode==='chat')await runChat(query);else if(mode==='images')await runImage(query);else await runSearch(query)}
     finally{busy=false;submit.disabled=false;voice.disabled=false}
   }
   openButton.addEventListener('click',open);closeButton.addEventListener('click',close);
@@ -3504,6 +3519,7 @@ socialBind=function(){__oldSocialBind();socialBindPostManagement();setTimeout(()
   });
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!modal.hidden){event.preventDefault();close()}});
   setMode('search');
+  window.openAioAISearch=(query='')=>{open();if(query)input.value=query;setMode('search');if(query)submitQuery()};
 })();
 </script>
 
