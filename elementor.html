@@ -10,14 +10,16 @@
 :root{color-scheme:light;--bg:#f6f7f9;--panel:#fff;--ink:#20232a;--muted:#747b88;--line:#e6e8ed;--soft:#f1f3f6;--accent:#345eea;--accent-soft:#edf1ff;--shadow:0 8px 28px rgba(22,31,54,.06)}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}.shell{min-height:100vh;display:grid;grid-template-columns:270px minmax(0,1fr)}.side{height:100vh;position:sticky;top:0;background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column;padding:18px 14px;gap:16px}.brand{display:flex;align-items:center;gap:10px;padding:2px 6px 14px}.brand img{width:34px;height:34px;object-fit:contain}.brand strong{font:700 17px Georgia,serif;letter-spacing:-.3px}.brand small{display:block;color:var(--muted);font:700 10px Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase}.new{width:100%;border:0;background:var(--ink);color:#fff;padding:12px 14px;border-radius:12px;font-weight:800;text-align:left}.side-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#9298a3;font-weight:900;padding:0 8px}.history-search{width:100%;border:1px solid var(--line);background:#fafbfc;border-radius:9px;padding:9px 10px;font-size:12px;outline:none}.history{overflow:auto;display:flex;flex-direction:column;gap:4px;min-height:80px}.chat-link{border:0;background:transparent;color:#525965;text-align:left;padding:9px 10px;border-radius:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chat-link:hover,.chat-link.active{background:var(--soft);color:var(--ink)}.side-bottom{margin-top:auto;display:grid;gap:8px}.back,.side-action{border:1px solid var(--line);background:#fff;color:var(--ink);padding:10px 11px;border-radius:10px;text-align:left;font-weight:750}.account{display:flex;align-items:center;gap:10px;padding:10px 6px 2px;border-top:1px solid var(--line)}.avatar{width:37px;height:37px;border-radius:13px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font-size:19px;overflow:hidden;flex:none}.avatar img{width:100%;height:100%;object-fit:cover}.account strong{display:block;font-size:12px}.account small{color:var(--muted);font-size:11px}.main{min-width:0;display:flex;flex-direction:column;min-height:100vh}.top{height:65px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.86);backdrop-filter:blur(14px);position:sticky;top:0;z-index:5}.top h1{font-size:15px;margin:0;font-weight:850}.top-right{display:flex;align-items:center;gap:9px}.pill{font-size:11px;color:#667080;background:var(--soft);padding:6px 9px;border-radius:999px;font-weight:750}.icon-btn{width:36px;height:36px;border:1px solid var(--line);border-radius:10px;background:#fff}.content{width:min(930px,100%);margin:0 auto;padding:34px 24px 26px;flex:1;display:flex;flex-direction:column}.welcome{margin:auto auto 24px;text-align:center;max-width:620px}.orb{width:54px;height:54px;margin:0 auto 16px;border-radius:18px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:26px;font-weight:900}.welcome h2{font-size:29px;letter-spacing:-1px;margin:0 0 8px}.welcome p{margin:0;color:var(--muted)}.suggestions{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:22px;text-align:left}.suggestion{border:1px solid var(--line);background:#fff;border-radius:13px;padding:13px;color:#4e5663;text-align:left}.suggestion strong{display:block;color:var(--ink);font-size:12px;margin-bottom:3px}.messages{display:flex;flex-direction:column;gap:18px;padding-bottom:20px}.message{display:flex;gap:11px;align-items:flex-start;max-width:100%}.message.user{flex-direction:row-reverse}.bubble-avatar{width:30px;height:30px;flex:none;border-radius:10px;background:var(--accent-soft);display:grid;place-items:center;color:var(--accent);font-weight:900}.message.user .bubble-avatar{background:#e9ebef;color:#555}.bubble{max-width:min(720px,calc(100% - 44px));padding:12px 15px;border:1px solid var(--line);border-radius:15px;background:#fff;white-space:pre-wrap;overflow-wrap:anywhere}.message.user .bubble{background:#edf1ff;border-color:#dce4ff}.bubble img{display:block;max-width:min(100%,520px);max-height:520px;object-fit:contain;border-radius:10px;margin-top:10px;background:#f1f2f5}.bubble .meta{font-size:10px;color:var(--muted);margin-top:7px}.composer-wrap{position:sticky;bottom:0;padding:14px 0 6px;background:linear-gradient(180deg,rgba(246,247,249,0),var(--bg) 22%)}.composer{border:1px solid #dfe2e9;background:#fff;border-radius:17px;padding:10px;box-shadow:var(--shadow)}.composer textarea{width:100%;min-height:56px;max-height:180px;resize:vertical;border:0;outline:0;padding:8px 8px;color:var(--ink);background:transparent}.composer-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px}.tools{display:flex;gap:7px;align-items:center}.tool-btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 10px;color:#555e6b;font-size:11px;font-weight:800}.tool-btn.active{background:var(--accent-soft);color:var(--accent);border-color:#d9e2ff}.send{border:0;border-radius:10px;background:var(--accent);color:#fff;padding:9px 15px;font-weight:850}.send:disabled{opacity:.5;cursor:wait}.fine{font-size:10px;color:#9197a1;text-align:center;margin:9px 0 0}.hidden{display:none!important}.modal-back{position:fixed;inset:0;background:rgba(18,22,32,.35);z-index:20;display:grid;place-items:center;padding:18px}.modal{width:min(480px,100%);background:#fff;border-radius:18px;padding:21px;box-shadow:0 20px 80px rgba(0,0,0,.18)}.modal h3{margin:0 0 6px;font-size:18px}.modal p{margin:0 0 17px;color:var(--muted);font-size:12px}.field{display:grid;gap:6px;margin:12px 0}.field label{font-size:11px;font-weight:850;color:#59616e}.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);background:#fafbfc;border-radius:10px;padding:10px;color:var(--ink);outline:none}.field textarea{min-height:75px;resize:vertical}.avatars{display:flex;flex-wrap:wrap;gap:8px}.avatar-choice{width:40px;height:40px;border:1px solid var(--line);background:#fff;border-radius:12px;font-size:20px}.avatar-choice.selected{border:2px solid var(--accent);background:var(--accent-soft)}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.status{font-size:11px;color:var(--muted);min-height:17px}.control-card{border:1px solid var(--line);border-radius:14px;background:#fff;padding:15px;margin:14px 0}.control-card h3{font-size:13px;margin:0 0 5px}.control-card p{font-size:11px;color:var(--muted);margin:0 0 12px}.control-card input{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-bottom:8px}.control-card button{border:0;background:var(--accent);color:#fff;padding:9px 12px;border-radius:9px;font-weight:800}.mobile-menu{display:none}
 @media(max-width:760px){.shell{grid-template-columns:1fr}.side{height:auto;position:fixed;z-index:10;left:0;top:0;bottom:0;width:min(290px,84vw);transform:translateX(-105%);transition:transform .2s;box-shadow:var(--shadow)}.side.open{transform:translateX(0)}.mobile-menu{display:inline-grid;place-items:center}.top{padding:0 14px}.content{padding:24px 13px}.welcome h2{font-size:25px}.suggestions{grid-template-columns:1fr}.top-right .pill{display:none}}
-\n/* Work Mode: a first-class workspace, not a permission modal. */
+
+/* Work Mode: a first-class workspace, not a permission modal. */
 .work-panel{width:100%;border:1px solid var(--line);background:var(--panel);border-radius:18px;padding:clamp(16px,3vw,26px);box-shadow:var(--shadow);margin:0 0 12px;max-height:44vh;overflow:auto}
 .work-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.work-head h2{font-size:22px;margin:3px 0}.work-head p,.work-task>p{font-size:12px;color:var(--muted);margin:0 0 14px}.work-kicker{font-size:10px;font-weight:900;letter-spacing:.14em;color:var(--accent)}
 .work-task label{display:block;font-weight:800;font-size:12px;margin:12px 0 6px}.work-task input{width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--bg);color:var(--ink)}
 .work-meta{display:flex;justify-content:space-between;gap:10px;font-size:11px;color:var(--muted);margin:12px 0 7px}.work-progress{height:6px;border-radius:20px;background:var(--soft);overflow:hidden}.work-progress span{display:block;width:0;height:100%;background:var(--accent);transition:width .2s}.work-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.work-plan{background:var(--soft);padding:12px 14px;border-radius:11px;font-size:12px}.work-plan ol{margin:7px 0 0;padding-left:20px;color:var(--muted)}.work-plan li{padding:2px 0}.work-plan.running{border:1px solid var(--accent)}.work-panel~.messages{min-height:0}
 :root.dark .work-panel{background:var(--panel)}:root.dark .work-task input{background:#15181e;color:var(--ink)}
 @media(max-width:700px){.work-panel{max-height:42vh;padding:14px}.work-head h2{font-size:19px}.work-actions>*{flex:1}.work-meta{font-size:10px}}
-\n#elementorBoot{position:fixed;inset:0;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:var(--bg);color:var(--ink);transition:opacity .24s ease,visibility .24s ease}
+
+#elementorBoot{position:fixed;inset:0;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:var(--bg);color:var(--ink);transition:opacity .24s ease,visibility .24s ease}
 #elementorBoot.done{opacity:0;visibility:hidden;pointer-events:none}.boot-mark{width:54px;height:54px;border-radius:17px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:27px}.boot-track{width:150px;height:4px;background:var(--line);border-radius:8px;overflow:hidden;margin-top:8px}.boot-track i{display:block;height:100%;width:40%;background:var(--accent);animation:boot-progress 1.1s ease-in-out infinite alternate}
 @keyframes boot-progress{from{transform:translateX(-80%)}to{transform:translateX(250%)}}
 #elementorNotices{position:fixed;z-index:1001;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);display:grid;gap:8px;width:min(420px,calc(100vw - 24px));pointer-events:none}
@@ -103,7 +105,8 @@ body{min-height:100dvh}
  .bubble{font-size:12px;padding:9px 10px}
 }
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
-\n/* Streaming assistant refinements */
+
+/* Streaming assistant refinements */
 .message-actions{display:flex;gap:7px;margin-top:10px;padding-top:8px;border-top:1px solid var(--line)}
 .message-actions button{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:7px;padding:5px 8px;font-size:10px;font-weight:750}
 .message-actions button:hover{background:var(--soft);color:var(--ink)}
@@ -111,7 +114,8 @@ body{min-height:100dvh}
 #stop{color:#a33;border-color:#e8caca}
 #prompt{resize:none;overflow-y:auto}
 .bubble{white-space:normal}
-\n/* Responsive theme and spacing pass */
+
+/* Responsive theme and spacing pass */
 :root.dark{color-scheme:dark;--bg:#111318;--panel:#191c22;--ink:#f2f3f5;--muted:#a1a6b1;--line:#2a2e37;--soft:#20242c;--accent:#86a5ff;--accent-soft:#202b48;--shadow:0 9px 24px rgba(0,0,0,.28)}
 :root.dark .side,:root.dark .top,:root.dark .composer,:root.dark .modal,:root.dark .control-card,:root.dark .suggestion{background:var(--panel);color:var(--ink);border-color:var(--line)}
 :root.dark .history-search,:root.dark .field input,:root.dark .field textarea,:root.dark .field select{background:#15181e;color:var(--ink);border-color:var(--line)}
@@ -142,7 +146,8 @@ body{min-height:100dvh}
  <div class="side-bottom">
   <button class="side-action" id="profileOpen">◉ Personalisation</button>
   <button class="side-action" id="controlsOpen">⌘ Website controls</button>
-\n  <a class="back" href="/">← Back to All in One Edition</a>
+
+  <a class="back" href="/">← Back to All in One Edition</a>
   <div class="account"><div class="avatar" id="accountAvatar">✦</div><div><strong id="accountName">Not signed in</strong><small id="accountState">Sign in to use Elementor</small></div></div>
  </div>
 </aside>
@@ -167,7 +172,8 @@ body{min-height:100dvh}
  </div>
 </section>
 </div>
-\n<div class="modal-back hidden" id="profileModal"><div class="modal"><h3>Personalise Elementor</h3><p>Choose how Elementor appears and responds. These preferences are saved to your account.</p>
+
+<div class="modal-back hidden" id="profileModal"><div class="modal"><h3>Personalise Elementor</h3><p>Choose how Elementor appears and responds. These preferences are saved to your account.</p>
  <div class="field"><label>Display name</label><input id="displayName" maxlength="48" placeholder="Elementor"></div>
  <div class="field"><label>Profile picture</label><div class="avatars" id="avatarChoices"></div><input id="avatarUpload" type="file" accept="image/png,image/jpeg,image/webp" style="margin-top:9px"></div>
  <div class="field"><label>Accent colour</label><select id="elementorAccent"><option value="blue">Blue</option><option value="violet">Violet</option><option value="teal">Teal</option><option value="rose">Rose</option></select></div>
@@ -214,7 +220,8 @@ function showElementorGreeting(){
  showElementorNotice(greeting+', '+(profile.display_name||'there'),'Your Elementor workspace is ready.',5200);
  if(user&&db){db.from('aio_elementor_site_settings').select('setting_value,updated_at').eq('setting_key','announcement').maybeSingle().then(({data,error})=>{const value=data?.setting_value?.text;if(!error&&value)showElementorNotice('Platform announcement',value,9000);}).catch(()=>{});}
 }
-\nfunction openModal(id){$(id).classList.remove('hidden');}
+
+function openModal(id){$(id).classList.remove('hidden');}
 function closeModal(id){$(id).classList.add('hidden');}
 function token(){return session?.access_token||'';}
 function avatarMarkup(value){return AVATARS.includes(value)?escape(value):'✦';}
@@ -355,7 +362,8 @@ async function handleSiteCommand(text){
  if(role.error||role.data?.role!=='owner'){await saveMessage('assistant','I can only change the homepage announcement from the verified owner account.');return true;}
  const value=clearMatch?'':setMatch[1].trim();
  if(!window.confirm(clearMatch?'Clear the homepage announcement?':'Publish this homepage announcement?
-\n'+value)){await saveMessage('assistant','Cancelled. No website changes were made.');return true;}
+
+'+value)){await saveMessage('assistant','Cancelled. No website changes were made.');return true;}
  const result=clearMatch?await db.from('aio_elementor_site_settings').delete().eq('setting_key','announcement'):await db.from('aio_elementor_site_settings').upsert({setting_key:'announcement',setting_value:{text:value},updated_by:user.id,updated_at:new Date().toISOString()},{onConflict:'setting_key'});
  await saveMessage('assistant',result.error?'The website setting could not be updated: '+result.error.message:(clearMatch?'The homepage announcement has been cleared.':'The homepage announcement is now published on All in One Edition.'));
  return true;
@@ -452,7 +460,8 @@ $('themeToggle').onclick=()=>{const dark=document.documentElement.classList.togg
 $('themeToggle').textContent=document.documentElement.classList.contains('dark')?'☀':'◐';
 const resizePrompt=()=>{$('prompt').style.height='auto';$('prompt').style.height=Math.min($('prompt').scrollHeight,200)+'px';};$('prompt').addEventListener('input',resizePrompt);
 const updateScrollButton=()=>{$('scrollBottom').classList.toggle('hidden',$('messages').scrollHeight-$('messages').scrollTop-$('messages').clientHeight<120);};$('messages').addEventListener('scroll',updateScrollButton);$('scrollBottom').onclick=()=>{$('messages').scrollTo({top:$('messages').scrollHeight,behavior:'smooth'});};
-\n$('thinkMode').classList.toggle('active',thinkMode);$('thinkMode').setAttribute('aria-pressed',String(thinkMode));$('thinkMode').onclick=()=>{thinkMode=!thinkMode;localStorage.setItem('elementor_think_mode',thinkMode?'1':'0');$('thinkMode').classList.toggle('active',thinkMode);$('thinkMode').setAttribute('aria-pressed',String(thinkMode));$('voiceStatus').textContent=thinkMode?'Think mode enabled · reasoning model':'Think mode disabled · standard model';};
+
+$('thinkMode').classList.toggle('active',thinkMode);$('thinkMode').setAttribute('aria-pressed',String(thinkMode));$('thinkMode').onclick=()=>{thinkMode=!thinkMode;localStorage.setItem('elementor_think_mode',thinkMode?'1':'0');$('thinkMode').classList.toggle('active',thinkMode);$('thinkMode').setAttribute('aria-pressed',String(thinkMode));$('voiceStatus').textContent=thinkMode?'Think mode enabled · reasoning model':'Think mode disabled · standard model';};
 $('stop').onclick=()=>{if(activeController)activeController.abort();};
 $('renameChat').onclick=async()=>{if(!currentId)return;const title=window.prompt('Rename this conversation',$('chatTitle').textContent);if(!title?.trim())return;const clean=title.trim().slice(0,100);if(!user&&guestChats[currentId]){guestChats[currentId].title=clean;guestChats[currentId].updated_at=Date.now();saveGuestChats();}else if(user)await db.from('elementor_conversations').update({title:clean,updated_at:new Date().toISOString()}).eq('id',currentId).eq('user_id',user.id);$('chatTitle').textContent=clean;await loadHistory();};
 $('deleteChat').onclick=async()=>{if(!currentId||!window.confirm('Delete this conversation and its messages?'))return;if(!user)delete guestChats[currentId];else{const {error}=await db.from('elementor_conversations').delete().eq('id',currentId).eq('user_id',user.id);if(error){alert('Could not delete chat: '+error.message);return;}}saveGuestChats();currentId=null;messages=[];$('messages').replaceChildren();await loadHistory();};$('prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
@@ -462,7 +471,8 @@ $('profileOpen').onclick=openProfile;$('profileTop').onclick=openProfile;$('save
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
 document.querySelectorAll('.suggestion').forEach(b=>b.onclick=()=>{$('prompt').value=b.dataset.prompt;$('prompt').focus();});
 $('menuBtn').onclick=()=>{const open=$('sidebar').classList.toggle('open');document.body.classList.toggle('sidebar-open',open);};document.addEventListener('click',event=>{if(window.matchMedia('(max-width:700px)').matches&&$('sidebar').classList.contains('open')&&!$('sidebar').contains(event.target)&&event.target!==$('menuBtn')){$('sidebar').classList.remove('open');document.body.classList.remove('sidebar-open');}});
-\nlet workMode=false,workPaused=false,workCancelled=false,workController=null,workSteps=0;
+
+let workMode=false,workPaused=false,workCancelled=false,workController=null,workSteps=0;
 function setWorkStatus(message){$('workStatus').textContent=message;}
 function setWorkProgress(step,total,label){workSteps=step;$('workCurrent').textContent=label;$('workProgress').textContent=step+' of '+total+' steps completed';$('workProgressBar').style.width=Math.round(step/total*100)+'%';}
 function setWorkMode(enabled){
@@ -492,15 +502,18 @@ async function runWorkTask(instruction){
   await waitForWorkResume();setWorkProgress(3,total,'Analysing '+data.title);
   const prior=messages.slice(-10).map(m=>({role:m.role,content:m.content}));
   const task='Work Mode task: '+instruction+'
-\nPublic webpage fetched read-only:
+
+Public webpage fetched read-only:
 Title: '+data.title+'
 URL: '+data.url+'
 Description: '+(data.description||'')+'
 Links: '+(data.links||[]).slice(0,30).map(x=>x.text+' ('+x.url+')').join('
 ')+'
-\nExtracted page text:
+
+Extracted page text:
 '+data.text.slice(0,14000)+'
-\nAnalyse only this fetched evidence. State clearly if information is missing. Do not claim to click, submit forms, sign in, or control browser tabs.';
+
+Analyse only this fetched evidence. State clearly if information is missing. Do not claim to click, submit forms, sign in, or control browser tabs.';
   const result=await callAI();
   await waitForWorkResume();setWorkProgress(4,total,'Completed research');
   if(result.answer)await saveMessage('assistant',result.answer);else throw new Error('The AI analysis returned no answer.');
@@ -510,7 +523,8 @@ Links: '+(data.links||[]).slice(0,30).map(x=>x.text+' ('+x.url+')').join('
  finally{workController=null;$('workRun').disabled=false;$('workPause').disabled=true;$('workResume').disabled=true;$('workStop').disabled=true;$('workPlan').classList.remove('running');}
 }
 $('workRun').onclick=async()=>{const task=$('prompt').value.trim()||'Inspect this website and summarise its purpose, structure, useful information and potential issues.';$('prompt').value='';await saveMessage('user',task);runWorkTask(task);};
-\n
+
+
 init();
 })();
 </script>
