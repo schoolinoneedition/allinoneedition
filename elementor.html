@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f7f8fb"><meta name="description" content="Elementor AI workspace for All in One Edition.">
+<link rel="icon" href="./favicon.svg"><title>Elementor AI · All in One Edition</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{color-scheme:light;--bg:#f6f7f9;--panel:#fff;--ink:#20232a;--muted:#747b88;--line:#e6e8ed;--soft:#f1f3f6;--accent:#345eea;--accent-soft:#edf1ff;--shadow:0 8px 28px rgba(22,31,54,.06)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}.shell{min-height:100vh;display:grid;grid-template-columns:270px minmax(0,1fr)}.side{height:100vh;position:sticky;top:0;background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column;padding:18px 14px;gap:16px}.brand{display:flex;align-items:center;gap:10px;padding:2px 6px 14px}.brand img{width:34px;height:34px;object-fit:contain}.brand strong{font:700 17px Georgia,serif;letter-spacing:-.3px}.brand small{display:block;color:var(--muted);font:700 10px Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase}.new{width:100%;border:0;background:var(--ink);color:#fff;padding:12px 14px;border-radius:12px;font-weight:800;text-align:left}.side-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#9298a3;font-weight:900;padding:0 8px}.history{overflow:auto;display:flex;flex-direction:column;gap:4px;min-height:80px}.chat-link{border:0;background:transparent;color:#525965;text-align:left;padding:9px 10px;border-radius:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chat-link:hover,.chat-link.active{background:var(--soft);color:var(--ink)}.side-bottom{margin-top:auto;display:grid;gap:8px}.back,.side-action{border:1px solid var(--line);background:#fff;color:var(--ink);padding:10px 11px;border-radius:10px;text-align:left;font-weight:750}.account{display:flex;align-items:center;gap:10px;padding:10px 6px 2px;border-top:1px solid var(--line)}.avatar{width:37px;height:37px;border-radius:13px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font-size:19px;overflow:hidden;flex:none}.avatar img{width:100%;height:100%;object-fit:cover}.account strong{display:block;font-size:12px}.account small{color:var(--muted);font-size:11px}.main{min-width:0;display:flex;flex-direction:column;min-height:100vh}.top{height:65px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.86);backdrop-filter:blur(14px);position:sticky;top:0;z-index:5}.top h1{font-size:15px;margin:0;font-weight:850}.top-right{display:flex;align-items:center;gap:9px}.pill{font-size:11px;color:#667080;background:var(--soft);padding:6px 9px;border-radius:999px;font-weight:750}.icon-btn{width:36px;height:36px;border:1px solid var(--line);border-radius:10px;background:#fff}.content{width:min(930px,100%);margin:0 auto;padding:34px 24px 26px;flex:1;display:flex;flex-direction:column}.welcome{margin:auto auto 24px;text-align:center;max-width:620px}.orb{width:54px;height:54px;margin:0 auto 16px;border-radius:18px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:26px;font-weight:900}.welcome h2{font-size:29px;letter-spacing:-1px;margin:0 0 8px}.welcome p{margin:0;color:var(--muted)}.suggestions{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:22px;text-align:left}.suggestion{border:1px solid var(--line);background:#fff;border-radius:13px;padding:13px;color:#4e5663;text-align:left}.suggestion strong{display:block;color:var(--ink);font-size:12px;margin-bottom:3px}.messages{display:flex;flex-direction:column;gap:18px;padding-bottom:20px}.message{display:flex;gap:11px;align-items:flex-start;max-width:100%}.message.user{flex-direction:row-reverse}.bubble-avatar{width:30px;height:30px;flex:none;border-radius:10px;background:var(--accent-soft);display:grid;place-items:center;color:var(--accent);font-weight:900}.message.user .bubble-avatar{background:#e9ebef;color:#555}.bubble{max-width:min(720px,calc(100% - 44px));padding:12px 15px;border:1px solid var(--line);border-radius:15px;background:#fff;white-space:pre-wrap;overflow-wrap:anywhere}.message.user .bubble{background:#edf1ff;border-color:#dce4ff}.bubble img{display:block;max-width:min(100%,520px);max-height:520px;object-fit:contain;border-radius:10px;margin-top:10px;background:#f1f2f5}.bubble .meta{font-size:10px;color:var(--muted);margin-top:7px}.composer-wrap{position:sticky;bottom:0;padding:14px 0 6px;background:linear-gradient(180deg,rgba(246,247,249,0),var(--bg) 22%)}.composer{border:1px solid #dfe2e9;background:#fff;border-radius:17px;padding:10px;box-shadow:var(--shadow)}.composer textarea{width:100%;min-height:56px;max-height:180px;resize:vertical;border:0;outline:0;padding:8px 8px;color:var(--ink);background:transparent}.composer-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px}.tools{display:flex;gap:7px;align-items:center}.tool-btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 10px;color:#555e6b;font-size:11px;font-weight:800}.tool-btn.active{background:var(--accent-soft);color:var(--accent);border-color:#d9e2ff}.send{border:0;border-radius:10px;background:var(--accent);color:#fff;padding:9px 15px;font-weight:850}.send:disabled{opacity:.5;cursor:wait}.fine{font-size:10px;color:#9197a1;text-align:center;margin:9px 0 0}.hidden{display:none!important}.modal-back{position:fixed;inset:0;background:rgba(18,22,32,.35);z-index:20;display:grid;place-items:center;padding:18px}.modal{width:min(480px,100%);background:#fff;border-radius:18px;padding:21px;box-shadow:0 20px 80px rgba(0,0,0,.18)}.modal h3{margin:0 0 6px;font-size:18px}.modal p{margin:0 0 17px;color:var(--muted);font-size:12px}.field{display:grid;gap:6px;margin:12px 0}.field label{font-size:11px;font-weight:850;color:#59616e}.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);background:#fafbfc;border-radius:10px;padding:10px;color:var(--ink);outline:none}.field textarea{min-height:75px;resize:vertical}.avatars{display:flex;flex-wrap:wrap;gap:8px}.avatar-choice{width:40px;height:40px;border:1px solid var(--line);background:#fff;border-radius:12px;font-size:20px}.avatar-choice.selected{border:2px solid var(--accent);background:var(--accent-soft)}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.status{font-size:11px;color:var(--muted);min-height:17px}.control-card{border:1px solid var(--line);border-radius:14px;background:#fff;padding:15px;margin:14px 0}.control-card h3{font-size:13px;margin:0 0 5px}.control-card p{font-size:11px;color:var(--muted);margin:0 0 12px}.control-card input{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-bottom:8px}.control-card button{border:0;background:var(--accent);color:#fff;padding:9px 12px;border-radius:9px;font-weight:800}.mobile-menu{display:none}
+@media(max-width:760px){.shell{grid-template-columns:1fr}.side{height:auto;position:fixed;z-index:10;left:0;top:0;bottom:0;width:min(290px,84vw);transform:translateX(-105%);transition:transform .2s;box-shadow:var(--shadow)}.side.open{transform:translateX(0)}.mobile-menu{display:inline-grid;place-items:center}.top{padding:0 14px}.content{padding:24px 13px}.welcome h2{font-size:25px}.suggestions{grid-template-columns:1fr}.top-right .pill{display:none}}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="side" id="sidebar">
+ <a class="brand" href="/"><img src="./favicon.svg" alt=""><span><strong>Elementor AI</strong><small>All in One Edition</small></span></a>
+ <button class="new" id="newChat">＋ New chat</button>
+ <div class="side-label">Your conversations</div><div class="history" id="history"><div class="status">Sign in to sync your chats.</div></div>
+ <div class="side-bottom">
+  <button class="side-action" id="profileOpen">◉ Personalisation</button>
+  <button class="side-action" id="controlsOpen">⌘ Website controls</button>
+  <a class="back" href="/">← Back to All in One Edition</a>
+  <div class="account"><div class="avatar" id="accountAvatar">✦</div><div><strong id="accountName">Not signed in</strong><small id="accountState">Sign in to use Elementor</small></div></div>
+ </div>
+</aside>
+<section class="main">
+ <header class="top"><div style="display:flex;align-items:center;gap:10px"><button class="icon-btn mobile-menu" id="menuBtn" aria-label="Open menu">☰</button><h1 id="chatTitle">New chat</h1></div><div class="top-right"><span class="pill">Elementor workspace</span><button class="icon-btn" id="profileTop" aria-label="Personalisation">⚙</button></div></header>
+ <div class="content">
+  <div class="welcome" id="welcome"><div class="orb">✦</div><h2>What are we building today?</h2><p>Ask questions, create images, or manage parts of All in One Edition.</p>
+   <div class="suggestions"><button class="suggestion" data-prompt="Help me improve the All in One Edition homepage."><strong>Improve my website</strong>Review ideas and suggest practical upgrades</button><button class="suggestion" data-prompt="Create an image of a cosy futuristic gaming room with soft blue lighting."> <strong>Create an image</strong>Turn an idea into an original image</button><button class="suggestion" data-prompt="Explain how to organise my games catalogue better."><strong>Organise my games</strong>Plan a cleaner games catalogue</button><button class="suggestion" data-prompt="Give me a quick overview of what Elementor can do."><strong>Explore Elementor</strong>See what your AI workspace can do</button></div>
+  </div>
+  <div class="messages" id="messages"></div>
+  <div class="composer-wrap"><div class="composer"><textarea id="prompt" placeholder="Message Elementor…" rows="2"></textarea><div class="composer-bottom"><div class="tools"><button class="tool-btn" id="imageMode">▧ Create image</button><button class="tool-btn" id="clearMode">Clear mode</button></div><button class="send" id="send">Send ↑</button></div></div><p class="fine">Elementor can make mistakes. Check important changes before applying them.</p></div>
+ </div>
+</section>
+</div>
+<div class="modal-back hidden" id="profileModal"><div class="modal"><h3>Personalise Elementor</h3><p>Choose how Elementor appears and responds. These preferences are saved to your account.</p>
+ <div class="field"><label>Display name</label><input id="displayName" maxlength="48" placeholder="Elementor"></div>
+ <div class="field"><label>Profile picture</label><div class="avatars" id="avatarChoices"></div></div>
+ <div class="field"><label>Response style</label><select id="responseStyle"><option value="balanced">Balanced</option><option value="concise">Concise</option><option value="detailed">Detailed</option><option value="friendly">Friendly</option></select></div>
+ <div class="field"><label>Custom instructions</label><textarea id="instructions" maxlength="1200" placeholder="Tell Elementor how you like answers, what to focus on, and what to avoid."></textarea></div><div class="status" id="profileStatus"></div><div class="modal-actions"><button class="tool-btn" data-close="profileModal">Cancel</button><button class="send" id="saveProfile">Save preferences</button></div>
+</div></div>
+<div class="modal-back hidden" id="controlsModal"><div class="modal"><h3>Website controls</h3><p>Owner-only controls are verified by Supabase Row Level Security. Changes are applied only after you press Save.</p>
+ <div class="control-card"><h3>Homepage announcement</h3><p>Publish a short notice across All in One Edition. Only the verified owner account can change this.</p><input id="announcementText" maxlength="180" placeholder="e.g. New games have been added!"><button id="saveAnnouncement">Publish announcement</button><button id="clearAnnouncement" style="background:#eef0f4;color:#343a45;margin-left:6px">Clear</button></div>
+ <div class="status" id="controlStatus">Checking owner permissions…</div><div class="modal-actions"><button class="tool-btn" data-close="controlsModal">Close</button></div>
+</div></div>
+<script>
+(()=>{
+'use strict';
+const SUPABASE_URL='https://btnbuchsrfllpzlypjtn.supabase.co';
+const SUPABASE_KEY='sb_publishable_a1gdNTiQdF9587p5K-Sw-Q_nFbvWRmp';
+const AI_API='https://aio-elementor-ai.plsgivemediscord981.workers.dev';
+const MEDIA_API='https://all-in-one-edition-media.plsgivemediscord981.workers.dev';
+const AVATARS=['✦','✧','◈','✺','⚡','🌙','🪐','🎮','🦊','🐼','🐸','🤖','🌸','☀️','💎','🦋'];
+const $=id=>document.getElementById(id);
+const db=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+let session=null,user=null,profile={display_name:'Elementor',avatar:'✦',instructions:'',response_style:'balanced'},currentId=null,messages=[],isSending=false,imageMode=false,isOwner=false,objectUrls=[];
+const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(s){$('profileStatus').textContent=s;}
+function openModal(id){$(id).classList.remove('hidden');}
+function closeModal(id){$(id).classList.add('hidden');}
+function token(){return session?.access_token||'';}
+function avatarMarkup(value){return AVATARS.includes(value)?escape(value):'✦';}
+function setAvatar(){ $('accountAvatar').textContent=avatarMarkup(profile.avatar);$('accountName').textContent=profile.display_name||user?.email||'Elementor';$('accountState').textContent=user?.email||'Not signed in'; }
+function showAuth(){ $('welcome').innerHTML='<div class="orb">✦</div><h2>Sign in to Elementor</h2><p>Your chats and personalisation are saved to your All in One Edition account.</p><div style="margin-top:18px"><a class="send" style="display:inline-block" href="/login">Open account sign in</a></div>'; }
+async function init(){
+ if(!db){showAuth();return;}
+ const {data}=await db.auth.getSession();session=data.session;user=session?.user||null;
+ db.auth.onAuthStateChange((_e,s)=>{session=s;user=s?.user||null;boot();});
+ await boot();
+}
+async function boot(){
+ if(!user){$('accountName').textContent='Not signed in';$('accountState').textContent='Sign in to use Elementor';$('history').innerHTML='<div class="status">Sign in to sync your chats.</div>';showAuth();return;}
+ $('accountName').textContent=user.email||'Your account';$('accountState').textContent='Signed in';$('welcome').classList.remove('hidden');
+ await loadProfile();await loadHistory();
+}
+async function loadProfile(){
+ const {data,error}=await db.from('elementor_profiles').select('*').eq('user_id',user.id).maybeSingle();
+ if(error)console.warn('Elementor profile:',error.message);
+ if(data)profile={...profile,...data};else{const created=await db.from('elementor_profiles').upsert({user_id:user.id,...profile},{onConflict:'user_id'});if(created.error)console.warn(created.error.message);}
+ setAvatar();
+}
+async function loadHistory(){
+ const {data,error}=await db.from('elementor_conversations').select('id,title,updated_at').eq('user_id',user.id).order('updated_at',{ascending:false}).limit(80);
+ if(error){$('history').innerHTML='<div class="status">Could not load chat history. Apply the Elementor database migration.</div>';return;}
+ $('history').replaceChildren();
+ (data||[]).forEach(row=>{const b=document.createElement('button');b.className='chat-link'+(row.id===currentId?' active':'');b.textContent=row.title;b.onclick=()=>openChat(row.id,row.title);$('history').append(b);});
+ if(!currentId&&data?.length)await openChat(data[0].id,data[0].title);
+ if(!data?.length)await newChat();
+}
+async function newChat(){
+ if(!user)return;const {data,error}=await db.from('elementor_conversations').insert({user_id:user.id,title:'New chat'}).select('id,title').single();
+ if(error){alert('Could not create a chat: '+error.message);return;}
+ currentId=data.id;messages=[];$('chatTitle').textContent=data.title;renderMessages();await loadHistory();
+}
+async function openChat(id,title){
+ currentId=id;$('chatTitle').textContent=title||'Chat';const {data,error}=await db.from('elementor_messages').select('id,role,content,image_media_id,created_at').eq('conversation_id',id).order('created_at',{ascending:true}).limit(200);
+ if(error){console.warn(error);return;}messages=data||[];renderMessages();await loadHistoryImages();
+}
+async function loadHistoryImages(){
+ for(const m of messages){if(m.image_media_id){const el=document.querySelector('[data-image="'+m.id+'"]');if(el)await attachMediaImage(el,m.image_media_id);}}
+}
+function renderMessages(){
+ $('welcome').classList.toggle('hidden',messages.length>0);$('messages').replaceChildren();
+ for(const m of messages){const row=document.createElement('div');row.className='message '+m.role;const av=document.createElement('div');av.className='bubble-avatar';av.textContent=m.role==='assistant'?'✦':(profile.avatar||'U');const bubble=document.createElement('div');bubble.className='bubble';const body=document.createElement('div');body.textContent=m.content|| (m.image_media_id?'Generated image':'');bubble.append(body);if(m.image_media_id){const img=document.createElement('img');img.alt='Image generated in this chat';img.dataset.image=m.id;bubble.append(img);attachMediaImage(img,m.image_media_id);}row.append(av,bubble);$('messages').append(row);}
+ window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+}
+function addLocalMessage(role,content,imageId=null){
+ const m={id:'local-'+Math.random().toString(36).slice(2),role,content,image_media_id:imageId};messages.push(m);renderMessages();return m;
+}
+async function saveMessage(role,content,imageId=null){
+ const {data,error}=await db.from('elementor_messages').insert({conversation_id:currentId,user_id:user.id,role,content,image_media_id:imageId}).select('*').single();
+ if(error)throw error;messages.push(data);renderMessages();return data;
+}
+async function updateTitle(text){
+ const title=text.trim().slice(0,48)||'New chat';await db.from('elementor_conversations').update({title,updated_at:new Date().toISOString()}).eq('id',currentId).eq('user_id',user.id);$('chatTitle').textContent=title;await loadHistory();
+}
+async function callAI(){
+ const context=messages.filter(m=>m.role==='user'||m.role==='assistant').slice(-14).map(m=>({role:m.role,content:m.content||''}));
+ const res=await fetch(AI_API+'/chat',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token()},body:JSON.stringify({messages:context,profile:{displayName:profile.display_name,style:profile.response_style,instructions:profile.instructions},site:'All in One Edition'})});
+ const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error||'Elementor could not reply.');return data.answer||'I could not produce a reply.';
+}
+async function uploadImage(blob,name){
+ const auth='Bearer '+token();const initRes=await fetch(MEDIA_API+'/uploads/initiate',{method:'POST',headers:{Authorization:auth,'Content-Type':'application/json'},body:JSON.stringify({filename:name,contentType:'image/jpeg',sizeBytes:blob.size,visibility:'private'})});
+ const init=await initRes.json();if(!initRes.ok)throw new Error(init.error||'Could not save image to private media storage.');
+ const size=Number(init.partSizeBytes)||32*1024*1024,parts=[];
+ try{let part=1;for(let off=0;off<blob.size;off+=size,part++){const chunk=blob.slice(off,Math.min(blob.size,off+size));const r=await fetch(MEDIA_API+'/uploads/'+encodeURIComponent(init.uploadId)+'/parts/'+part,{method:'POST',headers:{Authorization:auth,'Content-Type':'application/octet-stream','X-Part-Size':String(chunk.size)},body:chunk});const d=await r.json();if(!r.ok)throw new Error(d.error||'Image upload failed.');parts.push({partNumber:part,etag:d.etag});}
+ const done=await fetch(MEDIA_API+'/uploads/'+encodeURIComponent(init.uploadId)+'/complete',{method:'POST',headers:{Authorization:auth,'Content-Type':'application/json'},body:JSON.stringify({parts})});const result=await done.json();if(!done.ok)throw new Error(result.error||'Could not finish image upload.');return init.uploadId;
+ }catch(e){await fetch(MEDIA_API+'/uploads/'+encodeURIComponent(init.uploadId)+'/abort',{method:'POST',headers:{Authorization:auth}}).catch(()=>{});throw e;}
+}
+async function attachMediaImage(img,id){
+ try{const res=await fetch(MEDIA_API+'/media/'+encodeURIComponent(id),{headers:{Authorization:'Bearer '+token()}});if(!res.ok)throw new Error('Private image unavailable');const blob=await res.blob();const src=URL.createObjectURL(blob);objectUrls.push(src);img.src=src;}catch(e){img.alt='Image is unavailable. Sign in again to load private media.';}
+}
+async function createImage(prompt){
+ const r=await fetch(AI_API+'/generate',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token()},body:JSON.stringify({prompt})});
+ if(!r.ok){const d=await r.json().catch(()=>({}));throw new Error(d.error||'Image generation failed.');}
+ const blob=await r.blob();let id=null;try{id=await uploadImage(blob,'elementor-'+Date.now()+'.jpg');}catch(e){throw new Error('Image generated, but private B2 saving failed: '+e.message);}
+ await saveMessage('assistant','Created an image from: '+prompt,id);
+}
+async function send(){
+ if(!user||!currentId||isSending)return;const input=$('prompt'),text=input.value.trim();if(!text)return;
+ isSending=true;$('send').disabled=true;input.value='';
+ try{
+  await saveMessage('user',(imageMode?'Create an image: ':'')+text);
+  if(messages.length===1)await updateTitle(text);
+  if(imageMode){await createImage(text);imageMode=false;$('imageMode').classList.remove('active');}
+  else{
+   const answer=await callAI();await saveMessage('assistant',answer);
+   await db.from('elementor_conversations').update({updated_at:new Date().toISOString()}).eq('id',currentId);
+  }
+  await loadHistory();
+ }catch(e){await saveMessage('assistant','I hit a problem: '+e.message).catch(()=>{});}
+ finally{isSending=false;$('send').disabled=false;input.focus();}
+}
+async function openProfile(){
+ if(!user){showAuth();return;}$('displayName').value=profile.display_name||'Elementor';$('instructions').value=profile.instructions||'';$('responseStyle').value=profile.response_style||'balanced';$('avatarChoices').replaceChildren();
+ AVATARS.forEach(a=>{const b=document.createElement('button');b.className='avatar-choice'+(a===profile.avatar?' selected':'');b.type='button';b.textContent=a;b.onclick=()=>{$('avatarChoices').querySelectorAll('button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');b.dataset.selected='1';};if(a===profile.avatar)b.dataset.selected='1';$('avatarChoices').append(b);});
+ $('profileStatus').textContent='';openModal('profileModal');
+}
+async function saveProfile(){
+ const selected=$('avatarChoices').querySelector('[data-selected="1"]')?.textContent||profile.avatar;
+ const next={user_id:user.id,display_name:$('displayName').value.trim()||'Elementor',avatar:selected,instructions:$('instructions').value.trim(),response_style:$('responseStyle').value,updated_at:new Date().toISOString()};
+ const {error}=await db.from('elementor_profiles').upsert(next,{onConflict:'user_id'});if(error){toast(error.message);return;}profile={...profile,...next};setAvatar();closeModal('profileModal');
+}
+async function openControls(){
+ if(!user){$('controlStatus').textContent='Sign in with the owner account first.';openModal('controlsModal');return;}
+ const {data,error}=await db.from('staff_roles').select('role').eq('user_id',user.id).maybeSingle();
+ isOwner=!error&&data?.role==='owner';
+ $('controlStatus').textContent=isOwner?'Verified owner. You can publish the homepage announcement.':'Owner permission not detected. Controls are locked.';
+ $('saveAnnouncement').disabled=!isOwner;$('clearAnnouncement').disabled=!isOwner;
+ if(isOwner){const s=await db.from('aio_elementor_site_settings').select('setting_value').eq('setting_key','announcement').maybeSingle();$('announcementText').value=s.data?.setting_value?.text||'';}
+ openModal('controlsModal');
+}
+async function saveAnnouncement(clear=false){
+ if(!isOwner)return;const value=clear?'':$('announcementText').value.trim();if(!clear&&!value){$('controlStatus').textContent='Enter an announcement first.';return;}
+ const result=clear?await db.from('aio_elementor_site_settings').delete().eq('setting_key','announcement'):await db.from('aio_elementor_site_settings').upsert({setting_key:'announcement',setting_value:{text:value},updated_by:user.id,updated_at:new Date().toISOString()},{onConflict:'setting_key'});
+ $('controlStatus').textContent=result.error?'Could not update the site: '+result.error.message:(clear?'Announcement cleared.':'Announcement published.');if(!result.error)window.setTimeout(()=>closeModal('controlsModal'),700);
+}
+$('newChat').onclick=newChat;$('send').onclick=send;$('prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
+$('imageMode').onclick=()=>{imageMode=!imageMode;$('imageMode').classList.toggle('active',imageMode);$('prompt').placeholder=imageMode?'Describe the image you want Elementor to create…':'Message Elementor…';$('prompt').focus();};
+$('clearMode').onclick=()=>{imageMode=false;$('imageMode').classList.remove('active');$('prompt').placeholder='Message Elementor…';};
+$('profileOpen').onclick=openProfile;$('profileTop').onclick=openProfile;$('saveProfile').onclick=saveProfile;$('controlsOpen').onclick=openControls;$('saveAnnouncement').onclick=()=>saveAnnouncement(false);$('clearAnnouncement').onclick=()=>saveAnnouncement(true);
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
+document.querySelectorAll('.suggestion').forEach(b=>b.onclick=()=>{$('prompt').value=b.dataset.prompt;$('prompt').focus();});
+$('menuBtn').onclick=()=>$('sidebar').classList.toggle('open');
+init();
+})();
+</script>
+</body></html>
