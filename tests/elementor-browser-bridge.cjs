@@ -16,7 +16,8 @@ const chrome = {
     query:async()=>tabs,
     get:async id=>tabs.find(t=>t.id===id),
     create:async({url})=>({id:4,url}),
-    update:async()=>({})
+    update:async()=>({}),
+    captureVisibleTab:async()=>"data:image/png;base64,c2NyZWVu"
   },
   scripting:{executeScript:async()=>[{result:{title:"Example",url:"https://example.com/page",text:"Safe page"}}]}
 };
@@ -37,7 +38,9 @@ function call(command){return new Promise(resolve=>{const keep=listener({type:"E
   assert.equal(r.ok,false,"non-HTTP protocols must be rejected");
   r=await call({action:"inspect",tabId:1});
   assert.equal(r.result.title,"Example");
+  r=await call({action:"screenshot",tabId:1});
+  assert.equal(r.result.dataUrl,"data:image/png;base64,c2NyZWVu","screenshot action must return the visible tab capture");
   r=await call({action:"type",tabId:1,selector:"input[name=q]",text:"my password"});
   assert.equal(r.ok,false,"sensitive strings must be blocked");
-  console.log("Elementor Browser Bridge tests passed: permission gate, safe tab filtering, URL protocol, host permissions, page inspection and sensitive-input blocking.");
+  console.log("Elementor Browser Bridge tests passed: permission gate, safe tab filtering, URL protocol, host permissions, page inspection, screenshot capture and sensitive-input blocking.");
 })().catch(e=>{console.error(e);process.exitCode=1;});
