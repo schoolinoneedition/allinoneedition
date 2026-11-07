@@ -75,6 +75,7 @@ body{min-height:100dvh}
  .modal{border-radius:17px 17px 12px 12px;padding:17px;width:100%;max-height:88dvh}
  .field input,.field textarea,.field select{font-size:16px}
 }
+ .work-task-active{border-color:#345eea!important}.work-task-paused{opacity:.7}.modal .control-card .field{margin:10px 0}.modal .control-card .field button{margin-top:5px}
 @media(max-width:380px){
  .top{padding:0 8px}.top h1{max-width:29vw}
  .suggestions{grid-template-columns:1fr}
@@ -123,6 +124,7 @@ body{min-height:100dvh}
  <div class="side-bottom">
   <button class="side-action" id="profileOpen">◉ Personalisation</button>
   <button class="side-action" id="controlsOpen">⌘ Website controls</button>
+  <button class="side-action" id="workModeOpen">▣ Work Mode · Browser</button>
   <a class="back" href="/">← Back to All in One Edition</a>
   <div class="account"><div class="avatar" id="accountAvatar">✦</div><div><strong id="accountName">Not signed in</strong><small id="accountState">Sign in to use Elementor</small></div></div>
  </div>
@@ -138,6 +140,12 @@ body{min-height:100dvh}
  </div>
 </section>
 </div>
+<div class="modal-back hidden" id="workModeModal"><div class="modal" style="width:min(680px,100%)"><h3>Elementor Work Mode</h3><p>Control a browser through the optional Elementor Browser Bridge extension. Access is off until you allow it here and enable the extension separately.</p>
+ <div class="control-card"><h3>Browser permission</h3><p id="workPermissionText">Not connected. Install the Elementor Browser Bridge extension, then grant access in its popup.</p><div class="modal-actions"><button class="tool-btn" id="workDeny">Deny / revoke</button><button class="send" id="workAllow">Allow this session</button></div></div>
+ <div class="control-card"><h3>Current task</h3><input id="workTask" maxlength="180" placeholder="e.g. Review the open webpage for broken links"><p id="workCurrent">No task running.</p><p id="workProgress">0 actions completed</p><div class="modal-actions"><button class="tool-btn" id="workPause" disabled>Pause</button><button class="tool-btn" id="workResume" disabled>Resume</button><button class="tool-btn" id="workStop" disabled>Stop</button></div></div>
+ <div class="control-card"><h3>Browser actions</h3><div class="field"><label>Website URL to open</label><input id="workUrl" type="url" placeholder="https://example.com"><button id="workOpenUrl">Open website</button></div><div class="field"><label>Connected tab</label><select id="workTabs"><option value="">No tab selected</option></select><button class="tool-btn" id="workRefreshTabs">Refresh tabs</button><button class="tool-btn" id="workInspect">Read current page</button><button class="tool-btn" id="workScroll">Scroll down</button></div><div class="field"><label>CSS selector to click (confirmation required)</label><input id="workClickSelector" placeholder="button.search"><button class="tool-btn" id="workClick">Click element</button></div><div class="field"><label>Type into a normal text field</label><input id="workTypeSelector" placeholder="input[name=q]"><input id="workTypeText" maxlength="500" placeholder="Text to enter"><button class="tool-btn" id="workType">Type text</button></div><div class="status" id="workStatus" aria-live="polite">Waiting for permission.</div><pre id="workPageText" style="white-space:pre-wrap;max-height:180px;overflow:auto;background:#f5f6f8;padding:10px;border-radius:9px;font-size:11px"></pre></div>
+ <div class="modal-actions"><button class="tool-btn" data-close="workModeModal">Close</button></div>
+</div></div>
 <div class="modal-back hidden" id="profileModal"><div class="modal"><h3>Personalise Elementor</h3><p>Choose how Elementor appears and responds. These preferences are saved to your account.</p>
  <div class="field"><label>Display name</label><input id="displayName" maxlength="48" placeholder="Elementor"></div>
  <div class="field"><label>Profile picture</label><div class="avatars" id="avatarChoices"></div><input id="avatarUpload" type="file" accept="image/png,image/jpeg,image/webp" style="margin-top:9px"></div>
@@ -401,6 +409,51 @@ $('profileOpen').onclick=openProfile;$('profileTop').onclick=openProfile;$('save
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
 document.querySelectorAll('.suggestion').forEach(b=>b.onclick=()=>{$('prompt').value=b.dataset.prompt;$('prompt').focus();});
 $('menuBtn').onclick=()=>{const open=$('sidebar').classList.toggle('open');document.body.classList.toggle('sidebar-open',open);};document.addEventListener('click',event=>{if(window.matchMedia('(max-width:700px)').matches&&$('sidebar').classList.contains('open')&&!$('sidebar').contains(event.target)&&event.target!==$('menuBtn')){$('sidebar').classList.remove('open');document.body.classList.remove('sidebar-open');}});
+let workConsent=false,workPaused=false,workStopped=true,workCount=0,workTaskName='';
+const workPending=new Map();
+window.addEventListener('message',event=>{
+ if(event.source!==window||event.origin!==location.origin)return;
+ const d=event.data||{};
+ if(d.source==='elementor-work-bridge-ready'){$('workPermissionText').textContent='Browser extension detected. Enable browser access in its toolbar popup, then press Allow this session.';}
+ if(d.source==='elementor-work-bridge-result'&&workPending.has(d.id)){const p=workPending.get(d.id);workPending.delete(d.id);clearTimeout(p.timer);d.response?.ok?p.resolve(d.response.result):p.reject(new Error(d.response?.error||'Browser bridge error.'));}
+});
+function workCall(command){
+ if(!workConsent)return Promise.reject(new Error('Browser permission has not been granted in Elementor.'));
+ return new Promise((resolve,reject)=>{const id=crypto.randomUUID();const timer=setTimeout(()=>{workPending.delete(id);reject(new Error('No reply from the browser extension. Check that it is enabled and reload Elementor.'));},7000);workPending.set(id,{resolve,reject,timer});window.postMessage({source:'elementor-work-bridge',id,command},location.origin);});
+}
+function workStatus(message){$('workStatus').textContent=message;}
+function workSetTask(label){workTaskName=label||'Browser task';workStopped=false;workPaused=false;workCount=0;$('workCurrent').textContent=workTaskName;$('workProgress').textContent='0 actions completed';$('workPause').disabled=false;$('workResume').disabled=true;$('workStop').disabled=false;$('workTask').parentElement.classList.add('work-task-active');}
+function workFinish(){workStopped=true;workPaused=false;$('workCurrent').textContent='Task stopped.';$('workPause').disabled=true;$('workResume').disabled=true;$('workStop').disabled=true;$('workTask').parentElement.classList.remove('work-task-active','work-task-paused');}
+async function workRun(label,command){
+ if(!workConsent){workStatus('Allow browser access first.');return;}
+ if(workStopped){workSetTask($('workTask').value.trim()||label);}
+ if(workPaused){workStatus('Task is paused. Resume before continuing.');return;}
+ $('workCurrent').textContent=label;workStatus('Running: '+label);
+ try{const result=await workCall(command);workCount++;$('workProgress').textContent=workCount+' actions completed';workStatus('Completed: '+label);return result;}
+ catch(e){workStatus('Error: '+e.message);$('workCurrent').textContent='Task needs attention.';return null;}
+}
+async function workRefreshTabs(){
+ const tabs=await workRun('Finding browser tabs',{action:'tabs'});if(!tabs)return;
+ const select=$('workTabs');select.replaceChildren();for(const tab of tabs){const o=document.createElement('option');o.value=tab.id;o.textContent=(tab.active?'● ':'')+(tab.title||'Untitled')+' · '+tab.url.slice(0,90);select.append(o);}
+ if(tabs.length)select.value=String(tabs.find(t=>t.active)?.id||tabs[0].id);
+}
+$('workModeOpen').onclick=()=>{openModal('workModeModal');workStatus('Browser access is off until both permission steps are completed.');};
+$('workAllow').onclick=async()=>{
+ workConsent=true;$('workPermissionText').textContent='Checking the installed extension…';
+ try{await workCall({action:'status'});$('workPermissionText').textContent='Connected for this session. You can revoke access at any time.';workStatus('Browser permission granted for this Elementor session.');await workRefreshTabs();}
+ catch(e){workConsent=false;$('workPermissionText').textContent='Extension not ready. Install/enable Elementor Browser Bridge in your browser, grant its site access, then reload this page.';workStatus(e.message);}
+};
+$('workDeny').onclick=()=>{workConsent=false;workFinish();$('workPermissionText').textContent='Access denied. Elementor will not send browser commands.';workStatus('Browser permission revoked for this session.');};
+$('workPause').onclick=()=>{workPaused=true;$('workPause').disabled=true;$('workResume').disabled=false;$('workTask').parentElement.classList.add('work-task-paused');$('workCurrent').textContent='Paused: '+workTaskName;workStatus('Paused. No new browser actions will run.');};
+$('workResume').onclick=()=>{workPaused=false;$('workPause').disabled=false;$('workResume').disabled=true;$('workTask').parentElement.classList.remove('work-task-paused');$('workCurrent').textContent=workTaskName;workStatus('Resumed.');};
+$('workStop').onclick=()=>{workConsent=false;workFinish();$('workPermissionText').textContent='Session access revoked. Re-authorise before using the browser again.';workStatus('Stopped. No more browser commands will be sent.');};
+$('workRefreshTabs').onclick=workRefreshTabs;
+$('workOpenUrl').onclick=async()=>{const url=$('workUrl').value.trim();if(!/^https?:\/\//i.test(url)){workStatus('Enter a full HTTP or HTTPS URL.');return;}const result=await workRun('Opening website',{action:'open',url});if(result){await workRefreshTabs();workStatus('Opened '+result.url);}};
+$('workInspect').onclick=async()=>{const tabId=$('workTabs').value;if(!tabId){workStatus('Choose a browser tab first.');return;}const page=await workRun('Reading page content',{action:'inspect',tabId});if(page){$('workPageText').textContent=page.title+'\n'+page.url+'\n\n'+page.text;workStatus('Read page: '+page.title);}};
+$('workScroll').onclick=async()=>{const tabId=$('workTabs').value;if(!tabId){workStatus('Choose a browser tab first.');return;}await workRun('Scrolling webpage',{action:'scroll',tabId,amount:650});};
+$('workClick').onclick=async()=>{const tabId=$('workTabs').value,selector=$('workClickSelector').value.trim();if(!tabId||!selector){workStatus('Choose a tab and enter a CSS selector.');return;}if(!window.confirm('Allow Elementor to click this element?\n\n'+selector+'\n\nThis may activate the selected control.'))return;await workRun('Clicking selected element',{action:'click',tabId,selector});};
+$('workType').onclick=async()=>{const tabId=$('workTabs').value,selector=$('workTypeSelector').value.trim(),value=$('workTypeText').value;if(!tabId||!selector||!value){workStatus('Choose a tab, selector and text.');return;}if(!window.confirm('Allow Elementor to enter this text into the selected ordinary text field?\n\n'+selector))return;await workRun('Entering text into webpage',{action:'type',tabId,selector,text:value});};
+
 init();
 })();
 </script>
