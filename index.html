@@ -583,6 +583,16 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
     <button type="button" data-search-term="Racing"><span class="search-icon">↗</span>Racing games</button>
     <button type="button" data-search-term="Multiplayer"><span class="search-icon">◎</span>Multiplayer games</button>
     <button type="button" data-search-term="Sports"><span class="search-icon">⚽</span>Sports games</button>
+    <button type="button" data-search-scroll="games"><span class="search-icon">⌗</span>Browse every category</button>
+    <div class="search-divider"></div><div class="search-dropdown-title">Explore sections</div>
+    <button type="button" data-search-scroll="home"><span class="search-icon">⌂</span>Home</button>
+    <button type="button" data-search-scroll="school"><span class="search-icon">▤</span>School apps</button>
+    <button type="button" data-search-href="social.html"><span class="search-icon">◎</span>Social</button>
+    <button type="button" data-search-href="anime.html"><span class="search-icon">▶</span>Watch</button>
+    <button type="button" data-search-href="study.html"><span class="search-icon">✎</span>Study Hub</button>
+    <button type="button" data-search-scroll="tools"><span class="search-icon">⚒</span>Tools</button>
+    <button type="button" data-search-scroll="notes"><span class="search-icon">▧</span>Notes</button>
+    <button type="button" data-search-scroll="code"><span class="search-icon">{ }</span>Code Lab</button>
    </div>
   </div>
   <button class="btn quick-launch-trigger" id="quickLaunchOpen" type="button" aria-haspopup="dialog" aria-controls="aioQuickLaunch">Quick open <kbd>Ctrl K</kbd></button><button class="btn" id="aiSearchOpen" type="button" aria-haspopup="dialog" aria-controls="aioAiSearch">AI Search</button>
@@ -1093,10 +1103,15 @@ searchSparkle.addEventListener('click',()=>{const open=searchMenu.hidden;searchM
 searchMenu.addEventListener('click',event=>{
  const button=event.target.closest('button');if(!button)return;const action=button.dataset.searchAction;
  if(action==='ai'||action==='ask'){
-  const query=mainSearch.value.trim();closeSearchMenu();window.openAioAISearch?.(query);
-  if(action==='ask')setTimeout(()=>document.querySelector('[data-ai-mode="chat"]')?.click(),80);
+  const query=mainSearch.value.trim();closeSearchMenu();
+  if(action==='ai'){window.openAioAISearch?.(query);}
+  else{window.openAioAISearch?.();setTimeout(()=>{document.querySelector('[data-ai-mode="chat"]')?.click();const q=document.getElementById('aioAiQuery');if(q&&query){q.value=query;document.getElementById('aioAiForm')?.requestSubmit();}},120);}
   return;
  }
+ const scrollTarget=button.dataset.searchScroll;
+ if(scrollTarget){closeSearchMenu();document.getElementById(scrollTarget)?.scrollIntoView({behavior:'smooth',block:'start'});return;}
+ const href=button.dataset.searchHref;
+ if(href){location.href=href;return;}
  if(button.hasAttribute('data-search-term')){mainSearch.value=button.dataset.searchTerm||'';mainSearch.dispatchEvent(new Event('input',{bubbles:true}));closeSearchMenu();document.getElementById('games')?.scrollIntoView({behavior:'smooth',block:'start'});mainSearch.focus();}
 });
 document.addEventListener('click',event=>{if(!document.getElementById('unifiedGameSearch').contains(event.target))closeSearchMenu();});
