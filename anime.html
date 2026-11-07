@@ -200,7 +200,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
      <input id="episodeWatchUrl" type="url" inputmode="url" maxlength="2048" placeholder="https://allinoneedition.vercel.app/videos/episode.mp4">
      <div class="owner-form-actions"><button class="primary" id="saveEpisodeLink" type="button">Save hosted video URL</button><button id="removeEpisodeLink" type="button" disabled>Remove video</button></div>
      <div class="owner-link-status" id="ownerLinkStatus" role="status" aria-live="polite"></div>
-     <p class="owner-terms">Uploaded videos are stored in private Backblaze B2 storage and played through temporary signed links. The upload limit is 10 GB per file. Only upload videos you own or are authorised to distribute.</p>
+     <p class="owner-terms">Uploaded videos are stored in private Backblaze B2 storage and played through temporary signed links. Large videos upload in chunks; provider and service limits still apply. Only upload videos you own or are authorised to distribute.</p>
     </div>
    </section>
    <section class="side-panel"><h3>Progress controls</h3><p>Watched ticks are stored only in this browser. You can export a backup or clear the watch history at any time.</p><div class="watch-links"><button class="watch-link" id="exportProgress" type="button">Export watch progress <span>↓</span></button><button class="watch-link" id="clearProgress" type="button">Clear watch progress <span>↺</span></button></div><p id="saveStatus" class="stat-caption" aria-live="polite" style="margin-top:9px">Progress saves automatically.</p></section>
@@ -458,7 +458,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   const extension=(file.name.split('.').pop()||'').toLowerCase();
   const mimeOk=(extension==='mp4'&&file.type==='video/mp4')||(extension==='webm'&&file.type==='video/webm');
   if(!mimeOk){$('ownerLinkStatus').textContent='Choose a valid MP4 or WebM video file.';return}
-  if(file.size>10*1024*1024*1024){$('ownerLinkStatus').textContent='This upload is over the 10 GB per-file limit.';return}
+  
   const button=$('uploadEpisodeVideo');button.disabled=true;
   $('episodeUploadProgress').hidden=false;
   $('episodeUploadProgress').removeAttribute('value');
