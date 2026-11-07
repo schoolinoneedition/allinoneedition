@@ -18,6 +18,7 @@ assert.ok(html.includes('id="elementorBoot"') && html.includes('id="elementorBoo
 assert.ok(html.includes('elementorNotices') && html.includes('showElementorGreeting') && html.includes('aio_elementor_site_settings'), "Startup greetings and real published announcements must use real account data.");
 assert.ok(html.includes('elementor_preferences') && html.includes('elementorReducedMotion') && html.includes('elementorAccent') && html.includes('elementorFont'), "Appearance preferences must persist locally and support reduced motion.");
 assert.ok(html.includes("callAI(task)") && html.includes("workContext:!!extraContext"), "Fetched page evidence must reach the AI analysis request with bounded work context.");
+assert.ok(worker.includes("body.workContext===true?(index===raw.length-1?12000:500):3000"), "Normal chat must retain its original message limit while Work Mode gets bounded page evidence.");
 console.log("Elementor Work Mode contracts passed: first-class mode, extension-free read-only page research, cancellation, progress, startup experience and preferences.");
 
 [executed on device: LAPTOP-JNKSJO8S (8c067cab-cf3c-4f9e-b27e-b63f21df62a2)]
