@@ -687,7 +687,7 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
     <div class="party-tool-title"><h3>Spinner wheel</h3><span class="tiny-status">Make a quick party decision</span></div>
     <div class="party-wheel-wrap">
       <div class="party-wheel-stage"><div class="party-wheel-pointer"></div><div class="party-wheel-rotor" id="partyWheelRotor"><div class="party-wheel" id="partyWheel"></div><div class="party-wheel-labels" id="partyWheelLabels"></div></div></div>
-      <div><div id="partyWheelResult" class="party-result">Add choices, then spin the wheel.</div><div class="party-wheel-input"><input id="partyWheelChoices" placeholder="Roy, Alex, Sam, Jamie"><button class="btn mini primary" onclick="spinPartyWheel()">Spin</button></div><div class="tiny-status" style="margin-top:7px">Separate choices with commas.</div></div>
+      <div><div id="partyWheelResult" class="party-result" role="status" aria-live="polite">Add choices, then spin the wheel.</div><div class="party-wheel-input"><input id="partyWheelChoices" placeholder="Roy, Alex, Sam, Jamie"><button class="btn mini primary" id="partyWheelSpin" onclick="spinPartyWheel()">Spin</button><button class="btn mini" id="partyWheelMute" type="button" onclick="togglePartyWheelSound()" aria-pressed="true">Sound: Off</button></div><div class="tiny-status" style="margin-top:7px">Separate choices with commas.</div></div>
     </div>
   </div>
   <div class="panel">
@@ -3215,7 +3215,9 @@ function partyWheelItems(){
   const raw=String($('partyWheelChoices')?.value||'Roy, Alex, Sam, Jamie');
   return raw.split(',').map(x=>x.trim()).filter(Boolean).slice(0,12);
 }
-let partyWheelAngle=0;
+let partyWheelAngle=0,partyWheelSpinning=false,partyWheelMuted=true;
+function togglePartyWheelSound(){partyWheelMuted=!partyWheelMuted;const button=$('partyWheelMute');if(button){button.textContent=partyWheelMuted?'Sound: Off':'Sound: On';button.setAttribute('aria-pressed',String(partyWheelMuted));}if(!partyWheelMuted)partyWheelTone(520,.07);}
+function partyWheelTone(frequency,duration=.12){if(partyWheelMuted)return;const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return;try{const context=new Audio();const oscillator=context.createOscillator(),gain=context.createGain();oscillator.type='sine';oscillator.frequency.value=frequency;gain.gain.setValueAtTime(.0001,context.currentTime);gain.gain.exponentialRampToValueAtTime(.055,context.currentTime+.015);gain.gain.exponentialRampToValueAtTime(.0001,context.currentTime+duration);oscillator.connect(gain);gain.connect(context.destination);oscillator.start();oscillator.stop(context.currentTime+duration);oscillator.onended=()=>context.close();}catch{}}
 function renderPartyWheelLabels(items){
   const box=$('partyWheelLabels'),wheel=$('partyWheel');if(!box||!wheel||!items.length)return;
   const colors=['#ff5f6d','#ffc371','#6a8dff','#52d681','#b56dff','#f7b733','#38d9d9','#ff8f4d','#8b7cff','#ff6fb1','#49c1ff','#8bd450'];
@@ -3229,18 +3231,24 @@ function renderPartyWheelLabels(items){
   }).join('');
 }
 function spinPartyWheel(){
-  const items=partyWheelItems();if(!items.length)return showToast('Add at least one choice');
-  renderPartyWheelLabels(items);
-  const idx=Math.floor(Math.random()*items.length),step=360/items.length,target=idx*step+step/2,current=((partyWheelAngle%360)+360)%360;
-  const correction=(360-((current+target)%360))%360;
-  partyWheelAngle+=360*6+correction;
+  if(partyWheelSpinning)return;
+  const items=partyWheelItems();if(items.length<2)return showToast('Add at least two choices');
   const rotor=$('partyWheelRotor');if(!rotor)return;
+  renderPartyWheelLabels(items);
+  const random=new Uint32Array(1),range=0x100000000,limit=Math.floor(range/items.length)*items.length;
+  do{crypto.getRandomValues(random);}while(random[0]>=limit);
+  const idx=random[0]%items.length,step=360/items.length,target=idx*step+step/2,current=((partyWheelAngle%360)+360)%360;
+  const correction=(360-((current+target)%360))%360;
+  partyWheelAngle+=360*6+correction;partyWheelSpinning=true;
+  const spinButton=$('partyWheelSpin');if(spinButton){spinButton.disabled=true;spinButton.textContent='Spinning…';}
+  if($('partyWheelResult'))$('partyWheelResult').textContent='The wheel is spinning…';
+  partyWheelTone(380,.1);
   rotor.style.transform=`rotate(${partyWheelAngle}deg)`;
-  clearTimeout(window.aioPartyWheelTimer);
   window.aioPartyWheelTimer=setTimeout(()=>{
-    if($('partyWheelResult'))$('partyWheelResult').textContent='Winner: '+items[idx];
-    showToast('Wheel picked '+items[idx]);
-  },3050);
+    if($('partyWheelResult'))$('partyWheelResult').textContent='Selected: '+items[idx];
+    if(spinButton){spinButton.disabled=false;spinButton.textContent='Spin';}
+    partyWheelSpinning=false;partyWheelTone(660,.16);showToast('Wheel picked '+items[idx]);
+  },3100);
 }
 function newPartyChallenge(){const x=PARTY_CHALLENGES[Math.floor(Math.random()*PARTY_CHALLENGES.length)];if($('partyChallenge'))$('partyChallenge').innerHTML=esc(x)+'<small>Do it together in your party.</small>'}
 function partyQuickResult(t){if($('partyQuickResult'))$('partyQuickResult').textContent=t}
