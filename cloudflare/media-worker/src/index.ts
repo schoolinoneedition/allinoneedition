@@ -33,7 +33,7 @@ function json(data: unknown, status = 200, headers: HeadersInit = {}) {
 }
 function cors(request: Request, env: Env) {
   const origin = request.headers.get("Origin");
-  const headers = new Headers({ "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS", "Access-Control-Allow-Headers": "Authorization, Content-Type, Content-Length, Range", "Access-Control-Expose-Headers": "ETag, Accept-Ranges, Content-Range, Content-Length", "Access-Control-Max-Age": "86400", Vary: "Origin" });
+  const headers = new Headers({ "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS", "Access-Control-Allow-Headers": "Authorization, Content-Type, Content-Length, Range, X-Part-Size", "Access-Control-Expose-Headers": "ETag, Accept-Ranges, Content-Range, Content-Length", "Access-Control-Max-Age": "86400", Vary: "Origin" });
   if (origin && origin === env.APP_ORIGIN) headers.set("Access-Control-Allow-Origin", origin);
   return headers;
 }
@@ -60,6 +60,40 @@ async function dbGet(env: Env, id: string, userId: string) {
   const response = await fetch(`${env.SUPABASE_URL}/rest/v1/aio_media_objects?${query}`, { headers: serviceHeaders(env) });
   if (!response.ok) throw new Error("Could not verify media ownership");
   return (await response.json() as MediaRow[])[0] || null;
+}
+
+async function dbGetPublic(env: Env, id: string) {
+  const query = new URLSearchParams({ id: "eq." + id, status: "eq.ready", visibility: "eq.public", select: "*", limit: "1" });
+  const response = await fetch(env.SUPABASE_URL + "/rest/v1/aio_media_objects?" + query, { headers: serviceHeaders(env) });
+  if (!response.ok) throw new Error("Could not verify public media");
+  return (await response.json() as MediaRow[])[0] || null;
+}
+function base64Url(bytes: Uint8Array) {
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+function fromBase64Url(value: string) {
+  const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
+  const binary = atob(normalized + "=".repeat((4 - normalized.length % 4) % 4));
+  return Uint8Array.from(binary, char => char.charCodeAt(0));
+}
+async function mediaSignature(env: Env, id: string, expires: string) {
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(env.SUPABASE_SERVICE_ROLE_KEY), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
+  const payload = new TextEncoder().encode(id + "." + expires);
+  return { key, payload };
+}
+async function makeMediaSignature(env: Env, id: string, expires: string) {
+  const data = await mediaSignature(env, id, expires);
+  return base64Url(new Uint8Array(await crypto.subtle.sign("HMAC", data.key, data.payload)));
+}
+async function verifyMediaSignature(env: Env, id: string, expires: string, signature: string) {
+  const now = Math.floor(Date.now() / 1000);
+  if (!/^\d{10}$/.test(expires) || Number(expires) <= now || Number(expires) > now + 3600) return false;
+  try {
+    const data = await mediaSignature(env, id, expires);
+    return await crypto.subtle.verify("HMAC", data.key, fromBase64Url(signature), data.payload);
+  } catch { return false; }
 }
 async function dbUpdate(env: Env, row: MediaRow, patch: Record<string, unknown>) {
   const query = new URLSearchParams({ id: `eq.${row.id}`, user_id: `eq.${row.user_id}` });
@@ -136,30 +170,52 @@ export default {
     const headers = cors(request, env);
     if (request.method === "OPTIONS") return request.headers.get("Origin") === env.APP_ORIGIN ? new Response(null, { status: 204, headers }) : new Response(null, { status: 403 });
     if (request.headers.get("Origin") && request.headers.get("Origin") !== env.APP_ORIGIN) return json({ error: "Origin not allowed" }, 403, headers);
-    const user = await authenticate(request, env);
-    if (!user) return json({ error: "Authentication required" }, 401, headers);
     const url = new URL(request.url);
     const parts = url.pathname.split("/").filter(Boolean);
+    if (request.method === "GET" && url.pathname === "/health") {
+      try {
+        await b2Request(env, "", "GET", { "list-type": "2", "max-keys": "1" });
+        return json({ ok: true, storage: "connected" }, 200, headers);
+      } catch {
+        return json({ ok: false, storage: "unavailable" }, 503, headers);
+      }
+    }
+    const user = await authenticate(request, env);
     try {
+      if (request.method === "GET" && parts.length === 3 && parts[0] === "media" && parts[2] === "signed-url") {
+        const id = parts[1];
+        if (!safeId(id)) return json({ error: "Invalid media ID" }, 400, headers);
+        const row = await dbGetPublic(env, id);
+        if (!row) return json({ error: "Media not found" }, 404, headers);
+        const expires = String(Math.floor(Date.now() / 1000) + 3600);
+        const signature = await makeMediaSignature(env, id, expires);
+        const signedUrl = new URL("/media/" + id, request.url);
+        signedUrl.searchParams.set("expires", expires);
+        signedUrl.searchParams.set("signature", signature);
+        return json({ url: signedUrl.href, expiresAt: new Date(Number(expires) * 1000).toISOString() }, 200, headers);
+      }
       if (request.method === "POST" && url.pathname === "/uploads/initiate") {
-        const input = await request.json() as { filename?: unknown; contentType?: unknown; sizeBytes?: unknown };
+        if (!user) return json({ error: "Authentication required" }, 401, headers);
+        const input = await request.json() as { filename?: unknown; contentType?: unknown; sizeBytes?: unknown; visibility?: unknown };
         const filename = safeFilename(input.filename);
         const contentType = typeof input.contentType === "string" ? input.contentType.toLowerCase().split(";")[0].trim() : "";
         const sizeBytes = Number(input.sizeBytes);
         if (!ALLOWED_TYPES.has(contentType)) return json({ error: "File type is not supported" }, 415, headers);
         if (!Number.isSafeInteger(sizeBytes) || sizeBytes <= 0 || sizeBytes > MAX_OBJECT_BYTES) return json({ error: "Invalid file size" }, 400, headers);
+        const visibility = input.visibility === "public" ? "public" : "private";
         const id = crypto.randomUUID(); const key = `${user.id}/${id}`;
         const init = await b2Request(env, key, "POST", { uploads: "" }, "");
         const uploadId = xmlValue(await init.text(), "UploadId");
         if (!uploadId) throw new Error("Backblaze did not return a multipart upload ID");
-        try { await dbInsert(env, { id, user_id: user.id, object_key: key, multipart_upload_id: uploadId, filename, content_type: contentType, size_bytes: sizeBytes, status: "uploading" }); }
+        try { await dbInsert(env, { id, user_id: user.id, object_key: key, multipart_upload_id: uploadId, filename, content_type: contentType, size_bytes: sizeBytes, status: "uploading", visibility }); }
         catch (error) { await b2Request(env, key, "DELETE", { uploadId }, ""); throw error; }
         return json({ uploadId: id, partSizeBytes: MAX_PART_BYTES, maxParts: MAX_PARTS }, 201, headers);
       }
       if (request.method === "POST" && parts.length === 4 && parts[0] === "uploads" && parts[2] === "parts") {
+        if (!user) return json({ error: "Authentication required" }, 401, headers);
         const id = parts[1]; const partNumber = Number(parts[3]);
         if (!safeId(id) || !Number.isInteger(partNumber) || partNumber < 1 || partNumber > MAX_PARTS) return json({ error: "Invalid upload or part number" }, 400, headers);
-        const length = Number(request.headers.get("Content-Length"));
+        const length = Number(request.headers.get("Content-Length") || request.headers.get("X-Part-Size"));
         if (!Number.isSafeInteger(length) || length <= 0 || length > MAX_PART_BYTES) return json({ error: "Part must be between 1 byte and 32 MiB" }, 413, headers);
         const row = await dbGet(env, id, user.id);
         if (!row || row.status !== "uploading" || !row.multipart_upload_id) return json({ error: "Upload not found" }, 404, headers);
@@ -173,6 +229,7 @@ export default {
         return json({ partNumber, etag }, 200, headers);
       }
       if (request.method === "POST" && parts.length === 3 && parts[0] === "uploads" && parts[2] === "complete") {
+        if (!user) return json({ error: "Authentication required" }, 401, headers);
         const id = parts[1]; if (!safeId(id)) return json({ error: "Invalid upload ID" }, 400, headers);
         const row = await dbGet(env, id, user.id);
         if (!row || row.status !== "uploading" || !row.multipart_upload_id) return json({ error: "Upload not found" }, 404, headers);
@@ -196,6 +253,7 @@ export default {
         return json({ id: row.id, status: "ready", sizeBytes: row.size_bytes }, 200, headers);
       }
       if (request.method === "POST" && parts.length === 3 && parts[0] === "uploads" && parts[2] === "abort") {
+        if (!user) return json({ error: "Authentication required" }, 401, headers);
         const id = parts[1]; if (!safeId(id)) return json({ error: "Invalid upload ID" }, 400, headers);
         const row = await dbGet(env, id, user.id);
         if (!row || row.status !== "uploading" || !row.multipart_upload_id) return json({ error: "Upload not found" }, 404, headers);
@@ -205,7 +263,14 @@ export default {
       }
       if (request.method === "GET" && parts.length === 2 && parts[0] === "media") {
         const id = parts[1]; if (!safeId(id)) return json({ error: "Invalid media ID" }, 400, headers);
-        const row = await dbGet(env, id, user.id); if (!row || row.status !== "ready") return json({ error: "Media not found" }, 404, headers);
+        let row: MediaRow | null = user ? await dbGet(env, id, user.id) : null;
+        if (!row) {
+          const expires = url.searchParams.get("expires") || "";
+          const signature = url.searchParams.get("signature") || "";
+          if (!signature || !await verifyMediaSignature(env, id, expires, signature)) return json({ error: "A valid temporary playback link is required" }, 401, headers);
+          row = await dbGetPublic(env, id);
+        }
+        if (!row || row.status !== "ready") return json({ error: "Media not found" }, 404, headers);
         const rangeHeader = request.headers.get("Range");
         const objectHeaders: Record<string, string> = {};
         let status = 200; let rangeStart = 0; let rangeEnd = row.size_bytes - 1;
@@ -226,6 +291,7 @@ export default {
         return new Response(object.body, { status, headers: responseHeaders });
       }
       if (request.method === "DELETE" && parts.length === 2 && parts[0] === "media") {
+        if (!user) return json({ error: "Authentication required" }, 401, headers);
         const id = parts[1]; if (!safeId(id)) return json({ error: "Invalid media ID" }, 400, headers);
         const row = await dbGet(env, id, user.id); if (!row || row.status === "deleted") return json({ error: "Media not found" }, 404, headers);
         if (row.status === "uploading" && row.multipart_upload_id) await b2Request(env, row.object_key, "DELETE", { uploadId: row.multipart_upload_id }, "");
