@@ -37,7 +37,13 @@ assert.match(html, /role="status" aria-live="polite"/);
 
  // Finishing touches: remove the unused ad slot and share appearance across standalone pages.
  assert.ok(!html.includes('perchads.com')&&!html.includes('perch-ad-slot')&&!html.includes('perch-ad-section'), 'The unused Perch ad slot and loader must be completely removed.');
- assert.ok(html.includes('./favicon.svg')&&social.includes('./favicon.svg')&&anime.includes('./favicon.svg'), 'The hub, Social and Watch must use the shared refreshed favicon.');
+ const faviconPng = fs.readFileSync(path.join(__dirname, '..', 'favicon.png'));
+ const appleIcon = fs.readFileSync(path.join(__dirname, '..', 'apple-touch-icon.png'));
+ const faviconIco = fs.readFileSync(path.join(__dirname, '..', 'favicon.ico'));
+ assert.ok(faviconPng.subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10])) && faviconPng.readUInt32BE(16) === 1024 && faviconPng.readUInt32BE(20) === 1024, 'The supplied favicon must be an upscaled 1024px PNG.');
+ assert.ok(appleIcon.subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10])) && appleIcon.readUInt32BE(16) === 180 && faviconIco.subarray(0, 4).equals(Buffer.from([0,0,1,0])), 'Apple touch and ICO favicon variants must be present.');
+ assert.ok([html, social, anime, elementor, study].every(page => page.includes('href="/favicon.png"') && page.includes('href="/favicon.ico"') && page.includes('href="/apple-touch-icon.png"')), 'Every main page must use the shared refreshed favicon set.');
+ assert.ok([html, social, anime, elementor].every(page => page.includes('src="/favicon.png"')), 'Visible site brand marks must use the new artwork.');
  assert.ok(social.includes('./appearance.css')&&social.includes('./appearance.js')&&anime.includes('./appearance.css')&&anime.includes('./appearance.js'), 'Standalone Social and Watch pages must load the shared appearance system.');
  assert.ok(appearance.includes("root.dataset.aioWallpaperActive=active?'1':'0'")&&glassCss.includes('data-aio-wallpaper-active="1"'), 'Saved wallpapers must be applied consistently on standalone pages.');
  assert.ok(css.includes('aioOnboardSlideIn')&&css.includes('aio-ultimate-modal.open .aio-onboard-card'), 'Setup should use a smooth slide-in transition.');
@@ -359,3 +365,5 @@ assert.ok(elementor.includes("MEDIA_API+'/uploads/initiate'") && elementor.inclu
 assert.ok(elementor.includes("from('staff_roles')") && elementor.includes("data?.role==='owner'") && elementorSchema.includes("s.role = 'owner'"), 'Elementor site controls must be restricted to the verified owner role.');
 assert.ok(elementorWorker.includes('authenticatedUser') && elementorWorker.includes('llama-3.3-70b-instruct-fp8-fast') && elementorWorker.includes('flux-1-schnell'), 'Elementor Worker must authenticate chat and image requests.');
 assert.ok(elementorSchema.includes('enable row level security') && elementorSchema.includes('Users manage their Elementor conversations') && elementorSchema.includes('Public can read Elementor announcements'), 'Elementor chat data must be protected by RLS while public announcement text remains readable.');
+
+[executed on device: LAPTOP-JNKSJO8S (8c067cab-cf3c-4f9e-b27e-b63f21df62a2)]
