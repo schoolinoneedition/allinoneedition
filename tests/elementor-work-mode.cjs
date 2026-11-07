@@ -21,7 +21,7 @@ assert.ok(html.includes("callAI(task)") && html.includes("workContext:!!extraCon
 assert.ok(worker.includes("body.workContext===true?(index===raw.length-1?12000:500):3000"), "Normal chat must retain its original message limit while Work Mode gets bounded page evidence.");
 console.log("Elementor Work Mode contracts passed: first-class mode, extension-free read-only page research, cancellation, progress, startup experience and preferences.");
 
-[executed on device: LAPTOP-JNKSJO8S (8c067cab-cf3c-4f9e-b27e-b63f21df62a2)]
+
 
 assert.ok(html.includes('id="pluginsOpen"') && html.includes('id="pluginsModal"'), "The plugin marketplace must be reachable and rendered in the existing workspace.");
 assert.ok(html.includes("function getPluginPermissions()") && html.includes("function savePluginPermissions()"), "Plugin permissions must be explicit, persisted and revocable.");
