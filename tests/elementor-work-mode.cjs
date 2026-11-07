@@ -9,7 +9,7 @@ assert.ok(html.includes("AI_API+'/browse'") && html.includes("runWorkTask"), "Wo
 assert.ok(html.includes("workController?.abort()") && html.includes("activeController?.abort()"), "Cancel must abort the active page fetch or AI request.");
 assert.ok(html.includes("waitForWorkResume") && html.includes("workPaused"), "Pause and resume must gate subsequent task steps.");
 assert.ok(!/elementor-work-bridge|Browser Bridge|workAllow|workModeModal|chrome\.tabs/i.test(html), "The UI must not depend on a browser extension or claim Chrome tab access.");
-assert.ok(worker.includes('url.pathname==="/browse"') && worker.includes('env.BROWSER.quickAction("markdown"'), "The worker must fetch public webpages without following redirects blindly.");
+assert.ok(worker.includes('url.pathname==="/browse"') && worker.includes('env.BROWSER.quickAction("markdown"'), "The worker must route public-page reading through the read-only Browser Run markdown action.");
 assert.ok(worker.includes('gotoOptions:{waitUntil:"networkidle2",timeout:25000}') && worker.includes('data.result'), "Page fetches must have a bounded timeout and returned page size.");
 assert.ok(worker.includes('host.endsWith(".local")') && worker.includes('Private, local and internal network addresses are not allowed.'), "Redirects and private network targets must be rejected.");
 assert.ok(worker.includes('mode:"browser-run-read-only"') && worker.includes('Cloudflare Browser Run'), "Only HTML page reading is supported and must be labelled read-only.");
