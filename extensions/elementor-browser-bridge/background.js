@@ -8,7 +8,7 @@ async function run(command){
  if(!await enabled())throw new Error("Browser bridge is disconnected.");
  if(!command||!ALLOWED.has(command.action))throw new Error("Unsupported browser action.");
  if(command.action==="status")return {connected:true};
- if(command.action==="tabs"){const tabs=await chrome.tabs.query({});return tabs.filter(t=>t.id&&t.url&&!t.url.startsWith("chrome://")&&new URL(t.url).origin!==ELEMENTOR_ORIGIN).map(t=>({id:t.id,title:t.title||"Untitled tab",url:t.url,active:!!t.active}));}
+ if(command.action==="tabs"){const tabs=await chrome.tabs.query({});return tabs.filter(t=>{try{return !!t.id&&!!t.url&&["http:","https:"].includes(new URL(t.url).protocol)&&new URL(t.url).origin!==ELEMENTOR_ORIGIN;}catch{return false;}}).map(t=>({id:t.id,title:t.title||"Untitled tab",url:t.url,active:!!t.active}));}
  if(command.action==="open"){const url=safeUrl(command.url);const permission=await chrome.permissions.contains({origins:[new URL(url).origin+"/*"]});if(!permission)throw new Error("This site has not been approved in the extension. Open the extension menu on that site and grant access first.");const tab=await chrome.tabs.create({url,active:true});return {tabId:tab.id,url:tab.url};}
  const tab=await targetTab(Number(command.tabId));const origin=new URL(tab.url).origin;
  if(!await chrome.permissions.contains({origins:[origin+"/*"]}))throw new Error("Access to this website has not been granted in the extension.");
