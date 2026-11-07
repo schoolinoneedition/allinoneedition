@@ -1452,7 +1452,7 @@ async function askAioAssistant(containerId,question){
     const history=window.__aioChat||[];history.push({text:answer,user:false,ts:Date.now()});window.__aioChat=history.slice(-40);saveChatHistory();
   }catch(error){
     output.textContent='Elementor is temporarily unavailable. Try again in a moment.';
-    console.warn('Smart Answer request failed:',error);
+    console.warn('Elementor AI request failed:',error);
   }
   const box=$(containerId);if(box)box.scrollTop=box.scrollHeight;
 }
