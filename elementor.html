@@ -561,6 +561,8 @@ async function runWorkTask(instruction){
  if(!$('workConsent').checked){setWorkStatus('Approve the read-only page visit before running this task.');return;}
  const rawUrl=$('workUrl').value.trim();let parsed;
  try{parsed=new URL(rawUrl);if(!['http:','https:'].includes(parsed.protocol))throw new Error();}catch{setWorkStatus('Enter a valid public HTTP or HTTPS website URL.');return;}
+ // Consume consent immediately so every later task requires a fresh checkbox action.
+ $('workConsent').checked=false;
  workCancelled=false;workPaused=false;workController=new AbortController();const total=4;
  $('workRun').disabled=true;$('workPause').disabled=false;$('workStop').disabled=false;$('workResume').disabled=true;$('workPlan').classList.add('running');setWorkProgress(0,total,'Validating URL');
  try{
