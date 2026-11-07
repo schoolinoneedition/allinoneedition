@@ -4,10 +4,12 @@ This Worker is the private media gateway for All in One Edition. It stores objec
 
 ## Required configuration
 
-The Wrangler configuration supplies these non-secret values:
-- `B2_ENDPOINT`: S3 endpoint for the bucket's Backblaze region
-- `B2_REGION`: Backblaze region (for example, `us-east-005`)
-- `B2_BUCKET`: private bucket name
+The Wrangler configuration supplies these non-secret values for the configured bucket:
+- `B2_ENDPOINT`: `https://s3.us-east-005.backblazeb2.com`
+- `B2_REGION`: `us-east-005`
+- `B2_BUCKET`: `aio-media-storage`
+
+The Backblaze application key was created with the name `aio-media-worker`. For `B2_KEY_ID`, use the actual application key ID shown by Backblaze, not the key name.
 - `APP_ORIGIN` and `SUPABASE_URL`
 
 Set these Worker secrets in Cloudflare (never commit them):
