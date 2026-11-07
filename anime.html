@@ -570,7 +570,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   overlay.addEventListener('click',event=>{event.stopPropagation();toggle()});
   video.addEventListener('play',()=>{overlay.hidden=true;overlay.setAttribute('aria-label','Pause episode')});
   video.addEventListener('pause',()=>{overlay.hidden=false;overlay.setAttribute('aria-label','Play episode');overlayIcon.textContent='▶'});
-  video.addEventListener('error',()=>{$('playerNote').textContent='This video could not be loaded. Check the saved URL, file permissions and MP4/WebM encoding.'});
+  video.addEventListener('error',()=>{video.dataset.sourceAttached='0';$('playerNote').textContent='This video could not be loaded. Try playing again to refresh its temporary playback link, or check the saved URL and video encoding.'});
   frame.append(video,overlay);
   const actions=document.createElement('div');actions.className='watch-video-actions';
   const fullscreen=document.createElement('button');fullscreen.type='button';fullscreen.textContent='⛶ Fullscreen';fullscreen.addEventListener('click',async()=>{try{if(!document.fullscreenElement)await frame.requestFullscreen();else await document.exitFullscreen()}catch{$('playerNote').textContent='Fullscreen is not available in this browser.'}});
