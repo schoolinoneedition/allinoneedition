@@ -134,6 +134,26 @@ body{min-height:100dvh}
 @media(min-width:701px) and (max-width:1099px){.content{width:100%;padding-left:22px;padding-right:22px}.bubble{max-width:min(820px,calc(100% - 44px))}}
 @media(max-width:700px){.tools{max-width:100%}.composer-bottom{align-items:flex-end}.voice-status{flex-basis:100%}}
 </style>
+
+<style>
+/* Greeting and startup motion: quick, calm, and resilient on low-power devices. */
+#elementorBoot{background:var(--bg);isolation:isolate}
+#elementorBoot .boot-mark{animation:boot-mark-in .55s cubic-bezier(.2,.8,.2,1) both,boot-mark-float 2.4s ease-in-out .55s infinite}
+#elementorBoot strong{font-size:15px;letter-spacing:-.02em}
+#elementorBoot>span{font-size:12px;color:var(--muted)}
+#elementorBoot .boot-track{width:min(190px,52vw);height:5px}
+#elementorBoot .boot-track i{width:34%;border-radius:inherit;animation:boot-progress 1.35s cubic-bezier(.4,0,.2,1) infinite}
+@keyframes boot-mark-in{from{opacity:0;transform:translateY(10px) scale(.88)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes boot-mark-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes boot-progress{0%{transform:translateX(-110%)}100%{transform:translateX(330%)}}
+.elementor-greeting{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:12px;padding:15px 17px;border-radius:17px;animation:greeting-enter .62s cubic-bezier(.18,.85,.25,1.18) both}
+.greeting-mark{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font-size:21px}
+.elementor-greeting strong{font-size:14px}.elementor-greeting small{font-size:11px}.elementor-greeting button{font-size:19px}
+.elementor-greeting.leaving{animation:greeting-leave .24s ease forwards}
+@keyframes greeting-enter{0%{opacity:0;transform:translateY(34px) scale(.94)}65%{opacity:1;transform:translateY(-3px) scale(1.01)}100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes greeting-leave{to{opacity:0;transform:translateY(16px) scale(.98)}}
+@media(prefers-reduced-motion:reduce){#elementorBoot .boot-mark,.elementor-greeting{animation:none!important}}
+</style>
 </head>
 <body>
 <div id="elementorBoot" role="status" aria-live="polite"><div class="boot-mark">&#10022;</div><strong>Elementor</strong><span>Preparing your workspace...</span><div class="boot-track"><i></i></div></div>
@@ -216,8 +236,16 @@ function showElementorNotice(title,detail,delay=6500){
 }
 function showElementorGreeting(){
  const prefs=JSON.parse(localStorage.getItem('elementor_preferences')||'{}');if(prefs.greeting===false||sessionStorage.getItem('elementor_greeted'))return;
- sessionStorage.setItem('elementor_greeted','1');const hour=new Date().getHours(),greeting=hour<12?'Good morning':hour<18?'Good afternoon':'Good evening';
- showElementorNotice(greeting+', '+(profile.display_name||'there'),'Your Elementor workspace is ready.',5200);
+ sessionStorage.setItem('elementor_greeted','1');
+ const hour=new Date().getHours(),period=hour<12?'Good morning':hour<18?'Good afternoon':'Good evening';
+ const name=profile.display_name||user?.email?.split('@')[0]||'there';
+ const root=$('elementorNotices'),item=document.createElement('div');item.className='elementor-notice elementor-greeting';
+ const mark=document.createElement('span');mark.className='greeting-mark';mark.textContent='✦';
+ const copy=document.createElement('div'),strong=document.createElement('strong'),small=document.createElement('small'),close=document.createElement('button');
+ strong.textContent='Hello, '+name;small.textContent=period+' · Your Elementor workspace is ready.';
+ close.type='button';close.setAttribute('aria-label','Dismiss greeting');close.textContent='×';close.onclick=()=>item.remove();
+ copy.append(strong,small);item.append(mark,copy,close);root.append(item);
+ window.setTimeout(()=>{item.classList.add('leaving');window.setTimeout(()=>item.remove(),260);},5600);
  if(user&&db){db.from('aio_elementor_site_settings').select('setting_value,updated_at').eq('setting_key','announcement').maybeSingle().then(({data,error})=>{const value=data?.setting_value?.text;if(!error&&value)showElementorNotice('Platform announcement',value,9000);}).catch(()=>{});}
 }
 
@@ -517,5 +545,3 @@ init();
 </script>
 </body></html>
 
-
-[executed on device: LAPTOP-JNKSJO8S (8c067cab-cf3c-4f9e-b27e-b63f21df62a2)]
