@@ -131,7 +131,7 @@ const $=id=>document.getElementById(id);
 const db=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 let codeMode=false,voiceOutput=false,voiceChatMode=false,voiceTimer=null,voiceTranscript='',recognition=null,session=null,user=null,profile={display_name:'Elementor',avatar:'✦',instructions:'',response_style:'balanced'},currentId=null,messages=[],isSending=false,imageMode=false,isOwner=false,objectUrls=[],guestId=sessionStorage.getItem('elementor_guest_id')||crypto.randomUUID(),guestChats=JSON.parse(sessionStorage.getItem('elementor_guest_chats')||'{}');
 sessionStorage.setItem('elementor_guest_id',guestId);
-function saveGuestChats(){sessionStorage.setItem('elementor_guest_chats',JSON.stringify(guestChats));}
+function saveGuestChats(){const safe={};for(const [id,chat] of Object.entries(guestChats)){safe[id]={...chat,messages:(chat.messages||[]).map(({image_url,...message})=>message)};}sessionStorage.setItem('elementor_guest_chats',JSON.stringify(safe));}
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function toast(s){$('profileStatus').textContent=s;}
 function openModal(id){$(id).classList.remove('hidden');}
@@ -143,7 +143,7 @@ function showAuth(){ $('welcome').innerHTML='<div class="orb">✦</div><h2>Welco
 async function init(){
  if(!db){showAuth();return;}
  const {data}=await db.auth.getSession();session=data.session;user=session?.user||null;
- db.auth.onAuthStateChange((_e,s)=>{session=s;user=s?.user||null;boot();});
+ db.auth.onAuthStateChange((_e,s)=>{const nextUser=s?.user||null;if(nextUser?.id!==user?.id){currentId=null;messages=[];}session=s;user=nextUser;boot();});
  await boot();
 }
 async function boot(){
