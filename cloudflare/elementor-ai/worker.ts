@@ -39,13 +39,17 @@ export default {
   if(request.method!=="POST"||!["/generate","/chat"].includes(url.pathname))return json({error:"Not found"},404);
   if(Number(request.headers.get("Content-Length")||0)>18000)return json({error:"Request is too large"},413);
   const user=await authenticatedUser(request,env);
-  if(!user)return json({error:"Sign in to use Elementor AI."},401);
+  const guestId=request.headers.get("X-Guest-Id")||"";
+  const validGuest=/^[a-f0-9-]{36}$/i.test(guestId);
+  if(!user&&!validGuest)return json({error:"Start a guest session to use Elementor AI."},400);
+  const clientIp=request.headers.get("CF-Connecting-IP")||"unknown";
+  const rateKey=user?"user:"+user.id:"guest:"+guestId+":"+clientIp;
   let body:any;try{body=await request.json();}catch{return json({error:"Invalid JSON"},400);}
   if(url.pathname==="/generate"){
     const prompt=String(body.prompt||"").trim();
     if(prompt.length<4||prompt.length>1200)return json({error:"Prompt must be 4 to 1,200 characters"},400);
     if(unsafePrompt.test(prompt))return json({error:"That image request is not supported. Try a safe, non-explicit concept."},400);
-    if(!allowRate(recentImages,user.id,3))return json({error:"Image limit reached. Try again in 10 minutes."},429);
+    if(!allowRate(recentImages,rateKey,user?3:1))return json({error:"Image limit reached. Try again in 10 minutes."},429);
     try{
       const result=await env.AI.run("@cf/black-forest-labs/flux-1-schnell",{prompt,steps:4});
       if(!result.image)throw new Error("No image returned");
@@ -53,7 +57,7 @@ export default {
       return new Response(bytes,{headers:{...CORS,"Content-Type":"image/jpeg","Cache-Control":"no-store","X-Content-Type-Options":"nosniff"}});
     }catch{return json({error:"Image generation is temporarily unavailable. Try again later."},502);}
   }
-  if(!allowRate(recentChats,user.id,24))return json({error:"You are sending messages too quickly. Wait a little and try again."},429);
+  if(!allowRate(recentChats,rateKey,user?24:5))return json({error:"You are sending messages too quickly. Wait a little and try again."},429);
   const raw=Array.isArray(body.messages)?body.messages.slice(-14):[];
   const messages=raw.map((m:any)=>({role:m?.role==="assistant"?"assistant":"user",content:String(m?.content||"").slice(0,3000)})).filter((m:any)=>m.content);
   if(!messages.length)return json({error:"Add a message first."},400);
@@ -75,7 +79,7 @@ export default {
     const result=await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast",{messages:[{role:"system",content:system},...messages],max_tokens:1200,temperature:0.55});
     const answer=String(result?.response||result?.result?.response||"").trim();
     if(!answer)throw new Error("Empty model response");
-    return json({answer});
+    return json({answer,guest:!user});
   }catch(error){console.error("Elementor chat failed",error);return json({error:"Elementor could not reply right now. Try again shortly."},502);}
  }
 };
