@@ -144,6 +144,9 @@ async function b2Request(env: Env, key: string, method: string, query: Record<st
   const kSigning = await hmac(kService, "aws4_request");
   const signature = hex(await crypto.subtle.sign("HMAC", await crypto.subtle.importKey("raw", kSigning, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]), new TextEncoder().encode(toSign)));
   headers.Authorization = `AWS4-HMAC-SHA256 Credential=${env.B2_KEY_ID}/${scope}, SignedHeaders=${signedNames.join(";")}, Signature=${signature}`;
+  // Host is part of the SigV4 canonical request, but Workers derives it from the URL.
+  // Sending an explicit Host header can be rejected by the Fetch runtime.
+  delete headers.host;
   const response = await fetch(url, { method, headers, body: body as BodyInit | null | undefined });
   if (!response.ok) throw new Error(`Backblaze storage request failed (${response.status}): ${(await response.text()).slice(0, 400)}`);
   return response;
