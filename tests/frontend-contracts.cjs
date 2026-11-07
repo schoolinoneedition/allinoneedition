@@ -14,6 +14,7 @@ const anime = read('anime.html');
 const elementor = read('elementor.html');
 const elementorWorker = read('cloudflare/elementor-ai/worker.ts');
 const elementorSchema = read('supabase/migrations/20261107120000_elementor_workspace.sql');
+const elementorAvatarSchema = read('supabase/migrations/20261107121000_elementor_profile_avatar_media.sql');
 const study = read('study.html');
 const glassCss = read('appearance.css');
 const economy = read('supabase/migrations/20261028093212_aio_coin_quests_pricing_security.sql');
@@ -325,7 +326,8 @@ assert.ok(html.includes('payload.chunks||payload.result?.chunks'), 'AI Search mu
 assert.ok(html.includes('id="assistantBtn" type="button" onclick="location.href=\'/elementor\'"'), 'The top-bar Elementor AI button must open the standalone workspace.');
 assert.ok(html.includes("location.href='/elementor'") && vercel.includes('"source": "/elementor"'), 'Elementor must have a dedicated route from the main site.');
 assert.ok(elementor.includes('id="history"') && elementor.includes('elementor_conversations') && elementor.includes('elementor_messages'), 'Elementor must persist separate conversations and messages.');
-assert.ok(elementor.includes('id="avatarChoices"') && elementor.includes('id="instructions"') && elementor.includes('id="responseStyle"'), 'Elementor must provide profile picture and personalisation controls.');
+assert.ok(elementor.includes('id="avatarChoices"') && elementor.includes('id="avatarUpload"') && elementor.includes('id="instructions"') && elementor.includes('id="responseStyle"'), 'Elementor must provide custom profile pictures and personalisation controls.');
+assert.ok(elementor.includes('historySearch') && elementor.includes('renameChat') && elementor.includes('deleteChat') && elementorAvatarSchema.includes('avatar_media_id'), 'Elementor chats must be searchable, renameable, deletable, and support private custom profile pictures.');
 assert.ok(elementor.includes("AI_API+'/chat'") && elementor.includes("AI_API+'/generate'"), 'Elementor chat and image generation must use the authenticated AI Worker.');
 assert.ok(elementor.includes("MEDIA_API+'/uploads/initiate'") && elementor.includes("MEDIA_API+'/media/'"), 'Generated images must be saved to private B2 media and loaded with owner authentication.');
 assert.ok(elementor.includes("from('staff_roles')") && elementor.includes("data?.role==='owner'") && elementorSchema.includes("s.role = 'owner'"), 'Elementor site controls must be restricted to the verified owner role.');
