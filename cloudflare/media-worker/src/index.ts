@@ -171,6 +171,15 @@ export default {
     const parts = url.pathname.split("/").filter(Boolean);
     if (request.method === "GET" && url.pathname === "/health") {
       try {
+        // Check the key pair independently before diagnosing S3 SigV4.
+        const auth = await fetch("https://api.backblazeb2.com/b2api/v3/b2_authorize_account", {
+          headers: { Authorization: `Basic ${btoa(`${env.B2_KEY_ID}:${env.B2_APPLICATION_KEY}`)}` },
+        });
+        if (!auth.ok) {
+          await auth.body?.cancel();
+          return json({ ok: false, storage: "unavailable", code: "credentials_rejected", authStatus: auth.status }, 503, headers);
+        }
+        await auth.body?.cancel();
         await b2Request(env, "", "GET", { "list-type": "2", "max-keys": "1" });
         return json({ ok: true, storage: "connected" }, 200, headers);
       } catch (error) {
