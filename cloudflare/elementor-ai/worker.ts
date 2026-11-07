@@ -61,6 +61,7 @@ function filterAssistantStream(source:ReadableStream<Uint8Array>):ReadableStream
       }
     },
     flush(controller){
+      lineBuffer+=decoder.decode();
       const tail=lineBuffer.trim();
       if(tail.startsWith("data:")){
         try{const part=JSON.parse(tail.slice(5).trim());const delta=part.response??part.choices?.[0]?.delta?.content??part.choices?.[0]?.text??"";if(typeof delta==="string")wordBuffer+=delta;}catch{}
