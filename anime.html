@@ -185,7 +185,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
      <div class="episode-drop-zone" id="episodeDropZone">
       <div class="drop-icon">↑</div>
       <strong>Drop your video file here</strong>
-      <small>Or choose a file from your device. MP4 and WebM only, up to 50 MB.</small>
+      <small>Or choose a file from your device. MP4 and WebM only, up to 10 GB.</small>
       <div class="owner-form-actions" style="justify-content:center"><button class="primary" id="chooseEpisodeVideo" type="button">Choose video file</button></div>
       <input id="episodeVideoFile" type="file" accept="video/mp4,video/webm,.mp4,.webm">
       <div class="episode-upload-meta" id="episodeUploadMeta">No file selected</div>
@@ -193,14 +193,14 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
       <div class="owner-form-actions" style="justify-content:center"><button class="primary" id="uploadEpisodeVideo" type="button" disabled>Upload and host on All in One Edition</button></div>
      </div>
      <div class="owner-hosted-result" id="hostedVideoResult" hidden>
-      <label for="hostedVideoUrl">Your hosted All in One Edition video URL</label>
+      <label for="hostedVideoUrl">Your Backblaze-hosted episode URL</label>
       <div class="hosted-url-row"><input id="hostedVideoUrl" type="url" readonly><button id="copyHostedVideoUrl" type="button">Copy URL</button><a id="openHostedVideoUrl" href="#" target="_blank" rel="noopener noreferrer">Open</a></div>
      </div>
      <label for="episodeWatchUrl">Or attach an existing video already hosted on All in One Edition</label>
      <input id="episodeWatchUrl" type="url" inputmode="url" maxlength="2048" placeholder="https://allinoneedition.vercel.app/videos/episode.mp4">
      <div class="owner-form-actions"><button class="primary" id="saveEpisodeLink" type="button">Save hosted video URL</button><button id="removeEpisodeLink" type="button" disabled>Remove video</button></div>
      <div class="owner-link-status" id="ownerLinkStatus" role="status" aria-live="polite"></div>
-     <p class="owner-terms">Uploaded videos are stored in XBT Storage and served through your All in One Edition /videos/ address. The current XBT Free plan allows up to 50 MB per file. Only upload videos you own or are authorised to distribute.</p>
+     <p class="owner-terms">Uploaded videos are stored in private Backblaze B2 storage and played through temporary signed links. The upload limit is 10 GB per file. Only upload videos you own or are authorised to distribute.</p>
     </div>
    </section>
    <section class="side-panel"><h3>Progress controls</h3><p>Watched ticks are stored only in this browser. You can export a backup or clear the watch history at any time.</p><div class="watch-links"><button class="watch-link" id="exportProgress" type="button">Export watch progress <span>↓</span></button><button class="watch-link" id="clearProgress" type="button">Clear watch progress <span>↺</span></button></div><p id="saveStatus" class="stat-caption" aria-live="polite" style="margin-top:9px">Progress saves automatically.</p></section>
@@ -359,7 +359,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   const onVercel=host==='allinoneedition.vercel.app'&&path.startsWith('/videos/');
   const onB2=url.origin===AIO_MEDIA_API&&/^\\/media\\/[0-9a-f-]{36}$/i.test(url.pathname);
   if(!onVercel&&!onB2)throw new Error('Use a hosted All in One Edition video URL. Upload your file in the Video Upload Zone to create one.');
-  if(!/\.(mp4|webm)$/i.test(url.pathname))throw new Error('The hosted video URL must end in .mp4 or .webm.');
+  if(onVercel&&!/\.(mp4|webm)$/i.test(url.pathname))throw new Error('The hosted video URL must end in .mp4 or .webm.');
   return url.href;
  }
  function videoObjectPath(url){
