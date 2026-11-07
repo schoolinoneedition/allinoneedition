@@ -11,6 +11,9 @@ const css = read('ultimate-experience.css');
 const html = read('index.html');
 const social = read('social.html');
 const anime = read('anime.html');
+const elementor = read('elementor.html');
+const elementorWorker = read('cloudflare/elementor-ai/worker.ts');
+const elementorSchema = read('supabase/migrations/20261107120000_elementor_workspace.sql');
 const study = read('study.html');
 const glassCss = read('appearance.css');
 const economy = read('supabase/migrations/20261028093212_aio_coin_quests_pricing_security.sql');
@@ -319,4 +322,12 @@ assert.ok(html.includes('Do not help locate dangerous or age-restricted content'
 
 assert.ok(html.includes('payload.chunks||payload.result?.chunks'), 'AI Search must parse the public endpoint response shape.');
 
-assert.ok(html.includes('id="assistantBtn" type="button" onclick="openAssistant()"'), 'The top-bar Elementor AI button must open the assistant modal when clicked.');
+assert.ok(html.includes('id="assistantBtn" type="button" onclick="location.href=\'/elementor\'"'), 'The top-bar Elementor AI button must open the standalone workspace.');
+assert.ok(html.includes("location.href='/elementor'") && vercel.includes('"source": "/elementor"'), 'Elementor must have a dedicated route from the main site.');
+assert.ok(elementor.includes('id="history"') && elementor.includes('elementor_conversations') && elementor.includes('elementor_messages'), 'Elementor must persist separate conversations and messages.');
+assert.ok(elementor.includes('id="avatarChoices"') && elementor.includes('id="instructions"') && elementor.includes('id="responseStyle"'), 'Elementor must provide profile picture and personalisation controls.');
+assert.ok(elementor.includes("AI_API+'/chat'") && elementor.includes("AI_API+'/generate'"), 'Elementor chat and image generation must use the authenticated AI Worker.');
+assert.ok(elementor.includes("MEDIA_API+'/uploads/initiate'") && elementor.includes("MEDIA_API+'/media/'"), 'Generated images must be saved to private B2 media and loaded with owner authentication.');
+assert.ok(elementor.includes("from('staff_roles')") && elementor.includes("data?.role==='owner'") && elementorSchema.includes("s.role = 'owner'"), 'Elementor site controls must be restricted to the verified owner role.');
+assert.ok(elementorWorker.includes('authenticatedUser') && elementorWorker.includes('llama-3.3-70b-instruct-fp8-fast') && elementorWorker.includes('flux-1-schnell'), 'Elementor Worker must authenticate chat and image requests.');
+assert.ok(elementorSchema.includes('enable row level security') && elementorSchema.includes('Users manage their Elementor conversations') && elementorSchema.includes('Public can read Elementor announcements'), 'Elementor chat data must be protected by RLS while public announcement text remains readable.');
