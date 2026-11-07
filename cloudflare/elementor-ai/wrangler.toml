@@ -1,0 +1,7 @@
+name = "aio-elementor-ai"
+main = "worker.ts"
+compatibility_date = "2026-11-07"
+workers_dev = true
+
+[ai]
+binding = "AI"
