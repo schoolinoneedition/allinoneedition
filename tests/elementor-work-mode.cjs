@@ -41,3 +41,5 @@ assert.ok(html.includes('id="workConsent"') && html.includes("!$('workConsent').
 assert.ok(html.includes("hasPluginPermission('image-studio')") && html.includes("hasPluginPermission('browser-research')"), "Each built-in capability must check its own permission before use.");
 
 assert.ok(worker.includes("blockedOutputTerms.some") && worker.includes("Any visible text must be family-friendly"), "Image requests must reject prohibited wording and ask the image model for family-friendly visible text.");
+
+assert.ok(worker.includes('if(!allowRate(recentImages,rateKey,3))') && worker.includes('if(!allowRate(recentChats,rateKey,24))'), "Guest and signed-in sessions must both be rate-limited for image generation and chat.");
