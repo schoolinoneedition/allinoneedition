@@ -139,13 +139,13 @@ async function createImage(prompt){
  await saveMessage('assistant','Created an image from: '+prompt,id);
 }
 async function handleSiteCommand(text){
- const setMatch=text.match(/^(?:set|publish|change)\\s+(?:the\\s+)?(?:homepage\\s+)?announcement\\s*:\\s*(.{1,180})$/i);
- const clearMatch=/^(?:clear|remove)\\s+(?:the\\s+)?(?:homepage\\s+)?announcement$/i.test(text);
+ const setMatch=text.match(/^(?:set|publish|change)\s+(?:the\s+)?(?:homepage\s+)?announcement\s*:\s*(.{1,180})$/i);
+ const clearMatch=/^(?:clear|remove)\s+(?:the\s+)?(?:homepage\s+)?announcement$/i.test(text);
  if(!setMatch&&!clearMatch)return false;
  const role=await db.from('staff_roles').select('role').eq('user_id',user.id).maybeSingle();
  if(role.error||role.data?.role!=='owner'){await saveMessage('assistant','I can only change the homepage announcement from the verified owner account.');return true;}
  const value=clearMatch?'':setMatch[1].trim();
- if(!window.confirm(clearMatch?'Clear the homepage announcement?':'Publish this homepage announcement?\\n\\n'+value)){await saveMessage('assistant','Cancelled. No website changes were made.');return true;}
+ if(!window.confirm(clearMatch?'Clear the homepage announcement?':'Publish this homepage announcement?\n\n'+value)){await saveMessage('assistant','Cancelled. No website changes were made.');return true;}
  const result=clearMatch?await db.from('aio_elementor_site_settings').delete().eq('setting_key','announcement'):await db.from('aio_elementor_site_settings').upsert({setting_key:'announcement',setting_value:{text:value},updated_by:user.id,updated_at:new Date().toISOString()},{onConflict:'setting_key'});
  await saveMessage('assistant',result.error?'The website setting could not be updated: '+result.error.message:(clearMatch?'The homepage announcement has been cleared.':'The homepage announcement is now published on All in One Edition.'));
  return true;
