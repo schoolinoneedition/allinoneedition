@@ -1,4 +1,5 @@
 interface Env {
+  BROWSER: { quickAction(action: string, options: Record<string, unknown>): Promise<Response> };
   AI: { run(model: string, input: Record<string, unknown>): Promise<any> };
   SUPABASE_URL: string;
   SUPABASE_ANON_KEY: string;
@@ -36,7 +37,7 @@ export default {
   if(request.method==="OPTIONS")return new Response(null,{headers:CORS});
   const url=new URL(request.url);
   if(url.pathname==="/health"&&request.method==="GET")return json({ok:true,service:"elementor-ai"});
-  if(request.method!=="POST"||!["/generate","/chat"].includes(url.pathname))return json({error:"Not found"},404);
+  if(request.method!=="POST"||!["/generate","/chat","/browse"].includes(url.pathname))return json({error:"Not found"},404);
   if(Number(request.headers.get("Content-Length")||0)>18000)return json({error:"Request is too large"},413);
   const user=await authenticatedUser(request,env);
   const guestId=request.headers.get("X-Guest-Id")||"";
@@ -45,6 +46,29 @@ export default {
   const clientIp=request.headers.get("CF-Connecting-IP")||"unknown";
   const rateKey=user?"user:"+user.id:"guest-ip:"+clientIp;
   let body:any;try{body=await request.json();}catch{return json({error:"Invalid JSON"},400);}
+  if(url.pathname==="/browse"){
+    const target=String(body.url||"").trim();
+    let page:URL;
+    try{page=new URL(target);}catch{return json({error:"Enter a valid public webpage URL."},400);}
+    if(!["http:","https:"].includes(page.protocol)||page.username||page.password)return json({error:"Only public HTTP or HTTPS URLs are supported."},400);
+    const host=page.hostname.toLowerCase();
+    const blocked=host==="localhost"||host.endsWith(".localhost")||host.endsWith(".local")||host==="metadata.google.internal"||/^(127\.|10\.|192\.168\.|169\.254\.|0\.|224\.|240\.)/.test(host)||/^172\.(1[6-9]|2\d|3[01])\./.test(host)||host.startsWith("[")||/^[0-9.]+$/.test(host);
+    if(blocked)return json({error:"Private, local and internal network addresses are not allowed."},400);
+    if(!allowRate(recentChats,rateKey,12))return json({error:"Work Mode request limit reached. Try again later."},429);
+    try{
+      const response=await env.BROWSER.quickAction("markdown",{url:page.href,gotoOptions:{waitUntil:"networkidle2",timeout:25000}});
+      if(!response.ok){const detail=(await response.text()).slice(0,350);return json({error:"Browser Run could not read this page ("+response.status+"): "+detail},502);}
+      const data=await response.json() as {success?:boolean;result?:string};
+      if(!data.success||typeof data.result!=="string")return json({error:"Browser Run returned no readable page content."},502);
+      const markdown=data.result.slice(0,16000);
+      const title=markdown.match(/^#\s+(.+)$/m)?.[1]?.slice(0,180)||page.hostname;
+      const links:Array<{text:string,url:string}>=[];
+      for(const match of markdown.matchAll(/\[([^\]]{1,100})\]\((https?:\/\/[^\s)]+)\)/g)){
+        try{const link=new URL(match[2]);if(link.protocol.startsWith("http")&&links.length<40)links.push({text:match[1],url:link.href});}catch{}
+      }
+      return json({ok:true,title,url:page.href,description:"Rendered with Cloudflare Browser Run",text:markdown,links,mode:"browser-run-read-only",browser:"Cloudflare Browser Run"});
+    }catch(error){console.error("Work Mode Browser Run failed",error);return json({error:"The remote browser could not load this page. It may block automated browsers or exceed the page-load timeout."},502);}
+  }
   if(url.pathname==="/generate"){
     const prompt=String(body.prompt||"").trim();
     if(prompt.length<4||prompt.length>1200)return json({error:"Prompt must be 4 to 1,200 characters"},400);
@@ -84,3 +108,4 @@ export default {
   }catch(error){console.error("Elementor chat failed",error);return json({error:"Elementor could not reply right now. Try again shortly."},502);}
  }
 };
+
