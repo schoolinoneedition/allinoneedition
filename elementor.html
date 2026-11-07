@@ -348,11 +348,12 @@ async function updateTitle(text){
  const title=text.trim().slice(0,48)||'New chat';if(!user){if(guestChats[currentId]){guestChats[currentId].title=title;guestChats[currentId].updated_at=Date.now();saveGuestChats();}$('chatTitle').textContent=title;await loadHistory();return;}await db.from('elementor_conversations').update({title,updated_at:new Date().toISOString()}).eq('id',currentId).eq('user_id',user.id);$('chatTitle').textContent=title;await loadHistory();
 }
 async function callAI(extraContext=''){
- const context=messages.filter(m=>m.role==='user'||m.role==='assistant').slice(-14).map(m=>({role:m.role,content:m.content||''}));
- if(extraContext)context.push({role:'user',content:extraContext});
+ const recent=messages.filter(m=>m.role==='user'||m.role==='assistant').slice(extraContext?-4:-14);
+ const context=recent.map(m=>({role:m.role,content:String(m.content||'').slice(0,extraContext?500:3000)}));
+ if(extraContext)context.push({role:'user',content:String(extraContext).slice(0,12000)});
  const headers={'Content-Type':'application/json','X-Guest-Id':guestId};if(token())headers.Authorization='Bearer '+token();
  const controller=new AbortController();activeController=controller;
- const res=await fetch(AI_API+'/chat',{method:'POST',headers,signal:controller.signal,body:JSON.stringify({messages:context,think:thinkMode,profile:{displayName:profile.display_name,style:profile.response_style,instructions:(profile.instructions||'')+(codeMode?'\\nUse Code mode: provide complete runnable code in fenced blocks, explain where it goes, and mention assumptions.':'')},site:'All in One Edition'})});
+ const res=await fetch(AI_API+'/chat',{method:'POST',headers,signal:controller.signal,body:JSON.stringify({messages:context,workContext:!!extraContext,think:thinkMode,profile:{displayName:profile.display_name,style:profile.response_style,instructions:(profile.instructions||'')+(codeMode?'\\nUse Code mode: provide complete runnable code in fenced blocks, explain where it goes, and mention assumptions.':'')},site:'All in One Edition'})});
  if(!res.ok){const data=await res.json().catch(()=>({}));throw new Error(data.error||'Elementor could not reply.');}
  if(!res.body)throw new Error('Streaming is not supported by this connection.');
  const live={id:'stream-'+crypto.randomUUID(),role:'assistant',content:'',created_at:new Date().toISOString()};messages.push(live);renderMessages();
