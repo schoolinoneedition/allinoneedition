@@ -30,6 +30,47 @@ function allowRate(map:Map<string,number[]>,key:string,limit:number){
   if(times.length>=limit)return false;
   times.push(now);map.set(key,times);return true;
 }
+const blockedOutputTerms=["fuck","fucking","motherfucker","shit","shitty","bullshit","bitch","bastard","asshole","arse","arsehole","dick","dickhead","piss","crap","damn","hell","bloody","bugger","bollocks","wanker","twat","prick"];
+function sanitizeAssistantText(value:string):string{
+  let text=String(value||"").normalize("NFKC");
+  for(const word of blockedOutputTerms)text=text.replace(new RegExp("\\b"+word+"\\b","gi"),"[filtered]");
+  return text;
+}
+function filterAssistantStream(source:ReadableStream<Uint8Array>):ReadableStream<Uint8Array>{
+  const decoder=new TextDecoder(),encoder=new TextEncoder();
+  let lineBuffer="",wordBuffer="";
+  const emit=(controller:TransformStreamDefaultController<Uint8Array>,value:string)=>{
+    const safe=sanitizeAssistantText(value);
+    if(safe)controller.enqueue(encoder.encode("data: "+JSON.stringify({response:safe})+"\n\n"));
+  };
+  return source.pipeThrough(new TransformStream<Uint8Array,Uint8Array>({
+    transform(chunk,controller){
+      lineBuffer+=decoder.decode(chunk,{stream:true});
+      const lines=lineBuffer.split(/\r?\n/);lineBuffer=lines.pop()||"";
+      for(const line of lines){
+        if(!line.startsWith("data:"))continue;
+        const raw=line.slice(5).trim();if(!raw||raw==="[DONE]")continue;
+        try{
+          const part=JSON.parse(raw);
+          const delta=part.response??part.choices?.[0]?.delta?.content??part.choices?.[0]?.text??"";
+          if(typeof delta!=="string"||!delta)continue;
+          wordBuffer+=delta;
+          const boundary=Math.max(wordBuffer.lastIndexOf(" "),wordBuffer.lastIndexOf("\n"),wordBuffer.lastIndexOf("\t"));
+          if(boundary>=0){emit(controller,wordBuffer.slice(0,boundary+1));wordBuffer=wordBuffer.slice(boundary+1);}
+        }catch{}
+      }
+    },
+    flush(controller){
+      lineBuffer+=decoder.decode();
+      const tail=lineBuffer.trim();
+      if(tail.startsWith("data:")){
+        try{const part=JSON.parse(tail.slice(5).trim());const delta=part.response??part.choices?.[0]?.delta?.content??part.choices?.[0]?.text??"";if(typeof delta==="string")wordBuffer+=delta;}catch{}
+      }
+      emit(controller,wordBuffer);
+      controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+    }
+  }));
+}
 export default {
  async fetch(request: Request, env: Env): Promise<Response> {
   const origin=request.headers.get("Origin")||"";
@@ -47,6 +88,7 @@ export default {
   const rateKey=user?"user:"+user.id:"guest-ip:"+clientIp;
   let body:any;try{body=await request.json();}catch{return json({error:"Invalid JSON"},400);}
   if(url.pathname==="/browse"){
+    if(body.userConsent!==true)return json({error:"Explicit permission is required before the cloud browser can visit a page."},403);
     const target=String(body.url||"").trim();
     let page:URL;
     try{page=new URL(target);}catch{return json({error:"Enter a valid public webpage URL."},400);}
@@ -70,12 +112,14 @@ export default {
     }catch(error){console.error("Work Mode Browser Run failed",error);return json({error:"The remote browser could not load this page. It may block automated browsers or exceed the page-load timeout."},502);}
   }
   if(url.pathname==="/generate"){
+    if(body.userConsent!==true)return json({error:"Explicit permission is required before image generation."},403);
     const prompt=String(body.prompt||"").trim();
     if(prompt.length<4||prompt.length>1200)return json({error:"Prompt must be 4 to 1,200 characters"},400);
+    if(blockedOutputTerms.some(word=>new RegExp("\\b"+word+"\\b","i").test(prompt)))return json({error:"Please rewrite the image prompt using family-friendly wording."},400);
     if(unsafePrompt.test(prompt))return json({error:"That image request is not supported. Try a safe, non-explicit concept."},400);
     if(user&&!allowRate(recentImages,rateKey,3))return json({error:"Image limit reached. Try again in 10 minutes."},429);
     try{
-      const result=await env.AI.run("@cf/black-forest-labs/flux-1-schnell",{prompt,steps:4});
+      const result=await env.AI.run("@cf/black-forest-labs/flux-1-schnell",{prompt:prompt+"\n\nAny visible text must be family-friendly. Do not include profanity or inappropriate language.",steps:4});
       if(!result.image)throw new Error("No image returned");
       const binary=atob(result.image),bytes=Uint8Array.from(binary,char=>char.charCodeAt(0));
       return new Response(bytes,{headers:{...CORS,"Content-Type":"image/jpeg","Cache-Control":"no-store","X-Content-Type-Options":"nosniff"}});
@@ -91,6 +135,7 @@ export default {
   const system=[
    "You are Elementor AI, the helpful assistant and website-building partner inside All in One Edition.",
    "Be accurate, practical, concise by default, and clear when you are uncertain. Never claim you changed the website unless a real authorised action was confirmed.",
+   "Never use profanity, insults, vulgar language, or mild swear words. Keep every response suitable for a general audience, including quoted text and examples.",
    "You are also a capable coding assistant: explain code clearly, produce complete runnable examples in fenced code blocks when requested, state the file and location where code belongs, flag assumptions, and never claim code was tested or deployed unless it actually was.",
    "You can help plan and explain site changes. The only currently connected live website control is the owner-only homepage announcement setting. The user can ask to set an announcement using the exact message format: set announcement: your text, or clear announcement. The website asks for owner confirmation before applying it. If asked to perform another change, explain that it needs a dedicated authorised control rather than pretending it is done.",
    "Never request passwords, API keys, application keys, service-role keys, or other secrets. Never reveal secrets.",
@@ -104,7 +149,7 @@ export default {
     const model=think?"@cf/zai-org/glm-4.7-flash":"@cf/meta/llama-3.3-70b-instruct-fp8-fast";
     const stream=await env.AI.run(model,{messages:[{role:"system",content:system},...messages],max_tokens:think?1800:1200,temperature:0.55,stream:true,...(think?{reasoning_effort:"high"}:{})});
     if(!stream)throw new Error("Model did not return a stream");
-    return new Response(stream,{headers:{...CORS,"Content-Type":"text/event-stream; charset=utf-8","Cache-Control":"no-store","X-Accel-Buffering":"no"}});
+    return new Response(filterAssistantStream(stream),{headers:{...CORS,"Content-Type":"text/event-stream; charset=utf-8","Cache-Control":"no-store","X-Accel-Buffering":"no"}});
   }catch(error){console.error("Elementor chat failed",error);return json({error:"Elementor could not reply right now. Try again shortly."},502);}
  }
 };

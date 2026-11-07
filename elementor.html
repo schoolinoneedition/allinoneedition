@@ -154,6 +154,28 @@ body{min-height:100dvh}
 @keyframes greeting-leave{to{opacity:0;transform:translateY(16px) scale(.98)}}
 @media(prefers-reduced-motion:reduce){#elementorBoot .boot-mark,.elementor-greeting{animation:none!important}}
 </style>
+<style>
+/* Keep long generated code inside the message column rather than expanding the page. */
+.message,.bubble,.code-wrap{min-width:0;max-width:100%}
+.code-wrap{overflow:hidden;contain:inline-size;overscroll-behavior-x:contain}
+.code-wrap pre{display:block;width:100%;min-width:0;max-width:100%;overflow-x:auto;overflow-y:hidden;white-space:pre;overscroll-behavior-x:contain}
+.code-wrap code{display:block;min-width:0;max-width:100%;white-space:pre;overflow-wrap:normal}
+.typing-indicator{display:flex;align-items:center;gap:5px;min-height:22px;padding:3px 2px}
+.typing-indicator span{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:elementor-typing 1s ease-in-out infinite}
+.typing-indicator span:nth-child(2){animation-delay:.14s}.typing-indicator span:nth-child(3){animation-delay:.28s}
+@keyframes elementor-typing{0%,60%,100%{opacity:.35;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
+:root.reduce-motion .typing-indicator span{animation:none;opacity:.7}
+.work-consent{display:flex!important;align-items:flex-start;gap:9px;padding:10px 12px;margin:12px 0!important;border:1px solid var(--line);border-radius:10px;background:var(--soft);font-weight:600!important;line-height:1.45}
+.work-consent input{width:auto;min-width:16px;margin:2px 0 0;accent-color:var(--accent)}
+.plugin-modal{width:min(620px,100%)}
+.plugin-card{display:flex;align-items:center;justify-content:space-between;gap:14px;border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0;background:var(--panel)}
+.plugin-card strong,.plugin-card small{display:block}.plugin-card small{max-width:420px;color:var(--muted);font-size:11px;margin-top:4px;line-height:1.5}
+.plugin-toggle{display:flex;align-items:center;gap:7px;white-space:nowrap;font-size:12px;font-weight:800}
+.plugin-toggle input{accent-color:var(--accent);width:17px;height:17px}
+.plugin-note{margin-top:15px;padding:13px;border-radius:11px;background:var(--soft);font-size:12px}
+.plugin-note p{margin:5px 0 0}
+:root.dark .plugin-card{background:var(--panel)}
+</style>
 </head>
 <body>
 <div id="elementorBoot" role="status" aria-live="polite"><div class="boot-mark">&#10022;</div><strong>Elementor</strong><span>Preparing your workspace...</span><div class="boot-track"><i></i></div></div>
@@ -165,6 +187,7 @@ body{min-height:100dvh}
  <div class="side-label">Your conversations</div><input class="history-search" id="historySearch" placeholder="Search chats…" aria-label="Search conversations"><div class="history" id="history"><div class="status">Sign in to sync your chats.</div></div>
  <div class="side-bottom">
   <button class="side-action" id="profileOpen">◉ Personalisation</button>
+  <button class="side-action" id="pluginsOpen">▦ Plugin marketplace</button>
   <button class="side-action" id="controlsOpen">⌘ Website controls</button>
 
   <a class="back" href="/">← Back to All in One Edition</a>
@@ -179,7 +202,7 @@ body{min-height:100dvh}
   </div>
   <section class="work-panel hidden" id="workPanel" aria-label="Work Mode task workspace">
  <div class="work-head"><div><span class="work-kicker">ELEMENTOR WORKSPACE</span><h2>Work Mode</h2><p>Read-only research of public webpages. No extension or blanket Chrome permission is required.</p></div><button class="tool-btn" id="workExit">Exit Work</button></div>
- <div class="work-task"><label for="workUrl">Website to inspect</label><input id="workUrl" type="url" inputmode="url" placeholder="https://example.com"><p>Enter a public page URL. Elementor will fetch and analyse its readable page content through its server.</p>
+ <div class="work-task"><label for="workUrl">Website to inspect</label><input id="workUrl" type="url" inputmode="url" placeholder="https://example.com"><p>Enter a public page URL. Elementor will fetch and analyse its readable page content through its cloud browser.</p><label class="work-consent"><input type="checkbox" id="workConsent"> I approve a read-only visit to this public page for this task. No sign-in, form submission, or private tab access.</label>
  <div class="work-meta"><span id="workCurrent">Ready for a task</span><span id="workProgress">0 steps completed</span></div>
  <div class="work-progress"><span id="workProgressBar"></span></div>
  <div class="work-actions"><button class="tool-btn" id="workPause" disabled>Pause</button><button class="tool-btn" id="workResume" disabled>Resume</button><button class="tool-btn" id="workStop" disabled>Cancel task</button><button class="send" id="workRun">Run task</button></div>
@@ -193,6 +216,7 @@ body{min-height:100dvh}
 </section>
 </div>
 
+<div class="modal-back hidden" id="pluginsModal" role="dialog" aria-modal="true" aria-labelledby="pluginsTitle"><div class="modal plugin-modal"><h3 id="pluginsTitle">Plugin marketplace</h3><p>Choose which built-in Elementor capabilities may run. Permissions are off by default and can be revoked here at any time.</p><div class="plugin-card"><div><strong>Cloud Browser Research</strong><small>Read public webpages only. It cannot sign in, submit forms, or access your private browser tabs.</small></div><label class="plugin-toggle"><input type="checkbox" id="pluginBrowserPermission"> Allow</label></div><div class="plugin-card"><div><strong>Image Studio</strong><small>Send your image prompt to the image generator and show the result in this conversation.</small></div><label class="plugin-toggle"><input type="checkbox" id="pluginImagePermission"> Allow</label></div><div class="plugin-note"><strong>External integrations</strong><p>No third-party accounts are connected in this build. External providers will appear here only after a verified OAuth flow, server-side token storage, and a separate scope approval screen are configured.</p></div><div class="status" id="pluginStatus" aria-live="polite"></div><div class="modal-actions"><button class="tool-btn" data-close="pluginsModal">Close</button><button class="send" id="savePluginPermissions">Save permissions</button></div></div></div>
 <div class="modal-back hidden" id="profileModal"><div class="modal"><h3>Personalise Elementor</h3><p>Choose how Elementor appears and responds. These preferences are saved to your account.</p>
  <div class="field"><label>Display name</label><input id="displayName" maxlength="48" placeholder="Elementor"></div>
  <div class="field"><label>Profile picture</label><div class="avatars" id="avatarChoices"></div><input id="avatarUpload" type="file" accept="image/png,image/jpeg,image/webp" style="margin-top:9px"></div>
@@ -221,6 +245,18 @@ let codeMode=false,voiceOutput=false,voiceChatMode=false,voiceTimer=null,voiceTr
 sessionStorage.setItem('elementor_guest_id',guestId);
 function saveGuestChats(){const safe={};for(const [id,chat] of Object.entries(guestChats)){safe[id]={...chat,messages:(chat.messages||[]).map(({image_url,...message})=>message)};}sessionStorage.setItem('elementor_guest_chats',JSON.stringify(safe));}
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ELEMENTOR_PLUGIN_KEY='elementor_plugin_permissions_v1';
+const DEFAULT_PLUGIN_PERMISSIONS={browserResearch:false,imageStudio:false};
+function getPluginPermissions(){try{return {...DEFAULT_PLUGIN_PERMISSIONS,...JSON.parse(localStorage.getItem(ELEMENTOR_PLUGIN_KEY)||'{}')};}catch{return {...DEFAULT_PLUGIN_PERMISSIONS};}}
+function hasPluginPermission(name){const p=getPluginPermissions();return name==='browser-research'?p.browserResearch:name==='image-studio'?p.imageStudio:false;}
+function openPluginMarketplace(){const p=getPluginPermissions();$('pluginBrowserPermission').checked=p.browserResearch;$('pluginImagePermission').checked=p.imageStudio;$('pluginStatus').textContent='Permissions are stored on this device. No external account tokens are stored here.';openModal('pluginsModal');}
+function savePluginPermissions(){const next={browserResearch:$('pluginBrowserPermission').checked,imageStudio:$('pluginImagePermission').checked};localStorage.setItem(ELEMENTOR_PLUGIN_KEY,JSON.stringify(next));$('pluginStatus').textContent='Permissions saved. You can revoke either permission here.';showElementorNotice('Plugin permissions updated','Only the built-in capabilities you allowed can run.');}
+function sanitizeElementorOutput(value){
+ let text=String(value??'').normalize('NFKC');
+ const blocked=['fuck','fucking','motherfucker','shit','shitty','bullshit','bitch','bastard','asshole','arse','arsehole','dick','dickhead','piss','crap','damn','hell','bloody','bugger','bollocks','wanker','twat','prick'];
+ for(const word of blocked)text=text.replace(new RegExp('\\b'+word+'\\b','gi'),'[filtered]');
+ return text;
+}
 function toast(s){$('profileStatus').textContent=s;}function applyElementorPreferences(){
  const prefs=JSON.parse(localStorage.getItem('elementor_preferences')||'{}');
  document.documentElement.dataset.accent=prefs.accent||'blue';document.documentElement.dataset.font=prefs.font||'system';document.documentElement.classList.toggle('reduce-motion',!!prefs.reducedMotion);
@@ -231,6 +267,7 @@ function saveElementorPreferences(){
  localStorage.setItem('elementor_preferences',JSON.stringify(prefs));applyElementorPreferences();
 }
 function showElementorNotice(title,detail,delay=6500){
+ title=sanitizeElementorOutput(title);detail=sanitizeElementorOutput(detail);
  const root=$('elementorNotices'),item=document.createElement('div');item.className='elementor-notice';const copy=document.createElement('div'),strong=document.createElement('strong'),small=document.createElement('small'),close=document.createElement('button');
  strong.textContent=title;small.textContent=detail;close.type='button';close.setAttribute('aria-label','Dismiss notification');close.textContent='?';close.onclick=()=>item.remove();copy.append(strong,small);item.append(copy,close);root.append(item);if(delay)window.setTimeout(()=>item.remove(),delay);
 }
@@ -324,6 +361,7 @@ function renderMarkdownText(container,source){
  }
 }
 function renderRichText(container,text){
+ text=sanitizeElementorOutput(text);
  const chunks=String(text||'').split(/```/);
  chunks.forEach((chunk,index)=>{
   if(index%2===1){const first=chunk.indexOf(String.fromCharCode(10)),lang=first>=0?chunk.slice(0,first).trim():'',code=first>=0?chunk.slice(first+1):chunk;const wrap=document.createElement('div');wrap.className='code-wrap';const pre=document.createElement('pre'),node=document.createElement('code');node.textContent=code;if(lang)node.className='language-'+lang.toLowerCase().replace(/[^a-z0-9-]/g,'');pre.append(node);const copy=document.createElement('button');copy.className='copy-code';copy.type='button';copy.textContent='Copy';copy.onclick=async()=>{try{await navigator.clipboard.writeText(node.textContent);copy.textContent='Copied';setTimeout(()=>copy.textContent='Copy',1200);}catch{copy.textContent='Unavailable';}};wrap.append(pre,copy);container.append(wrap);if(window.hljs)window.hljs.highlightElement(node);
@@ -333,13 +371,19 @@ function renderRichText(container,text){
 function renderMessages(){
  const scroller=$('messages'),wasNearBottom=scroller.scrollHeight-scroller.scrollTop-scroller.clientHeight<90;
  $('welcome').classList.toggle('hidden',messages.length>0);scroller.replaceChildren();
- for(const m of messages){const row=document.createElement('div');row.className='message '+m.role;const av=document.createElement('div');av.className='bubble-avatar';av.textContent=m.role==='assistant'?'✦':(profile.avatar||'U');const bubble=document.createElement('div');bubble.className='bubble';const body=document.createElement('div');renderRichText(body,m.content|| (m.image_media_id?'Generated image':''));bubble.append(body);if(m.image_media_id){const img=document.createElement('img');img.alt='Image generated in this chat';img.dataset.image=m.id;bubble.append(img);if(user)attachMediaImage(img,m.image_media_id);}else if(m.image_url){const img=document.createElement('img');img.alt='Image generated in this guest session';img.src=m.image_url;bubble.append(img);}if(m.role==='assistant'&&!String(m.id||'').startsWith('stream-')){const actions=document.createElement('div');actions.className='message-actions';const copy=document.createElement('button');copy.type='button';copy.textContent='Copy';copy.onclick=async()=>{try{await navigator.clipboard.writeText(m.content||'');copy.textContent='Copied';setTimeout(()=>copy.textContent='Copy',1200);}catch{copy.textContent='Unavailable';}};const regen=document.createElement('button');regen.type='button';regen.textContent='Regenerate';regen.disabled=isSending;regen.onclick=regenerateLast;actions.append(copy,regen);bubble.append(actions);}row.append(av,bubble);scroller.append(row);}
+ for(const m of messages){const row=document.createElement('div');row.className='message '+m.role;const av=document.createElement('div');av.className='bubble-avatar';av.textContent=m.role==='assistant'?'✦':(profile.avatar||'U');const bubble=document.createElement('div');bubble.className='bubble';const body=document.createElement('div');
+ const streaming=String(m.id||'').startsWith('stream-');
+ if(streaming&&!m.content){const dots=document.createElement('div');dots.className='typing-indicator';dots.setAttribute('role','status');dots.setAttribute('aria-label','Elementor is preparing a response');for(let n=0;n<3;n++){const dot=document.createElement('span');dots.append(dot);}body.append(dots);}
+ else renderRichText(body,m.content|| (m.image_media_id?'Generated image':''));
+ bubble.append(body);if(m.image_media_id){const img=document.createElement('img');img.alt='Image generated in this chat';img.dataset.image=m.id;bubble.append(img);if(user)attachMediaImage(img,m.image_media_id);}else if(m.image_url){const img=document.createElement('img');img.alt='Image generated in this guest session';img.src=m.image_url;bubble.append(img);}if(m.role==='assistant'&&!String(m.id||'').startsWith('stream-')){const actions=document.createElement('div');actions.className='message-actions';const copy=document.createElement('button');copy.type='button';copy.textContent='Copy';copy.onclick=async()=>{try{await navigator.clipboard.writeText(sanitizeElementorOutput(m.content||''));copy.textContent='Copied';setTimeout(()=>copy.textContent='Copy',1200);}catch{copy.textContent='Unavailable';}};const regen=document.createElement('button');regen.type='button';regen.textContent='Regenerate';regen.disabled=isSending;regen.onclick=regenerateLast;actions.append(copy,regen);bubble.append(actions);}row.append(av,bubble);scroller.append(row);}
  if(wasNearBottom)scroller.scrollTop=scroller.scrollHeight;
 }
 function addLocalMessage(role,content,imageId=null){
+ content=role==='assistant'?sanitizeElementorOutput(content):String(content??'');
  const m={id:'local-'+Math.random().toString(36).slice(2),role,content,image_media_id:imageId};messages.push(m);renderMessages();return m;
 }
 async function saveMessage(role,content,imageId=null){
+ content=role==='assistant'?sanitizeElementorOutput(content):String(content??'');
  if(!user){const data={id:'guest-msg-'+crypto.randomUUID(),role,content,image_media_id:imageId,created_at:new Date().toISOString()};messages.push(data);if(guestChats[currentId]){guestChats[currentId].messages=messages;guestChats[currentId].updated_at=Date.now();saveGuestChats();}renderMessages();return data;}
  const {data,error}=await db.from('elementor_messages').insert({conversation_id:currentId,user_id:user.id,role,content,image_media_id:imageId}).select('*').single();
  if(error)throw error;messages.push(data);renderMessages();return data;
@@ -361,7 +405,7 @@ async function callAI(extraContext=''){
  try{while(true){const {value,done}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});const events=buffer.split(new RegExp(String.fromCharCode(13)+'?'+String.fromCharCode(10)));buffer=events.pop()||'';for(const line of events){if(!line.startsWith('data:'))continue;const raw=line.slice(5).trim();if(!raw||raw==='[DONE]')continue;try{const part=JSON.parse(raw);const delta=part.response||part.choices?.[0]?.delta?.content||part.choices?.[0]?.text||'';if(delta){answer+=delta;live.content=answer;renderMessages();}}catch{}}}}
  catch(error){if(error.name==='AbortError')stopped=true;else throw error;}
  finally{if(activeController===controller)activeController=null;messages=messages.filter(m=>m!==live);}
- return {answer:answer.trim(),stopped};
+ return {answer:sanitizeElementorOutput(answer.trim()),stopped};
 }
 async function uploadImage(blob,name){
  const auth='Bearer '+token();const initRes=await fetch(MEDIA_API+'/uploads/initiate',{method:'POST',headers:{Authorization:auth,'Content-Type':'application/json'},body:JSON.stringify({filename:name,contentType:blob.type||'image/jpeg',sizeBytes:blob.size,visibility:'private'})});
@@ -375,7 +419,8 @@ async function attachMediaImage(img,id){
  try{const res=await fetch(MEDIA_API+'/media/'+encodeURIComponent(id),{headers:{Authorization:'Bearer '+token()}});if(!res.ok)throw new Error('Private image unavailable');const blob=await res.blob();const src=URL.createObjectURL(blob);objectUrls.push(src);img.src=src;}catch(e){img.alt='Image is unavailable. Sign in again to load private media.';}
 }
 async function createImage(prompt){
- const headers={'Content-Type':'application/json','X-Guest-Id':guestId};if(token())headers.Authorization='Bearer '+token();const r=await fetch(AI_API+'/generate',{method:'POST',headers,body:JSON.stringify({prompt})});
+ if(!hasPluginPermission('image-studio'))throw new Error('Image Studio permission is off. Open Plugin marketplace and allow it before generating an image.');
+ const headers={'Content-Type':'application/json','X-Guest-Id':guestId};if(token())headers.Authorization='Bearer '+token();const r=await fetch(AI_API+'/generate',{method:'POST',headers,body:JSON.stringify({prompt,userConsent:true})});
  if(!r.ok){const d=await r.json().catch(()=>({}));throw new Error(d.error||'Image generation failed.');}
  const blob=await r.blob();if(!user){const src=URL.createObjectURL(blob);objectUrls.push(src);const m={id:'guest-image-'+crypto.randomUUID(),role:'assistant',content:'Created an image from: '+prompt,image_url:src,created_at:new Date().toISOString()};messages.push(m);if(guestChats[currentId]){guestChats[currentId].messages=messages;saveGuestChats();}renderMessages();return;}let id=null;try{id=await uploadImage(blob,'elementor-'+Date.now()+'.jpg');}catch(e){throw new Error('Image generated, but private B2 saving failed: '+e.message);}
  await saveMessage('assistant','Created an image from: '+prompt,id);
@@ -444,6 +489,7 @@ async function saveAnnouncement(clear=false){
  $('controlStatus').textContent=result.error?'Could not update the site: '+result.error.message:(clear?'Announcement cleared.':'Announcement published.');if(!result.error)window.setTimeout(()=>closeModal('controlsModal'),700);
 }
 $('newChat').onclick=newChat;$('send').onclick=send;
+$('pluginsOpen').onclick=openPluginMarketplace;$('savePluginPermissions').onclick=savePluginPermissions;
 $('codeMode').onclick=()=>{codeMode=!codeMode;$('codeMode').classList.toggle('active',codeMode);$('voiceStatus').textContent=codeMode?'Code mode is on.':'Code mode is off.';};
 function startVoiceListening(){
  const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -465,7 +511,7 @@ $('voiceChat').onclick=()=>{
  if(!Speech){$('voiceStatus').textContent='Live voice input is not supported in this browser.';return;}
  voiceChatMode=true;voiceOutput=true;$('voiceChat').classList.add('active');$('voiceOutput').classList.add('active');startVoiceListening();
 };
-function speakReply(text){if(!('speechSynthesis'in window)){$('voiceStatus').textContent='Speech playback is not supported in this browser.';return;}window.speechSynthesis.cancel();const clean=String(text).replace(/```[\s\S]*?```/g,'Code block omitted from speech.').slice(0,5000);const utterance=new SpeechSynthesisUtterance(clean);utterance.rate=1;utterance.onstart=()=>$('voiceStatus').textContent='Reading reply…';utterance.onend=()=>$('voiceStatus').textContent='';window.speechSynthesis.speak(utterance);}
+function speakReply(text){text=sanitizeElementorOutput(text);if(!('speechSynthesis'in window)){$('voiceStatus').textContent='Speech playback is not supported in this browser.';return;}window.speechSynthesis.cancel();const clean=String(text).replace(/```[\s\S]*?```/g,'Code block omitted from speech.').slice(0,5000);const utterance=new SpeechSynthesisUtterance(clean);utterance.rate=1;utterance.onstart=()=>$('voiceStatus').textContent='Reading reply…';utterance.onend=()=>$('voiceStatus').textContent='';window.speechSynthesis.speak(utterance);}
 $('voiceOutput').onclick=()=>{voiceOutput=!voiceOutput;$('voiceOutput').classList.toggle('active',voiceOutput);$('voiceStatus').textContent=voiceOutput?'Replies will be read aloud.':'Spoken replies are off.';if(!voiceOutput&&'speechSynthesis'in window)window.speechSynthesis.cancel();};
 $('voiceInput').onclick=()=>{
  const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -497,11 +543,11 @@ document.querySelectorAll('.suggestion').forEach(b=>b.onclick=()=>{$('prompt').v
 $('menuBtn').onclick=()=>{const open=$('sidebar').classList.toggle('open');document.body.classList.toggle('sidebar-open',open);};document.addEventListener('click',event=>{if(window.matchMedia('(max-width:700px)').matches&&$('sidebar').classList.contains('open')&&!$('sidebar').contains(event.target)&&event.target!==$('menuBtn')){$('sidebar').classList.remove('open');document.body.classList.remove('sidebar-open');}});
 
 let workMode=false,workPaused=false,workCancelled=false,workController=null,workSteps=0;
-function setWorkStatus(message){$('workStatus').textContent=message;}
-function setWorkProgress(step,total,label){workSteps=step;$('workCurrent').textContent=label;$('workProgress').textContent=step+' of '+total+' steps completed';$('workProgressBar').style.width=Math.round(step/total*100)+'%';}
+function setWorkStatus(message){$('workStatus').textContent=sanitizeElementorOutput(message);}
+function setWorkProgress(step,total,label){workSteps=step;$('workCurrent').textContent=sanitizeElementorOutput(label);$('workProgress').textContent=step+' of '+total+' steps completed';$('workProgressBar').style.width=Math.round(step/total*100)+'%';}
 function setWorkMode(enabled){
  workMode=!!enabled;$('workPanel').classList.toggle('hidden',!workMode);$('workModeOpen').classList.toggle('active',workMode);$('workModeOpen').setAttribute('aria-pressed',String(workMode));
- $('prompt').placeholder=workMode?'Describe the research task for this webpage?':'Message Elementor?';
+ $('prompt').placeholder=workMode?'Describe the research task for this webpage':'Message Elementor';
  if(workMode){$('workUrl').focus();setWorkStatus('Enter a public URL and describe what you want analysed in the message box.');}
 }
 $('workModeOpen').onclick=()=>setWorkMode(!workMode);$('workExit').onclick=()=>setWorkMode(false);
@@ -511,6 +557,8 @@ $('workStop').onclick=()=>{workCancelled=true;workController?.abort();activeCont
 function waitForWorkResume(){return new Promise((resolve,reject)=>{const check=()=>{if(workCancelled)return reject(new DOMException('Task cancelled','AbortError'));if(!workPaused)return resolve();setTimeout(check,150);};check();});}
 async function runWorkTask(instruction){
  if($('workRun').disabled)return;
+ if(!hasPluginPermission('browser-research')){setWorkStatus('Cloud Browser Research is not allowed yet. Open Plugin marketplace and grant permission first.');return;}
+ if(!$('workConsent').checked){setWorkStatus('Approve the read-only page visit before running this task.');return;}
  const rawUrl=$('workUrl').value.trim();let parsed;
  try{parsed=new URL(rawUrl);if(!['http:','https:'].includes(parsed.protocol))throw new Error();}catch{setWorkStatus('Enter a valid public HTTP or HTTPS website URL.');return;}
  workCancelled=false;workPaused=false;workController=new AbortController();const total=4;
@@ -518,7 +566,7 @@ async function runWorkTask(instruction){
  try{
   await waitForWorkResume();setWorkProgress(1,total,'Requesting public webpage');
   const headers={'Content-Type':'application/json','X-Guest-Id':guestId};if(token())headers.Authorization='Bearer '+token();
-  const response=await fetch(AI_API+'/browse',{method:'POST',headers,signal:workController.signal,body:JSON.stringify({url:parsed.href})});
+  const response=await fetch(AI_API+'/browse',{method:'POST',headers,signal:workController.signal,body:JSON.stringify({url:parsed.href,userConsent:true})});
   const data=await response.json();if(!response.ok)throw new Error(data.error||'The page could not be fetched.');
   await waitForWorkResume();setWorkProgress(2,total,'Extracting page content');
   if(!data.text)throw new Error('The page did not contain readable text. It may require JavaScript or sign-in.');
@@ -533,7 +581,7 @@ async function runWorkTask(instruction){
   setWorkStatus('Completed. The page was fetched read-only; no forms were submitted and no browser tabs were controlled.');
   $('workPlan').classList.remove('running');
  }catch(e){if(e.name==='AbortError'){setWorkStatus('Task cancelled.');}else{setWorkStatus('Task failed: '+e.message);await saveMessage('assistant','Work Mode could not complete the webpage inspection: '+e.message).catch(()=>{});}}
- finally{workController=null;$('workRun').disabled=false;$('workPause').disabled=true;$('workResume').disabled=true;$('workStop').disabled=true;$('workPlan').classList.remove('running');}
+ finally{workController=null;$('workRun').disabled=false;$('workPause').disabled=true;$('workResume').disabled=true;$('workStop').disabled=true;$('workPlan').classList.remove('running');$('workConsent').checked=false;}
 }
 $('workRun').onclick=async()=>{const task=$('prompt').value.trim()||'Inspect this website and summarise its purpose, structure, useful information and potential issues.';$('prompt').value='';await saveMessage('user',task);runWorkTask(task);};
 
