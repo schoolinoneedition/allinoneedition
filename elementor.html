@@ -347,8 +347,9 @@ async function saveMessage(role,content,imageId=null){
 async function updateTitle(text){
  const title=text.trim().slice(0,48)||'New chat';if(!user){if(guestChats[currentId]){guestChats[currentId].title=title;guestChats[currentId].updated_at=Date.now();saveGuestChats();}$('chatTitle').textContent=title;await loadHistory();return;}await db.from('elementor_conversations').update({title,updated_at:new Date().toISOString()}).eq('id',currentId).eq('user_id',user.id);$('chatTitle').textContent=title;await loadHistory();
 }
-async function callAI(){
+async function callAI(extraContext=''){
  const context=messages.filter(m=>m.role==='user'||m.role==='assistant').slice(-14).map(m=>({role:m.role,content:m.content||''}));
+ if(extraContext)context.push({role:'user',content:extraContext});
  const headers={'Content-Type':'application/json','X-Guest-Id':guestId};if(token())headers.Authorization='Bearer '+token();
  const controller=new AbortController();activeController=controller;
  const res=await fetch(AI_API+'/chat',{method:'POST',headers,signal:controller.signal,body:JSON.stringify({messages:context,think:thinkMode,profile:{displayName:profile.display_name,style:profile.response_style,instructions:(profile.instructions||'')+(codeMode?'\\nUse Code mode: provide complete runnable code in fenced blocks, explain where it goes, and mention assumptions.':'')},site:'All in One Edition'})});
@@ -525,7 +526,7 @@ async function runWorkTask(instruction){
   const prior=messages.slice(-10).map(m=>({role:m.role,content:m.content}));
   const newline=String.fromCharCode(10);
   const task=['Work Mode task: '+instruction,'','Public webpage fetched read-only:','Title: '+data.title,'URL: '+data.url,'Description: '+(data.description||''),'Links: '+(data.links||[]).slice(0,30).map(x=>x.text+' ('+x.url+')').join(newline),'','Extracted page text:',data.text.slice(0,14000),'','Analyse only this fetched evidence. State clearly if information is missing. Do not claim to click, submit forms, sign in, or control browser tabs.'].join(newline);
-  const result=await callAI();
+  const result=await callAI(task);
   await waitForWorkResume();setWorkProgress(4,total,'Completed research');
   if(result.answer)await saveMessage('assistant',result.answer);else throw new Error('The AI analysis returned no answer.');
   setWorkStatus('Completed. The page was fetched read-only; no forms were submitted and no browser tabs were controlled.');
