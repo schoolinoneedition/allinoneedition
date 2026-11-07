@@ -1438,23 +1438,31 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
     if(!video)return false;
     video.preload=preload==='none'?'none':preload==='metadata'?'metadata':'auto';
     try{video.fetchPriority=priority==='high'?'high':'low';}catch{}
-    if(video.dataset.sourceReady==='1'||video.dataset.sourceResolving==='1')return false;
+    if(video.dataset.sourceReady==='1')return true;
+    // If background warming is already resolving the signed URL, playback must
+    // await that same request instead of treating it as a failed preparation.
+    if(video.__aioSourcePromise)return video.__aioSourcePromise;
     const src=String(video.dataset.videoSrc||'').trim();
     if(!src)return false;
     video.dataset.sourceResolving='1';
-    try{
-      const resolved=await aioMediaSignedURL(src);
-      if(!video.isConnected)return false;
-      video.src=socialMediaPlaybackURL(resolved);
-      video.dataset.sourceReady='1';
-      video.load();
-      return true;
-    }catch(error){
-      const stage=video.closest('.video-stage'),message=stage?.querySelector('.media-error'),copy=message?.querySelector('.media-error-copy');
-      if(copy)copy.textContent=error?.message||'This video could not be prepared.';
-      if(message)message.hidden=false;
-      return false;
-    }finally{video.dataset.sourceResolving='0';}
+    const task=(async()=>{
+      try{
+        const resolved=await aioMediaSignedURL(src);
+        if(!video.isConnected)return false;
+        video.src=socialMediaPlaybackURL(resolved);
+        video.dataset.sourceReady='1';
+        video.load();
+        return true;
+      }catch(error){
+        const stage=video.closest('.video-stage'),message=stage?.querySelector('.media-error'),copy=message?.querySelector('.media-error-copy');
+        if(copy)copy.textContent=error?.message||'This video could not be prepared.';
+        if(message)message.hidden=false;
+        return false;
+      }finally{video.dataset.sourceResolving='0';}
+    })();
+    video.__aioSourcePromise=task;
+    try{return await task;}
+    finally{if(video.__aioSourcePromise===task)delete video.__aioSourcePromise;}
   }
   async function startVideo(id){
     const post=document.querySelector('[data-social-post="'+CSS.escape(String(id))+'"]');
