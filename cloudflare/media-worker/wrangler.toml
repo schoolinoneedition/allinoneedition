@@ -1,0 +1,12 @@
+name = "all-in-one-edition-media"
+main = "src/index.ts"
+compatibility_date = "2026-11-06"
+workers_dev = true
+
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "aio-media"
+
+[vars]
+APP_ORIGIN = "https://allinoneedition.vercel.app"
+SUPABASE_URL = "https://btnbuchsrfllpzlypjtn.supabase.co"
