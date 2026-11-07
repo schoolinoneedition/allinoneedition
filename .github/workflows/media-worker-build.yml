@@ -1,16 +1,19 @@
 name: Media Worker build check
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - codex/backblaze-b2-media-worker
     paths:
       - "cloudflare/media-worker/**"
+      - ".github/workflows/media-worker-build.yml"
   pull_request:
     branches:
-      - codex/backblaze-b2-media-worker
+      - main
     paths:
       - "cloudflare/media-worker/**"
+      - ".github/workflows/media-worker-build.yml"
 
 permissions:
   contents: read
