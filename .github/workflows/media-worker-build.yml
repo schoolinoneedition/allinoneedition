@@ -28,6 +28,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Install Worker dependencies
+        working-directory: cloudflare/media-worker
+        run: npm install --no-audit --no-fund
       - name: Build Worker without deploying
         working-directory: cloudflare/media-worker
-        run: npx --yes wrangler@latest deploy --dry-run --outdir=dist
+        run: npx --yes wrangler@4.158.0 deploy --dry-run --outdir=dist
