@@ -37,7 +37,7 @@
 </div>
 <div class="modal-back hidden" id="profileModal"><div class="modal"><h3>Personalise Elementor</h3><p>Choose how Elementor appears and responds. These preferences are saved to your account.</p>
  <div class="field"><label>Display name</label><input id="displayName" maxlength="48" placeholder="Elementor"></div>
- <div class="field"><label>Profile picture</label><div class="avatars" id="avatarChoices"></div></div>
+ <div class="field"><label>Profile picture</label><div class="avatars" id="avatarChoices"></div><input id="avatarUpload" type="file" accept="image/png,image/jpeg,image/webp" style="margin-top:9px"></div>
  <div class="field"><label>Response style</label><select id="responseStyle"><option value="balanced">Balanced</option><option value="concise">Concise</option><option value="detailed">Detailed</option><option value="friendly">Friendly</option></select></div>
  <div class="field"><label>Custom instructions</label><textarea id="instructions" maxlength="1200" placeholder="Tell Elementor how you like answers, what to focus on, and what to avoid."></textarea></div><div class="status" id="profileStatus"></div><div class="modal-actions"><button class="tool-btn" data-close="profileModal">Cancel</button><button class="send" id="saveProfile">Save preferences</button></div>
 </div></div>
@@ -62,7 +62,7 @@ function openModal(id){$(id).classList.remove('hidden');}
 function closeModal(id){$(id).classList.add('hidden');}
 function token(){return session?.access_token||'';}
 function avatarMarkup(value){return AVATARS.includes(value)?escape(value):'✦';}
-function setAvatar(){ $('accountAvatar').textContent=avatarMarkup(profile.avatar);$('accountName').textContent=profile.display_name||user?.email||'Elementor';$('accountState').textContent=user?.email||'Not signed in'; }
+function setAvatar(){ const el=$('accountAvatar');el.replaceChildren();if(profile.avatar_media_id){const img=document.createElement('img');img.alt='Elementor profile picture';el.append(img);attachMediaImage(img,profile.avatar_media_id);}else{el.textContent=avatarMarkup(profile.avatar);} $('accountName').textContent=profile.display_name||user?.email||'Elementor';$('accountState').textContent=user?.email||'Not signed in'; }
 function showAuth(){ $('welcome').innerHTML='<div class="orb">✦</div><h2>Sign in to Elementor</h2><p>Your chats and personalisation are saved to your All in One Edition account.</p><div style="margin-top:18px"><a class="send" style="display:inline-block" href="/login">Open account sign in</a></div>'; }
 async function init(){
  if(!db){showAuth();return;}
@@ -122,7 +122,7 @@ async function callAI(){
  const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error||'Elementor could not reply.');return data.answer||'I could not produce a reply.';
 }
 async function uploadImage(blob,name){
- const auth='Bearer '+token();const initRes=await fetch(MEDIA_API+'/uploads/initiate',{method:'POST',headers:{Authorization:auth,'Content-Type':'application/json'},body:JSON.stringify({filename:name,contentType:'image/jpeg',sizeBytes:blob.size,visibility:'private'})});
+ const auth='Bearer '+token();const initRes=await fetch(MEDIA_API+'/uploads/initiate',{method:'POST',headers:{Authorization:auth,'Content-Type':'application/json'},body:JSON.stringify({filename:name,contentType:blob.type||'image/jpeg',sizeBytes:blob.size,visibility:'private'})});
  const init=await initRes.json();if(!initRes.ok)throw new Error(init.error||'Could not save image to private media storage.');
  const size=Number(init.partSizeBytes)||32*1024*1024,parts=[];
  try{let part=1;for(let off=0;off<blob.size;off+=size,part++){const chunk=blob.slice(off,Math.min(blob.size,off+size));const r=await fetch(MEDIA_API+'/uploads/'+encodeURIComponent(init.uploadId)+'/parts/'+part,{method:'POST',headers:{Authorization:auth,'Content-Type':'application/octet-stream','X-Part-Size':String(chunk.size)},body:chunk});const d=await r.json();if(!r.ok)throw new Error(d.error||'Image upload failed.');parts.push({partNumber:part,etag:d.etag});}
@@ -138,12 +138,25 @@ async function createImage(prompt){
  const blob=await r.blob();let id=null;try{id=await uploadImage(blob,'elementor-'+Date.now()+'.jpg');}catch(e){throw new Error('Image generated, but private B2 saving failed: '+e.message);}
  await saveMessage('assistant','Created an image from: '+prompt,id);
 }
+async function handleSiteCommand(text){
+ const setMatch=text.match(/^(?:set|publish|change)\\s+(?:the\\s+)?(?:homepage\\s+)?announcement\\s*:\\s*(.{1,180})$/i);
+ const clearMatch=/^(?:clear|remove)\\s+(?:the\\s+)?(?:homepage\\s+)?announcement$/i.test(text);
+ if(!setMatch&&!clearMatch)return false;
+ const role=await db.from('staff_roles').select('role').eq('user_id',user.id).maybeSingle();
+ if(role.error||role.data?.role!=='owner'){await saveMessage('assistant','I can only change the homepage announcement from the verified owner account.');return true;}
+ const value=clearMatch?'':setMatch[1].trim();
+ if(!window.confirm(clearMatch?'Clear the homepage announcement?':'Publish this homepage announcement?\\n\\n'+value)){await saveMessage('assistant','Cancelled. No website changes were made.');return true;}
+ const result=clearMatch?await db.from('aio_elementor_site_settings').delete().eq('setting_key','announcement'):await db.from('aio_elementor_site_settings').upsert({setting_key:'announcement',setting_value:{text:value},updated_by:user.id,updated_at:new Date().toISOString()},{onConflict:'setting_key'});
+ await saveMessage('assistant',result.error?'The website setting could not be updated: '+result.error.message:(clearMatch?'The homepage announcement has been cleared.':'The homepage announcement is now published on All in One Edition.'));
+ return true;
+}
 async function send(){
  if(!user||!currentId||isSending)return;const input=$('prompt'),text=input.value.trim();if(!text)return;
  isSending=true;$('send').disabled=true;input.value='';
  try{
   await saveMessage('user',(imageMode?'Create an image: ':'')+text);
   if(messages.length===1)await updateTitle(text);
+  if(!imageMode&&await handleSiteCommand(text)){await loadHistory();return;}
   if(imageMode){await createImage(text);imageMode=false;$('imageMode').classList.remove('active');}
   else{
    const answer=await callAI();await saveMessage('assistant',answer);
@@ -160,7 +173,8 @@ async function openProfile(){
 }
 async function saveProfile(){
  const selected=$('avatarChoices').querySelector('[data-selected="1"]')?.textContent||profile.avatar;
- const next={user_id:user.id,display_name:$('displayName').value.trim()||'Elementor',avatar:selected,instructions:$('instructions').value.trim(),response_style:$('responseStyle').value,updated_at:new Date().toISOString()};
+ let avatarMediaId=profile.avatar_media_id||null;const file=$('avatarUpload').files?.[0];if(file){if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>4*1024*1024){toast('Choose a PNG, JPG or WebP image under 4 MB.');return;}try{avatarMediaId=await uploadImage(file,file.name||'elementor-avatar');}catch(e){toast('Profile picture upload failed: '+e.message);return;}}
+ const next={user_id:user.id,display_name:$('displayName').value.trim()||'Elementor',avatar:selected,avatar_media_id:avatarMediaId,instructions:$('instructions').value.trim(),response_style:$('responseStyle').value,updated_at:new Date().toISOString()};
  const {error}=await db.from('elementor_profiles').upsert(next,{onConflict:'user_id'});if(error){toast(error.message);return;}profile={...profile,...next};setAvatar();closeModal('profileModal');
 }
 async function openControls(){
