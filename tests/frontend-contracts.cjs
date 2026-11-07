@@ -26,6 +26,15 @@ const staffRls = read('supabase/migrations/20261028103528_optimize_tiktok_sticke
 const animeStorage = read('supabase/migrations/20261030125800_anime_episode_storage_manager.sql');
 const vercel = read('vercel.json');
 
+// The party wheel is a no-stakes choice picker with fair selection, sound opt-in, and a spin lock.
+assert.match(html, /partyWheelSpinning=false/);
+assert.match(html, /crypto\.getRandomValues\(random\)/);
+assert.match(html, /partyWheelMuted=true/);
+assert.match(html, /id="partyWheelSpin"/);
+assert.match(html, /id="partyWheelMute"/);
+assert.match(html, /if\(partyWheelSpinning\)return/);
+assert.match(html, /role="status" aria-live="polite"/);
+
  // Finishing touches: remove the unused ad slot and share appearance across standalone pages.
  assert.ok(!html.includes('perchads.com')&&!html.includes('perch-ad-slot')&&!html.includes('perch-ad-section'), 'The unused Perch ad slot and loader must be completely removed.');
  assert.ok(html.includes('./favicon.svg')&&social.includes('./favicon.svg')&&anime.includes('./favicon.svg'), 'The hub, Social and Watch must use the shared refreshed favicon.');
