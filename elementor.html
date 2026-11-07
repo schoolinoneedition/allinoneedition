@@ -83,6 +83,15 @@ body{min-height:100dvh}
  .bubble{font-size:12px;padding:9px 10px}
 }
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* Streaming assistant refinements */
+.message-actions{display:flex;gap:7px;margin-top:10px;padding-top:8px;border-top:1px solid var(--line)}
+.message-actions button{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:7px;padding:5px 8px;font-size:10px;font-weight:750}
+.message-actions button:hover{background:var(--soft);color:var(--ink)}
+#thinkMode.active{background:var(--accent-soft);color:var(--accent);border-color:#cbd7ff}
+#stop{color:#a33;border-color:#e8caca}
+#prompt{resize:none;overflow-y:auto}
+.bubble{white-space:normal}
 </style>
 </head>
 <body>
@@ -105,7 +114,7 @@ body{min-height:100dvh}
    <div class="suggestions"><button class="suggestion" data-prompt="Help me improve the All in One Edition homepage."><strong>Improve my website</strong>Review ideas and suggest practical upgrades</button><button class="suggestion" data-prompt="Create an image of a cosy futuristic gaming room with soft blue lighting."> <strong>Create an image</strong>Turn an idea into an original image</button><button class="suggestion" data-prompt="Explain how to organise my games catalogue better."><strong>Organise my games</strong>Plan a cleaner games catalogue</button><button class="suggestion" data-prompt="Give me a quick overview of what Elementor can do."><strong>Explore Elementor</strong>See what your AI workspace can do</button></div>
   </div>
   <div class="messages" id="messages"></div>
-  <div class="composer-wrap"><div class="composer"><textarea id="prompt" placeholder="Message Elementor…" rows="2"></textarea><div class="composer-bottom"><div class="tools"><button class="tool-btn" id="imageMode">▧ Create image</button><button class="tool-btn" id="codeMode">⌘ Code mode</button><button class="tool-btn" id="voiceInput" title="Dictate a message">🎙 Dictate</button><button class="tool-btn" id="voiceChat" title="Hands-free voice conversation">◉ Voice chat</button><button class="tool-btn" id="voiceOutput" title="Read replies aloud">🔊 Read replies</button><button class="tool-btn" id="clearMode">Clear mode</button><span class="voice-status" id="voiceStatus" aria-live="polite"></span></div><button class="send" id="send">Send ↑</button></div></div><p class="fine">Elementor can make mistakes. Check important changes before applying them.</p></div>
+  <div class="composer-wrap"><div class="composer"><textarea id="prompt" placeholder="Message Elementor…" rows="2"></textarea><div class="composer-bottom"><div class="tools"><button class="tool-btn" id="imageMode" title="Optional explicit image mode">▧ Image</button><button class="tool-btn" id="thinkMode" aria-pressed="false" title="Use a reasoning-capable model">✧ Think</button><button class="tool-btn" id="codeMode">⌘ Code mode</button><button class="tool-btn" id="voiceInput" title="Dictate a message">🎙 Dictate</button><button class="tool-btn" id="voiceChat" title="Hands-free voice conversation">◉ Voice chat</button><button class="tool-btn" id="voiceOutput" title="Read replies aloud">🔊 Read replies</button><button class="tool-btn" id="clearMode">Clear mode</button><span class="voice-status" id="voiceStatus" aria-live="polite"></span></div><button class="tool-btn hidden" id="stop" type="button">Stop ■</button><button class="send" id="send">Send ↑</button></div></div><p class="fine">Elementor can make mistakes. Check important changes before applying them.</p></div>
  </div>
 </section>
 </div>
@@ -129,7 +138,7 @@ const MEDIA_API='https://all-in-one-edition-media.plsgivemediscord981.workers.de
 const AVATARS=['✦','✧','◈','✺','⚡','🌙','🪐','🎮','🦊','🐼','🐸','🤖','🌸','☀️','💎','🦋'];
 const $=id=>document.getElementById(id);
 const db=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-let codeMode=false,voiceOutput=false,voiceChatMode=false,voiceTimer=null,voiceTranscript='',recognition=null,session=null,user=null,profile={display_name:'Elementor',avatar:'✦',instructions:'',response_style:'balanced'},currentId=null,messages=[],isSending=false,imageMode=false,isOwner=false,objectUrls=[],guestId=sessionStorage.getItem('elementor_guest_id')||crypto.randomUUID(),guestChats=JSON.parse(sessionStorage.getItem('elementor_guest_chats')||'{}');
+let codeMode=false,voiceOutput=false,voiceChatMode=false,voiceTimer=null,voiceTranscript='',recognition=null,session=null,user=null,profile={display_name:'Elementor',avatar:'✦',instructions:'',response_style:'balanced'},currentId=null,messages=[],isSending=false,imageMode=false,isOwner=false,activeController=null,thinkMode=sessionStorage.getItem('elementor_think_mode')==='1',objectUrls=[],guestId=sessionStorage.getItem('elementor_guest_id')||crypto.randomUUID(),guestChats=JSON.parse(sessionStorage.getItem('elementor_guest_chats')||'{}');
 sessionStorage.setItem('elementor_guest_id',guestId);
 function saveGuestChats(){const safe={};for(const [id,chat] of Object.entries(guestChats)){safe[id]={...chat,messages:(chat.messages||[]).map(({image_url,...message})=>message)};}sessionStorage.setItem('elementor_guest_chats',JSON.stringify(safe));}
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -139,7 +148,7 @@ function closeModal(id){$(id).classList.add('hidden');}
 function token(){return session?.access_token||'';}
 function avatarMarkup(value){return AVATARS.includes(value)?escape(value):'✦';}
 function setAvatar(){ const el=$('accountAvatar');el.replaceChildren();if(profile.avatar_media_id){const img=document.createElement('img');img.alt='Elementor profile picture';el.append(img);attachMediaImage(img,profile.avatar_media_id);}else{el.textContent=avatarMarkup(profile.avatar);} $('accountName').textContent=profile.display_name||user?.email||'Elementor';$('accountState').textContent=user?.email||'Not signed in'; }
-function showAuth(){ $('welcome').innerHTML='<div class="orb">✦</div><h2>Welcome to Elementor</h2><p>Start chatting instantly as a guest. Sign in only when you want synced conversations and saved personalisation.</p><div style="display:flex;justify-content:center;gap:8px;margin-top:16px;flex-wrap:wrap"><span class="pill">Guest access · 5 messages / 10 min</span><a class="tool-btn" href="/login">Sign in</a><a class="tool-btn" href="/signup">Create account</a></div>'; }
+function showAuth(){ $('welcome').innerHTML='<div class="orb">✦</div><h2>Welcome to Elementor</h2><p>Start chatting instantly as a guest. Sign in only when you want synced conversations and saved personalisation.</p><div style="display:flex;justify-content:center;gap:8px;margin-top:16px;flex-wrap:wrap"><span class="pill">Guest access</span><a class="tool-btn" href="/login">Sign in</a><a class="tool-btn" href="/signup">Create account</a></div>'; }
 async function init(){
  if(!db){showAuth();return;}
  const {data}=await db.auth.getSession();session=data.session;user=session?.user||null;
@@ -187,9 +196,10 @@ function renderRichText(container,text){
  });
 }
 function renderMessages(){
- $('welcome').classList.toggle('hidden',messages.length>0);$('messages').replaceChildren();
- for(const m of messages){const row=document.createElement('div');row.className='message '+m.role;const av=document.createElement('div');av.className='bubble-avatar';av.textContent=m.role==='assistant'?'✦':(profile.avatar||'U');const bubble=document.createElement('div');bubble.className='bubble';const body=document.createElement('div');renderRichText(body,m.content|| (m.image_media_id?'Generated image':''));bubble.append(body);if(m.image_media_id){const img=document.createElement('img');img.alt='Image generated in this chat';img.dataset.image=m.id;bubble.append(img);if(user)attachMediaImage(img,m.image_media_id);}else if(m.image_url){const img=document.createElement('img');img.alt='Image generated in this guest session';img.src=m.image_url;bubble.append(img);}row.append(av,bubble);$('messages').append(row);}
- const scroller=$('messages');scroller.scrollTop=scroller.scrollHeight;
+ const scroller=$('messages'),wasNearBottom=scroller.scrollHeight-scroller.scrollTop-scroller.clientHeight<90;
+ $('welcome').classList.toggle('hidden',messages.length>0);scroller.replaceChildren();
+ for(const m of messages){const row=document.createElement('div');row.className='message '+m.role;const av=document.createElement('div');av.className='bubble-avatar';av.textContent=m.role==='assistant'?'✦':(profile.avatar||'U');const bubble=document.createElement('div');bubble.className='bubble';const body=document.createElement('div');renderRichText(body,m.content|| (m.image_media_id?'Generated image':''));bubble.append(body);if(m.image_media_id){const img=document.createElement('img');img.alt='Image generated in this chat';img.dataset.image=m.id;bubble.append(img);if(user)attachMediaImage(img,m.image_media_id);}else if(m.image_url){const img=document.createElement('img');img.alt='Image generated in this guest session';img.src=m.image_url;bubble.append(img);}if(m.role==='assistant'&&!String(m.id||'').startsWith('stream-')){const actions=document.createElement('div');actions.className='message-actions';const copy=document.createElement('button');copy.type='button';copy.textContent='Copy';copy.onclick=async()=>{try{await navigator.clipboard.writeText(m.content||'');copy.textContent='Copied';setTimeout(()=>copy.textContent='Copy',1200);}catch{copy.textContent='Unavailable';}};const regen=document.createElement('button');regen.type='button';regen.textContent='Regenerate';regen.disabled=isSending;regen.onclick=regenerateLast;actions.append(copy,regen);bubble.append(actions);}row.append(av,bubble);scroller.append(row);}
+ if(wasNearBottom)scroller.scrollTop=scroller.scrollHeight;
 }
 function addLocalMessage(role,content,imageId=null){
  const m={id:'local-'+Math.random().toString(36).slice(2),role,content,image_media_id:imageId};messages.push(m);renderMessages();return m;
@@ -204,8 +214,17 @@ async function updateTitle(text){
 }
 async function callAI(){
  const context=messages.filter(m=>m.role==='user'||m.role==='assistant').slice(-14).map(m=>({role:m.role,content:m.content||''}));
- const headers={'Content-Type':'application/json','X-Guest-Id':guestId};if(token())headers.Authorization='Bearer '+token();const res=await fetch(AI_API+'/chat',{method:'POST',headers,body:JSON.stringify({messages:context,profile:{displayName:profile.display_name,style:profile.response_style,instructions:(profile.instructions||'')+(codeMode?'\\nUse Code mode: provide complete runnable code in fenced blocks, explain where it goes, and mention assumptions.':'')},site:'All in One Edition'})});
- const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error||'Elementor could not reply.');return data.answer||'I could not produce a reply.';
+ const headers={'Content-Type':'application/json','X-Guest-Id':guestId};if(token())headers.Authorization='Bearer '+token();
+ const controller=new AbortController();activeController=controller;
+ const res=await fetch(AI_API+'/chat',{method:'POST',headers,signal:controller.signal,body:JSON.stringify({messages:context,think:thinkMode,profile:{displayName:profile.display_name,style:profile.response_style,instructions:(profile.instructions||'')+(codeMode?'\\nUse Code mode: provide complete runnable code in fenced blocks, explain where it goes, and mention assumptions.':'')},site:'All in One Edition'})});
+ if(!res.ok){const data=await res.json().catch(()=>({}));throw new Error(data.error||'Elementor could not reply.');}
+ if(!res.body)throw new Error('Streaming is not supported by this connection.');
+ const live={id:'stream-'+crypto.randomUUID(),role:'assistant',content:'',created_at:new Date().toISOString()};messages.push(live);renderMessages();
+ const reader=res.body.getReader(),decoder=new TextDecoder();let buffer='',answer='',stopped=false;
+ try{while(true){const {value,done}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});const events=buffer.split(/\\r?\\n/);buffer=events.pop()||'';for(const line of events){if(!line.startsWith('data:'))continue;const raw=line.slice(5).trim();if(!raw||raw==='[DONE]')continue;try{const part=JSON.parse(raw);const delta=part.response||part.choices?.[0]?.delta?.content||part.choices?.[0]?.text||'';if(delta){answer+=delta;live.content=answer;renderMessages();}}catch{}}}}
+ catch(error){if(error.name==='AbortError')stopped=true;else throw error;}
+ finally{if(activeController===controller)activeController=null;messages=messages.filter(m=>m!==live);}
+ return {answer:answer.trim(),stopped};
 }
 async function uploadImage(blob,name){
  const auth='Bearer '+token();const initRes=await fetch(MEDIA_API+'/uploads/initiate',{method:'POST',headers:{Authorization:auth,'Content-Type':'application/json'},body:JSON.stringify({filename:name,contentType:blob.type||'image/jpeg',sizeBytes:blob.size,visibility:'private'})});
@@ -238,19 +257,28 @@ async function handleSiteCommand(text){
 }
 async function send(){
  if(!currentId||isSending)return;const input=$('prompt'),text=input.value.trim();if(!text)return;
- isSending=true;$('send').disabled=true;input.value='';
+ const wantsImage=imageMode||/(?:\\b(?:generate|create|draw|design|make|illustrate|paint)\\b.{0,70}\\b(?:image|picture|illustration|artwork|logo|wallpaper|avatar|icon|poster|banner)\\b|\\b(?:image|picture|illustration|artwork|logo|wallpaper|avatar|icon|poster|banner)\\b.{0,70}\\b(?:of|for|showing|with)\\b)/i.test(text);
+ isSending=true;$('send').disabled=true;$('send').hidden=true;$('stop').classList.remove('hidden');input.value='';
  try{
-  await saveMessage('user',(imageMode?'Create an image: ':'')+text);
+  await saveMessage('user',(wantsImage?'Create an image: ':'')+text);
   if(messages.length===1)await updateTitle(text);
-  if(!imageMode&&await handleSiteCommand(text)){await loadHistory();return;}
-  if(imageMode){await createImage(text);imageMode=false;$('imageMode').classList.remove('active');}
+  if(!wantsImage&&await handleSiteCommand(text)){await loadHistory();return;}
+  if(wantsImage){const pending=addLocalMessage('assistant','Creating your image…');try{await createImage(text);}finally{messages=messages.filter(m=>m!==pending);renderMessages();}imageMode=false;$('imageMode').classList.remove('active');}
   else{
-   const answer=await callAI();await saveMessage('assistant',answer);if(voiceOutput)speakReply(answer);
-   await db.from('elementor_conversations').update({updated_at:new Date().toISOString()}).eq('id',currentId);
+   const result=await callAI();if(result.answer)await saveMessage('assistant',result.answer+(result.stopped?'\\n\\n*Generation stopped.*':''));else if(result.stopped)await saveMessage('assistant','Generation stopped before a response was produced.');if(voiceOutput&&result.answer)speakReply(result.answer);
+   if(user)await db.from('elementor_conversations').update({updated_at:new Date().toISOString()}).eq('id',currentId);
   }
   await loadHistory();
- }catch(e){await saveMessage('assistant','I hit a problem: '+e.message).catch(()=>{});}
- finally{isSending=false;$('send').disabled=false;input.focus();if(voiceChatMode)setTimeout(startVoiceListening,350);}
+ }catch(e){if(e.name!=='AbortError')await saveMessage('assistant','I hit a problem: '+e.message).catch(()=>{});}
+ finally{isSending=false;activeController=null;$('send').hidden=false;$('send').disabled=false;$('stop').classList.add('hidden');input.focus();if(voiceChatMode)setTimeout(startVoiceListening,350);}
+}
+async function regenerateLast(){
+ if(isSending)return;let assistantIndex=-1;for(let i=messages.length-1;i>=0;i--){if(messages[i].role==='assistant'){assistantIndex=i;break;}}
+ if(assistantIndex<0)return;let userIndex=assistantIndex-1;while(userIndex>=0&&messages[userIndex].role!=='user')userIndex--;if(userIndex<0)return;
+ const old=messages.slice(userIndex,assistantIndex+1);messages.splice(userIndex,assistantIndex-userIndex+1);
+ if(user){for(const item of old){if(item.id)await db.from('elementor_messages').delete().eq('id',item.id).eq('conversation_id',currentId);}}
+ else{if(guestChats[currentId]){guestChats[currentId].messages=messages;saveGuestChats();}}
+ renderMessages();$('prompt').value=old.find(x=>x.role==='user')?.content?.replace(/^Create an image:\\s*/,'')||'';if(/^Create an image:/i.test(old.find(x=>x.role==='user')?.content||''))imageMode=true;await send();
 }
 async function openProfile(){
  if(!user)profile=JSON.parse(sessionStorage.getItem('elementor_guest_profile')||'null')||profile;$('displayName').value=profile.display_name||'Elementor';$('instructions').value=profile.instructions||'';$('responseStyle').value=profile.response_style||'balanced';$('avatarChoices').replaceChildren();
@@ -313,6 +341,8 @@ $('voiceInput').onclick=()=>{
  try{recognition.start();}catch{$('voiceStatus').textContent='Could not start microphone. Try again.';recognition=null;}
 };
 $('historySearch').addEventListener('input',loadHistory);
+$('thinkMode').classList.toggle('active',thinkMode);$('thinkMode').setAttribute('aria-pressed',String(thinkMode));$('thinkMode').onclick=()=>{thinkMode=!thinkMode;sessionStorage.setItem('elementor_think_mode',thinkMode?'1':'0');$('thinkMode').classList.toggle('active',thinkMode);$('thinkMode').setAttribute('aria-pressed',String(thinkMode));$('voiceStatus').textContent=thinkMode?'Think mode enabled · reasoning model':'Think mode disabled · standard model';};
+$('stop').onclick=()=>{if(activeController)activeController.abort();};
 $('renameChat').onclick=async()=>{if(!currentId)return;const title=window.prompt('Rename this conversation',$('chatTitle').textContent);if(!title?.trim())return;const clean=title.trim().slice(0,100);if(!user&&guestChats[currentId]){guestChats[currentId].title=clean;guestChats[currentId].updated_at=Date.now();saveGuestChats();}else if(user)await db.from('elementor_conversations').update({title:clean,updated_at:new Date().toISOString()}).eq('id',currentId).eq('user_id',user.id);$('chatTitle').textContent=clean;await loadHistory();};
 $('deleteChat').onclick=async()=>{if(!currentId||!window.confirm('Delete this conversation and its messages?'))return;if(!user)delete guestChats[currentId];else{const {error}=await db.from('elementor_conversations').delete().eq('id',currentId).eq('user_id',user.id);if(error){alert('Could not delete chat: '+error.message);return;}}saveGuestChats();currentId=null;messages=[];$('messages').replaceChildren();await loadHistory();};$('prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
 $('imageMode').onclick=()=>{imageMode=!imageMode;$('imageMode').classList.toggle('active',imageMode);$('prompt').placeholder=imageMode?'Describe the image you want Elementor to create…':'Message Elementor…';$('prompt').focus();};
