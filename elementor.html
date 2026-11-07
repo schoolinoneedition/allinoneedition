@@ -221,7 +221,7 @@ async function callAI(){
  if(!res.body)throw new Error('Streaming is not supported by this connection.');
  const live={id:'stream-'+crypto.randomUUID(),role:'assistant',content:'',created_at:new Date().toISOString()};messages.push(live);renderMessages();
  const reader=res.body.getReader(),decoder=new TextDecoder();let buffer='',answer='',stopped=false;
- try{while(true){const {value,done}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});const events=buffer.split(/\\r?\\n/);buffer=events.pop()||'';for(const line of events){if(!line.startsWith('data:'))continue;const raw=line.slice(5).trim();if(!raw||raw==='[DONE]')continue;try{const part=JSON.parse(raw);const delta=part.response||part.choices?.[0]?.delta?.content||part.choices?.[0]?.text||'';if(delta){answer+=delta;live.content=answer;renderMessages();}}catch{}}}}
+ try{while(true){const {value,done}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});const events=buffer.split(/\r?\n/);buffer=events.pop()||'';for(const line of events){if(!line.startsWith('data:'))continue;const raw=line.slice(5).trim();if(!raw||raw==='[DONE]')continue;try{const part=JSON.parse(raw);const delta=part.response||part.choices?.[0]?.delta?.content||part.choices?.[0]?.text||'';if(delta){answer+=delta;live.content=answer;renderMessages();}}catch{}}}}
  catch(error){if(error.name==='AbortError')stopped=true;else throw error;}
  finally{if(activeController===controller)activeController=null;messages=messages.filter(m=>m!==live);}
  return {answer:answer.trim(),stopped};
@@ -257,7 +257,7 @@ async function handleSiteCommand(text){
 }
 async function send(){
  if(!currentId||isSending)return;const input=$('prompt'),text=input.value.trim();if(!text)return;
- const wantsImage=imageMode||/(?:\\b(?:generate|create|draw|design|make|illustrate|paint)\\b.{0,70}\\b(?:image|picture|illustration|artwork|logo|wallpaper|avatar|icon|poster|banner)\\b|\\b(?:image|picture|illustration|artwork|logo|wallpaper|avatar|icon|poster|banner)\\b.{0,70}\\b(?:of|for|showing|with)\\b)/i.test(text);
+ const wantsImage=imageMode||/(?:\b(?:generate|create|draw|design|make|illustrate|paint)\b.{0,70}\b(?:image|picture|illustration|artwork|logo|wallpaper|avatar|icon|poster|banner)\b|\b(?:image|picture|illustration|artwork|logo|wallpaper|avatar|icon|poster|banner)\b.{0,70}\b(?:of|for|showing|with)\b)/i.test(text);
  isSending=true;$('send').disabled=true;$('send').hidden=true;$('stop').classList.remove('hidden');input.value='';
  try{
   await saveMessage('user',(wantsImage?'Create an image: ':'')+text);
@@ -278,7 +278,7 @@ async function regenerateLast(){
  const old=messages.slice(userIndex,assistantIndex+1);messages.splice(userIndex,assistantIndex-userIndex+1);
  if(user){for(const item of old){if(item.id)await db.from('elementor_messages').delete().eq('id',item.id).eq('conversation_id',currentId);}}
  else{if(guestChats[currentId]){guestChats[currentId].messages=messages;saveGuestChats();}}
- renderMessages();$('prompt').value=old.find(x=>x.role==='user')?.content?.replace(/^Create an image:\\s*/,'')||'';if(/^Create an image:/i.test(old.find(x=>x.role==='user')?.content||''))imageMode=true;await send();
+ renderMessages();$('prompt').value=old.find(x=>x.role==='user')?.content?.replace(/^Create an image:\s*/,'')||'';if(/^Create an image:/i.test(old.find(x=>x.role==='user')?.content||''))imageMode=true;await send();
 }
 async function openProfile(){
  if(!user)profile=JSON.parse(sessionStorage.getItem('elementor_guest_profile')||'null')||profile;$('displayName').value=profile.display_name||'Elementor';$('instructions').value=profile.instructions||'';$('responseStyle').value=profile.response_style||'balanced';$('avatarChoices').replaceChildren();
