@@ -43,7 +43,7 @@ export default {
   const validGuest=/^[a-f0-9-]{36}$/i.test(guestId);
   if(!user&&!validGuest)return json({error:"Start a guest session to use Elementor AI."},400);
   const clientIp=request.headers.get("CF-Connecting-IP")||"unknown";
-  const rateKey=user?"user:"+user.id:"guest:"+guestId+":"+clientIp;
+  const rateKey=user?"user:"+user.id:"guest-ip:"+clientIp;
   let body:any;try{body=await request.json();}catch{return json({error:"Invalid JSON"},400);}
   if(url.pathname==="/generate"){
     const prompt=String(body.prompt||"").trim();
