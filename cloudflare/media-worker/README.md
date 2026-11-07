@@ -24,21 +24,23 @@ The Backblaze application key should be restricted to this bucket and have read/
 
 All routes require a Supabase access token in the Authorization bearer header.
 
-- `POST /uploads/initiate` with `{ filename, contentType, sizeBytes }`
+- `GET /health` checks the configured private B2 bucket without exposing credentials or object names
+- `POST /uploads/initiate` with `{ filename, contentType, sizeBytes, visibility }` (`visibility` is `private` by default; use `public` only for content intended for public posts or published episodes)
 - `POST /uploads/:id/parts/:partNumber` with one binary part (32 MiB client chunks recommended)
 - `POST /uploads/:id/complete` with `{ parts: [{ partNumber, etag }] }`
 - `POST /uploads/:id/abort`
-- `GET /media/:id` streams a private object to its owner and supports byte-range playback
+- `GET /media/:id/signed-url` returns a one-hour signed playback URL for a `public` object
+- `GET /media/:id` streams an owner-authorized object or a public object with a valid temporary signature, and supports byte-range playback
 - `DELETE /media/:id` deletes only the signed-in user's object
 
-The browser never receives B2 credentials, object keys, or Supabase service-role credentials. The Worker checks the Supabase session and verifies ownership before reads, completion, aborts, or deletes.
+The browser never receives B2 credentials, object keys, or Supabase service-role credentials. The Worker checks the Supabase session and verifies ownership before uploads, private reads, completion, aborts, or deletes. Public playback is limited to objects explicitly marked `public` and uses HMAC-signed URLs that expire after one hour.
 
 ## Limits and safeguards
 
 - Uses S3-compatible multipart upload with a 32 MiB per-request part ceiling and up to 10,000 parts.
 - Non-final multipart parts must meet the S3 minimum part size (5 MiB).
 - The Worker buffers each incoming part (up to 32 MiB) to calculate the AWS Signature V4 payload hash before sending it to B2.
-- The bucket remains private; all object access is proxied through the authenticated Worker.
+- The bucket remains private; all object access is proxied through the Worker. Public media is not exposed through a public bucket URL.
 - There is no per-user storage quota in this initial service. Add abuse protection, monitoring, and billing alerts before opening uploads widely.
 
 ## Important integration note
