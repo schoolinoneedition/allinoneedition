@@ -10,3 +10,5 @@ bucket_name = "aio-media"
 [vars]
 APP_ORIGIN = "https://allinoneedition.vercel.app"
 SUPABASE_URL = "https://btnbuchsrfllpzlypjtn.supabase.co"
+
+previews = {}
