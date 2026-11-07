@@ -6,4 +6,8 @@ workers_dev = true
 [ai]
 binding = "AI"
 
+[vars]
+SUPABASE_URL = "https://btnbuchsrfllpzlypjtn.supabase.co"
+SUPABASE_ANON_KEY = "sb_publishable_a1gdNTiQdF9587p5K-Sw-Q_nFbvWRmp"
+
 previews = {}

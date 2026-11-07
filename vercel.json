@@ -5,6 +5,10 @@
       "destination": "https://btnbuchsrfllpzlypjtn.supabase.co/storage/v1/object/public/anime-episodes/:series/:season/:filename"
     },
     {
+      "source": "/elementor",
+      "destination": "/elementor.html"
+    },
+    {
       "source": "/login",
       "destination": "/index.html"
     },
