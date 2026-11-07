@@ -218,7 +218,52 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
  const STORE='aio.anime.watch.v1',THEME='aio.anime.theme.v1';
  const SUPABASE_URL='https://btnbuchsrfllpzlypjtn.supabase.co';
  const SUPABASE_KEY='sb_publishable_a1gdNTiQdF9587p5K-Sw-Q_nFbvWRmp';
+ const AIO_MEDIA_API='https://all-in-one-edition-media.plsgivemediscord981.workers.dev';
  const ownerClient=window.supabase?.createClient?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}):null;
+ async function aioMediaToken(){
+  const result=await ownerClient.auth.getSession(),token=result?.data?.session?.access_token;
+  if(!token)throw new Error('Your owner session expired. Sign in again.');
+  return token;
+ }
+ async function aioMediaUpload(file,visibility='public',onProgress=()=>{}){
+  const token=await aioMediaToken();
+  const request=async(path,options={})=>{
+   const response=await fetch(AIO_MEDIA_API+path,{...options,headers:{Authorization:'Bearer '+token,...(options.headers||{})}});
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok)throw new Error(data.error||'Media service request failed ('+response.status+').');
+   return data;
+  };
+  const init=await request('/uploads/initiate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({filename:file.name,contentType:file.type,sizeBytes:file.size,visibility})});
+  const partSize=Number(init.partSizeBytes)||32*1024*1024,parts=[];
+  try{
+   let partNumber=1,uploadedBytes=0;
+   for(let offset=0;offset<file.size;offset+=partSize,partNumber++){
+    const chunk=file.slice(offset,Math.min(file.size,offset+partSize));
+    const result=await request('/uploads/'+encodeURIComponent(init.uploadId)+'/parts/'+partNumber,{method:'POST',headers:{'Content-Type':'application/octet-stream','X-Part-Size':String(chunk.size)},body:chunk});
+    parts.push({partNumber,etag:result.etag});uploadedBytes+=chunk.size;onProgress(uploadedBytes,file.size);
+   }
+   await request('/uploads/'+encodeURIComponent(init.uploadId)+'/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parts})});
+   return {id:init.uploadId,url:AIO_MEDIA_API+'/media/'+init.uploadId};
+  }catch(error){try{await request('/uploads/'+encodeURIComponent(init.uploadId)+'/abort',{method:'POST'})}catch{}throw error;}
+ }
+ async function aioMediaSignedURL(raw){
+  const value=String(raw||'').trim();
+  try{
+   const url=new URL(value);
+   if(url.origin!==AIO_MEDIA_API||!/^\\/media\\/[0-9a-f-]{36}$/i.test(url.pathname))return value;
+   const response=await fetch(url.pathname+'/signed-url'),data=await response.json().catch(()=>({}));
+   if(!response.ok||!data.url)throw new Error(data.error||'Could not prepare this episode.');
+   return data.url;
+  }catch(error){throw error}
+ }
+ async function aioMediaDeleteById(id){
+  const token=await aioMediaToken(),response=await fetch(AIO_MEDIA_API+'/media/'+encodeURIComponent(id),{method:'DELETE',headers:{Authorization:'Bearer '+token}});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.error||'Could not remove the uploaded episode.');
+ }
+ function videoMediaId(raw){
+  try{const url=new URL(raw);return url.origin===AIO_MEDIA_API&&/^\\/media\\/[0-9a-f-]{36}$/i.test(url.pathname)?url.pathname.split('/').pop():null}catch{return null}
+ }
  let watched=readStore(),activeId='pokemon',activeSeason=0,activeWatchFilter='all',cartoonAutoPlay=true;
  let currentSession=null,siteOwner=false,episodeLinks=new Map(),selectedEpisode=null;
  function readStore(){try{const x=JSON.parse(localStorage.getItem(STORE)||'{}');return x&&typeof x==='object'?x:{}}catch{return {}}}
@@ -312,7 +357,8 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   if(url.protocol!=='https:'||url.username||url.password||url.port)throw new Error('Use a secure https:// video URL without login details or a custom port.');
   const host=url.hostname.toLowerCase(),path=url.pathname.toLowerCase();
   const onVercel=host==='allinoneedition.vercel.app'&&path.startsWith('/videos/');
-  if(!onVercel)throw new Error('Use a video URL under https://allinoneedition.vercel.app/videos/. Upload your file in the Video Upload Zone to create one.');
+  const onB2=url.origin===AIO_MEDIA_API&&/^\\/media\\/[0-9a-f-]{36}$/i.test(url.pathname);
+  if(!onVercel&&!onB2)throw new Error('Use a hosted All in One Edition video URL. Upload your file in the Video Upload Zone to create one.');
   if(!/\.(mp4|webm)$/i.test(url.pathname))throw new Error('The hosted video URL must end in .mp4 or .webm.');
   return url.href;
  }
@@ -385,8 +431,11 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   const result=await ownerClient.from('anime_episode_watch_links').upsert(row,{onConflict:'series_id,season_index,episode_number'});
   if(result.error)throw result.error;
   episodeLinks.set(mapKey,row);
-  const oldObject=['XBT Storage','Self-hosted video'].includes(previous?.provider)&&previous.watch_url!==watchUrl?videoObjectPath(previous.watch_url):null;
-  if(oldObject){try{await ownerClient.storage.from('anime-episodes').remove([oldObject])}catch{}}
+  if(['XBT Storage','Self-hosted video'].includes(previous?.provider)&&previous.watch_url!==watchUrl){
+   const oldMediaId=videoMediaId(previous.watch_url);
+   if(oldMediaId){try{await aioMediaDeleteById(oldMediaId)}catch{}}
+   else{const oldObject=videoObjectPath(previous.watch_url);if(oldObject){try{await ownerClient.storage.from('anime-episodes').remove([oldObject])}catch{}}}
+  }
   renderCatalog();
   const s=series.find(item=>item.id===row.series_id),ep=s?.seasons[row.season_index]?.episodes.find(item=>item.number===row.episode_number);
   if(s&&ep)renderPlayer(s,row.season_index,ep);
@@ -409,7 +458,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   const extension=(file.name.split('.').pop()||'').toLowerCase();
   const mimeOk=(extension==='mp4'&&file.type==='video/mp4')||(extension==='webm'&&file.type==='video/webm');
   if(!mimeOk){$('ownerLinkStatus').textContent='Choose a valid MP4 or WebM video file.';return}
-  if(file.size>50*1024*1024){$('ownerLinkStatus').textContent='This XBT Free-plan upload is over the 50 MB file limit. Host the file on your All in One Edition site and paste its direct URL instead.';return}
+  if(file.size>10*1024*1024*1024){$('ownerLinkStatus').textContent='This upload is over the 10 GB per-file limit.';return}
   const button=$('uploadEpisodeVideo');button.disabled=true;
   $('episodeUploadProgress').hidden=false;
   $('episodeUploadProgress').removeAttribute('value');
@@ -417,21 +466,23 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   const safeName=selectedEpisode.seriesId+'/'+(selectedEpisode.seasonIndex+1)+'/'+String(selectedEpisode.episodeNumber).padStart(3,'0')+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+extension;
   let uploadedPath=null;
   try{
-   const upload=await ownerClient.storage.from('anime-episodes').upload(safeName,file,{contentType:file.type,cacheControl:'31536000',upsert:false});
-   if(upload.error)throw upload.error;
-   uploadedPath=safeName;
-   const siteUrl='https://allinoneedition.vercel.app/videos/'+safeName.split('/').map(encodeURIComponent).join('/');
+   const uploaded=await aioMediaUpload(file,'public',(done,total)=>{
+    const progress=$('episodeUploadProgress');progress.max=100;progress.value=Math.round(done/total*100);
+    $('ownerLinkStatus').textContent='Uploading to private Backblaze storage… '+Math.round(done/total*100)+'%';
+   });
+   uploadedPath=uploaded.id;
+   const siteUrl=uploaded.url;
    await saveEpisodeVideoRow('Self-hosted video',siteUrl);
    $('episodeWatchUrl').value=siteUrl;
    $('hostedVideoUrl').value=siteUrl;
    $('openHostedVideoUrl').href=siteUrl;
    $('hostedVideoResult').hidden=false;
-   $('ownerLinkStatus').textContent='Uploaded. Your video is now hosted at your All in One Edition /videos/ address.';
+   $('ownerLinkStatus').textContent='Uploaded to Backblaze B2. Your episode is ready to play.';
    $('episodeVideoFile').value='';
    $('episodeUploadMeta').textContent='Upload complete · '+file.name;
    $('uploadEpisodeVideo').disabled=true;
   }catch(error){
-   if(uploadedPath){try{await ownerClient.storage.from('anime-episodes').remove([uploadedPath])}catch{}}
+   if(uploadedPath){try{await aioMediaDeleteById(uploadedPath)}catch{}}
    $('ownerLinkStatus').textContent='Upload failed: '+(error?.message||'Storage error.');
   }finally{$('episodeUploadProgress').hidden=true;button.disabled=!$('episodeVideoFile').files?.[0]}
  }
@@ -444,8 +495,11 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
    const result=await ownerClient.from('anime_episode_watch_links').delete().eq('series_id',selectedEpisode.seriesId).eq('season_index',selectedEpisode.seasonIndex).eq('episode_number',selectedEpisode.episodeNumber);
    if(result.error)throw result.error;
    episodeLinks.delete(mapKey);
-   const objectPath=existing?.provider==='Self-hosted video'?videoObjectPath(existing.watch_url):null;
-   if(objectPath){const removed=await ownerClient.storage.from('anime-episodes').remove([objectPath]);if(removed.error)throw removed.error}
+   if(existing?.provider==='Self-hosted video'){
+    const mediaId=videoMediaId(existing.watch_url);
+    if(mediaId)await aioMediaDeleteById(mediaId);
+    else{const objectPath=videoObjectPath(existing.watch_url);if(objectPath){const removed=await ownerClient.storage.from('anime-episodes').remove([objectPath]);if(removed.error)throw removed.error}}
+   }
    $('episodeWatchUrl').value='';$('ownerLinkStatus').textContent='Episode video removed.';
    renderCatalog();
    const s=series.find(item=>item.id===selectedEpisode.seriesId),ep=s?.seasons[selectedEpisode.seasonIndex]?.episodes.find(item=>item.number===selectedEpisode.episodeNumber);
@@ -510,7 +564,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   const frame=document.createElement('div');frame.className='watch-video-stage';
   const video=document.createElement('video');video.className='watch-video';video.dataset.videoSrc=saved.watch_url;video.preload='none';video.playsInline=true;video.controls=false;video.tabIndex=0;video.width=1280;video.height=720;video.setAttribute('aria-label',s.title+' '+ep.title);
   const overlay=document.createElement('button');overlay.type='button';overlay.className='watch-video-overlay';overlay.setAttribute('aria-label','Play episode');const overlayIcon=document.createElement('span');overlayIcon.textContent='▶';overlay.append(overlayIcon);
-  const toggle=async()=>{if(video.paused){if(video.dataset.sourceAttached!=='1'){video.preload='metadata';video.src=video.dataset.videoSrc;video.dataset.sourceAttached='1';video.load()}try{await video.play()}catch{$('playerNote').textContent='Playback could not start. Check that the video URL is reachable and supports MP4/WebM streaming.'}}else video.pause()};
+  const toggle=async()=>{if(video.paused){if(video.dataset.sourceAttached!=='1'){video.preload='metadata';try{video.src=await aioMediaSignedURL(video.dataset.videoSrc);video.dataset.sourceAttached='1';video.load()}catch(error){$('playerNote').textContent=error?.message||'Could not prepare this episode.';return}}try{await video.play()}catch{$('playerNote').textContent='Playback could not start. Check the video URL and try again.'}}else video.pause()};
   video.addEventListener('click',toggle);
   video.addEventListener('keydown',event=>{if(event.code==='Space'||event.code==='Enter'){event.preventDefault();toggle()}});
   overlay.addEventListener('click',event=>{event.stopPropagation();toggle()});
