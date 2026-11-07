@@ -9,6 +9,10 @@
       "destination": "/elementor.html"
     },
     {
+      "source": "/elementor/",
+      "destination": "/elementor.html"
+    },
+    {
       "source": "/login",
       "destination": "/index.html"
     },
