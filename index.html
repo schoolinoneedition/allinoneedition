@@ -541,15 +541,15 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
    <div class="brandmark"><img src="./favicon.svg" alt="" width="38" height="38"></div>
    <div class="brandtext">All in One Edition</div><div class="owner">Roy owner</div>
   </div>
-  <div class="search"><input id="search" autocomplete="off" placeholder="Search games… ( / )" aria-label="Search games"></div>
-  <button class="btn quick-launch-trigger" id="quickLaunchOpen" type="button" aria-haspopup="dialog" aria-controls="aioQuickLaunch">Quick open <kbd>Ctrl K</kbd></button>
-  <button class="btn" id="assistantBtn" type="button" onclick="openAssistant()">Smart answer</button><button class="btn account-btn" id="accountBtn" type="button" onclick="handleAccountClick()"><span class="account-avatar" id="accountAvatar">?</span><span id="accountLabel">Account</span></button><span class="aio-live-clock" id="aioLiveClock" aria-label="Current local time">00:00</span><button class="btn" id="settingsBtn">Settings</button><select class="lang-select" id="languageSelect" aria-label="Language"><option value="en">EN</option><option value="es">ES</option><option value="fr">FR</option><option value="de">DE</option><option value="pl">PL</option><option value="pt">PT</option><option value="tr">TR</option><option value="ar">AR</option><option value="it">IT</option><option value="nl">NL</option><option value="ja">JA</option><option value="ko">KO</option></select><button class="btn" id="darkBtn">Dark</button><button class="btn" id="afkBtn" title="Pause your current game and enter AFK mode">AFK</button><button class="btn" id="hideBtn">Hide</button>
+  <div class="search"><input id="search" autocomplete="off" placeholder="Search games, tools, pages… ( / )" aria-label="Search games, tools and pages"></div>
+  <button class="btn quick-launch-trigger" id="quickLaunchOpen" type="button" aria-haspopup="dialog" aria-controls="aioQuickLaunch">Quick open <kbd>Ctrl K</kbd></button><button class="btn" id="aiSearchOpen" type="button" aria-haspopup="dialog" aria-controls="aioAiSearch">AI Search</button>
+  <button class="btn" id="assistantBtn" type="button" onclick="openAssistant()">Elementor AI</button><button class="btn account-btn" id="accountBtn" type="button" onclick="handleAccountClick()"><span class="account-avatar" id="accountAvatar">?</span><span id="accountLabel">Account</span></button><span class="aio-live-clock" id="aioLiveClock" aria-label="Current local time">00:00</span><button class="btn" id="settingsBtn">Settings</button><select class="lang-select" id="languageSelect" aria-label="Language"><option value="en">EN</option><option value="es">ES</option><option value="fr">FR</option><option value="de">DE</option><option value="pl">PL</option><option value="pt">PT</option><option value="tr">TR</option><option value="ar">AR</option><option value="it">IT</option><option value="nl">NL</option><option value="ja">JA</option><option value="ko">KO</option></select><button class="btn" id="darkBtn">Dark</button><button class="btn" id="afkBtn" title="Pause your current game and enter AFK mode">AFK</button><button class="btn" id="hideBtn">Hide</button>
  </div>
  <div class="nav"><button data-scroll="home">Home</button><button data-scroll="games">Games</button><button data-scroll="school">School</button><button type="button" onclick="location.href='social.html'">Social</button><button type="button" onclick="location.href='anime.html'">Watch</button><button type="button" onclick="location.href='study.html'">Study Hub</button><button data-scroll="community">Community</button><button data-scroll="chat">Chat</button><button data-scroll="live">Live</button><button data-scroll="tools">Tools</button><button data-scroll="notes">Notes</button><button data-scroll="music">Music</button><button data-scroll="code">Code Lab</button></div>
 </header>
 <main id="app">
 <section id="home" class="hero">
- <div class="hero-card"><h1>One site. Games, school, tools and live info.</h1><p>A fast single-file hub. Game covers use lazy loading and a game iframe only starts after you click a card.</p><div class="chips"><button class="chip" onclick="scrollToId('games')">Browse games</button><button class="chip" onclick="scrollToId('school')">School apps</button><button class="chip" onclick="scrollToId('community')">Community</button><button class="chip" onclick="scrollToId('live')">Live info</button><button class="chip" onclick="scrollToId('tools')">Useful tools</button><button class="chip" onclick="location.href='study.html'">Open Study Hub</button><button class="chip" onclick="location.href='anime.html'">Anime Zone</button><button class="chip" onclick="openAssistant()">Ask smart answer</button></div><p style="margin-top:15px"><span class="kbd">Ctrl+Q</span> toggles page hiding where the browser allows the shortcut. The Hide button is always available.</p></div>
+ <div class="hero-card"><h1>One site. Games, school, tools and live info.</h1><p>A fast single-file hub. Game covers use lazy loading and a game iframe only starts after you click a card.</p><div class="chips"><button class="chip" onclick="scrollToId('games')">Browse games</button><button class="chip" onclick="scrollToId('school')">School apps</button><button class="chip" onclick="scrollToId('community')">Community</button><button class="chip" onclick="scrollToId('live')">Live info</button><button class="chip" onclick="scrollToId('tools')">Useful tools</button><button class="chip" onclick="location.href='study.html'">Open Study Hub</button><button class="chip" onclick="location.href='anime.html'">Anime Zone</button><button class="chip" onclick="openAssistant()">Ask Elementor</button></div><p style="margin-top:15px"><span class="kbd">Ctrl+Q</span> toggles page hiding where the browser allows the shortcut. The Hide button is always available.</p></div>
  <div class="quick"><div class="qcard"><div class="k">Hometime</div><div class="v" id="homeCountdown">--:--:--</div></div><div class="qcard"><div class="k">Current time</div><div class="v" id="clock">--:--:--</div></div><div class="qcard"><div class="k">Today</div><div class="v" id="date">Loading…</div></div><div class="qcard"><div class="k">Game count</div><div class="v" id="gameCount">—</div></div></div>
 </section>
 <section class="section" id="continueSection"><div class="section-head"><h2>Continue playing</h2><small>Your recent game progress stays on this device.</small></div><div id="resumePanel" class="resume-panel panel"><div><strong>No game started yet.</strong><span>Open a game and your last-played progress will appear here.</span></div><button class="btn mini" onclick="continueLastGame()">Continue</button></div></section>
@@ -772,7 +772,7 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
 <div id="aioQuickLaunch" class="aio-command-backdrop" hidden aria-hidden="true">
   <section class="aio-command-dialog" role="dialog" aria-modal="true" aria-labelledby="aioCommandTitle">
     <div class="aio-command-head"><span class="aio-command-mark">A</span><span class="aio-command-head-copy"><strong id="aioCommandTitle">Quick Launch</strong><small>Jump anywhere in All in One Edition</small></span><kbd>ESC</kbd></div>
-    <div class="aio-command-input-wrap"><input id="aioCommandInput" type="search" autocomplete="off" spellcheck="false" placeholder="Search pages, tools or games…" aria-label="Search pages, tools or games"></div>
+    <div class="aio-command-input-wrap"><input id="aioCommandInput" type="search" autocomplete="off" spellcheck="false" placeholder="Search pages and tools, or open AI Search…" aria-label="Search pages, tools or games"></div>
     <div id="aioCommandResults" class="aio-command-results" role="listbox" aria-label="Quick launch results"></div>
     <div class="aio-command-foot"><span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span><span><kbd>↵</kbd> Open</span><span><kbd>Ctrl</kbd><kbd>K</kbd> Toggle</span></div>
   </section>
@@ -802,7 +802,7 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
     {label:'Code Lab',detail:'Open the HTML, CSS and JavaScript editor',icon:'</>',group:'Pages',run:()=>scrollToId('code')},
     {label:'Settings',detail:'Personalisation, themes and preferences',icon:'⚙',group:'Actions',run:()=>document.getElementById('settingsBtn')?.click()},
     {label:'A-Coins & Quests',detail:'View rewards, quests and game shop',icon:'◈',group:'Actions',run:()=>window.openAioEconomy?.()},
-    {label:'Random game',detail:'Launch a random game from the library',icon:'⤨',group:'Actions',run:()=>{if(typeof GAMES!=='undefined'&&GAMES.length&&typeof openGame==='function')openGame(Math.floor(Math.random()*GAMES.length));else scrollToId('games')}}
+    {label:'AI Search',detail:'Search the curated public catalogue',icon:'⌕',group:'Actions',run:()=>document.getElementById('aiSearchOpen')?.click()}
   ];
   function makeOption(item,index){
     const button=document.createElement('button');
@@ -828,15 +828,10 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
   function render(){
     const query=input.value.trim().toLowerCase();
     let base=commands.filter(item=>(item.label+' '+item.detail).toLowerCase().includes(query));
-    if(typeof GAMES!=='undefined'&&Array.isArray(GAMES)&&query){
-      const games=GAMES.map((game,index)=>({game,index})).filter(x=>(String(x.game.name||'')+' '+String(x.game.cat||'')).toLowerCase().includes(query)).slice(0,8)
-      .map(x=>({label:x.game.name,detail:(x.game.cat||'Game')+' · Open in the game player',icon:'🎮',group:'Game',run:()=>{scrollToId('games');openGame(x.index)}}));
-      base=base.concat(games);
-    }
     visible=base;
     selected=Math.max(0,Math.min(selected,visible.length-1));
     results.replaceChildren();
-    if(!visible.length){const empty=document.createElement('div');empty.className='aio-command-empty';empty.textContent='No matching pages, tools or games. Try a shorter search.';results.append(empty);return}
+    if(!visible.length){const empty=document.createElement('div');empty.className='aio-command-empty';empty.textContent='No matching pages or tools. Try a shorter search.';results.append(empty);return}
     let lastGroup='';
     visible.forEach((item,index)=>{
       if(item.group!==lastGroup){const heading=document.createElement('div');heading.className='aio-command-group';heading.textContent=item.group;results.append(heading);lastGroup=item.group}
@@ -877,15 +872,15 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
 })();
 </script></body>
 </html></textarea><iframe id="codePreview" class="preview" sandbox="allow-scripts"></iframe></div></div></section>
-<section class="section"><div class="section-head"><h2>Smart answer</h2><small>Chat-style helper — fast and local.</small></div><div class="panel chatbox" id="assistantChat"></div><div class="assistant-actions"><button class="chip" onclick="smartQuick('What time is it?')">What time is it?</button><button class="chip" onclick="smartQuick('Play Crossy Road')">Play a game</button><button class="chip" onclick="smartQuick('Make a sticky note that says test')">Make a note</button><button class="chip" onclick="smartQuick('Open settings')">Settings</button></div><div class="chatcomposer"><input id="assistantInput" autocomplete="off" placeholder="Message Smart answer…"><button class="btn mini primary" id="assistantSend">Send</button></div></section>
+<section class="section"><div class="section-head"><h2>Elementor AI</h2><small>Your AI assistant for All in One Edition.</small></div><div class="panel chatbox" id="assistantChat"></div><div class="assistant-actions"><button class="chip" onclick="smartQuick('What time is it?')">What time is it?</button><button class="chip" onclick="smartQuick('Play Crossy Road')">Play a game</button><button class="chip" onclick="smartQuick('Make a sticky note that says test')">Make a note</button><button class="chip" onclick="smartQuick('Open settings')">Settings</button></div><div class="chatcomposer"><input id="assistantInput" autocomplete="off" placeholder="Message Elementor…"><button class="btn mini primary" id="assistantSend">Send</button></div></section>
 </main>
 <footer>All in One Edition · Roy owner · Single-file front end. Game library · fast loading · saved progress · more games</footer>
 <div class="modal" id="gameModal"><div class="modalbox" id="gameModalBox"><div class="modalhead"><div style="display:flex;flex-direction:column;gap:2px"><strong id="modalTitle">Game</strong><small id="liveGamePlayers" class="muted" style="font-size:10px">Live players · —</small></div><div class="modal-actions"><span id="gameLoadStatus" class="muted" style="font-size:10px;align-self:center">Loading…</span><button class="btn mini" id="reloadGameBtn" onclick="reloadGame()">Reload</button><button class="btn mini" id="newTabGameBtn" onclick="openCurrentGameNewTab()">Open</button><button class="btn mini primary" id="fsBtn" onclick="fullscreenGame()">Fullscreen</button><button class="btn mini" id="modalAfkBtn" onclick="enterAFK()">AFK</button><button class="btn mini" onclick="closeGame()">Close</button></div></div><div class="progressbarbox"><div><strong>Game progress</strong><span id="progressLabel">0%</span></div><input id="progressRange" type="range" min="0" max="100" value="0" oninput="saveCurrentProgress()"><div class="progress-actions"><button class="btn mini" onclick="setGameProgress(0)">Reset</button><button class="btn mini" onclick="setGameProgress(100)">Mark complete</button><span class="muted" id="playCountLabel">0 plays</span></div></div><div class="modalnote" id="modalNote">Your hub progress is saved on this device. Games that support their own saves can keep their internal save separately.</div><div id="gameStage" class="game-stage"><iframe id="gameFrame" class="gameframe" referrerpolicy="no-referrer-when-downgrade" allow="fullscreen; autoplay; encrypted-media; gamepad; clipboard-read; clipboard-write" allowfullscreen></iframe><div id="gameLoading" class="game-loading-note" style="position:absolute;inset:0;display:grid;place-items:center;background:#000;color:#fff;z-index:2">Loading game…</div><div class="game-float-controls">
   <button class="game-float-btn" id="gameMuteBtn" type="button" onclick="toggleGameMute()" title="Mute game audio" aria-label="Mute game audio" aria-pressed="false"><span id="gameMuteIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Z" fill="currentColor"/><path d="M16 9.2a4.7 4.7 0 0 1 0 5.6M18.6 6.6a8.5 8.5 0 0 1 0 10.8" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg></span></button>
 </div><div id="gameError" class="game-error"><div class="game-error-card"><h3>Game did not load in the embedded window</h3><p id="gameErrorText">The game host may block embedding, or the URL may have changed.</p><div class="game-error-actions"><button class="btn mini primary" onclick="reloadGame()">Try again</button><button class="btn mini" onclick="openCurrentGameNewTab()">Open game page</button></div></div></div></div></div></div>
 <div class="modal" id="schoolModal"><div class="modalbox"><div class="modalhead"><strong id="schoolTitle">School app</strong><button class="btn mini" onclick="schoolExternal()">Open new tab</button><button class="btn mini" onclick="closeSchool()">Close</button></div><div class="modalnote">Some providers block iframes; the external button always uses the provider's own page.</div><iframe id="schoolFrame" class="gameframe" sandbox="allow-forms allow-same-origin allow-scripts allow-popups allow-top-navigation-by-user-activation"></iframe></div></div>
-<div class="modal" id="assistantModal"><div class="modalbox" style="width:min(760px,100%);height:min(680px,92vh)"><div class="modalhead"><strong>Smart answer</strong><button class="btn mini" onclick="closeAssistant()">Close</button></div><div class="chatbox modal-chat" id="assistantModalChat"></div><div class="chatcomposer"><input id="assistantModalInput" placeholder="Message Smart answer…"><button class="btn mini primary" onclick="answerModalQuestion()">Send</button></div></div></div>
-<div class="modal" id="settingsModal"><div class="modalbox settings-box"><div class="modalhead"><strong>Settings</strong><button class="btn mini" onclick="closeSettings()">Close</button></div><div class="settings-body"><div class="setting-row aio-setup-setting-row"><div><strong>Personalisation · Setup tutorial</strong><span>Replay the guided setup, or reset its completion state so it starts fresh next time.</span></div><div class="aio-setup-setting-actions"><button class="btn mini primary" type="button" onclick="window.openAioOnboarding?.()">Replay setup</button><button class="btn mini" type="button" onclick="window.resetAioOnboarding?.()">Reset tutorial</button></div></div><div class="setting-row"><div><strong>Game progress controls</strong><span>Shows the progress slider, reset and complete buttons inside the game player.</span></div><label class="switch"><input id="progressControlsToggle" type="checkbox"><span></span></label></div><div class="setting-row"><div><strong>Progress on game cards</strong><span>Shows saved percentage strips and percentages on cards.</span></div><label class="switch"><input id="progressCardsToggle" type="checkbox"><span></span></label></div><div class="setting-row"><div><strong>Remember Smart answer chat</strong><span>Keep the last 40 local messages after refresh.</span></div><label class="switch"><input id="chatHistoryToggle" type="checkbox" checked><span></span></label></div><div class="setting-row"><div><strong>Show animated intro</strong><span>Play the game-card intro whenever the site loads.</span></div><label class="switch"><input id="introToggle" type="checkbox" checked><span></span></label></div><div class="setting-row"><div><strong>AFK mode</strong><span>Pause your current game as far as the embedded game allows and show a full-screen shuffled game wall. Click Resume when you return.</span></div><button class="btn mini" onclick="enterAFK();closeSettings()">Start AFK</button></div><div class="setting-row"><div><strong>On-demand loading</strong><span>Game artwork loads as cards appear. Game pages and videos only download when you open or view them, saving bandwidth in the background.</span></div><span class="muted">Always on</span></div><div class="setting-row"><div><strong>Persistent browser storage</strong><span>Ask the browser to keep this site's local data and caches around longer when supported.</span></div><button class="btn mini" onclick="requestPersistentStorage()">Enable</button></div><div class="setting-row"><div><strong>Reduced motion</strong><span>Reduce loaders, hover movement and transitions.</span></div><label class="switch"><input id="reducedMotionToggle" type="checkbox"><span></span></label></div><div class="setting-row"><div><strong>Clear saved game hub progress</strong><span>Removes the hub play count, progress and continue data.</span></div><button class="btn mini" onclick="clearGameProgress()">Clear</button></div><div class="settings-help"><strong>Smart answer commands</strong><p>Try “play Monkey Mart”, “make a sticky note called homework that says do maths”, “change language to Spanish”, “what time is it?”, “25 times 8”, “open settings”, “show progress”, “hide progress”, “dark mode”, “mute game”, “loop Spotify”, or “continue my last game”.</p><div class="cache-status" id="cacheStatus">On-demand loading is active. Nothing is bulk-downloaded while the hub is idle.</div></div></div></div></div>
+<div class="modal" id="assistantModal"><div class="modalbox" style="width:min(760px,100%);height:min(680px,92vh)"><div class="modalhead"><strong>Elementor</strong><button class="btn mini" onclick="closeAssistant()">Close</button></div><div class="aio-ai-modes" style="margin:10px 0"><button type="button" data-elementor-mode="chat" aria-pressed="true" onclick="setElementorMode('chat')">Chat</button><button type="button" data-elementor-mode="images" aria-pressed="false" onclick="setElementorMode('images')">Create image</button></div><div id="elementorChatPanel" style="display:flex;flex-direction:column;flex:1;min-height:0"><div class="chatbox modal-chat" id="assistantModalChat"></div><div class="chatcomposer"><input id="assistantModalInput" placeholder="Message Elementor…"><button class="btn mini primary" onclick="answerModalQuestion()">Send</button></div></div><section id="elementorImagePanel" hidden style="padding:12px;overflow:auto"><p class="muted">Describe an image and Elementor will create it. Image generation uses Cloudflare Workers AI; usage may be billed to the site owner.</p><textarea id="elementorImagePrompt" maxlength="1200" rows="4" placeholder="A cosy pixel-art island at sunset…" style="width:100%;resize:vertical"></textarea><div style="display:flex;justify-content:flex-end;margin:10px 0"><button class="btn mini primary" id="elementorGenerateImage" type="button" onclick="generateElementorImage()">Generate image</button></div><div id="elementorImageStatus" role="status" class="muted"></div><div id="elementorImageOutput"></div></section></div></div>
+<div class="modal" id="settingsModal"><div class="modalbox settings-box"><div class="modalhead"><strong>Settings</strong><button class="btn mini" onclick="closeSettings()">Close</button></div><div class="settings-body"><div class="setting-row aio-setup-setting-row"><div><strong>Personalisation · Setup tutorial</strong><span>Replay the guided setup, or reset its completion state so it starts fresh next time.</span></div><div class="aio-setup-setting-actions"><button class="btn mini primary" type="button" onclick="window.openAioOnboarding?.()">Replay setup</button><button class="btn mini" type="button" onclick="window.resetAioOnboarding?.()">Reset tutorial</button></div></div><div class="setting-row"><div><strong>Game progress controls</strong><span>Shows the progress slider, reset and complete buttons inside the game player.</span></div><label class="switch"><input id="progressControlsToggle" type="checkbox"><span></span></label></div><div class="setting-row"><div><strong>Progress on game cards</strong><span>Shows saved percentage strips and percentages on cards.</span></div><label class="switch"><input id="progressCardsToggle" type="checkbox"><span></span></label></div><div class="setting-row"><div><strong>Remember Elementor chat</strong><span>Keep the last 40 local messages after refresh.</span></div><label class="switch"><input id="chatHistoryToggle" type="checkbox" checked><span></span></label></div><div class="setting-row"><div><strong>Show animated intro</strong><span>Play the game-card intro whenever the site loads.</span></div><label class="switch"><input id="introToggle" type="checkbox" checked><span></span></label></div><div class="setting-row"><div><strong>AFK mode</strong><span>Pause your current game as far as the embedded game allows and show a full-screen shuffled game wall. Click Resume when you return.</span></div><button class="btn mini" onclick="enterAFK();closeSettings()">Start AFK</button></div><div class="setting-row"><div><strong>On-demand loading</strong><span>Game artwork loads as cards appear. Game pages and videos only download when you open or view them, saving bandwidth in the background.</span></div><span class="muted">Always on</span></div><div class="setting-row"><div><strong>Persistent browser storage</strong><span>Ask the browser to keep this site's local data and caches around longer when supported.</span></div><button class="btn mini" onclick="requestPersistentStorage()">Enable</button></div><div class="setting-row"><div><strong>Reduced motion</strong><span>Reduce loaders, hover movement and transitions.</span></div><label class="switch"><input id="reducedMotionToggle" type="checkbox"><span></span></label></div><div class="setting-row"><div><strong>Clear saved game hub progress</strong><span>Removes the hub play count, progress and continue data.</span></div><button class="btn mini" onclick="clearGameProgress()">Clear</button></div><div class="settings-help"><strong>Elementor commands</strong><p>Try “play Monkey Mart”, “make a sticky note called homework that says do maths”, “change language to Spanish”, “what time is it?”, “25 times 8”, “open settings”, “show progress”, “hide progress”, “dark mode”, “mute game”, “loop Spotify”, or “continue my last game”.</p><div class="cache-status" id="cacheStatus">On-demand loading is active. Nothing is bulk-downloaded while the hub is idle.</div></div></div></div></div>
 
 <div class="modal" id="authModal"><div class="modalbox" style="width:min(560px,100%);height:auto"><div class="modalhead"><strong id="authTitle">Create account</strong><button class="btn mini" onclick="closeAuth()">Close</button></div><div style="padding:16px"><div class="inline" style="margin-top:0"><button id="authSignTab" class="btn mini primary" onclick="switchAuthMode('signup')">Sign up</button><button id="authLoginTab" class="btn mini" onclick="switchAuthMode('signin')">Sign in</button></div><input id="authUsername" class="social-input" style="margin-top:10px" placeholder="Username" autocomplete="nickname"><input id="authEmail" class="social-input" style="margin-top:8px" placeholder="Email" autocomplete="email"><input id="authPassword" class="social-input" style="margin-top:8px" type="password" placeholder="Password" autocomplete="current-password"><button id="authSubmitBtn" class="btn primary" style="width:100%;margin-top:10px" onclick="submitAuth()">Continue</button><button class="btn mini" style="width:100%;margin-top:7px" type="button" onclick="resetAccountPassword()">Forgot password?</button><div id="authStatus" class="assistant-answer" style="min-height:45px"></div></div></div></div>
 <div class="modal" id="profileModal"><div class="modalbox" style="width:min(560px,100%);height:auto"><div class="modalhead"><strong>Edit profile</strong><button class="btn mini" onclick="closeProfileEditor()">Close</button></div><div style="padding:16px"><input id="profileEditName" class="social-input" placeholder="Username"><input id="profileEditAvatar" class="social-input" style="margin-top:8px" placeholder="Avatar image URL (optional)"><label class="tiny-status" for="profileEditAvatarFile" style="display:block;margin-top:10px">Or upload a profile picture</label><input id="profileEditAvatarFile" type="file" accept="image/png,image/jpeg,image/webp" class="social-input" style="height:auto;padding:8px;margin-top:5px"><div class="tiny-status" style="margin-top:5px">JPG, PNG or WebP · up to 5 MB. Resized before saving.</div><button class="btn primary" style="margin-top:10px" onclick="saveProfileEditor()">Save profile</button><div id="profileEditStatus" class="assistant-answer" style="min-height:40px"></div></div></div></div>
@@ -1015,7 +1010,7 @@ function cardHTML(g,i){
 
 const MUSIC_TITLES={en:'Music streamer',es:'Reproductor de música',fr:'Lecteur de musique',de:'Musik-Player',pl:'Odtwarzacz muzyki',pt:'Leitor de música',tr:'Müzik oynatıcı',ar:'مشغل الموسيقى',it:'Lettore musicale',nl:'Muziekspeler',ja:'音楽プレーヤー',ko:'음악 플레이어'};
 const I18N={
- en:{assistant:'Smart answer',settings:'Settings',dark:'Dark',light:'Light',hide:'Hide',show:'Show',home:'Home',games:'Games',school:'School',live:'Live',tools:'Tools',notes:'Notes',code:'Code Lab',hero:'One site. Games, school, tools and live info.',heroSub:'A fast single-file hub. Game covers lazy-load, and a game iframe only starts after you click a card.',browse:'Browse games',schoolApps:'School apps',liveInfo:'Live info',useful:'Useful tools',ask:'Ask smart answer',continueTitle:'Continue playing',continueSub:'Your recent game progress stays on this device.',gamesSub:'Fast games, quick search, saved progress',schoolSub:'In-page workspace with an external fallback.',liveTitle:'Live news & recent football',toolsTitle:'Useful things',notesTitle:'Sticky notes & to-do',codeTitle:'Code Lab'},
+ en:{assistant:'Elementor',settings:'Settings',dark:'Dark',light:'Light',hide:'Hide',show:'Show',home:'Home',games:'Games',school:'School',live:'Live',tools:'Tools',notes:'Notes',code:'Code Lab',hero:'One site. Games, school, tools and live info.',heroSub:'A fast single-file hub. Game covers lazy-load, and a game iframe only starts after you click a card.',browse:'Browse games',schoolApps:'School apps',liveInfo:'Live info',useful:'Useful tools',ask:'Ask Elementor',continueTitle:'Continue playing',continueSub:'Your recent game progress stays on this device.',gamesSub:'Fast games, quick search, saved progress',schoolSub:'In-page workspace with an external fallback.',liveTitle:'Live news & recent football',toolsTitle:'Useful things',notesTitle:'Sticky notes & to-do',codeTitle:'Code Lab'},
  es:{assistant:'Respuesta inteligente',settings:'Ajustes',dark:'Oscuro',light:'Claro',hide:'Ocultar',show:'Mostrar',home:'Inicio',games:'Juegos',school:'Colegio',live:'En vivo',tools:'Herramientas',notes:'Notas',code:'Laboratorio',hero:'Un sitio. Juegos, colegio, herramientas e información en directo.',heroSub:'Centro rápido en un solo archivo. Las portadas cargan de forma diferida y el juego empieza al hacer clic.',browse:'Ver juegos',schoolApps:'Apps escolares',liveInfo:'En vivo',useful:'Herramientas útiles',ask:'Preguntar',continueTitle:'Continuar jugando',continueSub:'Tu progreso reciente se guarda en este dispositivo.',gamesSub:'Juegos rápidos, búsqueda y progreso guardado',schoolSub:'Espacio dentro de la página con alternativa externa.',liveTitle:'Noticias en directo y fútbol reciente',toolsTitle:'Cosas útiles',notesTitle:'Notas y tareas',codeTitle:'Laboratorio de código'},
  fr:{assistant:'Réponse intelligente',settings:'Réglages',dark:'Sombre',light:'Clair',hide:'Masquer',show:'Afficher',home:'Accueil',games:'Jeux',school:'École',live:'Direct',tools:'Outils',notes:'Notes',code:'Code',hero:'Un site. Jeux, école, outils et infos en direct.',heroSub:'Un hub rapide dans un seul fichier. Les couvertures se chargent à la demande.',browse:'Parcourir les jeux',schoolApps:'Apps scolaires',liveInfo:'Direct',useful:'Outils utiles',ask:'Demander',continueTitle:'Continuer à jouer',continueSub:'Ta progression récente reste sur cet appareil.',gamesSub:'Jeux rapides, recherche et progression sauvegardée',schoolSub:'Espace intégré avec option externe.',liveTitle:'Actualités en direct et football récent',toolsTitle:'Outils utiles',notesTitle:'Notes et tâches',codeTitle:'Laboratoire de code'},
  de:{assistant:'Intelligente Antwort',settings:'Einstellungen',dark:'Dunkel',light:'Hell',hide:'Ausblenden',show:'Anzeigen',home:'Start',games:'Spiele',school:'Schule',live:'Live',tools:'Werkzeuge',notes:'Notizen',code:'Code-Labor',hero:'Eine Seite. Spiele, Schule, Werkzeuge und Live-Infos.',heroSub:'Schneller Hub in einer Datei. Bilder werden verzögert geladen.',browse:'Spiele durchsuchen',schoolApps:'Schul-Apps',liveInfo:'Live-Info',useful:'Nützliche Werkzeuge',ask:'Frage stellen',continueTitle:'Weiterspielen',continueSub:'Dein letzter Spielfortschritt bleibt auf diesem Gerät.',gamesSub:'Schnelle Spiele, Suche und gespeicherter Fortschritt',schoolSub:'Integrierter Bereich mit externer Alternative.',liveTitle:'Live-Nachrichten und aktuelle Fußballspiele',toolsTitle:'Nützliche Dinge',notesTitle:'Notizen & Aufgaben',codeTitle:'Code-Labor'},
@@ -1030,12 +1025,12 @@ const I18N={
 };
 function applyLanguage(lang){const t=I18N[lang]||I18N.en;storage.setItem('aio-lang',lang);document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';const set=(id,key)=>{const e=$(id);if(e&&t[key]!=null)e.textContent=t[key]};set('assistantBtn','assistant');set('settingsBtn','settings');set('darkBtn',document.documentElement.classList.contains('dark')?'light':'dark');set('hideBtn',hidden?'show':'hide');document.querySelectorAll('.nav button').forEach((b,i)=>{const k=['home','games','school','social','community','chat','live','tools','notes','music','code'][i];if(t[k])b.textContent=t[k];else if(k==='music')b.textContent='Music'});const h=document.querySelector('#home h1');if(h)h.textContent=t.hero;const hp=document.querySelector('#home .hero-card p');if(hp)hp.textContent=t.heroSub;const chips=document.querySelectorAll('#home .chip');if(chips[0])chips[0].textContent=t.browse;if(chips[1])chips[1].textContent=t.schoolApps;if(chips[2])chips[2].textContent=t.liveInfo;if(chips[3])chips[3].textContent=t.useful;if(chips[4])chips[4].textContent=t.ask;const hs=document.querySelector('#continueSection h2');if(hs)hs.textContent=t.continueTitle;const hss=document.querySelector('#continueSection small');if(hss)hss.textContent=t.continueSub;const gs=document.querySelector('#games h2');if(gs)gs.textContent=t.games;const gss=document.querySelector('#games .section-head small');if(gss)gss.textContent=t.gamesSub;const sh=document.querySelector('#school h2');if(sh)sh.textContent=t.schoolApps;const liveh=document.querySelector('#live h2');if(liveh)liveh.textContent=t.liveTitle;const th=document.querySelector('#tools h2');if(th)th.textContent=t.toolsTitle;const nh=document.querySelector('#notes h2');if(nh)nh.textContent=t.notesTitle;const ch=document.querySelector('#code h2');if(ch)ch.textContent=t.codeTitle;const mh=document.querySelector('#music h2');if(mh)mh.textContent=MUSIC_TITLES[lang]||'Music streamer';const search=$('search');if(search)search.placeholder=t.games+', '+t.tools+', '+t.schoolApps+'...  ( / )';const sel=$('languageSelect');if(sel)sel.value=lang}function initLanguage(){const lang=storage.getItem('aio-lang')||'en';applyLanguage(lang);$('languageSelect')?.addEventListener('change',e=>applyLanguage(e.target.value))}
 let visibleLimit=48;let currentFiltered=[];function renderFilters(){const filters=['All','New','Favourites',...CATEGORIES.filter(c=>c!=='All')];const favouriteCount=GAMES.filter(g=>favouriteGames.has(gameKey(g))).length;$('filters').innerHTML=filters.map(c=>{const label=c==='Favourites'?'★ Favourites ('+favouriteCount+')':esc(c);return `<button class="filter ${c===activeCat?'active':''}" onclick='setCat(${JSON.stringify(c)})'>${label}</button>`}).join('')}
-function filteredGames(){let q=$('search').value.trim().toLowerCase();let list=GAMES.map((g,i)=>({g,i})).filter(x=>{const matchesCategory=activeCat==='All'||(activeCat==='New'?x.g.source==='Mashukui Web Games':activeCat==='Favourites'?favouriteGames.has(gameKey(x.g)):x.g.cat===activeCat);return matchesCategory&&(!safeMode||!['Horror','Adventure'].includes(x.g.cat))&&(!q||x.g.name.toLowerCase().includes(q)||x.g.cat.toLowerCase().includes(q))});if(activeCat==='All'&&!q)list.sort((a,b)=>{const rank=x=>/featured/i.test(x.g.tag)?0:/popular/i.test(x.g.tag)?1:2;return rank(a)-rank(b)||a.i-b.i});return list;}
+function filteredGames(){const q=$('search').value.trim().toLowerCase();const aliases={'brain teaser':'puzzle','brain games':'puzzle','thinking games':'puzzle','word games':'word','typing games':'word','memory games':'memory','driving games':'racing','car games':'racing','football games':'sports','soccer games':'sports','2 player':'multiplayer','two player':'multiplayer','relaxing games':'casual','school games':'educational'};const expanded=aliases[q]||q;const cleaned=expanded.replace(/\b(find|show|me|some|best|top|good|recommend|please|any|games?|for|a|an|the|with)\b/g,' ').trim();const terms=cleaned.split(/\s+/).filter(Boolean);let list=GAMES.map((g,i)=>({g,i})).filter(x=>{const matchesCategory=activeCat==='All'||(activeCat==='New'?x.g.source==='Mashukui Web Games':activeCat==='Favourites'?favouriteGames.has(gameKey(x.g)):x.g.cat===activeCat);const haystack=[x.g.name,x.g.cat,x.g.tag,x.g.description,x.g.desc,x.g.source,...(Array.isArray(x.g.tags)?x.g.tags:[])].filter(Boolean).join(' ').toLowerCase();const matchesQuery=!q||haystack.includes(q)||(!terms.length?haystack.includes(expanded):terms.every(term=>haystack.includes(term)))||haystack.includes(expanded);return matchesCategory&&(!safeMode||!['Horror','Adventure'].includes(x.g.cat))&&matchesQuery});if(q)list.sort((a,b)=>{const score=x=>{const n=x.g.name.toLowerCase(),cat=x.g.cat.toLowerCase();return(n===q?100:n.startsWith(q)?60:n.includes(q)?35:0)+(cat===expanded?30:0)+(String(x.g.tag||'').toLowerCase().includes('featured')?3:0)};return score(b)-score(a)||a.i-b.i});else if(activeCat==='All')list.sort((a,b)=>{const rank=x=>/featured/i.test(x.g.tag)?0:/popular/i.test(x.g.tag)?1:2;return rank(a)-rank(b)||a.i-b.i});return list;}
 function renderGames(){currentFiltered=filteredGames();if(visibleLimit>currentFiltered.length)visibleLimit=currentFiltered.length;const shown=currentFiltered.slice(0,visibleLimit);$('gameGrid').innerHTML=shown.length?shown.map(x=>cardHTML(x.g,x.i)).join(''):`<div class="panel" style="grid-column:1/-1">No games match that search.</div>`;$('gameCount').textContent=String(GAMES.length);$('librarySummary').textContent=`${GAMES.length} games ready`;const wrap=$('loadMoreWrap'),btn=$('loadMoreBtn');if(wrap&&btn){wrap.style.display=currentFiltered.length>visibleLimit?'flex':'none';btn.textContent=`Load more games (${Math.min(48,currentFiltered.length-visibleLimit)} more)`}hydrateImages();setupGameConnectionWarmup();}
 function loadMoreGames(){visibleLimit+=48;renderGames();window.scrollBy({top:140,behavior:'smooth'})}
 function setCat(c){activeCat=c;visibleLimit=48;renderFilters();renderGames()}
 function toggleFavourite(event,index){if(event){event.preventDefault();event.stopPropagation()}const game=GAMES[index];if(!game)return;const key=gameKey(game);if(favouriteGames.has(key)){favouriteGames.delete(key);showToast('Removed from favourites')}else{favouriteGames.add(key);showToast('Added to favourites')}storage.setItem(FAVOURITES_KEY,JSON.stringify([...favouriteGames]));renderFilters();renderGames()}
-let gameSearchTimer=0;$('search').addEventListener('input',()=>{clearTimeout(gameSearchTimer);gameSearchTimer=setTimeout(()=>{visibleLimit=48;renderGames()},100)})
+let gameSearchTimer=0;$('search').addEventListener('input',()=>{clearTimeout(gameSearchTimer);gameSearchTimer=setTimeout(()=>{visibleLimit=48;renderGames()},100)});$('search').addEventListener('keydown',event=>{if(event.key==='Enter'&&$('search').value.trim().length>2&&/^(find|show|recommend|what|where|how|best)\\b/i.test($('search').value.trim())){event.preventDefault();window.openAioAISearch?.($('search').value.trim())}})
 const ONLINE_GAMES_FEED='https://www.onlinegames.io/media/plugins/genGames/embed.json';
 let onlineCatalogLoaded=false;
 function categoryFromOnlineTags(tags){
@@ -1374,17 +1369,17 @@ function runCode(){const ed=$('codeEditor'),pv=$('codePreview');if(ed&&pv)pv.src
 function copyCode(){navigator.clipboard?.writeText($('codeEditor')?.value||'').then(()=>showToast('Code copied')).catch(()=>showToast('Clipboard blocked'));}
 function resetCode(){const ed=$('codeEditor');if(!ed)return;ed.value='<!doctype html>\n<html>\n<body style="font-family:system-ui;padding:20px">\n<h1>Hello from All in One</h1>\n<button onclick="document.body.style.background=\'#eaf2ff\'">Click me</button>\n</body>\n</html>';runCode();}
 function clearGameProgress(){gameProgress={};storage.setItem(GAME_PROGRESS_KEY,'{}');updateResumeCard();renderGames();updateStudyProgress();showToast('Game progress cleared');}
-function saveChatHistory(){if(storage.getItem('aio-chat-history')==='0')return;storage.setItem('aio-chat-history',JSON.stringify(window.__aioChat||[]));}
-function addChatMessage(containerId,text,isUser=false,save=true){const box=$(containerId);if(!box)return;const row=document.createElement('div');row.className='chatrow '+(isUser?'user':'ai');const avatar=document.createElement('div');avatar.className='avatar';avatar.textContent=isUser?'You':'AI';const bubble=document.createElement('div');bubble.className='bubble';bubble.innerHTML=`<strong>${isUser?'You':'Smart answer'}</strong>${esc(text)}`;row.append(avatar,bubble);box.appendChild(row);box.scrollTop=box.scrollHeight;if(save){const arr=window.__aioChat||[];arr.push({text:String(text),user:!!isUser,ts:Date.now()});window.__aioChat=arr.slice(-40);saveChatHistory();}}
-function renderChatHistory(){const arr=loadJSON('aio-chat-history',[]);window.__aioChat=Array.isArray(arr)?arr:[];const boxes=[$('assistantChat'),$('assistantModalChat')].filter(Boolean);boxes.forEach(b=>{b.innerHTML='';window.__aioChat.slice(-40).forEach(m=>addChatMessage(b.id,m.text,!!m.user,false));if(!b.children.length)addChatMessage(b.id,'I can launch games, make notes/tasks, change language, manage settings, read the time, solve maths and open tools/music.',false,false);});}
-function addChatNote(raw){let s=String(raw).replace(/^(?:make|create|add)\s+(?:a\s+)?(?:sticky\s+)?note\b/i,'').trim(),title='Smart note',body=s;let m=s.match(/^called?\s+[\"“]?(.+?)[\"”]?\s+(?:that\s+)?(?:says|say|:|—)\s+(.+)$/i);if(m){title=m[1].trim();body=m[2].trim();}else if(/^(?:that\s+)?(?:says|say)\s+/i.test(s)){body=s.replace(/^(?:that\s+)?(?:says|say)\s+/i,'').trim();}else if(/^title[:\-]/i.test(s)){const parts=s.split(/[:\-]/);title=parts.shift().trim()||title;body=parts.join(':').trim();}if(!body)body='Note from Smart answer';notesData.unshift({id:Date.now(),title,body});notesData=notesData.slice(0,100);storage.setItem('aio-notes-v2',JSON.stringify(notesData));renderNotes();return `Created sticky note “${title}”.`;}
+function saveChatHistory(){if(storage.getItem('aio-chat-history-enabled')==='0')return;storage.setItem('aio-chat-history',JSON.stringify(window.__aioChat||[]));}
+function addChatMessage(containerId,text,isUser=false,save=true){const box=$(containerId);if(!box)return null;const row=document.createElement('div');row.className='chatrow '+(isUser?'user':'ai');const avatar=document.createElement('div');avatar.className='avatar';avatar.textContent=isUser?'You':'AI';const bubble=document.createElement('div');bubble.className='bubble';bubble.innerHTML=`<strong>${isUser?'You':'Elementor'}</strong>${esc(text)}`;row.append(avatar,bubble);box.appendChild(row);box.scrollTop=box.scrollHeight;if(save){const arr=window.__aioChat||[];arr.push({text:String(text),user:!!isUser,ts:Date.now()});window.__aioChat=arr.slice(-40);saveChatHistory();}return bubble;}
+function renderChatHistory(){const enabled=storage.getItem('aio-chat-history-enabled')!=='0';const arr=enabled?loadJSON('aio-chat-history',[]):(Array.isArray(window.__aioChat)?window.__aioChat:[]);window.__aioChat=Array.isArray(arr)?arr:[];const boxes=[$('assistantChat'),$('assistantModalChat')].filter(Boolean);boxes.forEach(b=>{b.innerHTML='';window.__aioChat.slice(-40).forEach(m=>addChatMessage(b.id,m.text,!!m.user,false));if(!b.children.length)addChatMessage(b.id,'I can manage settings, create notes and tasks, answer questions from the public catalogue, and open tools.',false,false);});}
+function addChatNote(raw){let s=String(raw).replace(/^(?:make|create|add)\s+(?:a\s+)?(?:sticky\s+)?note\b/i,'').trim(),title='Smart note',body=s;let m=s.match(/^called?\s+[\"“]?(.+?)[\"”]?\s+(?:that\s+)?(?:says|say|:|—)\s+(.+)$/i);if(m){title=m[1].trim();body=m[2].trim();}else if(/^(?:that\s+)?(?:says|say)\s+/i.test(s)){body=s.replace(/^(?:that\s+)?(?:says|say)\s+/i,'').trim();}else if(/^title[:\-]/i.test(s)){const parts=s.split(/[:\-]/);title=parts.shift().trim()||title;body=parts.join(':').trim();}if(!body)body='Note from Elementor';notesData.unshift({id:Date.now(),title,body});notesData=notesData.slice(0,100);storage.setItem('aio-notes-v2',JSON.stringify(notesData));renderNotes();return `Created sticky note “${title}”.`;}
 function addChatTodo(raw){let text=String(raw).replace(/^(?:add|make|create)\s+(?:a\s+)?(?:todo|to-do|task|reminder)\b/i,'').trim();if(/^called?\s+/i.test(text))text=text.replace(/^called?\s+/i,'');if(!text)text='New task';todoData.push({id:Date.now(),text,done:false});storage.setItem('aio-todos-v2',JSON.stringify(todoData));renderTodos();return `Added task “${text}”.`;}
 function normalizeText(s){return String(s||'').toLowerCase().trim();}
 function currentTimeText(){return new Date().toLocaleTimeString(document.documentElement.lang==='en'?'en-GB':document.documentElement.lang||'en',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
 function hometimeText(){const now=new Date(),t=new Date(now);t.setHours(15,30,0,0);if(now>=t||now.getDay()===0||now.getDay()===6){do{t.setDate(t.getDate()+1)}while(t.getDay()===0||t.getDay()===6);t.setHours(15,30,0,0);}const ms=Math.max(0,t-now),h=Math.floor(ms/3600000),m=Math.floor(ms%3600000/60000),sec=Math.floor(ms%60000/1000);return `Hometime is 15:30. ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')} remaining.`;}
 function languageCodeFromText(x){const map={english:'en',en:'en',spanish:'es',es:'es',french:'fr',fr:'fr',german:'de',de:'de',polish:'pl',pl:'pl',portuguese:'pt',pt:'pt',turkish:'tr',tr:'tr',arabic:'ar',ar:'ar',italian:'it',it:'it',dutch:'nl',nl:'nl',japanese:'ja',ja:'ja',korean:'ko',ko:'ko'};return map[normalizeText(x).replace(/[^a-z\u00c0-\uFFFF]/g,'')]||null;}
 function smartMath(raw){let x=normalizeText(raw).replace(/^(what is|calculate|calc|work out|solve|answer)\s+/,'').replace(/multiplied by|multiply by|times|multiply/g,'*').replace(/divided by|divide by|over|divide/g,'/').replace(/\bplus\b/g,'+').replace(/\bminus\b/g,'-').replace(/\bpercent of\b/g,'%').replace(/×/g,'*').replace(/÷/g,'/').replace(/\bx\b/g,'*').replace(/,/g,'').replace(/\s+/g,'');if(!/^[0-9+\-*/().%]+$/.test(x)||!/[+\-*/%]/.test(x))return null;const v=evaluateCalc(x);return v===null?null:`Answer: ${v}`;}
-function openGameByText(q){const n=normalizeText(q).replace(/^(play|launch|open|start|run|load)\s+/,'').trim();if(!n)return null;let idx=GAMES.findIndex(g=>normalizeText(g.name)===n);if(idx<0)idx=GAMES.findIndex(g=>normalizeText(g.name).includes(n)||n.includes(normalizeText(g.name)));if(idx>=0){openGame(idx);return `Launching ${GAMES[idx].name}.`;}return null;}
+function openGameByText(q){return null;}
 function executeSmartCommand(raw){
   const x=normalizeText(raw);if(!x)return'Ask me something.';
   const lang=x.match(/(?:change|switch|set)\s+(?:the\s+)?(?:language|lang)\s+(?:to|into)\s+(.+)/);
@@ -1413,10 +1408,10 @@ function executeSmartCommand(raw){
   if(/clear (?:todo|to-do|tasks)/.test(x)){todoData=[];storage.setItem('aio-todos-v2','[]');renderTodos();return'Tasks cleared.'}
   if(/(?:make|create|add)\s+(?:a\s+)?(?:sticky\s+)?note|^note\b/.test(x))return addChatNote(raw);
   if(/(?:add|make|create)\s+(?:a\s+)?(?:todo|to-do|task|reminder)\b/.test(x))return addChatTodo(raw);
-  if(/random game|surprise me|pick a game/.test(x)){const i=Math.floor(Math.random()*GAMES.length);openGame(i);return`Launching ${GAMES[i].name}.`}
-  if(/continue last game|resume last game/.test(x)){continueLastGame();return'Continuing your last game.'}
-  if(/^search\s+/.test(x)){const q=raw.replace(/^search\s+/i,'').trim();if($('search')){$('search').value=q;$('search').dispatchEvent(new Event('input'));}scrollToId('games');return`Searching games for “${q}”.`}
-  if(/^(play|launch|open|start|run|load)\s+/.test(x)){const launched=openGameByText(raw);if(launched)return launched}
+  if(/random game|surprise me|pick a game/.test(x))return null;
+  if(/continue last game|resume last game/.test(x))return null;
+  if(/^search\s+/.test(x))return null;
+  if(/^(play|launch|open|start|run|load)\s+/.test(x))return null;
   const m=smartMath(raw);if(m)return m;
   if(/calculator|calc/.test(x)){scrollToId('tools');return'Calculator is in Useful things.'}
   if(/unit converter|convert /.test(x)){scrollToId('tools');return'Unit converter is in Useful things.'}
@@ -1425,12 +1420,46 @@ function executeSmartCommand(raw){
   if(/\bdate\b|what day|today/.test(x))return`Today is ${new Date().toLocaleDateString(document.documentElement.lang||'en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}.`;
   if(/hometime|home time|finish time/.test(x))return hometimeText();
   if(/how many games|game count|number of games/.test(x))return`There are ${GAMES.length} games in the catalogue.`;
-  if(/help|commands|what can you do/.test(x))return'I can launch games, manage accounts and Community, create notes/tasks, change language, open settings/music/tools, start Magma Maths, enter AFK mode, read the time/date/hometime, solve maths and control game audio.';
-  return'I can control the site and answer common questions. Try “play Crossy Road”, “make a note called homework that says do maths”, “sign up”, “create party”, “open settings”, “what time is it?” or “25 times 8”.';
+  if(/help|commands|what can you do/.test(x))return'I can manage settings, create notes and tasks, open site sections, read the time/date/hometime, solve maths and answer questions from the public catalogue.';
+  return null;
 }
 function smartQuick(text){if($('assistantInput'))$('assistantInput').value='';answerQuestion(text);}
-function answerQuestion(forced){const input=forced ?? ($('assistantInput')?.value || '');const q=String(input).trim();if(!q)return;addChatMessage('assistantChat',q,true,true);if($('assistantInput'))$('assistantInput').value='';setTimeout(()=>addChatMessage('assistantChat',executeSmartCommand(q),false,true),120);}
-function answerModalQuestion(){const input=$('assistantModalInput'),q=String(input?.value||'').trim();if(!q)return;addChatMessage('assistantModalChat',q,true,true);if(input)input.value='';setTimeout(()=>addChatMessage('assistantModalChat',executeSmartCommand(q),false,true),120);}
+async function askAioAssistant(containerId,question){
+  const endpoint='https://16fdd2d2-aa84-4145-a0d5-be81366b07b1.search.ai.cloudflare.com';
+  const system="You are Elementor, the helpful AI assistant built into All in One Edition. Help with general questions, explanations, brainstorming, writing, study support and troubleshooting. For questions about All in One Edition's actual catalogue, features, tools, games or Watch availability, use retrieved public index evidence and never invent entries, episodes, release dates, features or playable links. The public index does not contain private notes, account data or Social posts, so never claim to know them. Be clear when a site-specific fact is not indexed. Do not help locate dangerous or age-restricted content; redirect to safe puzzles, study tools and general platform help. Never expose internal storage keys, credentials or provider metadata.";
+  const bubble=addChatMessage(containerId,'Thinking…',false,false);if(!bubble)return;
+  bubble.innerHTML='<strong>Elementor</strong>';
+  const output=document.createElement('span');bubble.appendChild(output);
+  const context=window.__aioAssistantContext||[];
+  context.push({role:'user',content:String(question).slice(0,2000)});
+  window.__aioAssistantContext=context.slice(-8);
+  try{
+    const response=await fetch(endpoint+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'system',content:system}].concat(window.__aioAssistantContext),stream:true,ai_search_options:{retrieval:{retrieval_type:'hybrid',max_num_results:6,match_threshold:0.25},query_rewrite:{enabled:true}}})});
+    if(!response.ok)throw new Error('AI service returned '+response.status);
+    const reader=response.body.getReader(),decoder=new TextDecoder();let buffer='',answer='';
+    while(true){
+      const part=await reader.read();if(part.done)break;
+      buffer+=decoder.decode(part.value,{stream:true});
+      const lines=buffer.split(/\r?\n/);buffer=lines.pop()||'';
+      for(const line of lines){
+        if(!line.startsWith('data:'))continue;
+        const data=line.slice(5).trim();if(!data||data==='[DONE]')continue;
+        try{const item=JSON.parse(data),token=item.choices?.[0]?.delta?.content;if(token){answer+=token;output.textContent=answer}}catch{}
+      }
+    }
+    if(!answer)answer='I could not find an answer in the public catalogue yet.';
+    window.__aioAssistantContext=window.__aioAssistantContext.concat({role:'assistant',content:answer}).slice(-10);
+    const history=window.__aioChat||[];history.push({text:answer,user:false,ts:Date.now()});window.__aioChat=history.slice(-40);saveChatHistory();
+  }catch(error){
+    output.textContent='Elementor is temporarily unavailable. Try again in a moment.';
+    console.warn('Elementor AI request failed:',error);
+  }
+  const box=$(containerId);if(box)box.scrollTop=box.scrollHeight;
+}
+function answerQuestion(forced){const input=forced ?? ($('assistantInput')?.value || '');const q=String(input).trim();if(!q)return;addChatMessage('assistantChat',q,true,true);if($('assistantInput'))$('assistantInput').value='';const local=executeSmartCommand(q);if(local!==null&&local!==undefined)setTimeout(()=>addChatMessage('assistantChat',local,false,true),120);else askAioAssistant('assistantChat',q);}
+function answerModalQuestion(){const input=$('assistantModalInput'),q=String(input?.value||'').trim();if(!q)return;addChatMessage('assistantModalChat',q,true,true);if(input)input.value='';const local=executeSmartCommand(q);if(local!==null&&local!==undefined)setTimeout(()=>addChatMessage('assistantModalChat',local,false,true),120);else askAioAssistant('assistantModalChat',q);}
+function setElementorMode(mode){const chat=mode==='chat';$('elementorChatPanel').style.display=chat?'flex':'none';$('elementorImagePanel').hidden=chat;document.querySelectorAll('[data-elementor-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.elementorMode===mode)));if(chat)$('assistantModalInput')?.focus();else $('elementorImagePrompt')?.focus();}
+async function generateElementorImage(){const prompt=String($('elementorImagePrompt')?.value||'').trim(),status=$('elementorImageStatus'),output=$('elementorImageOutput'),button=$('elementorGenerateImage');if(prompt.length<4){status.textContent='Add a little more detail to your prompt.';return}if(prompt.length>1200){status.textContent='Keep your prompt under 1,200 characters.';return}if(button.disabled)return;button.disabled=true;button.textContent='Generating…';status.textContent='Creating your image. This may take a moment.';output.replaceChildren();try{const response=await fetch('https://aio-elementor-ai.plsgivemediscord981.workers.dev/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});if(!response.ok){let message='Image generation failed.';try{message=(await response.json()).error||message}catch{}throw new Error(message)}const url=URL.createObjectURL(await response.blob()),img=document.createElement('img');img.src=url;img.alt='Image created by Elementor';img.loading='lazy';img.style.cssText='display:block;width:100%;max-height:430px;object-fit:contain;border-radius:12px;margin:12px 0';const save=document.createElement('a');save.href=url;save.download='elementor-image.png';save.textContent='Save image';save.className='btn mini primary';output.append(img,save);status.textContent='Your image is ready.'}catch(error){status.textContent=String(error.message||'Could not create the image.')}finally{button.disabled=false;button.textContent='Generate image'}}
 function openAssistant(){$('assistantModal')?.classList.add('open');renderChatHistory();setTimeout(()=>$('assistantModalInput')?.focus(),20)}
 function closeAssistant(){$('assistantModal')?.classList.remove('open')}
 function openSettings(){$('settingsModal')?.classList.add('open');initSettings();}
@@ -1438,6 +1467,17 @@ function closeSettings(){$('settingsModal')?.classList.remove('open')}
 function initSettings(){
   const binds=[['progressControlsToggle','aio-show-progress',v=>{progressControlsEnabled=v;document.querySelectorAll('.progressbarbox').forEach(e=>e.classList.toggle('progress-visible',v));}],['progressCardsToggle','aio-show-card-progress',v=>{progressCardsEnabled=v;renderGames();}],['chatHistoryToggle','aio-chat-history-enabled',v=>{}],['introToggle','aio-show-intro',v=>{}],['reducedMotionToggle','aio-reduced-motion',v=>{document.documentElement.classList.toggle('reduced-motion',v);}],];
   for(const [id,key,cb] of binds){const e=$(id);if(!e)continue;if(e.dataset.aioBound)continue;const saved=storage.getItem(key);if(saved!==null)e.checked=saved==='1';else if(id==='chatHistoryToggle'||id==='introToggle')e.checked=true;e.addEventListener('change',()=>{storage.setItem(key,e.checked?'1':'0');cb(e.checked);});e.dataset.aioBound='1';cb(e.checked);}
+  const historyToggle=$('chatHistoryToggle');
+  if(historyToggle&&!historyToggle.dataset.aioHistoryBound){
+    historyToggle.addEventListener('change',()=>{
+      storage.setItem('aio-chat-history','[]');
+      window.__aioChat=[];
+      window.__aioAssistantContext=[];
+      [$('assistantChat'),$('assistantModalChat')].filter(Boolean).forEach(box=>box.innerHTML='');
+      renderChatHistory();
+    });
+    historyToggle.dataset.aioHistoryBound='1';
+  }
   $('settingsBtn')?.addEventListener('click',openSettings);
 }
 function getSpotifyTarget(raw){try{const u=new URL(String(raw||''));if(!/^(?:www\.)?open\.spotify\.com$/i.test(u.hostname))return null;const parts=u.pathname.split('/').filter(Boolean);const type=parts[0],id=parts[1];if(!['track','album','playlist','artist','episode','show'].includes(type)||!id)return null;return{type,id,url:`https://open.spotify.com/${type}/${id}`};}catch{return null}}
@@ -3202,5 +3242,273 @@ socialBind=function(){__oldSocialBind();socialBindPostManagement();setTimeout(()
 <script src="./backend-features.js" defer></script>
 <script src="./appearance.js" defer></script>
 <script src="./ultimate-experience.js" defer></script>
+
+<style>
+.aio-ai-backdrop{position:fixed;inset:0;z-index:100001;background:rgba(7,11,20,.62);backdrop-filter:blur(9px);display:grid;place-items:start center;padding:9vh 14px 18px}
+.aio-ai-backdrop[hidden]{display:none!important}
+.aio-ai-dialog{width:min(760px,100%);max-height:82dvh;display:flex;flex-direction:column;overflow:hidden;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:20px;box-shadow:0 28px 90px rgba(0,0,0,.32)}
+.aio-ai-head{display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.aio-ai-brand{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:var(--accent);color:#fff;font-size:12px;font-weight:950}
+.aio-ai-head-copy{flex:1;min-width:0}.aio-ai-head-copy strong{display:block;font-size:14px}.aio-ai-head-copy small{display:block;margin-top:3px;color:var(--muted);font-size:11px}
+.aio-ai-close{width:34px;height:34px;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--text);font-size:22px;line-height:1}
+.aio-ai-modes{display:flex;gap:6px;padding:12px 16px 0}
+.aio-ai-modes button,.aio-ai-suggestions button{border:1px solid var(--line);border-radius:999px;padding:7px 12px;background:transparent;color:var(--text);font-size:11px;font-weight:800}
+.aio-ai-modes button[aria-pressed=true]{background:var(--soft);border-color:var(--accent)}
+.aio-ai-form{display:flex;gap:8px;padding:12px 16px}
+#aioAiQuery{flex:1;min-width:0;height:44px;border:1px solid var(--line);border-radius:12px;background:var(--soft);color:var(--text);padding:0 13px;font-size:13px;outline:none}
+#aioAiQuery:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 15%,transparent)}
+#aioAiVoice,.aio-ai-form button[type=submit]{border:1px solid var(--line);border-radius:12px;padding:0 13px;background:var(--panel);color:var(--text);font-weight:850}
+.aio-ai-form button[type=submit]{background:var(--accent);color:#fff;border-color:var(--accent)}
+.aio-ai-suggestions{display:flex;gap:7px;flex-wrap:wrap;padding:0 16px 12px}
+.aio-ai-suggestions[hidden]{display:none}
+.aio-ai-status{padding:10px 17px;border-top:1px solid var(--line);color:var(--muted);font-size:11px}
+.aio-ai-results{padding:4px 16px 18px;overflow:auto;overscroll-behavior:contain;min-height:120px}
+.aio-ai-result{padding:13px 0;border-bottom:1px solid var(--line)}
+.aio-ai-result strong{display:block;font-size:12px}.aio-ai-result p{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.55;white-space:pre-wrap}
+.aio-ai-chat-message{padding:12px;margin:8px 0;border:1px solid var(--line);border-radius:13px;background:var(--soft);font-size:12px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+.aio-ai-chat-message[data-role=user]{background:color-mix(in srgb,var(--accent) 8%,var(--panel))}
+@media(max-width:600px){.aio-ai-backdrop{padding:5vh 8px 8px}.aio-ai-dialog{max-height:90dvh;border-radius:16px}.aio-ai-form{gap:6px;padding:10px}.aio-ai-form button{padding:0 10px}.aio-ai-suggestions{padding:0 10px 10px}}
+</style>
+<div id="aioQuickLaunch" class="aio-command-backdrop" hidden aria-hidden="true">
+  <section class="aio-command-dialog" role="dialog" aria-modal="true" aria-labelledby="aioCommandTitle">
+    <div class="aio-command-head"><span class="aio-command-mark">A</span><span class="aio-command-head-copy"><strong id="aioCommandTitle">Quick Launch</strong><small>Jump anywhere in All in One Edition</small></span><kbd>ESC</kbd></div>
+    <div class="aio-command-input-wrap"><input id="aioCommandInput" type="search" autocomplete="off" spellcheck="false" placeholder="Search pages and tools, or open AI Search…" aria-label="Search pages, tools or games"></div>
+    <div id="aioCommandResults" class="aio-command-results" role="listbox" aria-label="Quick launch results"></div>
+    <div class="aio-command-foot"><span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span><span><kbd>↵</kbd> Open</span><span><kbd>Ctrl</kbd><kbd>K</kbd> Toggle</span></div>
+  </section>
+</div>
+
+<div id="aioAiSearch" class="aio-ai-backdrop" hidden aria-hidden="true">
+  <section class="aio-ai-dialog" role="dialog" aria-modal="true" aria-labelledby="aioAiTitle">
+    <header class="aio-ai-head">
+      <div class="aio-ai-brand">AI</div>
+      <div class="aio-ai-head-copy"><strong id="aioAiTitle">AI Search</strong><small>Search games, tools, pages and public platform information</small></div>
+      <button type="button" class="aio-ai-close" id="aioAiClose" aria-label="Close AI Search">×</button>
+    </header>
+    <div class="aio-ai-modes">
+      <button type="button" data-ai-mode="search" aria-pressed="true">Search</button>
+      <button type="button" data-ai-mode="chat" aria-pressed="false">Ask AI</button>
+    </div>
+    <form id="aioAiForm" class="aio-ai-form">
+      <input id="aioAiQuery" type="search" autocomplete="off" maxlength="500" placeholder="Search by idea, category, game name or ask a question" aria-label="Search All in One Edition">
+      <button type="button" id="aioAiVoice" aria-label="Voice search">🎙</button>
+      <button type="submit" id="aioAiSubmit">Search</button>
+    </form>
+    <div class="aio-ai-suggestions" id="aioAiSuggestions">
+      <button type="button" data-ai-query="Find puzzle games">Puzzle games</button>
+      <button type="button" data-ai-query="What tools are available?">Available tools</button>
+      <button type="button" data-ai-query="How do I use the Study Hub?">Study Hub</button>
+    </div>
+    <div id="aioAiStatus" class="aio-ai-status" role="status">Search the public catalogue or create an image. Private notes and Social posts are not included.</div>
+    <div id="aioAiResults" class="aio-ai-results" aria-live="polite"></div>
+  </section>
+</div>
+<script>
+(()=>{
+  'use strict';
+  const overlay=document.getElementById('aioQuickLaunch');
+  const input=document.getElementById('aioCommandInput');
+  const results=document.getElementById('aioCommandResults');
+  const trigger=document.getElementById('quickLaunchOpen');
+  if(!overlay||!input||!results||!trigger)return;
+  let selected=0,visible=[];
+  const commands=[
+    {label:'Home',detail:'Return to the top of the hub',icon:'⌂',group:'Pages',run:()=>scrollToId('home')},
+    {label:'Games',detail:'Browse the full game library',icon:'🎮',group:'Pages',run:()=>scrollToId('games')},
+    {label:'School apps',detail:'Open your school workspace',icon:'📚',group:'Pages',run:()=>scrollToId('school')},
+    {label:'Social',detail:'Open the community video and image feed',icon:'◉',group:'Pages',run:()=>location.href='social.html'},
+    {label:'Study Hub',detail:'Focus timer, revision planner and flashcards',icon:'✦',group:'Pages',run:()=>location.href='study.html'},
+    {label:'Anime Zone',detail:'Episode guides and watch progress for four anime',icon:'ア',group:'Pages',run:()=>location.href='anime.html'},
+    {label:'Community',detail:'Profiles, posts and shared activity',icon:'◎',group:'Pages',run:()=>scrollToId('community')},
+    {label:'Party workspace',detail:'Open shared party tools',icon:'✧',group:'Pages',run:()=>scrollToId('party-workspace')},
+    {label:'Live news',detail:'Read the latest headlines and scores',icon:'◷',group:'Pages',run:()=>scrollToId('live')},
+    {label:'Useful tools',detail:'Calculator, converter, timer and more',icon:'⌘',group:'Pages',run:()=>scrollToId('tools')},
+    {label:'Notes',detail:'Open notes and to-do list',icon:'▤',group:'Pages',run:()=>scrollToId('notes')},
+    {label:'Music',detail:'Open the music player',icon:'♫',group:'Pages',run:()=>scrollToId('music')},
+    {label:'Code Lab',detail:'Open the HTML, CSS and JavaScript editor',icon:'</>',group:'Pages',run:()=>scrollToId('code')},
+    {label:'Settings',detail:'Personalisation, themes and preferences',icon:'⚙',group:'Actions',run:()=>document.getElementById('settingsBtn')?.click()},
+    {label:'A-Coins & Quests',detail:'View rewards, quests and game shop',icon:'◈',group:'Actions',run:()=>window.openAioEconomy?.()},
+    {label:'AI Search',detail:'Search the curated public catalogue',icon:'⌕',group:'Actions',run:()=>document.getElementById('aiSearchOpen')?.click()}
+  ];
+  function makeOption(item,index){
+    const button=document.createElement('button');
+    button.type='button';button.className='aio-command-item';button.setAttribute('role','option');
+    button.setAttribute('aria-selected',String(index===selected));
+    const icon=document.createElement('span');icon.className='aio-command-icon';icon.textContent=item.icon;
+    const copy=document.createElement('span');copy.className='aio-command-copy';
+    const title=document.createElement('strong');title.textContent=item.label;
+    const detail=document.createElement('small');detail.textContent=item.detail||'Open result';
+    copy.append(title,detail);
+    const tag=document.createElement('span');tag.className='aio-command-tag';tag.textContent=item.group||'Game';
+    button.append(icon,copy,tag);
+    button.addEventListener('click',()=>choose(index));
+    button.addEventListener('pointermove',()=>{selected=index;syncSelection()});
+    return button;
+  }
+  function syncSelection(){
+    [...results.querySelectorAll('.aio-command-item')].forEach((button,index)=>{
+      button.setAttribute('aria-selected',String(index===selected));
+      if(index===selected)button.scrollIntoView({block:'nearest'});
+    });
+  }
+  function render(){
+    const query=input.value.trim().toLowerCase();
+    let base=commands.filter(item=>(item.label+' '+item.detail).toLowerCase().includes(query));
+    visible=base;
+    selected=Math.max(0,Math.min(selected,visible.length-1));
+    results.replaceChildren();
+    if(!visible.length){const empty=document.createElement('div');empty.className='aio-command-empty';empty.textContent='No matching pages or tools. Try a shorter search.';results.append(empty);return}
+    let lastGroup='';
+    visible.forEach((item,index)=>{
+      if(item.group!==lastGroup){const heading=document.createElement('div');heading.className='aio-command-group';heading.textContent=item.group;results.append(heading);lastGroup=item.group}
+      results.append(makeOption(item,index));
+    });
+    syncSelection();
+  }
+  function open(){
+    overlay.hidden=false;overlay.setAttribute('aria-hidden','false');input.value='';selected=0;render();
+    requestAnimationFrame(()=>input.focus());
+    document.body.style.overflow='hidden';
+  }
+  function close(){
+    if(overlay.hidden)return;
+    overlay.hidden=true;overlay.setAttribute('aria-hidden','true');document.body.style.overflow='';
+    trigger.focus();
+  }
+  function choose(index){
+    const item=visible[index];if(!item)return;
+    close();requestAnimationFrame(()=>{try{item.run()}catch(error){console.error('Quick Launch action failed',error)}});
+  }
+  trigger.addEventListener('click',open);
+  overlay.addEventListener('click',event=>{if(event.target===overlay)close()});
+  input.addEventListener('input',()=>{selected=0;render()});
+  input.addEventListener('keydown',event=>{
+    if(event.key==='ArrowDown'){event.preventDefault();selected=(selected+1)%Math.max(1,visible.length);syncSelection()}
+    if(event.key==='ArrowUp'){event.preventDefault();selected=(selected-1+Math.max(1,visible.length))%Math.max(1,visible.length);syncSelection()}
+    if(event.key==='Enter'){event.preventDefault();choose(selected)}
+    if(event.key==='Escape'){event.preventDefault();close()}
+  });
+  document.addEventListener('keydown',event=>{
+    const target=event.target;
+    const editing=target instanceof HTMLElement&&(target.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
+    if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'){event.preventDefault();overlay.hidden?open():close();return}
+    if(event.key==='Escape'&&!overlay.hidden){event.preventDefault();close();return}
+    if(event.key==='/'&&!editing&&!event.ctrlKey&&!event.metaKey&&!event.altKey){event.preventDefault();open()}
+  });
+})();
+</script>
+<script>
+(()=>{
+  const ENDPOINT='https://16fdd2d2-aa84-4145-a0d5-be81366b07b1.search.ai.cloudflare.com';
+  const SYSTEM='You are All in One Edition AI Search. Answer only from the public indexed platform catalogue. Do not invent games, tools, episodes, release dates, features or playable links. The public index does not contain private notes, account data or Social posts. If the answer is not in the indexed material, say it is not currently indexed. Do not help locate dangerous or age-restricted content; redirect to safe puzzles, study tools and general platform help. Never expose internal storage keys or provider metadata.';
+  const modal=document.getElementById('aioAiSearch');
+  const openButton=document.getElementById('aiSearchOpen');
+  const closeButton=document.getElementById('aioAiClose');
+  const form=document.getElementById('aioAiForm');
+  const input=document.getElementById('aioAiQuery');
+  const submit=document.getElementById('aioAiSubmit');
+  const voice=document.getElementById('aioAiVoice');
+  const status=document.getElementById('aioAiStatus');
+  const results=document.getElementById('aioAiResults');
+  const suggestions=document.getElementById('aioAiSuggestions');
+  const modeButtons=[...document.querySelectorAll('[data-ai-mode]')];
+  if(!modal||!openButton||!form||!input||!results)return;
+  let mode='search',messages=[],busy=false;
+  function setStatus(value){status.textContent=value}
+  function setMode(next){
+    mode=next;
+    modeButtons.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.aiMode===mode)));
+    submit.textContent=mode==='chat'?'Ask AI':'Search';
+    input.placeholder=mode==='chat'?'Ask Elementor about the site…':'Search games, tools, pages or describe what you need…';
+    suggestions.hidden=mode==='chat';
+  }
+  function open(){
+    modal.hidden=false;modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
+    setTimeout(()=>input.focus(),0);
+  }
+  function close(){
+    if(modal.hidden)return;
+    modal.hidden=true;modal.setAttribute('aria-hidden','true');document.body.style.overflow='';
+    openButton.focus();
+  }
+  function clearResults(){results.replaceChildren()}
+  function resultCard(title,body){
+    const card=document.createElement('article');card.className='aio-ai-result';
+    const heading=document.createElement('strong');heading.textContent=title;
+    const paragraph=document.createElement('p');paragraph.textContent=body;
+    card.append(heading,paragraph);results.append(card);
+  }
+  function chatBubble(role,text){
+    const bubble=document.createElement('div');bubble.className='aio-ai-chat-message';bubble.dataset.role=role;bubble.textContent=text;results.append(bubble);return bubble;
+  }
+  async function runSearch(query){
+    setStatus('Searching the public catalogue…');clearResults();
+    try{
+      const response=await fetch(ENDPOINT+'/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:query,ai_search_options:{retrieval:{retrieval_type:'hybrid',max_num_results:8,match_threshold:0.25},query_rewrite:{enabled:true}}})});
+      if(!response.ok)throw new Error('Search service returned '+response.status);
+      const payload=await response.json();const chunks=payload.chunks||payload.result?.chunks||[];
+      if(!chunks.length){setStatus('No matching indexed information yet. The public catalogue index may still be processing.');return}
+      chunks.forEach(chunk=>{
+        const key=String(chunk.item?.key||'');
+        const titles={'games-puzzle.md':'Puzzle games','games-word.md':'Word games','games-memory.md':'Memory games','games-board.md':'Board games','games-simulation.md':'Simulation games','games-idle.md':'Idle games','games-rhythm.md':'Rhythm games','platform-guide.md':'Platform guide'};
+        const title=titles[key]||'All in One Edition';
+        const text=String(chunk.text||'').trim().slice(0,900);
+        if(text)resultCard(title,text);
+      });
+      setStatus('Found '+chunks.length+' relevant catalogue section'+(chunks.length===1?'':'s')+'.');
+    }catch(error){setStatus('AI Search is temporarily unavailable. '+String(error.message||''))}
+  }
+  async function runChat(query){
+    messages.push({role:'user',content:query});
+    clearResults();chatBubble('user',query);
+    const answerNode=chatBubble('assistant','');
+    setStatus('AI is checking the indexed catalogue…');
+    try{
+      const response=await fetch(ENDPOINT+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'system',content:SYSTEM}].concat(messages),stream:true,ai_search_options:{retrieval:{retrieval_type:'hybrid',max_num_results:6,match_threshold:0.25},query_rewrite:{enabled:true}}})});
+      if(!response.ok)throw new Error('AI service returned '+response.status);
+      const reader=response.body.getReader();const decoder=new TextDecoder();let buffer='',answer='';
+      while(true){
+        const part=await reader.read();if(part.done)break;
+        buffer+=decoder.decode(part.value,{stream:true});
+        const lines=buffer.split(/\r?\n/);buffer=lines.pop()||'';
+        for(const line of lines){
+          if(!line.startsWith('data:'))continue;
+          const data=line.slice(5).trim();if(!data||data==='[DONE]')continue;
+          try{const item=JSON.parse(data);const token=item.choices?.[0]?.delta?.content;if(token){answer+=token;answerNode.textContent=answer}}catch{}
+        }
+      }
+      messages.push({role:'assistant',content:answer});
+      setStatus(answer?'Answer generated from the indexed public catalogue.':'No answer was returned. Try a more specific question.');
+    }catch(error){answerNode.textContent='AI Search is temporarily unavailable.';setStatus(String(error.message||''));messages.pop()}
+  }
+  async function submitQuery(){
+    if(busy)return;
+    const query=input.value.trim();if(query.length<2){setStatus('Enter at least two characters.');return}
+    busy=true;submit.disabled=true;voice.disabled=true;
+    try{if(mode==='chat')await runChat(query);else await runSearch(query)}
+    finally{busy=false;submit.disabled=false;voice.disabled=false}
+  }
+  openButton.addEventListener('click',open);closeButton.addEventListener('click',close);
+  modal.addEventListener('click',event=>{if(event.target===modal)close()});
+  modeButtons.forEach(button=>button.addEventListener('click',()=>setMode(button.dataset.aiMode)));
+  form.addEventListener('submit',event=>{event.preventDefault();submitQuery()});
+  suggestions?.addEventListener('click',event=>{
+    const button=event.target.closest('[data-ai-query]');if(!button)return;
+    input.value=button.dataset.aiQuery;setMode('search');submitQuery();
+  });
+  voice.addEventListener('click',()=>{
+    const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!Recognition){setStatus('Voice search is not supported in this browser.');return}
+    const recognition=new Recognition();recognition.lang='en-GB';recognition.interimResults=false;
+    recognition.onresult=event=>{input.value=event.results[0][0].transcript;submitQuery()};
+    recognition.onerror=()=>setStatus('Voice search could not start. Check microphone permission.');
+    recognition.start();setStatus('Listening…');
+  });
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!modal.hidden){event.preventDefault();close()}});
+  setMode('search');
+  window.openAioAISearch=(query='')=>{open();if(query)input.value=query;setMode('search');if(query)submitQuery()};
+})();
+</script>
+
 </body>
 </html>

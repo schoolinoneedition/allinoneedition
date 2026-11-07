@@ -259,4 +259,64 @@ assert.ok(social.includes(".in('post_id',pageIds)"), 'Social engagement counts s
 assert.ok(social.includes("let feedSort=['latest','popular','oldest']") && social.includes("feedSort==='popular'") && social.includes("localWrite(STORAGE_KEYS.feedSort,feedSort)"), 'Social sort preferences should offer persistent latest, most-liked and oldest ordering.');
 assert.ok(social.includes('function renderFeed(preserveScroll=false)') && social.includes('if(preserveScroll)feed.scrollTop=previousScrollTop') && social.includes('renderFeed(addToFeed)'), 'Loading older posts should preserve the reader scroll position.');
 
-assert.ok(html.includes('id="assistantBtn" type="button" onclick="openAssistant()"'), 'The top-bar Smart Answer button must open the assistant modal when clicked.');
+
+// Private Cloudflare R2 media storage contract.
+const mediaWorker = read('cloudflare/media-worker/src/index.ts');
+const mediaWrangler = read('cloudflare/media-worker/wrangler.toml');
+const mediaSchema = read('supabase/migrations/20261106202316_aio_r2_media_objects.sql');
+const mediaRlsSchema = read('supabase/migrations/20261106202335_optimize_aio_media_rls.sql');
+const mediaPartsSchema = read('supabase/migrations/20261106202434_aio_r2_upload_parts.sql');
+assert.ok(mediaWorker.includes('/auth/v1/user') && mediaWorker.includes('Authorization: authorization'), 'R2 media routes must verify the Supabase access token.');
+assert.ok(mediaWorker.includes('user_id: `eq.${userId}`'), 'Every media lookup must be scoped to the authenticated owner.');
+assert.ok(mediaWorker.includes('createMultipartUpload') && mediaWorker.includes('resumeMultipartUpload') && mediaWorker.includes('uploadPart') && mediaWorker.includes('complete('), 'R2 uploads must use the multipart API.');
+assert.ok(mediaWorker.includes('hasExpectedMagic') && mediaWorker.includes('video/quicktime'), 'The Worker must check uploaded file signatures, including iPad QuickTime videos.');
+assert.ok(mediaWorker.includes('dbUpsertPart') && mediaWorker.includes('dbGetParts') && mediaWorker.includes('dbDeleteParts'), 'Multipart progress must persist and be checked server-side for resumability.');
+assert.ok(mediaWorker.includes('Accept-Ranges') && mediaWorker.includes('Content-Range') && mediaWorker.includes('range = { offset: rangeStart, length: rangeLength! }'), 'Private video playback must support byte-range seeking.');
+assert.ok(mediaWorker.includes('status !== "ready"') && mediaWorker.includes('row.status !== "uploading"'), 'Only completed uploads may be played and only active uploads may be completed.');
+assert.ok(mediaWorker.includes('MAX_PART_BYTES = 32 * 1024 * 1024') && mediaWorker.includes('MAX_PARTS = 10_000') && mediaWorker.includes('MAX_OBJECT_BYTES = MAX_PARTS * MAX_PART_BYTES'), 'Multipart transport limits must be explicit and bounded.');
+assert.ok(mediaSchema.includes('enable row level security') && mediaRlsSchema.includes('using ((select auth.uid()) = user_id)'), 'Media metadata must be protected by owner-scoped RLS.');
+assert.ok(mediaSchema.includes('revoke all on public.aio_media_objects from public, anon, authenticated') && mediaSchema.includes('grant select (id, user_id, filename, content_type, size_bytes, status, created_at, completed_at)'), 'Browser clients must not receive internal R2 keys or multipart IDs.');
+assert.ok(mediaPartsSchema.includes('revoke all on public.aio_media_upload_parts from public, anon, authenticated'), 'Multipart ETags and upload state must remain server-only.');
+assert.ok(mediaWrangler.includes('binding = "MEDIA"') && mediaWrangler.includes('bucket_name = "aio-media"'), 'The Worker must bind the private aio-media bucket.');
+assert.ok(!html.includes('SUPABASE_SERVICE_ROLE_KEY') && !social.includes('SUPABASE_SERVICE_ROLE_KEY') && !anime.includes('SUPABASE_SERVICE_ROLE_KEY'), 'Privileged Supabase credentials must never be added to browser pages.');
+
+assert.ok(mediaWorker.includes('firstPart.byteLength !== length || !hasExpectedMagic(row.content_type, firstPart)'), 'The first uploaded part must match its declared content type before R2 stores it.');
+
+
+// Owner-only administration must fail closed in the UI and be pinned in the database.
+const ownerSchema = read('supabase/migrations/20261106203137_pin_canonical_aio_owner.sql');
+const staffGate = backend.match(/window\.refreshAioStaffPanel = async function\(\)\{[\s\S]*?\n  \};/)?.[0] || '';
+assert.ok(staffGate.indexOf("panel.classList.add('hidden')") >= 0 && staffGate.indexOf("panel.classList.add('hidden')") < staffGate.indexOf("from('staff_roles')"), 'Staff management must remain hidden while the role is verified.');
+assert.ok(staffGate.indexOf("if(staffRole!=='owner')") >= 0 && staffGate.indexOf("if(staffRole!=='owner')") < staffGate.indexOf("panel.classList.remove('hidden')"), 'Only the verified owner role may reveal staff management.');
+assert.ok(!staffGate.includes('aio_owner_exists'), 'Unverified visitors must not receive owner bootstrap controls.');
+assert.ok(ownerSchema.includes('private.aio_platform_owner') && ownerSchema.includes('private.aio_is_owner()'), 'Owner authority must be stored outside user-editable profile metadata.');
+assert.ok(ownerSchema.includes('Only the canonical owner account may hold the owner role') && ownerSchema.includes('cannot be reassigned or demoted'), 'The canonical owner role must not be granted to other accounts or removed.');
+assert.ok(ownerSchema.includes('Site owner can insert staff roles') && ownerSchema.includes('Site owner can update staff roles') && ownerSchema.includes('Site owner can delete staff roles'), 'Staff role changes must be protected by separate owner-only RLS policies.');
+
+
+// AI Search must be a real public-catalogue integration, not a mocked local response.
+assert.ok(html.includes('id="aiSearchOpen"') && html.includes('id="aioAiSearch"'), 'The AI Search control and dialog must be present in the live page DOM.');
+assert.ok(html.includes('16fdd2d2-aa84-4145-a0d5-be81366b07b1.search.ai.cloudflare.com') && html.includes("ENDPOINT+'/search'") && html.includes("ENDPOINT+'/chat/completions'"), 'AI Search must call the configured Cloudflare AI Search endpoint.');
+assert.ok(html.includes('stream:true') && html.includes('query_rewrite:{enabled:true}'), 'AI Search chat must stream real model output and use query rewriting.');
+assert.ok(html.lastIndexOf('id="aioQuickLaunch"') > html.indexOf('</textarea>'), 'Quick Launch must exist in the live DOM, not only inside the Code Lab sample text.');
+
+
+// Watch source metadata is private and only the canonical owner can inspect it.
+const watchSourceSchema = read('supabase/migrations/20261106204516_private_anime_episode_source_metadata.sql');
+assert.ok(watchSourceSchema.includes('drop policy if exists "Public can read anime episode watch links"') && watchSourceSchema.includes('revoke all on public.anime_episode_watch_links from public, anon'), 'Watch provider URLs must not be publicly readable.');
+assert.ok(watchSourceSchema.includes('using ((select private.is_aio_site_owner()))'), 'Only the canonical owner may read Watch source metadata.');
+assert.ok(anime.includes("ownerClient.from('anime_episode_watch_links')"), 'The Watch source manager must use the owner-authenticated client.');
+assert.ok(!anime.includes('Open official Bing watch page'), 'The normal Watch player must not display unnecessary provider branding.');
+
+
+assert.ok(html.includes('async function askAioAssistant') && html.includes("else askAioAssistant('assistantChat',q)") && html.includes("else askAioAssistant('assistantModalChat',q)"), 'Smart Answer must use real streaming AI for open-ended questions.');
+assert.ok(!html.includes("label:'Random game'") && !html.includes("const games=GAMES.map((game,index)"), 'Quick Launch must not expose unrestricted game discovery.');
+assert.ok(/find puzzle games/i.test(html), 'AI Search suggestions must use the curated public catalogue.');
+
+
+assert.ok(html.includes("'games-puzzle.md':'Puzzle games'") && html.includes("'games-word.md':'Word games'") && html.includes("'games-board.md':'Board games'"), 'AI Search must label category-specific catalogue results clearly.');
+assert.ok(html.includes('Do not help locate dangerous or age-restricted content'), 'AI Search chat must enforce the platform safety boundary.');
+
+assert.ok(html.includes('payload.chunks||payload.result?.chunks'), 'AI Search must parse the public endpoint response shape.');
+
+assert.ok(html.includes('id="assistantBtn" type="button" onclick="openAssistant()"'), 'The top-bar Elementor AI button must open the assistant modal when clicked.');
