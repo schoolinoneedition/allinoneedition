@@ -161,13 +161,19 @@ const cardMarkup = returnStart >= 0 && returnEnd >= 0 ? cardRenderer.slice(retur
 assert.ok(cardMarkup, 'Game card renderer should return consistent markup');
 assert.doesNotMatch(cardMarkup, /source\s*:|source\s*\}|powered by/i, 'Provider labels must not appear on ordinary game cards');
 assert.match(html, /function filteredGames\(\)/);
+assert.ok(!html.includes('aioQuickLaunch')&&!html.includes('quickLaunchOpen')&&!html.includes('Quick Launch'), 'Quick Launch must be completely removed from the hub.');
+const codeEditorStart=html.indexOf('<textarea id="codeEditor">');
+const codeEditorClose=html.indexOf('</textarea>',codeEditorStart);
+const nextLiveSection=html.indexOf('<section class="section">',codeEditorClose);
+assert.ok(codeEditorStart>=0&&codeEditorClose>codeEditorStart&&nextLiveSection>codeEditorClose, 'Code Lab textarea must close immediately after its sample so the remaining page stays live HTML.');
+assert.match(html, /replace\(\/\\b\(find\|show/);
+assert.ok(html.includes('const scoreGame=g=>')&&html.includes('hits.length===terms.length')&&html.includes('list.sort((a,b)=>b.score-a.score'), 'Game search must rank name, category, tag and description matches.');
+assert.ok(html.includes('Search games by name, category or keyword'), 'The search placeholder must describe the actual game-search scope.');
+assert.ok(elementorWorker.includes('if(user&&!allowRate(recentChats,rateKey,24))')&&elementorWorker.includes('if(user&&!allowRate(recentImages,rateKey,3))'), 'Guest AI chat and image generation must not have a usage quota.');
 
 
  // New pages and player behaviour must stay wired, keyboard-accessible and responsive.
  assert.ok(html.includes("location.href='anime.html'"), 'Anime Zone must be reachable from the main hub');
- assert.ok(html.includes('id="aioQuickLaunch"'), 'Quick Launch dialog must exist');
- assert.ok(html.includes("event.key.toLowerCase()==='k'"), 'Quick Launch Ctrl/Cmd+K shortcut must be wired');
- assert.ok(html.includes("{label:'Anime Zone'"), 'Anime Zone must be registered in Quick Launch');
  assert.ok(!social.includes('class="custom-video-controls"'), 'Visible custom video strip should stay removed');
  assert.ok(!social.includes('class="video-play-overlay"'), 'Floating video play overlay should stay removed');
  assert.ok(social.includes('const togglePlayback=()=>'), 'Social videos must toggle from the video surface');
@@ -311,7 +317,6 @@ assert.ok(ownerSchema.includes('Site owner can insert staff roles') && ownerSche
 assert.ok(html.includes('id="aiSearchOpen"') && html.includes('id="aioAiSearch"'), 'The AI Search control and dialog must be present in the live page DOM.');
 assert.ok(html.includes('16fdd2d2-aa84-4145-a0d5-be81366b07b1.search.ai.cloudflare.com') && html.includes("ENDPOINT+'/search'") && html.includes("ENDPOINT+'/chat/completions'"), 'AI Search must call the configured Cloudflare AI Search endpoint.');
 assert.ok(html.includes('stream:true') && html.includes('query_rewrite:{enabled:true}'), 'AI Search chat must stream real model output and use query rewriting.');
-assert.ok(html.lastIndexOf('id="aioQuickLaunch"') > html.indexOf('</textarea>'), 'Quick Launch must exist in the live DOM, not only inside the Code Lab sample text.');
 
 
 // Watch source metadata is private and only the canonical owner can inspect it.
@@ -323,7 +328,6 @@ assert.ok(!anime.includes('Open official Bing watch page'), 'The normal Watch pl
 
 
 assert.ok(html.includes('async function askAioAssistant') && html.includes("else askAioAssistant('assistantChat',q)") && html.includes("else askAioAssistant('assistantModalChat',q)"), 'Smart Answer must use real streaming AI for open-ended questions.');
-assert.ok(!html.includes("label:'Random game'") && !html.includes("const games=GAMES.map((game,index)"), 'Quick Launch must not expose unrestricted game discovery.');
 assert.ok(/find puzzle games/i.test(html), 'AI Search suggestions must use the curated public catalogue.');
 
 
