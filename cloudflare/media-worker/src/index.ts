@@ -12,7 +12,7 @@ interface Env {
 
 interface MediaRow {
   id: string; user_id: string; object_key: string; multipart_upload_id: string | null;
-  filename: string; content_type: string; size_bytes: number; status: "uploading" | "ready" | "deleted";
+  filename: string; content_type: string; size_bytes: number; status: "uploading" | "ready" | "deleted"; visibility: "private" | "public";
 }
 interface StoredPart { part_number: number; etag: string; size_bytes: number }
 
