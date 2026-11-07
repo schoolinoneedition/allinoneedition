@@ -105,7 +105,7 @@ body{min-height:100dvh}
    <div class="suggestions"><button class="suggestion" data-prompt="Help me improve the All in One Edition homepage."><strong>Improve my website</strong>Review ideas and suggest practical upgrades</button><button class="suggestion" data-prompt="Create an image of a cosy futuristic gaming room with soft blue lighting."> <strong>Create an image</strong>Turn an idea into an original image</button><button class="suggestion" data-prompt="Explain how to organise my games catalogue better."><strong>Organise my games</strong>Plan a cleaner games catalogue</button><button class="suggestion" data-prompt="Give me a quick overview of what Elementor can do."><strong>Explore Elementor</strong>See what your AI workspace can do</button></div>
   </div>
   <div class="messages" id="messages"></div>
-  <div class="composer-wrap"><div class="composer"><textarea id="prompt" placeholder="Message Elementor…" rows="2"></textarea><div class="composer-bottom"><div class="tools"><button class="tool-btn" id="imageMode">▧ Create image</button><button class="tool-btn" id="codeMode">⌘ Code mode</button><button class="tool-btn" id="voiceInput" title="Speak to Elementor">🎙 Voice</button><button class="tool-btn" id="voiceOutput" title="Read replies aloud">🔊 Read replies</button><button class="tool-btn" id="clearMode">Clear mode</button><span class="voice-status" id="voiceStatus" aria-live="polite"></span></div><button class="send" id="send">Send ↑</button></div></div><p class="fine">Elementor can make mistakes. Check important changes before applying them.</p></div>
+  <div class="composer-wrap"><div class="composer"><textarea id="prompt" placeholder="Message Elementor…" rows="2"></textarea><div class="composer-bottom"><div class="tools"><button class="tool-btn" id="imageMode">▧ Create image</button><button class="tool-btn" id="codeMode">⌘ Code mode</button><button class="tool-btn" id="voiceInput" title="Dictate a message">🎙 Dictate</button><button class="tool-btn" id="voiceChat" title="Hands-free voice conversation">◉ Voice chat</button><button class="tool-btn" id="voiceOutput" title="Read replies aloud">🔊 Read replies</button><button class="tool-btn" id="clearMode">Clear mode</button><span class="voice-status" id="voiceStatus" aria-live="polite"></span></div><button class="send" id="send">Send ↑</button></div></div><p class="fine">Elementor can make mistakes. Check important changes before applying them.</p></div>
  </div>
 </section>
 </div>
@@ -129,7 +129,7 @@ const MEDIA_API='https://all-in-one-edition-media.plsgivemediscord981.workers.de
 const AVATARS=['✦','✧','◈','✺','⚡','🌙','🪐','🎮','🦊','🐼','🐸','🤖','🌸','☀️','💎','🦋'];
 const $=id=>document.getElementById(id);
 const db=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-let codeMode=false,voiceOutput=false,recognition=null,session=null,user=null,profile={display_name:'Elementor',avatar:'✦',instructions:'',response_style:'balanced'},currentId=null,messages=[],isSending=false,imageMode=false,isOwner=false,objectUrls=[];
+let codeMode=false,voiceOutput=false,voiceChatMode=false,voiceTimer=null,voiceTranscript='',recognition=null,session=null,user=null,profile={display_name:'Elementor',avatar:'✦',instructions:'',response_style:'balanced'},currentId=null,messages=[],isSending=false,imageMode=false,isOwner=false,objectUrls=[];
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function toast(s){$('profileStatus').textContent=s;}
 function openModal(id){$(id).classList.remove('hidden');}
@@ -245,7 +245,7 @@ async function send(){
   }
   await loadHistory();
  }catch(e){await saveMessage('assistant','I hit a problem: '+e.message).catch(()=>{});}
- finally{isSending=false;$('send').disabled=false;input.focus();}
+ finally{isSending=false;$('send').disabled=false;input.focus();if(voiceChatMode)setTimeout(startVoiceListening,350);}
 }
 async function openProfile(){
  if(!user){showAuth();return;}$('displayName').value=profile.display_name||'Elementor';$('instructions').value=profile.instructions||'';$('responseStyle').value=profile.response_style||'balanced';$('avatarChoices').replaceChildren();
@@ -274,6 +274,26 @@ async function saveAnnouncement(clear=false){
 }
 $('newChat').onclick=newChat;$('send').onclick=send;
 $('codeMode').onclick=()=>{codeMode=!codeMode;$('codeMode').classList.toggle('active',codeMode);$('voiceStatus').textContent=codeMode?'Code mode is on.':'Code mode is off.';};
+function startVoiceListening(){
+ const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!voiceChatMode||recognition||isSending||!Speech)return;
+ const rec=new Speech();recognition=rec;rec.lang=navigator.language||'en-GB';rec.continuous=true;rec.interimResults=true;
+ rec.onstart=()=>$('voiceStatus').textContent='Voice chat is listening. Speak naturally.';
+ rec.onresult=event=>{
+  let finalText='';
+  for(let n=event.resultIndex;n<event.results.length;n++){const part=event.results[n][0].transcript;if(event.results[n].isFinal)finalText+=part;}
+  if(finalText.trim()){voiceTranscript=(voiceTranscript+' '+finalText).trim();$('prompt').value=voiceTranscript;clearTimeout(voiceTimer);voiceTimer=setTimeout(()=>{const message=voiceTranscript.trim();voiceTranscript='';if(message&&!isSending){$('prompt').value=message;rec.stop();send();}},1100);}
+ };
+ rec.onerror=event=>{if(event.error==='not-allowed'||event.error==='service-not-allowed'){voiceChatMode=false;$('voiceChat').classList.remove('active');$('voiceStatus').textContent='Microphone permission is blocked.';}else $('voiceStatus').textContent='Voice chat paused: '+event.error;};
+ rec.onend=()=>{if(recognition===rec)recognition=null;if(voiceChatMode&&!isSending)setTimeout(startVoiceListening,350);};
+ try{rec.start();}catch{if(recognition===rec)recognition=null;$('voiceStatus').textContent='Could not start voice chat.';}
+}
+$('voiceChat').onclick=()=>{
+ if(voiceChatMode){voiceChatMode=false;voiceTranscript='';clearTimeout(voiceTimer);recognition?.stop();recognition=null;$('voiceChat').classList.remove('active');$('voiceStatus').textContent='Voice chat stopped.';return;}
+ const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!Speech){$('voiceStatus').textContent='Live voice input is not supported in this browser.';return;}
+ voiceChatMode=true;voiceOutput=true;$('voiceChat').classList.add('active');$('voiceOutput').classList.add('active');startVoiceListening();
+};
 function speakReply(text){if(!('speechSynthesis'in window)){$('voiceStatus').textContent='Speech playback is not supported in this browser.';return;}window.speechSynthesis.cancel();const clean=String(text).replace(/```[\s\S]*?```/g,'Code block omitted from speech.').slice(0,5000);const utterance=new SpeechSynthesisUtterance(clean);utterance.rate=1;utterance.onstart=()=>$('voiceStatus').textContent='Reading reply…';utterance.onend=()=>$('voiceStatus').textContent='';window.speechSynthesis.speak(utterance);}
 $('voiceOutput').onclick=()=>{voiceOutput=!voiceOutput;$('voiceOutput').classList.toggle('active',voiceOutput);$('voiceStatus').textContent=voiceOutput?'Replies will be read aloud.':'Spoken replies are off.';if(!voiceOutput&&'speechSynthesis'in window)window.speechSynthesis.cancel();};
 $('voiceInput').onclick=()=>{
