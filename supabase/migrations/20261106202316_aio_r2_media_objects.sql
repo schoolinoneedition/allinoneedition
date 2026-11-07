@@ -1,5 +1,5 @@
--- Private metadata for media objects stored in Cloudflare R2.
--- Binary content remains in R2; this table contains only ownership and lifecycle metadata.
+-- Private metadata for media objects stored in Backblaze B2.
+-- Binary content remains in Backblaze B2; this table contains only ownership and lifecycle metadata.
 
 create table if not exists public.aio_media_objects (
   id uuid primary key default gen_random_uuid(),
@@ -51,4 +51,4 @@ create policy "Users can read their own private media metadata"
   using (auth.uid() = user_id);
 
 comment on table public.aio_media_objects is
-  'Private Cloudflare R2 media metadata. Object keys and multipart IDs are server-side only; browser clients can read only their own rows.';
+  'Private Backblaze B2 media metadata. Object keys and multipart IDs are server-side only; browser clients can read only their own rows.';
