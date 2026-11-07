@@ -611,7 +611,7 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
     try{
       const url=new URL(value);
       if(url.origin!==AIO_MEDIA_API||!/^\/media\/[0-9a-f-]{36}$/i.test(url.pathname))return value;
-      const response=await fetch(url.pathname+'/signed-url');
+      const response=await fetch(AIO_MEDIA_API+url.pathname+'/signed-url');
       const data=await response.json().catch(()=>({}));
       if(!response.ok||!data.url)throw new Error(data.error||'Could not prepare this media.');
       return data.url;
