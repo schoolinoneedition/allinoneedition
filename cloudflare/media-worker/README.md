@@ -2,6 +2,10 @@
 
 This Worker is the private media gateway for All in One Edition. It stores objects in a **private Backblaze B2 bucket using its S3-compatible API** and uses Supabase Auth/Postgres for identity and ownership metadata.
 
+## Build validation
+
+The `Media Worker build check` GitHub Actions workflow runs Wrangler's dry-run build for this directory on changes. It compiles the TypeScript bundle without deploying it.
+
 ## Required configuration
 
 The Wrangler configuration supplies these non-secret values for the configured bucket:
