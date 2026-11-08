@@ -241,7 +241,7 @@ const MEDIA_API='https://all-in-one-edition-media.plsgivemediscord981.workers.de
 const AVATARS=['✦','✧','◈','✺','⚡','🌙','🪐','🎮','🦊','🐼','🐸','🤖','🌸','☀️','💎','🦋'];
 const $=id=>document.getElementById(id);
 let elementorBootFailsafe=window.setTimeout(finishElementorBoot,8000);
-function finishElementorBoot(){const loader=$('elementorBoot');if(!loader)return;loader.classList.add('done');loader.setAttribute('aria-hidden','true');}
+function finishElementorBoot(){const loader=$('elementorBoot');if(!loader)return;loader.classList.add('done');loader.setAttribute('aria-hidden','true');loader.setAttribute('aria-busy','false');}
 const db=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 let codeMode=false,voiceOutput=false,voiceChatMode=false,voiceTimer=null,voiceTranscript='',recognition=null,session=null,user=null,profile={display_name:'Elementor',avatar:'✦',instructions:'',response_style:'balanced'},currentId=null,messages=[],isSending=false,imageMode=false,isOwner=false,activeController=null,thinkMode=localStorage.getItem('elementor_think_mode')==='1',objectUrls=[],guestId=sessionStorage.getItem('elementor_guest_id')||crypto.randomUUID(),guestChats=JSON.parse(sessionStorage.getItem('elementor_guest_chats')||'{}');
 sessionStorage.setItem('elementor_guest_id',guestId);
