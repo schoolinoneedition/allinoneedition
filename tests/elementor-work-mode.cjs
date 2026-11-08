@@ -35,6 +35,15 @@ for (const [index, css] of [...html.matchAll(/<style>([\s\S]*?)<\/style>/g)].map
   assert.equal((css.match(/\{/g) || []).length, (css.match(/\}/g) || []).length, "Elementor stylesheet " + index + " must have balanced CSS rule braces.");
 }
 
+
+assert.ok(html.includes('class="skip-link" href="#prompt"') && html.includes(".skip-link:focus"), "Keyboard users must have a visible skip link to the message composer.");
+assert.ok(html.includes('<main class="main" id="mainContent">') && html.includes("</main>"), "The primary workspace must expose a semantic main landmark.");
+assert.ok(html.includes('aria-label="Conversation and settings sidebar"'), "The sidebar landmark must have an accessible name.");
+assert.ok(html.includes('id="messages" role="log" aria-label="Chat messages"'), "Chat updates must be exposed through an accessible message log.");
+assert.ok(html.includes('id="prompt" aria-label="Message Elementor" aria-describedby="composerHelp"'), "The message composer must have an accessible name and description.");
+assert.ok(html.includes('id="displayName">') && html.includes('for="displayName"'), "The display-name control must have an explicitly associated label.");
+assert.ok(html.includes('aria-label="Upload profile picture"') && html.includes('aria-label="Announcement message"'), "Non-text upload and announcement controls must have accessible names.");
+
 console.log("Elementor Work Mode contracts passed: first-class mode, extension-free read-only page research, cancellation, progress, startup experience and preferences.");
 
 
