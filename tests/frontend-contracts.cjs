@@ -37,6 +37,13 @@ assert.match(html, /role="status" aria-live="polite"/);
 
  // Finishing touches: remove the unused ad slot and share appearance across standalone pages.
  assert.ok(!html.includes('perchads.com')&&!html.includes('perch-ad-slot')&&!html.includes('perch-ad-section'), 'The unused Perch ad slot and loader must be completely removed.');
+assert.ok(html.includes('id="primaryNav"') && html.includes('data-aio-nav-position="bottom"') === false, 'The main navigation must have one named, configurable navigation container.');
+assert.ok(html.includes('/brand-mark.svg') && fs.existsSync(path.join(__dirname, '..', 'brand-mark.svg')), 'The site and loader must use the original geometric brand mark.');
+assert.ok(ux.includes("['top','Top bar'") && ux.includes("['bottom','Bottom bar'") && ux.includes("['side','Side menu'") && ux.includes('aio-nav-position-v1'), 'First-run setup must let visitors choose top, bottom or side navigation and persist the choice.');
+assert.ok(ux.includes('checkHometimeNotices') && ux.includes('40*60*1000') && ux.includes('It’s hometime'), 'The dashboard must send one-time 40-minute and hometime reminders.');
+assert.ok(!ux.includes('aioGameInfoBtn') && !ux.includes('function gameInfo'), 'The game toolbar must not show the unwanted information strip or Info action.');
+assert.ok(html.includes('aio-loader-enter') && html.includes('Preparing the hub'), 'The home loading screen must use the refined card animation.');
+
  const faviconPng = fs.readFileSync(path.join(__dirname, '..', 'favicon.png'));
  const appleIcon = fs.readFileSync(path.join(__dirname, '..', 'apple-touch-icon.png'));
  const faviconIco = fs.readFileSync(path.join(__dirname, '..', 'favicon.ico'));
