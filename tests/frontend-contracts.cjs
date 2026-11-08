@@ -50,7 +50,7 @@ assert.ok(html.includes('aio-loader-enter') && html.includes('Preparing the hub'
  assert.ok(faviconPng.subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10])) && faviconPng.readUInt32BE(16) === 1024 && faviconPng.readUInt32BE(20) === 1024, 'The supplied favicon must be an upscaled 1024px PNG.');
  assert.ok(appleIcon.subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10])) && appleIcon.readUInt32BE(16) === 180 && faviconIco.subarray(0, 4).equals(Buffer.from([0,0,1,0])), 'Apple touch and ICO favicon variants must be present.');
  assert.ok([html, social, anime, elementor, study].every(page => page.includes('href="/favicon.png"') && page.includes('href="/favicon.ico"') && page.includes('href="/apple-touch-icon.png"')), 'Every main page must use the shared refreshed favicon set.');
- assert.ok([html, social, anime, elementor].every(page => page.includes('src="/favicon.png"')), 'Visible site brand marks must use the new artwork.');
+ assert.ok([html, social, anime, elementor].every(page => page.includes('src="/brand-mark.svg"')), 'Visible site brand marks must use the new artwork.');
  assert.ok(social.includes('./appearance.css')&&social.includes('./appearance.js')&&anime.includes('./appearance.css')&&anime.includes('./appearance.js'), 'Standalone Social and Watch pages must load the shared appearance system.');
  assert.ok(appearance.includes("root.dataset.aioWallpaperActive=active?'1':'0'")&&glassCss.includes('data-aio-wallpaper-active="1"'), 'Saved wallpapers must be applied consistently on standalone pages.');
  assert.ok(css.includes('aioOnboardSlideIn')&&css.includes('aio-ultimate-modal.open .aio-onboard-card'), 'Setup should use a smooth slide-in transition.');
