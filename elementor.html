@@ -196,12 +196,20 @@ body{min-height:100dvh}
 @media(max-width:480px){#elementorBoot{padding:18px}#elementorBoot .boot-card{border-radius:21px;padding:26px 23px}#elementorBoot .boot-message{margin:37px 0 29px}#elementorBoot .boot-message h1{font-size:32px}}
 @media(prefers-reduced-motion:reduce){#elementorBoot .boot-card,#elementorBoot .boot-mark,#elementorBoot .boot-spark,#elementorBoot .boot-live-dot,#elementorBoot .boot-track i{animation:none!important}#elementorBoot .boot-track i{width:100%;opacity:.65}}
 </style>
+<style>
+/* Keyboard access and landmark clarity */
+.skip-link{position:fixed;z-index:2000;top:10px;left:10px;padding:10px 14px;border-radius:9px;background:var(--ink);color:#fff;transform:translateY(-160%);transition:transform .16s ease}
+.skip-link:focus{transform:translateY(0);outline:3px solid var(--accent);outline-offset:3px}
+#prompt:focus-visible,.history-search:focus-visible,button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.skip-link{transition:none}}
+</style>
 </head>
 <body>
+<a class="skip-link" href="#prompt">Skip to message composer</a>
 <div id="elementorBoot" role="status" aria-live="polite" aria-label="Loading Elementor workspace" aria-busy="true"><div class="boot-card"><div class="boot-brand"><span class="boot-mark"><span class="boot-spark">&#10022;</span></span><span class="boot-brand-copy"><strong>Elementor <i>AI</i></strong><small>ALL IN ONE EDITION</small></span></div><div class="boot-message"><span class="boot-eyebrow"><span class="boot-live-dot"></span> YOUR WORKSPACE</span><h1>Making room for<br><em>great ideas.</em></h1><p>Preparing your chats, tools and workspace.</p></div><div class="boot-progress"><div class="boot-track"><i></i></div><span class="boot-loading-label">Getting things ready</span></div><div class="boot-footer"><span>ELEMENTOR AI</span><span>●</span><span>ALL IN ONE EDITION</span></div></div></div>
 <div id="elementorNotices" aria-live="polite" aria-atomic="false"></div>
 <div class="shell">
-<aside class="side" id="sidebar">
+<aside class="side" id="sidebar" aria-label="Conversation and settings sidebar">
  <a class="brand" href="/"><img src="/favicon.png" alt=""><span><strong>Elementor AI</strong><small>All in One Edition</small></span></a>
  <button class="new" id="newChat">＋ New chat</button>
  <div class="side-label">Your conversations</div><input class="history-search" id="historySearch" placeholder="Search chats…" aria-label="Search conversations"><div class="history" id="history"><div class="status">Sign in to sync your chats.</div></div>
@@ -214,7 +222,7 @@ body{min-height:100dvh}
   <div class="account"><div class="avatar" id="accountAvatar">✦</div><div><strong id="accountName">Not signed in</strong><small id="accountState">Sign in to use Elementor</small></div></div>
  </div>
 </aside>
-<section class="main">
+<main class="main" id="mainContent">
  <header class="top"><div style="display:flex;align-items:center;gap:10px"><button class="icon-btn mobile-menu" id="menuBtn" aria-label="Open menu">☰</button><h1 id="chatTitle">New chat</h1></div><div class="top-right"><span class="pill">Elementor workspace</span><button class="icon-btn" id="renameChat" aria-label="Rename chat" title="Rename chat">✎</button><button class="icon-btn" id="deleteChat" aria-label="Delete chat" title="Delete chat">⌫</button><button class="icon-btn" id="themeToggle" aria-label="Switch colour theme" title="Switch colour theme">◐</button><button class="icon-btn" id="profileTop" aria-label="Personalisation">⚙</button></div></header>
  <div class="content">
   <div class="welcome" id="welcome"><div class="orb">✦</div><h2>What are we building today?</h2><p>Ask questions, create images, or manage parts of All in One Edition.</p>
@@ -230,25 +238,25 @@ body{min-height:100dvh}
  <div class="work-plan" id="workPlan"><strong>Task plan</strong><ol><li>Validate the public URL.</li><li>Fetch the page without signing in or submitting forms.</li><li>Extract readable text and links.</li><li>Analyse the page and return findings in chat.</li></ol></div>
  </div>
 </section>
-  <div class="messages" id="messages"></div><button class="tool-btn scroll-bottom hidden" id="scrollBottom" type="button">↓ Latest</button>
-  <div class="composer-wrap"><div class="composer"><textarea id="prompt" placeholder="Message Elementor…" rows="2"></textarea><div class="composer-bottom"><div class="tools"><button class="tool-btn" id="imageMode" title="Optional explicit image mode">▧ Image</button><button class="tool-btn" id="thinkMode" aria-pressed="false" title="Use a reasoning-capable model">✧ Think</button><button class="tool-btn" id="workModeOpen" aria-pressed="false" title="Switch to Work Mode">Work</button><button class="tool-btn" id="codeMode">⌘ Code mode</button><button class="tool-btn" id="voiceInput" title="Dictate a message">🎙 Dictate</button><button class="tool-btn" id="voiceChat" title="Hands-free voice conversation">◉ Voice chat</button><button class="tool-btn" id="voiceOutput" title="Read replies aloud">🔊 Read replies</button><button class="tool-btn" id="clearMode">Clear mode</button><span class="voice-status" id="voiceStatus" aria-live="polite"></span></div><button class="tool-btn hidden" id="stop" type="button">Stop ■</button><button class="send" id="send">Send ↑</button></div></div><p class="fine">Elementor can make mistakes. Check important changes before applying them.</p></div>
+  <div class="messages" id="messages" role="log" aria-label="Chat messages" aria-live="polite" aria-relevant="additions"></div><button class="tool-btn scroll-bottom hidden" id="scrollBottom" type="button" aria-label="Scroll to latest message">↓ Latest</button>
+  <div class="composer-wrap"><div class="composer"><textarea id="prompt" aria-label="Message Elementor" aria-describedby="composerHelp" placeholder="Message Elementor…" rows="2"></textarea><div class="composer-bottom"><div class="tools"><button class="tool-btn" id="imageMode" title="Optional explicit image mode">▧ Image</button><button class="tool-btn" id="thinkMode" aria-pressed="false" title="Use a reasoning-capable model">✧ Think</button><button class="tool-btn" id="workModeOpen" aria-pressed="false" title="Switch to Work Mode">Work</button><button class="tool-btn" id="codeMode">⌘ Code mode</button><button class="tool-btn" id="voiceInput" title="Dictate a message">🎙 Dictate</button><button class="tool-btn" id="voiceChat" title="Hands-free voice conversation">◉ Voice chat</button><button class="tool-btn" id="voiceOutput" title="Read replies aloud">🔊 Read replies</button><button class="tool-btn" id="clearMode">Clear mode</button><span class="voice-status" id="voiceStatus" aria-live="polite"></span></div><button class="tool-btn hidden" id="stop" type="button">Stop ■</button><button class="send" id="send">Send ↑</button></div></div><p class="fine" id="composerHelp">Elementor can make mistakes. Check important changes before applying them.</p></div>
  </div>
-</section>
+</main>
 </div>
 
 <div class="modal-back hidden" id="pluginsModal" role="dialog" aria-modal="true" aria-labelledby="pluginsTitle"><div class="modal plugin-modal"><h3 id="pluginsTitle">Plugin marketplace</h3><p>Choose which built-in Elementor capabilities may run. Permissions are off by default and can be revoked here at any time.</p><div class="plugin-card"><div><strong>Cloud Browser Research</strong><small>Read public webpages only. It cannot sign in, submit forms, or access your private browser tabs.</small></div><label class="plugin-toggle"><input type="checkbox" id="pluginBrowserPermission"> Allow</label></div><div class="plugin-card"><div><strong>Image Studio</strong><small>Send your image prompt to the image generator and show the result in this conversation.</small></div><label class="plugin-toggle"><input type="checkbox" id="pluginImagePermission"> Allow</label></div><div class="plugin-note"><strong>External integrations</strong><p>No third-party accounts are connected in this build. External providers will appear here only after a verified OAuth flow, server-side token storage, and a separate scope approval screen are configured.</p></div><div class="status" id="pluginStatus" aria-live="polite"></div><div class="modal-actions"><button class="tool-btn" data-close="pluginsModal">Close</button><button class="send" id="savePluginPermissions">Save permissions</button></div></div></div>
 <div class="modal-back hidden" id="profileModal"><div class="modal"><h3>Personalise Elementor</h3><p>Choose how Elementor appears and responds. These preferences are saved to your account.</p>
- <div class="field"><label>Display name</label><input id="displayName" maxlength="48" placeholder="Elementor"></div>
- <div class="field"><label>Profile picture</label><div class="avatars" id="avatarChoices"></div><input id="avatarUpload" type="file" accept="image/png,image/jpeg,image/webp" style="margin-top:9px"></div>
- <div class="field"><label>Accent colour</label><select id="elementorAccent"><option value="blue">Blue</option><option value="violet">Violet</option><option value="teal">Teal</option><option value="rose">Rose</option></select></div>
- <div class="field"><label>Font</label><select id="elementorFont"><option value="system">System</option><option value="inter">Inter</option><option value="serif">Serif</option></select></div>
+ <div class="field"><label for="displayName">Display name</label><input id="displayName" maxlength="48" placeholder="Elementor"></div>
+ <div class="field"><label>Profile picture</label><div class="avatars" id="avatarChoices"></div><input id="avatarUpload" aria-label="Upload profile picture" type="file" accept="image/png,image/jpeg,image/webp" style="margin-top:9px"></div>
+ <div class="field"><label for="elementorAccent">Accent colour</label><select id="elementorAccent"><option value="blue">Blue</option><option value="violet">Violet</option><option value="teal">Teal</option><option value="rose">Rose</option></select></div>
+ <div class="field"><label for="elementorFont">Font</label><select id="elementorFont"><option value="system">System</option><option value="inter">Inter</option><option value="serif">Serif</option></select></div>
  <div class="field"><label><input type="checkbox" id="elementorReducedMotion"> Reduce animations</label></div>
  <div class="field"><label><input type="checkbox" id="elementorGreetingEnabled" checked> Show startup greeting</label></div>
- <div class="field"><label>Response style</label><select id="responseStyle"><option value="balanced">Balanced</option><option value="concise">Concise</option><option value="detailed">Detailed</option><option value="friendly">Friendly</option></select></div>
- <div class="field"><label>Custom instructions</label><textarea id="instructions" maxlength="1200" placeholder="Tell Elementor how you like answers, what to focus on, and what to avoid."></textarea></div><div class="status" id="profileStatus"></div><div class="modal-actions"><button class="tool-btn" data-close="profileModal">Cancel</button><button class="send" id="saveProfile">Save preferences</button></div>
+ <div class="field"><label for="responseStyle">Response style</label><select id="responseStyle"><option value="balanced">Balanced</option><option value="concise">Concise</option><option value="detailed">Detailed</option><option value="friendly">Friendly</option></select></div>
+ <div class="field"><label for="instructions">Custom instructions</label><textarea id="instructions" maxlength="1200" placeholder="Tell Elementor how you like answers, what to focus on, and what to avoid."></textarea></div><div class="status" id="profileStatus"></div><div class="modal-actions"><button class="tool-btn" data-close="profileModal">Cancel</button><button class="send" id="saveProfile">Save preferences</button></div>
 </div></div>
 <div class="modal-back hidden" id="controlsModal"><div class="modal"><h3>Website controls</h3><p>Owner-only controls are verified by Supabase Row Level Security. Changes are applied only after you press Save.</p>
- <div class="control-card"><h3>Homepage announcement</h3><p>Publish a short notice across All in One Edition. Only the verified owner account can change this.</p><input id="announcementText" maxlength="180" placeholder="e.g. New games have been added!"><button id="saveAnnouncement">Publish announcement</button><button id="clearAnnouncement" style="background:#eef0f4;color:#343a45;margin-left:6px">Clear</button></div>
+ <div class="control-card"><h3>Homepage announcement</h3><p>Publish a short notice across All in One Edition. Only the verified owner account can change this.</p><input id="announcementText" aria-label="Announcement message" maxlength="180" placeholder="e.g. New games have been added!"><button id="saveAnnouncement">Publish announcement</button><button id="clearAnnouncement" style="background:#eef0f4;color:#343a45;margin-left:6px">Clear</button></div>
  <div class="status" id="controlStatus">Checking owner permissions…</div><div class="modal-actions"><button class="tool-btn" data-close="controlsModal">Close</button></div>
 </div></div>
 <script>
