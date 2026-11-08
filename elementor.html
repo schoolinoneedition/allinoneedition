@@ -176,9 +176,42 @@ body{min-height:100dvh}
 .plugin-note p{margin:5px 0 0}
 :root.dark .plugin-card{background:var(--panel)}
 </style>
+
+<style>
+/* Branded Elementor startup screen */
+#elementorBoot{display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at 50% 38%,color-mix(in srgb,var(--accent-soft) 78%,transparent),transparent 52%),var(--bg);transition:opacity .32s ease,visibility .32s ease}
+#elementorBoot .boot-card{width:min(430px,100%);padding:clamp(25px,5vw,42px);border:1px solid var(--line);border-radius:25px;background:var(--panel);box-shadow:0 24px 80px rgba(25,35,60,.09);text-align:left;animation:boot-card-in .65s cubic-bezier(.2,.8,.2,1) both}
+#elementorBoot .boot-brand{display:flex;align-items:center;gap:12px}
+#elementorBoot .boot-mark{width:47px;height:47px;flex:none;display:grid;place-items:center;border-radius:15px;background:var(--accent);color:white;box-shadow:0 7px 20px color-mix(in srgb,var(--accent) 25%,transparent);font-size:23px;animation:boot-mark-breathe 2.8s ease-in-out infinite}
+#elementorBoot .boot-spark{display:block;animation:boot-spark-turn 9s linear infinite}
+#elementorBoot .boot-brand-copy strong{display:block;font-size:17px;letter-spacing:-.7px;line-height:1.2}
+#elementorBoot .boot-brand-copy strong i{font-style:normal;color:var(--accent)}
+#elementorBoot .boot-brand-copy small{display:block;margin-top:4px;color:var(--muted);font-size:8px;font-weight:850;letter-spacing:.16em}
+#elementorBoot .boot-message{margin:43px 0 34px}
+#elementorBoot .boot-eyebrow{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:9px;font-weight:850;letter-spacing:.15em}
+#elementorBoot .boot-live-dot{width:7px;height:7px;border-radius:50%;background:#27ae78;box-shadow:0 0 0 4px color-mix(in srgb,#27ae78 13%,transparent);animation:boot-dot-pulse 1.8s ease-out infinite}
+#elementorBoot .boot-message h1{margin:15px 0 9px;font-size:clamp(29px,7vw,38px);line-height:1.08;letter-spacing:-1.8px;font-weight:760}
+#elementorBoot .boot-message h1 em{font-style:normal;color:var(--accent)}
+#elementorBoot .boot-message p{margin:0;color:var(--muted);font-size:12px}
+#elementorBoot .boot-progress{display:grid;gap:10px}
+#elementorBoot .boot-track{width:100%;height:4px;margin:0;border-radius:99px;background:var(--soft);overflow:hidden}
+#elementorBoot .boot-track i{width:31%;height:100%;border-radius:inherit;background:var(--accent);animation:boot-progress-sweep 1.45s cubic-bezier(.45,0,.25,1) infinite}
+#elementorBoot .boot-loading-label{color:var(--muted);font-size:10px}
+#elementorBoot .boot-footer{display:flex;align-items:center;gap:9px;margin-top:32px;padding-top:15px;border-top:1px solid var(--line);color:var(--muted);font-size:8px;font-weight:800;letter-spacing:.12em}
+#elementorBoot .boot-footer span:nth-child(2){font-size:6px;color:var(--accent)}
+#elementorBoot.done{opacity:0;visibility:hidden;pointer-events:none}
+@keyframes boot-card-in{from{opacity:0;transform:translateY(13px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes boot-mark-breathe{0%,100%{box-shadow:0 7px 20px color-mix(in srgb,var(--accent) 22%,transparent);transform:translateY(0)}50%{box-shadow:0 10px 27px color-mix(in srgb,var(--accent) 34%,transparent);transform:translateY(-2px)}}
+@keyframes boot-spark-turn{to{transform:rotate(360deg)}}
+@keyframes boot-dot-pulse{0%,100%{box-shadow:0 0 0 3px color-mix(in srgb,#27ae78 12%,transparent)}50%{box-shadow:0 0 0 6px color-mix(in srgb,#27ae78 5%,transparent)}}
+@keyframes boot-progress-sweep{0%{transform:translateX(-115%)}100%{transform:translateX(430%)}}
+:root.dark #elementorBoot .boot-card{box-shadow:0 24px 80px rgba(0,0,0,.28)}
+@media(max-width:480px){#elementorBoot{padding:18px}#elementorBoot .boot-card{border-radius:21px;padding:26px 23px}#elementorBoot .boot-message{margin:37px 0 29px}#elementorBoot .boot-message h1{font-size:32px}}
+@media(prefers-reduced-motion:reduce){#elementorBoot .boot-card,#elementorBoot .boot-mark,#elementorBoot .boot-spark,#elementorBoot .boot-live-dot,#elementorBoot .boot-track i{animation:none!important}#elementorBoot .boot-track i{width:100%;opacity:.65}}
+</style>
 </head>
 <body>
-<div id="elementorBoot" role="status" aria-live="polite" aria-label="Loading Elementor workspace" aria-busy="true"><div class="boot-mark">&#10022;</div><strong>Elementor</strong><span>Preparing your workspace...</span><div class="boot-track"><i></i></div></div>
+<div id="elementorBoot" role="status" aria-live="polite" aria-label="Loading Elementor workspace" aria-busy="true"><div class="boot-card"><div class="boot-brand"><span class="boot-mark"><span class="boot-spark">&#10022;</span></span><span class="boot-brand-copy"><strong>Elementor <i>AI</i></strong><small>ALL IN ONE EDITION</small></span></div><div class="boot-message"><span class="boot-eyebrow"><span class="boot-live-dot"></span> YOUR WORKSPACE</span><h1>Making room for<br><em>great ideas.</em></h1><p>Preparing your chats, tools and workspace.</p></div><div class="boot-progress"><div class="boot-track"><i></i></div><span class="boot-loading-label">Getting things ready</span></div><div class="boot-footer"><span>ELEMENTOR AI</span><span>●</span><span>ALL IN ONE EDITION</span></div></div></div>
 <div id="elementorNotices" aria-live="polite" aria-atomic="false"></div>
 <div class="shell">
 <aside class="side" id="sidebar">
