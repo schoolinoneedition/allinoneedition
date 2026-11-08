@@ -5,6 +5,9 @@ const worker = fs.readFileSync("cloudflare/elementor-ai/worker.ts", "utf8");
 
 const documentEnd = html.indexOf("</html>");
 assert.ok(documentEnd >= 0 && html.slice(documentEnd + "</html>".length).trim() === "", "Elementor must not contain orphaned duplicate application code after the document closes.");
+const elementIds = [...html.matchAll(/\\bid=(["'])([^"']+)\\1/gi)].map(match => match[2]);
+const duplicateIds = [...new Set(elementIds.filter((id, index) => elementIds.indexOf(id) !== index))];
+assert.deepEqual(duplicateIds, [], "Elementor must not contain duplicate HTML IDs.");
 assert.ok(html.includes("function finishElementorBoot()") && html.includes("setTimeout(finishElementorBoot,8000)"), "The loading screen must have a failsafe so it cannot cover the workspace indefinitely.");
 assert.ok(html.includes("Authentication is taking too long." ) && html.includes(")),6500)"), "Slow authentication must fall back to guest mode before the loading failsafe.");
 
@@ -20,7 +23,7 @@ assert.ok(worker.includes('gotoOptions:{waitUntil:"networkidle2",timeout:25000}'
 assert.ok(worker.includes('host.endsWith(".local")') && worker.includes('Private, local and internal network addresses are not allowed.'), "Redirects and private network targets must be rejected.");
 assert.ok(worker.includes('mode:"browser-run-read-only"') && worker.includes('Cloudflare Browser Run'), "Only HTML page reading is supported and must be labelled read-only.");
 assert.ok(!html.includes('Install the Elementor Browser Bridge') && !html.includes('grant its site access'), "No extension installation instructions may remain.");
-assert.ok(html.includes('id="elementorBoot"') && html.includes('id="elementorBoot"'), "The startup loading experience must be present.");
+assert.equal(elementIds.filter(id => id === "elementorBoot").length, 1, "The startup loading experience must have exactly one boot overlay.");
 assert.ok(html.includes('elementorNotices') && html.includes('showElementorGreeting') && html.includes('aio_elementor_site_settings'), "Startup greetings and real published announcements must use real account data.");
 assert.ok(html.includes('elementor_preferences') && html.includes('elementorReducedMotion') && html.includes('elementorAccent') && html.includes('elementorFont'), "Appearance preferences must persist locally and support reduced motion.");
 assert.ok(html.includes("callAI(task)") && html.includes("workContext:!!extraContext"), "Fetched page evidence must reach the AI analysis request with bounded work context.");
