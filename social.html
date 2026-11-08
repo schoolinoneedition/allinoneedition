@@ -1056,7 +1056,7 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
     document.addEventListener('visibilitychange',()=>{
       if(document.hidden){
         clearTimeout(aioSocialWarmTimer);aioSocialWarmTimer=0;
-        runSocialMediaWarmup();
+        // Keep queued URLs for later, but never start cache downloads in a hidden tab.
       }else scheduleSocialMediaWarmup();
     });
     if('serviceWorker'in navigator){
@@ -1071,14 +1071,14 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
           const queued=new Set(aioSocialWarmQueue);
           for(const url of data.pendingUrls){if(typeof url==='string'&&!queued.has(url)){queued.add(url);aioSocialWarmQueue.push(url);}}
         }
-        if(aioSocialWarmQueue.length&&aioSocialWarmBytes<AIO_SOCIAL_CACHE_SESSION_LIMIT){
-          if(document.hidden||Date.now()-aioSocialWarmLastActivity>5500)runSocialMediaWarmup();
+        if(!document.hidden&&aioSocialWarmQueue.length&&aioSocialWarmBytes<AIO_SOCIAL_CACHE_SESSION_LIMIT){
+          if(Date.now()-aioSocialWarmLastActivity>5500)runSocialMediaWarmup();
           else scheduleSocialMediaWarmup();
         }
       });
       navigator.serviceWorker.addEventListener('controllerchange',()=>{
         // Future video sources will use the same-origin cache proxy after control is active.
-        if(aioSocialWarmQueue.length)runSocialMediaWarmup();
+        if(!document.hidden&&aioSocialWarmQueue.length)runSocialMediaWarmup();
       });
     }
   }
@@ -1107,12 +1107,13 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
     clearTimeout(aioSocialWarmTimer);
     const wait=Math.max(900,5600-(Date.now()-aioSocialWarmLastActivity));
     aioSocialWarmTimer=setTimeout(()=>{
-      if(document.hidden||Date.now()-aioSocialWarmLastActivity>=5200)runSocialMediaWarmup();
+      if(document.hidden)return;
+      if(Date.now()-aioSocialWarmLastActivity>=5200)runSocialMediaWarmup();
       else scheduleSocialMediaWarmup();
     },Math.min(wait,6500));
   }
   async function runSocialMediaWarmup(){
-    if(!aioSocialWarmQueue.length||aioSocialWarmBusy||aioSocialWarmBytes>=AIO_SOCIAL_CACHE_SESSION_LIMIT)return;
+    if(document.hidden||!aioSocialWarmQueue.length||aioSocialWarmBusy||aioSocialWarmBytes>=AIO_SOCIAL_CACHE_SESSION_LIMIT)return;
     if(!socialWarmAllowed()){aioSocialWarmQueue.length=0;return;}
     try{
       if(navigator.storage?.estimate){
