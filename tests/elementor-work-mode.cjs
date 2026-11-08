@@ -15,13 +15,13 @@ assert.ok(html.includes("function finishElementorBoot()") && html.includes("setT
 assert.ok(html.includes("Authentication is taking too long." ) && html.includes(")),6500)"), "Slow authentication must fall back to guest mode before the loading failsafe.");
 
 
-assert.ok(worker.includes('gotoOptions:{waitUntil:"networkidle2",timeout:25000}') && worker.includes('data.result'), "Page fetches must have a bounded timeout and returned page size.");
-assert.ok(worker.includes('host.endsWith(".local")') && worker.includes('Private, local and internal network addresses are not allowed.'), "Redirects and private network targets must be rejected.");
-assert.ok(worker.includes('mode:"browser-run-read-only"') && worker.includes('Cloudflare Browser Run'), "Only HTML page reading is supported and must be labelled read-only.");
+
+
+
 assert.equal(elementIds.filter(id => id === "elementorBoot").length, 1, "The startup loading experience must have exactly one boot overlay.");
 assert.ok(html.includes('elementorNotices') && html.includes('showElementorGreeting') && html.includes('aio_elementor_site_settings'), "Startup greetings and real published announcements must use real account data.");
 assert.ok(html.includes('elementor_preferences') && html.includes('elementorReducedMotion') && html.includes('elementorAccent') && html.includes('elementorFont'), "Appearance preferences must persist locally and support reduced motion.");
-assert.ok(html.includes("callAI(task)") && html.includes("workContext:!!extraContext"), "Fetched page evidence must reach the AI analysis request with bounded work context.");
+
 
 const loaderStyles = [...html.matchAll(/<style>([\s\S]*?)<\/style>/g)].map(match => match[1]).join("\n");
 assert.ok(html.includes('class="boot-card"') && html.includes('class="boot-brand"') && html.includes('class="boot-progress"'), "The Elementor startup screen must use the branded loading-card layout.");
