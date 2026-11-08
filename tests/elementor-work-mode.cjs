@@ -3,6 +3,12 @@ const fs = require("node:fs");
 const html = fs.readFileSync("elementor.html", "utf8");
 const worker = fs.readFileSync("cloudflare/elementor-ai/worker.ts", "utf8");
 
+const documentEnd = html.indexOf("</html>");
+assert.ok(documentEnd >= 0 && html.slice(documentEnd + "</html>".length).trim() === "", "Elementor must not contain orphaned duplicate application code after the document closes.");
+assert.ok(html.includes("function finishElementorBoot()") && html.includes("setTimeout(finishElementorBoot,8000)"), "The loading screen must have a failsafe so it cannot cover the workspace indefinitely.");
+assert.ok(html.includes("Authentication is taking too long." ) && html.includes(")),6500)"), "Slow authentication must fall back to guest mode before the loading failsafe.");
+
+
 assert.ok(html.includes('id="workModeOpen"') && html.includes('id="workPanel"'), "Work Mode must be a first-class in-chat mode.");
 assert.ok(html.indexOf('id="workPanel"') < html.indexOf('id="messages"'), "The Work Mode task workspace must sit inside the chat canvas.");
 assert.ok(html.includes("AI_API+'/browse'") && html.includes("runWorkTask"), "Work Mode must call the real webpage research endpoint.");
