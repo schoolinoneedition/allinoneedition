@@ -49,6 +49,12 @@ assert.ok(html.includes('id="profileModal" role="dialog" aria-modal="true" aria-
 assert.ok(html.includes("let activeModalId=null,modalReturnFocus=null") && html.includes("function openModal(id)") && html.includes("function closeModal(id)"), "Modal open and close handling must track focus ownership.");
 assert.ok(html.includes("if(event.key==='Escape')") && html.includes("event.key!=='Tab'") && html.includes("first.focus()") && html.includes("last.focus()"), "Dialogs must close with Escape and trap keyboard focus.");
 assert.ok(html.includes("restore.focus({preventScroll:true})") && html.includes("event.target===overlay"), "Closing a dialog must restore focus and allow backdrop dismissal.");
+
+assert.ok(html.includes("const promptInput=$('prompt')") && html.includes("promptInput.addEventListener('paste',()=>requestAnimationFrame(resizePrompt))"), "The composer must resize after typing and pasted multiline content.");
+assert.ok(html.includes("Math.min(promptInput.scrollHeight,200)") && html.includes("promptInput.style.overflowY=promptInput.scrollHeight>200?'auto':'hidden'"), "The composer must grow to a bounded height and scroll internally for long drafts.");
+assert.ok(html.includes(".composer .tools{min-width:0;max-width:100%;overflow-x:auto") && html.includes(".composer .tools .tool-btn{flex:0 0 auto}"), "Composer tools must remain reachable on narrow screens without squeezing the send button.");
+assert.ok(html.includes("promptInput.scrollIntoView({block:'nearest',behavior:'smooth'})"), "The composer must remain visible when focused on mobile.");
+
 assert.ok(html.includes("max-height:min( min(760px, calc(100dvh - 36px)), 100%)") && html.includes("overscroll-behavior:contain"), "Dialogs must remain scrollable within short viewports without scrolling the page behind them.");
 
 console.log("Elementor Work Mode contracts passed: first-class mode, extension-free read-only page research, cancellation, progress, startup experience and preferences.");
