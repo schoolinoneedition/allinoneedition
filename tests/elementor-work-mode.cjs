@@ -32,7 +32,7 @@ assert.ok(html.includes("Making room for") && html.includes("Getting things read
 assert.ok(!loaderStyles.includes(".boot-mark{width:54px") && !loaderStyles.includes("@keyframes boot-mark-in"), "Obsolete loading-screen styles must not remain alongside the new branded loader.");
 assert.ok(loaderStyles.includes("@media(prefers-reduced-motion:reduce){#elementorBoot"), "The branded loading screen must respect reduced-motion preferences.");
 for (const [index, css] of [...html.matchAll(/<style>([\s\S]*?)<\/style>/g)].map((match, index) => [index + 1, match[1]])) {
-  assert.equal((css.match(/\{/g) || []).length, (css.match(/\}/g) || []).length, \`Elementor stylesheet \${index} must have balanced CSS rule braces.\`);
+  assert.equal((css.match(/\{/g) || []).length, (css.match(/\}/g) || []).length, "Elementor stylesheet " + index + " must have balanced CSS rule braces.");
 }
 
 console.log("Elementor Work Mode contracts passed: first-class mode, extension-free read-only page research, cancellation, progress, startup experience and preferences.");
