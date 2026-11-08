@@ -19,9 +19,6 @@
 :root.dark .work-panel{background:var(--panel)}:root.dark .work-task input{background:#15181e;color:var(--ink)}
 @media(max-width:700px){.work-panel{max-height:42vh;padding:14px}.work-head h2{font-size:19px}.work-actions>*{flex:1}.work-meta{font-size:10px}}
 
-#elementorBoot{position:fixed;inset:0;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:var(--bg);color:var(--ink);transition:opacity .24s ease,visibility .24s ease}
-#elementorBoot.done{opacity:0;visibility:hidden;pointer-events:none}.boot-mark{width:54px;height:54px;border-radius:17px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:27px}.boot-track{width:150px;height:4px;background:var(--line);border-radius:8px;overflow:hidden;margin-top:8px}.boot-track i{display:block;height:100%;width:40%;background:var(--accent);animation:boot-progress 1.1s ease-in-out infinite alternate}
-@keyframes boot-progress{from{transform:translateX(-80%)}to{transform:translateX(250%)}}
 #elementorNotices{position:fixed;z-index:1001;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);display:grid;gap:8px;width:min(420px,calc(100vw - 24px));pointer-events:none}
 .elementor-notice{pointer-events:auto;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:12px 14px;display:flex;align-items:flex-start;gap:10px;animation:notice-in .28s ease both}
 .elementor-notice strong{display:block;font-size:13px}.elementor-notice small{display:block;color:var(--muted);font-size:11px;margin-top:2px}.elementor-notice button{margin-left:auto;border:0;background:transparent;color:var(--muted);font-size:18px}
@@ -29,7 +26,6 @@
 :root[data-accent="violet"]{--accent:#7655d9;--accent-soft:#f0ebff}:root[data-accent="teal"]{--accent:#087f83;--accent-soft:#e3f7f5}:root[data-accent="rose"]{--accent:#c04470;--accent-soft:#fff0f5}
 :root[data-font="serif"] body{font-family:Georgia,serif}:root[data-font="inter"] body{font-family:Inter,ui-sans-serif,system-ui,sans-serif}
 :root.reduce-motion *, :root.reduce-motion *:before,:root.reduce-motion *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
-@media(prefers-reduced-motion:reduce){#elementorBoot .boot-track i{animation:none}}
 </style>
 <style>
 /* Elementor workspace refinement: stable viewport, readable chat, and touch-first layouts */
@@ -136,16 +132,7 @@ body{min-height:100dvh}
 </style>
 
 <style>
-/* Greeting and startup motion: quick, calm, and resilient on low-power devices. */
-#elementorBoot{background:var(--bg);isolation:isolate;gap:12px;padding:24px;text-align:center}#elementorBoot .boot-mark{box-shadow:0 8px 24px rgba(52,94,234,.10)}#elementorBoot .boot-track{position:relative;background:var(--line);border-radius:999px;overflow:hidden}#elementorBoot .boot-track i{display:block;height:100%;background:var(--accent);will-change:transform}#elementorBoot.done{transition:opacity .22s ease,visibility .22s ease}
-#elementorBoot .boot-mark{animation:boot-mark-in .55s cubic-bezier(.2,.8,.2,1) both,boot-mark-float 2.4s ease-in-out .55s infinite}
-#elementorBoot strong{font-size:15px;letter-spacing:-.02em}
-#elementorBoot>span{font-size:12px;color:var(--muted)}
-#elementorBoot .boot-track{width:min(190px,52vw);height:5px}
-#elementorBoot .boot-track i{width:34%;border-radius:inherit;animation:boot-progress 1.35s cubic-bezier(.4,0,.2,1) infinite}
-@keyframes boot-mark-in{from{opacity:0;transform:translateY(10px) scale(.88)}to{opacity:1;transform:translateY(0) scale(1)}}
-@keyframes boot-mark-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-@keyframes boot-progress{0%{transform:translateX(-110%)}100%{transform:translateX(330%)}}
+/* Greeting notification styling. */
 .elementor-greeting{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:12px;padding:15px 17px;border-radius:17px;animation:greeting-enter .62s cubic-bezier(.18,.85,.25,1.18) both}
 .greeting-mark{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font-size:21px}
 .elementor-greeting strong{font-size:14px}.elementor-greeting small{font-size:11px}.elementor-greeting button{font-size:19px}
