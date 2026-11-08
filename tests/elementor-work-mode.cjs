@@ -26,13 +26,13 @@ assert.ok(html.includes('elementor_preferences') && html.includes('elementorRedu
 assert.ok(html.includes("callAI(task)") && html.includes("workContext:!!extraContext"), "Fetched page evidence must reach the AI analysis request with bounded work context.");
 assert.ok(worker.includes("body.workContext===true?(index===raw.length-1?12000:500):3000"), "Normal chat must retain its original message limit while Work Mode gets bounded page evidence.");
 
-const loaderStyles = [...html.matchAll(/<style>([\\s\\S]*?)<\\/style>/g)].map(match => match[1]).join("\\n");
+const loaderStyles = [...html.matchAll(/<style>([\s\S]*?)<\/style>/g)].map(match => match[1]).join("\n");
 assert.ok(html.includes('class="boot-card"') && html.includes('class="boot-brand"') && html.includes('class="boot-progress"'), "The Elementor startup screen must use the branded loading-card layout.");
 assert.ok(html.includes("Making room for") && html.includes("Getting things ready"), "The loading screen must show its updated welcome and progress copy.");
 assert.ok(!loaderStyles.includes(".boot-mark{width:54px") && !loaderStyles.includes("@keyframes boot-mark-in"), "Obsolete loading-screen styles must not remain alongside the new branded loader.");
 assert.ok(loaderStyles.includes("@media(prefers-reduced-motion:reduce){#elementorBoot"), "The branded loading screen must respect reduced-motion preferences.");
-for (const [index, css] of [...html.matchAll(/<style>([\\s\\S]*?)<\\/style>/g)].map((match, index) => [index + 1, match[1]])) {
-  assert.equal((css.match(/\\{/g) || []).length, (css.match(/\\}/g) || []).length, `Elementor stylesheet ${index} must have balanced CSS rule braces.`);
+for (const [index, css] of [...html.matchAll(/<style>([\s\S]*?)<\/style>/g)].map((match, index) => [index + 1, match[1]])) {
+  assert.equal((css.match(/\{/g) || []).length, (css.match(/\}/g) || []).length, \`Elementor stylesheet \${index} must have balanced CSS rule braces.\`);
 }
 
 console.log("Elementor Work Mode contracts passed: first-class mode, extension-free read-only page research, cancellation, progress, startup experience and preferences.");
