@@ -44,6 +44,13 @@ assert.ok(html.includes('id="prompt" aria-label="Message Elementor" aria-describ
 assert.ok(html.includes('id="displayName"') && html.includes('for="displayName"'), "The display-name control must have an explicitly associated label.");
 assert.ok(html.includes('aria-label="Upload profile picture"') && html.includes('aria-label="Announcement message"'), "Non-text upload and announcement controls must have accessible names.");
 
+
+assert.ok(html.includes('id="profileModal" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle"') && html.includes('id="controlsModal" role="dialog" aria-modal="true" aria-labelledby="controlsModalTitle"'), "Every settings modal must expose dialog semantics and a labelled heading.");
+assert.ok(html.includes("let activeModalId=null,modalReturnFocus=null") && html.includes("function openModal(id)") && html.includes("function closeModal(id)"), "Modal open and close handling must track focus ownership.");
+assert.ok(html.includes("if(event.key==='Escape')") && html.includes("event.key!=='Tab'") && html.includes("first.focus()") && html.includes("last.focus()"), "Dialogs must close with Escape and trap keyboard focus.");
+assert.ok(html.includes("restore.focus({preventScroll:true})") && html.includes("event.target===overlay"), "Closing a dialog must restore focus and allow backdrop dismissal.");
+assert.ok(html.includes("max-height:min( min(760px, calc(100dvh - 36px)), 100%)") && html.includes("overscroll-behavior:contain"), "Dialogs must remain scrollable within short viewports without scrolling the page behind them.");
+
 console.log("Elementor Work Mode contracts passed: first-class mode, extension-free read-only page research, cancellation, progress, startup experience and preferences.");
 
 
