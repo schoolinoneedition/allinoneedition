@@ -179,7 +179,7 @@ assert.ok(elementorWorker.includes('if(user&&!allowRate(recentChats,rateKey,24))
 assert.ok(elementor.includes('id="thinkMode"')&&elementor.includes('think:thinkMode'), 'Think mode must select a real backend reasoning configuration.');
 assert.ok(elementor.includes('id="stop"')&&elementor.includes('activeController.abort()'), 'Users must be able to stop a live generation.');
 assert.ok(elementor.includes("res.body.getReader()")&&elementor.includes("decoder.decode(value"), 'Chat replies must render from the actual backend stream.');
-assert.ok(elementor.includes('function regenerateLast()')&&elementor.includes('navigator.clipboard.writeText(m.content'), 'Assistant replies must support regenerate and copy.');
+assert.ok(elementor.includes('function regenerateLast()')&&elementor.includes('navigator.clipboard.writeText(sanitizeElementorOutput(m.content'), 'Assistant replies must support regenerate and copy with output sanitisation.');
 assert.ok(elementor.includes('const wantsImage=imageMode||')&&elementor.includes('await createImage(text)'), 'Explicit image intent must automatically invoke the existing image endpoint.');
 assert.ok(elementor.includes('function renderMarkdownText(')&&elementor.includes('document.createElement(ri===0?\'th\':\'td\')'), 'Chat messages must render safe Markdown blocks and tables.');
 assert.ok(elementor.includes('highlight.js@11.11.1')&&elementor.includes('window.hljs.highlightElement(node)'), 'Fenced code blocks must use syntax highlighting when the highlighter loads.');
