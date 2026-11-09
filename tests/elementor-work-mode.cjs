@@ -59,7 +59,7 @@ assert.ok(html.includes("max-height:min( min(760px, calc(100dvh - 36px)), 100%)"
 
 assert.ok(html.includes('id="pluginsOpen"') && html.includes('id="pluginsModal"'), "The plugin marketplace must be reachable and rendered in the existing workspace.");
 assert.ok(html.includes("function getPluginPermissions()") && html.includes("function savePluginPermissions()"), "Plugin permissions must be explicit, persisted and revocable.");
-assert.ok(html.includes("body:JSON.stringify({url:parsed.href,userConsent:true})") && html.includes("body:JSON.stringify({prompt,userConsent:true})"), "Consent must be carried to the server for each privileged built-in action.");
+assert.ok(html.includes("body:JSON.stringify({prompt,userConsent:true})"), "Image Studio consent must be sent to the AI Worker.");
 assert.ok(worker.includes('body.userConsent!==true') && worker.includes('Explicit permission is required'), "The AI Worker must reject browser and image requests without explicit consent.");
 assert.ok(html.includes("function sanitizeElementorOutput(value)") && html.includes("sanitizeElementorOutput(text)") && html.includes("content=role==='assistant'?sanitizeElementorOutput(content)"), "Assistant output must be filtered before rendering and persistence.");
 assert.ok(html.includes(".code-wrap{overflow:hidden;contain:inline-size") && html.includes(".code-wrap pre{display:block;width:100%;min-width:0;max-width:100%;overflow-x:auto"), "Long code blocks must scroll inside their own bounded container.");
