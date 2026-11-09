@@ -8,7 +8,7 @@ assert.ok(!/Work Mode|workMode|work-panel|workContext|\/browse|Cloud Browser Res
 assert.ok(!/Work Mode|workContext|\/browse|BROWSER\.quickAction/.test(worker), "The AI Worker must not retain the Work Mode browser endpoint.");
 assert.ok(!/\[browser\]|BROWSER/.test(fs.readFileSync("cloudflare/elementor-ai/wrangler.toml","utf8")), "The Elementor Worker must not bind Cloudflare Browser Run.");
 assert.ok(documentEnd >= 0 && html.slice(documentEnd + "</html>".length).trim() === "", "Elementor must not contain orphaned duplicate application code after the document closes.");
-const elementIds = [...html.matchAll(/\\bid=(["'])([^"']+)\\1/gi)].map(match => match[2]);
+const elementIds = [...html.matchAll(/\bid=(["'])([^"']+)\1/gi)].map(match => match[2]);
 const duplicateIds = [...new Set(elementIds.filter((id, index) => elementIds.indexOf(id) !== index))];
 assert.deepEqual(duplicateIds, [], "Elementor must not contain duplicate HTML IDs.");
 assert.ok(html.includes("function finishElementorBoot()") && html.includes("setTimeout(finishElementorBoot,8000)"), "The loading screen must have a failsafe so it cannot cover the workspace indefinitely.");
