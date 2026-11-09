@@ -547,7 +547,8 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
           <div><label class="field-label" for="authEmail">Email</label><input class="field" id="authEmail" type="email" autocomplete="email" required maxlength="254"></div>
           <div><label class="field-label" for="authPassword">Password</label><input class="field" id="authPassword" type="password" autocomplete="current-password" required minlength="6" maxlength="128"></div>
           <div class="form-foot"><button class="btn" type="button" id="authModeToggle">Create account instead</button><button class="btn primary" type="submit" id="authSubmit">Sign in</button></div>
-          <div class="status-text" id="authStatus" role="status"></div>
+          <div class="social-actions" style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px"><button class="btn" type="button" data-social-oauth="google">Continue with Google</button><button class="btn" type="button" data-social-oauth="discord">Continue with Discord</button><button class="btn" type="button" data-social-oauth="github">Continue with GitHub</button><button class="btn" type="button" data-social-oauth="epic">Epic Games · setup needed</button></div>
+          <div class="status-text" id="authStatus" role="status" aria-live="polite"></div>
         </form>
         <button class="btn ghost" id="signOutButton" type="button" hidden style="margin-top:10px">Sign out</button>
       </section>
@@ -1509,6 +1510,20 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
   $('commentForm').addEventListener('submit',addComment);
   $('authForm').addEventListener('submit',submitAuth);
   $('authModeToggle').addEventListener('click',()=>{authMode=authMode==='signup'?'signin':'signup';updateAuthMode();});
+  document.querySelectorAll('[data-social-oauth]').forEach(button=>button.addEventListener('click',async()=>{
+    const provider=button.dataset.socialOauth;
+    if(provider==='epic'){
+      setStatus('authStatus','Epic Games sign-in needs an approved Epic Account Services app and a secure server-side OpenID Connect callback. It is not a built-in Supabase provider, so this option is not active yet.','bad');
+      return;
+    }
+    if(!['google','discord','github'].includes(provider)||!client){setStatus('authStatus','The sign-in service is unavailable. Refresh and try again.','bad');return;}
+    button.disabled=true;setStatus('authStatus','Redirecting to '+provider+'…');
+    try{
+      const {error}=await client.auth.signInWithOAuth({provider,options:{redirectTo:location.origin+'/'}});
+      if(error)throw error;
+    }catch(error){setStatus('authStatus','Sign-in failed: '+String(error?.message||'check provider configuration'),'bad');}
+    finally{button.disabled=false;}
+  }));
   $('signOutButton').addEventListener('click',signOut);
   $('themeToggle').addEventListener('click',()=>{
     const dark=!document.documentElement.classList.contains('dark');
