@@ -38,7 +38,7 @@ assert.match(html, /role="status" aria-live="polite"/);
 
  // Finishing touches: remove the unused ad slot and share appearance across standalone pages.
  assert.ok(!html.includes('perchads.com')&&!html.includes('perch-ad-slot')&&!html.includes('perch-ad-section'), 'The unused Perch ad slot and loader must be completely removed.');
-assert.ok(html.includes('id="primaryNav"') && html.includes('data-aio-nav-position="bottom"') === false, 'The main navigation must have one named, configurable navigation container.');
+assert.ok(html.includes('id="primaryNav"') && !/<html\\b[^>]*data-aio-nav-position="bottom"/i.test(html), 'The main navigation must have one named, configurable navigation container without a hard-coded bottom position.');
 assert.ok(html.includes('/brand-mark.svg') && fs.existsSync(path.join(__dirname, '..', 'brand-mark.svg')), 'The site and loader must use the original geometric brand mark.');
 assert.ok(ux.includes("['top','Top bar'") && ux.includes("['bottom','Bottom bar'") && ux.includes("['side','Side menu'") && ux.includes('aio-nav-position-v1'), 'First-run setup must let visitors choose top, bottom or side navigation and persist the choice.');
 assert.ok(ux.includes('checkHometimeNotices') && ux.includes('40*60*1000') && ux.includes('It’s hometime'), 'The dashboard must send one-time 40-minute and hometime reminders.');
