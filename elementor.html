@@ -458,10 +458,10 @@ async function attachMediaImage(img,id){
  try{const res=await fetch(MEDIA_API+'/media/'+encodeURIComponent(id),{headers:{Authorization:'Bearer '+token()}});if(!res.ok)throw new Error('Private image unavailable');const blob=await res.blob();const src=URL.createObjectURL(blob);objectUrls.push(src);img.src=src;}catch(e){img.alt='Image is unavailable. Sign in again to load private media.';}
 }
 async function createImage(prompt){
- if(!hasPluginPermission('image-studio'))throw new Error('Image Studio permission is off. Open Plugin marketplace and allow it before generating an image.');
+ if(!hasPluginPermission('image-studio')){openPluginMarketplace();throw new Error('Allow Image Studio in the Plugin marketplace, then try generating your image again.');}
  const headers={'Content-Type':'application/json','X-Guest-Id':guestId};if(token())headers.Authorization='Bearer '+token();const r=await fetch(AI_API+'/generate',{method:'POST',headers,body:JSON.stringify({prompt,userConsent:true})});
  if(!r.ok){const d=await r.json().catch(()=>({}));throw new Error(d.error||'Image generation failed.');}
- const blob=await r.blob();if(!user){const src=URL.createObjectURL(blob);objectUrls.push(src);const m={id:'guest-image-'+crypto.randomUUID(),role:'assistant',content:'Created an image from: '+prompt,image_url:src,created_at:new Date().toISOString()};messages.push(m);if(guestChats[currentId]){guestChats[currentId].messages=messages;saveGuestChats();}renderMessages();return;}let id=null;try{id=await uploadImage(blob,'elementor-'+Date.now()+'.jpg');}catch(e){throw new Error('Image generated, but private B2 saving failed: '+e.message);}
+ const blob=await r.blob();if(!user){const src=URL.createObjectURL(blob);objectUrls.push(src);const m={id:'guest-image-'+crypto.randomUUID(),role:'assistant',content:'Created an image from: '+prompt,image_url:src,created_at:new Date().toISOString()};messages.push(m);if(guestChats[currentId]){guestChats[currentId].messages=messages;saveGuestChats();}renderMessages();return;}let id=null;try{id=await uploadImage(blob,'elementor-'+Date.now()+'.jpg');}catch(e){throw new Error('Image generated, but saving to private R2 storage failed: '+e.message);}
  await saveMessage('assistant','Created an image from: '+prompt,id);
 }
 async function handleSiteCommand(text){
