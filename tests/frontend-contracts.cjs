@@ -194,7 +194,7 @@ assert.ok(codeEditorStart>=0&&codeEditorClose>codeEditorStart&&nextLiveSection>c
 assert.match(html, /replace\(\/\\b\(find\|show/);
 assert.ok(html.includes('const scoreGame=g=>')&&html.includes('hits.length===terms.length')&&html.includes('list.sort((a,b)=>b.score-a.score'), 'Game search must rank name, category, tag and description matches.');
 assert.ok(html.includes('Search games by name, category or keyword'), 'The search placeholder must describe the actual game-search scope.');
-assert.ok(elementorWorker.includes('if(user&&!allowRate(recentChats,rateKey,24))')&&elementorWorker.includes('if(user&&!allowRate(recentImages,rateKey,3))'), 'Guest AI chat and image generation must not have a usage quota.');
+assert.ok(elementorWorker.includes('if(user&&!allowRate(recentChats,rateKey,24))')&&elementorWorker.includes('if(!allowRate(recentImages,rateKey,3))'), 'Chat requests retain the signed-in quota and image generation is rate-limited for guests as well.');
 assert.ok(elementor.includes('id="thinkMode"')&&elementor.includes('think:thinkMode'), 'Think mode must select a real backend reasoning configuration.');
 assert.ok(elementor.includes('id="stop"')&&elementor.includes('activeController.abort()'), 'Users must be able to stop a live generation.');
 assert.ok(elementor.includes("res.body.getReader()")&&elementor.includes("decoder.decode(value"), 'Chat replies must render from the actual backend stream.');
