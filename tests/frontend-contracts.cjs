@@ -13,6 +13,7 @@ const social = read('social.html');
 const anime = read('anime.html');
 const elementor = read('elementor.html');
 const elementorWorker = read('cloudflare/elementor-ai/worker.ts');
+const mediaWorker = read('cloudflare/media-worker/src/index.ts');
 const elementorSchema = read('supabase/migrations/20261107120000_elementor_workspace.sql');
 const elementorAvatarSchema = read('supabase/migrations/20261107121000_elementor_profile_avatar_media.sql');
 const study = read('study.html');
@@ -99,6 +100,17 @@ assert.match(html, /storage\.from\('social-media'\)\.upload/);
 assert.match(html, /file&&isVideoFile&&file\.size>100\*1024\*1024/);
 assert.match(html, /storage\.from\('social-media'\)\.remove\(\[uploadedStoragePath\]\)/);
 assert.match(html, /__aioSocialPostBusy/);
+
+// Image generation and private R2 uploads must work from real browser requests.
+assert.match(html, /function getAioElementorGuestId\(\)/);
+assert.ok(html.includes("'X-Guest-Id':getAioElementorGuestId()") && html.includes("body:JSON.stringify({prompt,userConsent:true})"), 'The homepage image tool must send its guest identity and explicit image consent.');
+assert.ok(html.includes("signInWithOAuth({provider,options:{redirectTo:location.origin+'/'} })") || html.includes("signInWithOAuth({provider,options:{redirectTo:location.origin+'/'}})"), 'The account modal must start OAuth sign-in with a site redirect.');
+assert.ok(html.includes("Continue with Google") && html.includes("Continue with Discord") && html.includes("Continue with GitHub") && html.includes("showEpicSignInSetup"), 'The main account modal must expose configured OAuth providers and a clear Epic setup state.');
+assert.ok(social.includes('data-social-oauth="google"') && social.includes('data-social-oauth="discord"') && social.includes('data-social-oauth="github"') && social.includes("client.auth.signInWithOAuth"), 'Social must reuse the same OAuth account providers.');
+assert.match(mediaWorker, /Access-Control-Allow-Headers[^\\n]*X-Part-Size/);
+assert.match(mediaWorker, /request\.headers\.get\("Content-Length"\) \|\| request\.headers\.get\("X-Part-Size"\)/);
+assert.ok(elementor.includes("private R2 storage failed"), 'Elementor must report the actual R2 storage provider, not the obsolete B2 label.');
+assert.ok(elementor.includes("openPluginMarketplace();throw new Error('Allow Image Studio"), 'Image Studio must open its permission control when generation is blocked.');
 
 // Database-side controls, not browser-supplied reward amounts, govern the economy.
 assert.match(economy, /auth\.uid\(\)/);
@@ -368,7 +380,7 @@ assert.ok(elementor.includes('id="history"') && elementor.includes('elementor_co
 assert.ok(elementor.includes('id="avatarChoices"') && elementor.includes('id="avatarUpload"') && elementor.includes('id="instructions"') && elementor.includes('id="responseStyle"'), 'Elementor must provide custom profile pictures and personalisation controls.');
 assert.ok(elementor.includes('historySearch') && elementor.includes('renameChat') && elementor.includes('deleteChat') && elementorAvatarSchema.includes('avatar_media_id'), 'Elementor chats must be searchable, renameable, deletable, and support private custom profile pictures.');
 assert.ok(elementor.includes("AI_API+'/chat'") && elementor.includes("AI_API+'/generate'"), 'Elementor chat and image generation must use the authenticated AI Worker.');
-assert.ok(elementor.includes("MEDIA_API+'/uploads/initiate'") && elementor.includes("MEDIA_API+'/media/'"), 'Generated images must be saved to private B2 media and loaded with owner authentication.');
+assert.ok(elementor.includes("MEDIA_API+'/uploads/initiate'") && elementor.includes("MEDIA_API+'/media/'"), 'Generated images must be saved to private R2 media and loaded with owner authentication.');
 assert.ok(elementor.includes("from('staff_roles')") && elementor.includes("data?.role==='owner'") && elementorSchema.includes("s.role = 'owner'"), 'Elementor site controls must be restricted to the verified owner role.');
 assert.ok(elementorWorker.includes('authenticatedUser') && elementorWorker.includes('llama-3.3-70b-instruct-fp8-fast') && elementorWorker.includes('flux-1-schnell'), 'Elementor Worker must authenticate chat and image requests.');
 assert.ok(elementorSchema.includes('enable row level security') && elementorSchema.includes('Users manage their Elementor conversations') && elementorSchema.includes('Public can read Elementor announcements'), 'Elementor chat data must be protected by RLS while public announcement text remains readable.');
