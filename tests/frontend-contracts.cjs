@@ -107,7 +107,7 @@ assert.ok(html.includes("'X-Guest-Id':getAioElementorGuestId()") && html.include
 assert.ok(html.includes("signInWithOAuth({provider,options:{redirectTo:location.origin+'/'} })") || html.includes("signInWithOAuth({provider,options:{redirectTo:location.origin+'/'}})"), 'The account modal must start OAuth sign-in with a site redirect.');
 assert.ok(html.includes("Continue with Google") && html.includes("Continue with Discord") && html.includes("Continue with GitHub") && html.includes("showEpicSignInSetup"), 'The main account modal must expose configured OAuth providers and a clear Epic setup state.');
 assert.ok(social.includes('data-social-oauth="google"') && social.includes('data-social-oauth="discord"') && social.includes('data-social-oauth="github"') && social.includes("client.auth.signInWithOAuth"), 'Social must reuse the same OAuth account providers.');
-assert.match(mediaWorker, /Access-Control-Allow-Headers[^\\n]*X-Part-Size/);
+assert.ok(mediaWorker.includes('"Access-Control-Allow-Headers": "Authorization, Content-Type, Content-Length, X-Part-Size"'), "R2 multipart CORS must allow the size header sent by the browser.");
 assert.match(mediaWorker, /request\.headers\.get\("Content-Length"\) \|\| request\.headers\.get\("X-Part-Size"\)/);
 assert.ok(elementor.includes("private R2 storage failed"), 'Elementor must report the actual R2 storage provider, not the obsolete B2 label.');
 assert.ok(elementor.includes("openPluginMarketplace();throw new Error('Allow Image Studio"), 'Image Studio must open its permission control when generation is blocked.');
@@ -318,7 +318,7 @@ assert.ok(social.includes('function renderFeed(preserveScroll=false)') && social
 
 
 // Private Cloudflare R2 media storage contract.
-const mediaWorker = read('cloudflare/media-worker/src/index.ts');
+
 const mediaWrangler = read('cloudflare/media-worker/wrangler.toml');
 const mediaSchema = read('supabase/migrations/20261106202316_aio_r2_media_objects.sql');
 const mediaRlsSchema = read('supabase/migrations/20261106202335_optimize_aio_media_rls.sql');
