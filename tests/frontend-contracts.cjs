@@ -13,6 +13,7 @@ const social = read('social.html');
 const anime = read('anime.html');
 const elementor = read('elementor.html');
 const elementorWorker = read('cloudflare/elementor-ai/worker.ts');
+const mediaWorker = read('cloudflare/media-worker/src/index.ts');
 const elementorSchema = read('supabase/migrations/20261107120000_elementor_workspace.sql');
 const elementorAvatarSchema = read('supabase/migrations/20261107121000_elementor_profile_avatar_media.sql');
 const study = read('study.html');
@@ -37,13 +38,20 @@ assert.match(html, /role="status" aria-live="polite"/);
 
  // Finishing touches: remove the unused ad slot and share appearance across standalone pages.
  assert.ok(!html.includes('perchads.com')&&!html.includes('perch-ad-slot')&&!html.includes('perch-ad-section'), 'The unused Perch ad slot and loader must be completely removed.');
+assert.ok(html.includes('id="primaryNav"') && !html.slice(0, html.indexOf('>')).includes('data-aio-nav-position="bottom"'), 'The main navigation must have one named, configurable navigation container without a hard-coded bottom position.');
+assert.ok(html.includes('/brand-mark.svg') && fs.existsSync(path.join(__dirname, '..', 'brand-mark.svg')), 'The site and loader must use the original geometric brand mark.');
+assert.ok(ux.includes("['top','Top bar'") && ux.includes("['bottom','Bottom bar'") && ux.includes("['side','Side menu'") && ux.includes('aio-nav-position-v1'), 'First-run setup must let visitors choose top, bottom or side navigation and persist the choice.');
+assert.ok(ux.includes('checkHometimeNotices') && ux.includes('40*60*1000') && ux.includes('It’s hometime'), 'The dashboard must send one-time 40-minute and hometime reminders.');
+assert.ok(!ux.includes('aioGameInfoBtn') && !ux.includes('function gameInfo'), 'The game toolbar must not show the unwanted information strip or Info action.');
+assert.ok(html.includes('aio-loader-enter') && html.includes('Preparing the hub'), 'The home loading screen must use the refined card animation.');
+
  const faviconPng = fs.readFileSync(path.join(__dirname, '..', 'favicon.png'));
  const appleIcon = fs.readFileSync(path.join(__dirname, '..', 'apple-touch-icon.png'));
  const faviconIco = fs.readFileSync(path.join(__dirname, '..', 'favicon.ico'));
  assert.ok(faviconPng.subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10])) && faviconPng.readUInt32BE(16) === 1024 && faviconPng.readUInt32BE(20) === 1024, 'The supplied favicon must be an upscaled 1024px PNG.');
  assert.ok(appleIcon.subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10])) && appleIcon.readUInt32BE(16) === 180 && faviconIco.subarray(0, 4).equals(Buffer.from([0,0,1,0])), 'Apple touch and ICO favicon variants must be present.');
  assert.ok([html, social, anime, elementor, study].every(page => page.includes('href="/favicon.png"') && page.includes('href="/favicon.ico"') && page.includes('href="/apple-touch-icon.png"')), 'Every main page must use the shared refreshed favicon set.');
- assert.ok([html, social, anime, elementor].every(page => page.includes('src="/favicon.png"')), 'Visible site brand marks must use the new artwork.');
+ assert.ok([html, social, anime, elementor].every(page => page.includes('src="/brand-mark.svg"')), 'Visible site brand marks must use the new artwork.');
  assert.ok(social.includes('./appearance.css')&&social.includes('./appearance.js')&&anime.includes('./appearance.css')&&anime.includes('./appearance.js'), 'Standalone Social and Watch pages must load the shared appearance system.');
  assert.ok(appearance.includes("root.dataset.aioWallpaperActive=active?'1':'0'")&&glassCss.includes('data-aio-wallpaper-active="1"'), 'Saved wallpapers must be applied consistently on standalone pages.');
  assert.ok(css.includes('aioOnboardSlideIn')&&css.includes('aio-ultimate-modal.open .aio-onboard-card'), 'Setup should use a smooth slide-in transition.');
@@ -92,6 +100,17 @@ assert.match(html, /storage\.from\('social-media'\)\.upload/);
 assert.match(html, /file&&isVideoFile&&file\.size>100\*1024\*1024/);
 assert.match(html, /storage\.from\('social-media'\)\.remove\(\[uploadedStoragePath\]\)/);
 assert.match(html, /__aioSocialPostBusy/);
+
+// Image generation and private R2 uploads must work from real browser requests.
+assert.match(html, /function getAioElementorGuestId\(\)/);
+assert.ok(html.includes("'X-Guest-Id':getAioElementorGuestId()") && html.includes("body:JSON.stringify({prompt,userConsent:true})"), 'The homepage image tool must send its guest identity and explicit image consent.');
+assert.ok(html.includes("signInWithOAuth({provider,options:{redirectTo:location.origin+'/'} })") || html.includes("signInWithOAuth({provider,options:{redirectTo:location.origin+'/'}})"), 'The account modal must start OAuth sign-in with a site redirect.');
+assert.ok(html.includes("Continue with Google") && html.includes("Continue with Discord") && html.includes("Continue with GitHub") && html.includes("showEpicSignInSetup"), 'The main account modal must expose configured OAuth providers and a clear Epic setup state.');
+assert.ok(social.includes('data-social-oauth="google"') && social.includes('data-social-oauth="discord"') && social.includes('data-social-oauth="github"') && social.includes("client.auth.signInWithOAuth"), 'Social must reuse the same OAuth account providers.');
+assert.ok(mediaWorker.includes('"Access-Control-Allow-Headers": "Authorization, Content-Type, Content-Length, X-Part-Size"'), "R2 multipart CORS must allow the size header sent by the browser.");
+assert.match(mediaWorker, /request\.headers\.get\("Content-Length"\) \|\| request\.headers\.get\("X-Part-Size"\)/);
+assert.ok(elementor.includes("private R2 storage failed"), 'Elementor must report the actual R2 storage provider, not the obsolete B2 label.');
+assert.ok(elementor.includes("openPluginMarketplace();throw new Error('Allow Image Studio"), 'Image Studio must open its permission control when generation is blocked.');
 
 // Database-side controls, not browser-supplied reward amounts, govern the economy.
 assert.match(economy, /auth\.uid\(\)/);
@@ -175,11 +194,11 @@ assert.ok(codeEditorStart>=0&&codeEditorClose>codeEditorStart&&nextLiveSection>c
 assert.match(html, /replace\(\/\\b\(find\|show/);
 assert.ok(html.includes('const scoreGame=g=>')&&html.includes('hits.length===terms.length')&&html.includes('list.sort((a,b)=>b.score-a.score'), 'Game search must rank name, category, tag and description matches.');
 assert.ok(html.includes('Search games by name, category or keyword'), 'The search placeholder must describe the actual game-search scope.');
-assert.ok(elementorWorker.includes('if(user&&!allowRate(recentChats,rateKey,24))')&&elementorWorker.includes('if(user&&!allowRate(recentImages,rateKey,3))'), 'Guest AI chat and image generation must not have a usage quota.');
+assert.ok(elementorWorker.includes('if(user&&!allowRate(recentChats,rateKey,24))')&&elementorWorker.includes('if(!allowRate(recentImages,rateKey,3))'), 'Chat requests retain the signed-in quota and image generation is rate-limited for guests as well.');
 assert.ok(elementor.includes('id="thinkMode"')&&elementor.includes('think:thinkMode'), 'Think mode must select a real backend reasoning configuration.');
 assert.ok(elementor.includes('id="stop"')&&elementor.includes('activeController.abort()'), 'Users must be able to stop a live generation.');
 assert.ok(elementor.includes("res.body.getReader()")&&elementor.includes("decoder.decode(value"), 'Chat replies must render from the actual backend stream.');
-assert.ok(elementor.includes('function regenerateLast()')&&elementor.includes('navigator.clipboard.writeText(m.content'), 'Assistant replies must support regenerate and copy.');
+assert.ok(elementor.includes('function regenerateLast()')&&elementor.includes('navigator.clipboard.writeText(sanitizeElementorOutput(m.content'), 'Assistant replies must support regenerate and copy with output sanitisation.');
 assert.ok(elementor.includes('const wantsImage=imageMode||')&&elementor.includes('await createImage(text)'), 'Explicit image intent must automatically invoke the existing image endpoint.');
 assert.ok(elementor.includes('function renderMarkdownText(')&&elementor.includes('document.createElement(ri===0?\'th\':\'td\')'), 'Chat messages must render safe Markdown blocks and tables.');
 assert.ok(elementor.includes('highlight.js@11.11.1')&&elementor.includes('window.hljs.highlightElement(node)'), 'Fenced code blocks must use syntax highlighting when the highlighter loads.');
@@ -271,8 +290,8 @@ assert.ok(glassCss.includes('data-aio-performance-profile="lite"') && glassCss.i
  assert.ok(html.includes('let visibleLimit=48;')&&html.includes('visibleLimit+=48'),'The initial game grid and load-more batches should stay bounded');
  assert.ok(html.includes('let gameSearchTimer=0;')&&html.includes('renderGames()},100)'),'Game search should debounce rapid keystrokes');
  assert.ok(html.includes('loading="lazy" fetchpriority="low"')&&html.includes('slice(0,18)'),'The intro should lazy-load a smaller set of game covers');
- assert.ok(ux.includes('function startAioDashboardClock()')&&ux.includes('window.aioDashboardClockTimer=setInterval(tick,1000)')&&ux.includes("document.addEventListener('visibilitychange',sync)"),'Dashboard date, time and hometime should share one visible-tab clock');
-assert.ok(ux.includes('WELCOME · SETUP + WALKTHROUGH')&&ux.includes('STEP 5 OF 6 · QUICK TOUR')&&ux.includes('aio-setup-tour-card'),'The first-run setup must include the guided hub walkthrough');
+assert.ok(ux.includes('function startAioDashboardClock()')&&ux.includes('window.aioDashboardClockTimer=setInterval(()=>{tick();checkHometimeNotices()},1000)')&&ux.includes("document.addEventListener('visibilitychange',sync)"),'Dashboard date, time and hometime should share one visible-tab clock.');
+assert.ok(ux.includes('WELCOME · SETUP + WALKTHROUGH')&&ux.includes('STEP 6 OF 7 · QUICK TOUR')&&ux.includes('aio-setup-tour-card'),'The first-run setup must include the guided hub walkthrough');
 assert.ok(html.includes('Personalisation · Setup tutorial')&&html.includes('window.openAioOnboarding?.()')&&html.includes('window.resetAioOnboarding?.()')&&ux.includes('aioOnboardProgress'),'Settings should replay or reset the integrated setup and show progress');
 assert.ok(!html.includes('tutorialOverlay')&&!html.includes('function startTutorial')&&!html.includes('setTimeout(startTutorial'),'The old standalone tutorial must not run separately');
  assert.ok(html.includes('if(!worldClockTimer)worldClockTimer=setInterval(updateWorldClock,60000)'),'World clocks should refresh once per minute');
@@ -299,7 +318,7 @@ assert.ok(social.includes('function renderFeed(preserveScroll=false)') && social
 
 
 // Private Cloudflare R2 media storage contract.
-const mediaWorker = read('cloudflare/media-worker/src/index.ts');
+
 const mediaWrangler = read('cloudflare/media-worker/wrangler.toml');
 const mediaSchema = read('supabase/migrations/20261106202316_aio_r2_media_objects.sql');
 const mediaRlsSchema = read('supabase/migrations/20261106202335_optimize_aio_media_rls.sql');
@@ -361,7 +380,7 @@ assert.ok(elementor.includes('id="history"') && elementor.includes('elementor_co
 assert.ok(elementor.includes('id="avatarChoices"') && elementor.includes('id="avatarUpload"') && elementor.includes('id="instructions"') && elementor.includes('id="responseStyle"'), 'Elementor must provide custom profile pictures and personalisation controls.');
 assert.ok(elementor.includes('historySearch') && elementor.includes('renameChat') && elementor.includes('deleteChat') && elementorAvatarSchema.includes('avatar_media_id'), 'Elementor chats must be searchable, renameable, deletable, and support private custom profile pictures.');
 assert.ok(elementor.includes("AI_API+'/chat'") && elementor.includes("AI_API+'/generate'"), 'Elementor chat and image generation must use the authenticated AI Worker.');
-assert.ok(elementor.includes("MEDIA_API+'/uploads/initiate'") && elementor.includes("MEDIA_API+'/media/'"), 'Generated images must be saved to private B2 media and loaded with owner authentication.');
+assert.ok(elementor.includes("MEDIA_API+'/uploads/initiate'") && elementor.includes("MEDIA_API+'/media/'"), 'Generated images must be saved to private R2 media and loaded with owner authentication.');
 assert.ok(elementor.includes("from('staff_roles')") && elementor.includes("data?.role==='owner'") && elementorSchema.includes("s.role = 'owner'"), 'Elementor site controls must be restricted to the verified owner role.');
 assert.ok(elementorWorker.includes('authenticatedUser') && elementorWorker.includes('llama-3.3-70b-instruct-fp8-fast') && elementorWorker.includes('flux-1-schnell'), 'Elementor Worker must authenticate chat and image requests.');
 assert.ok(elementorSchema.includes('enable row level security') && elementorSchema.includes('Users manage their Elementor conversations') && elementorSchema.includes('Public can read Elementor announcements'), 'Elementor chat data must be protected by RLS while public announcement text remains readable.');

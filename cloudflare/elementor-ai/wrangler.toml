@@ -12,6 +12,3 @@ SUPABASE_ANON_KEY = "sb_publishable_a1gdNTiQdF9587p5K-Sw-Q_nFbvWRmp"
 
 previews = {}
 
-[browser]
-binding = "BROWSER"
-

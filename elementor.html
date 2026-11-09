@@ -8,20 +8,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{color-scheme:light;--bg:#f6f7f9;--panel:#fff;--ink:#20232a;--muted:#747b88;--line:#e6e8ed;--soft:#f1f3f6;--accent:#345eea;--accent-soft:#edf1ff;--shadow:0 8px 28px rgba(22,31,54,.06)}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}.shell{min-height:100vh;display:grid;grid-template-columns:270px minmax(0,1fr)}.side{height:100vh;position:sticky;top:0;background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column;padding:18px 14px;gap:16px}.brand{display:flex;align-items:center;gap:10px;padding:2px 6px 14px}.brand img{width:34px;height:34px;object-fit:contain}.brand strong{font:700 17px Georgia,serif;letter-spacing:-.3px}.brand small{display:block;color:var(--muted);font:700 10px Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase}.new{width:100%;border:0;background:var(--ink);color:#fff;padding:12px 14px;border-radius:12px;font-weight:800;text-align:left}.side-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#9298a3;font-weight:900;padding:0 8px}.history-search{width:100%;border:1px solid var(--line);background:#fafbfc;border-radius:9px;padding:9px 10px;font-size:12px;outline:none}.history{overflow:auto;display:flex;flex-direction:column;gap:4px;min-height:80px}.chat-link{border:0;background:transparent;color:#525965;text-align:left;padding:9px 10px;border-radius:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chat-link:hover,.chat-link.active{background:var(--soft);color:var(--ink)}.side-bottom{margin-top:auto;display:grid;gap:8px}.back,.side-action{border:1px solid var(--line);background:#fff;color:var(--ink);padding:10px 11px;border-radius:10px;text-align:left;font-weight:750}.account{display:flex;align-items:center;gap:10px;padding:10px 6px 2px;border-top:1px solid var(--line)}.avatar{width:37px;height:37px;border-radius:13px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font-size:19px;overflow:hidden;flex:none}.avatar img{width:100%;height:100%;object-fit:cover}.account strong{display:block;font-size:12px}.account small{color:var(--muted);font-size:11px}.main{min-width:0;display:flex;flex-direction:column;min-height:100vh}.top{height:65px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.86);backdrop-filter:blur(14px);position:sticky;top:0;z-index:5}.top h1{font-size:15px;margin:0;font-weight:850}.top-right{display:flex;align-items:center;gap:9px}.pill{font-size:11px;color:#667080;background:var(--soft);padding:6px 9px;border-radius:999px;font-weight:750}.icon-btn{width:36px;height:36px;border:1px solid var(--line);border-radius:10px;background:#fff}.content{width:min(930px,100%);margin:0 auto;padding:34px 24px 26px;flex:1;display:flex;flex-direction:column}.welcome{margin:auto auto 24px;text-align:center;max-width:620px}.orb{width:54px;height:54px;margin:0 auto 16px;border-radius:18px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:26px;font-weight:900}.welcome h2{font-size:29px;letter-spacing:-1px;margin:0 0 8px}.welcome p{margin:0;color:var(--muted)}.suggestions{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:22px;text-align:left}.suggestion{border:1px solid var(--line);background:#fff;border-radius:13px;padding:13px;color:#4e5663;text-align:left}.suggestion strong{display:block;color:var(--ink);font-size:12px;margin-bottom:3px}.messages{display:flex;flex-direction:column;gap:18px;padding-bottom:20px}.message{display:flex;gap:11px;align-items:flex-start;max-width:100%}.message.user{flex-direction:row-reverse}.bubble-avatar{width:30px;height:30px;flex:none;border-radius:10px;background:var(--accent-soft);display:grid;place-items:center;color:var(--accent);font-weight:900}.message.user .bubble-avatar{background:#e9ebef;color:#555}.bubble{max-width:min(720px,calc(100% - 44px));padding:12px 15px;border:1px solid var(--line);border-radius:15px;background:#fff;white-space:pre-wrap;overflow-wrap:anywhere}.message.user .bubble{background:#edf1ff;border-color:#dce4ff}.bubble img{display:block;max-width:min(100%,520px);max-height:520px;object-fit:contain;border-radius:10px;margin-top:10px;background:#f1f2f5}.bubble .meta{font-size:10px;color:var(--muted);margin-top:7px}.composer-wrap{position:sticky;bottom:0;padding:14px 0 6px;background:linear-gradient(180deg,rgba(246,247,249,0),var(--bg) 22%)}.composer{border:1px solid #dfe2e9;background:#fff;border-radius:17px;padding:10px;box-shadow:var(--shadow)}.composer textarea{width:100%;min-height:56px;max-height:180px;resize:vertical;border:0;outline:0;padding:8px 8px;color:var(--ink);background:transparent}.composer-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px}.tools{display:flex;gap:7px;align-items:center}.tool-btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 10px;color:#555e6b;font-size:11px;font-weight:800}.tool-btn.active{background:var(--accent-soft);color:var(--accent);border-color:#d9e2ff}.send{border:0;border-radius:10px;background:var(--accent);color:#fff;padding:9px 15px;font-weight:850}.send:disabled{opacity:.5;cursor:wait}.fine{font-size:10px;color:#9197a1;text-align:center;margin:9px 0 0}.hidden{display:none!important}.modal-back{position:fixed;inset:0;background:rgba(18,22,32,.35);z-index:20;display:grid;place-items:center;padding:18px}.modal{width:min(480px,100%);background:#fff;border-radius:18px;padding:21px;box-shadow:0 20px 80px rgba(0,0,0,.18)}.modal h3{margin:0 0 6px;font-size:18px}.modal p{margin:0 0 17px;color:var(--muted);font-size:12px}.field{display:grid;gap:6px;margin:12px 0}.field label{font-size:11px;font-weight:850;color:#59616e}.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);background:#fafbfc;border-radius:10px;padding:10px;color:var(--ink);outline:none}.field textarea{min-height:75px;resize:vertical}.avatars{display:flex;flex-wrap:wrap;gap:8px}.avatar-choice{width:40px;height:40px;border:1px solid var(--line);background:#fff;border-radius:12px;font-size:20px}.avatar-choice.selected{border:2px solid var(--accent);background:var(--accent-soft)}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.status{font-size:11px;color:var(--muted);min-height:17px}.control-card{border:1px solid var(--line);border-radius:14px;background:#fff;padding:15px;margin:14px 0}.control-card h3{font-size:13px;margin:0 0 5px}.control-card p{font-size:11px;color:var(--muted);margin:0 0 12px}.control-card input{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-bottom:8px}.control-card button{border:0;background:var(--accent);color:#fff;padding:9px 12px;border-radius:9px;font-weight:800}.mobile-menu{display:none}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}.shell{min-height:100vh;display:grid;grid-template-columns:270px minmax(0,1fr)}.side{height:100vh;position:sticky;top:0;background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column;padding:18px 14px;gap:16px}.brand{display:flex;align-items:center;gap:10px;padding:2px 6px 14px}.brand img{width:34px;height:34px;object-fit:contain}.brand strong{font:700 17px Georgia,serif;letter-spacing:-.3px}.brand small{display:block;color:var(--muted);font:700 10px Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase}.new{width:100%;border:0;background:var(--ink);color:#fff;padding:12px 14px;border-radius:12px;font-weight:800;text-align:left}.side-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#9298a3;font-weight:900;padding:0 8px}.history-search{width:100%;border:1px solid var(--line);background:#fafbfc;border-radius:9px;padding:9px 10px;font-size:12px;outline:none}.history{overflow:auto;display:flex;flex-direction:column;gap:4px;min-height:80px}.chat-link{border:0;background:transparent;color:#525965;text-align:left;padding:9px 10px;border-radius:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chat-link:hover,.chat-link.active{background:var(--soft);color:var(--ink)}.side-bottom{margin-top:auto;display:grid;gap:8px}.back,.side-action{border:1px solid var(--line);background:#fff;color:var(--ink);padding:10px 11px;border-radius:10px;text-align:left;font-weight:750}.account{display:flex;align-items:center;gap:10px;padding:10px 6px 2px;border-top:1px solid var(--line)}.avatar{width:37px;height:37px;border-radius:13px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font-size:19px;overflow:hidden;flex:none}.avatar img{width:100%;height:100%;object-fit:cover}.account strong{display:block;font-size:12px}.account small{color:var(--muted);font-size:11px}.main{min-width:0;display:flex;flex-direction:column;min-height:100vh}.top{height:65px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.86);backdrop-filter:blur(14px);position:sticky;top:0;z-index:5}.top h1{font-size:15px;margin:0;font-weight:850}.top-right{display:flex;align-items:center;gap:9px}.pill{font-size:11px;color:#667080;background:var(--soft);padding:6px 9px;border-radius:999px;font-weight:750}.icon-btn{width:36px;height:36px;border:1px solid var(--line);border-radius:10px;background:#fff}.content{width:min(930px,100%);margin:0 auto;padding:34px 24px 26px;flex:1;display:flex;flex-direction:column}.welcome{margin:auto auto 24px;text-align:center;max-width:620px}.orb{width:54px;height:54px;margin:0 auto 16px;border-radius:18px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:26px;font-weight:900}.welcome h2{font-size:29px;letter-spacing:-1px;margin:0 0 8px}.welcome p{margin:0;color:var(--muted)}.suggestions{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:22px;text-align:left}.suggestion{border:1px solid var(--line);background:#fff;border-radius:13px;padding:13px;color:#4e5663;text-align:left}.suggestion strong{display:block;color:var(--ink);font-size:12px;margin-bottom:3px}.messages{display:flex;flex-direction:column;gap:18px;padding-bottom:20px}.message{display:flex;gap:11px;align-items:flex-start;max-width:100%}.message.user{flex-direction:row-reverse}.bubble-avatar{width:30px;height:30px;flex:none;border-radius:10px;background:var(--accent-soft);display:grid;place-items:center;color:var(--accent);font-weight:900}.message.user .bubble-avatar{background:#e9ebef;color:#555}.bubble{max-width:min(720px,calc(100% - 44px));padding:12px 15px;border:1px solid var(--line);border-radius:15px;background:#fff;white-space:pre-wrap;overflow-wrap:anywhere}.message.user .bubble{background:#edf1ff;border-color:#dce4ff}.bubble img{display:block;max-width:min(100%,520px);max-height:520px;object-fit:contain;border-radius:10px;margin-top:10px;background:#f1f2f5}.bubble .meta{font-size:10px;color:var(--muted);margin-top:7px}.composer-wrap{position:sticky;bottom:0;padding:14px 0 6px;background:linear-gradient(180deg,rgba(246,247,249,0),var(--bg) 22%)}.composer{border:1px solid #dfe2e9;background:#fff;border-radius:17px;padding:10px;box-shadow:var(--shadow)}.composer textarea{display:block;width:100%;min-height:56px;max-height:200px;resize:none;overflow-y:hidden;border:0;outline:0;padding:8px 8px;color:var(--ink);background:transparent;line-height:1.55}.composer textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}.composer .tools{min-width:0;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;padding:2px 1px}.composer .tools .tool-btn{flex:0 0 auto}.composer-bottom{min-width:0}.composer-bottom>.send,.composer-bottom>#stop{flex:0 0 auto}.composer-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px}.tools{display:flex;gap:7px;align-items:center}.tool-btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 10px;color:#555e6b;font-size:11px;font-weight:800}.tool-btn.active{background:var(--accent-soft);color:var(--accent);border-color:#d9e2ff}.send{border:0;border-radius:10px;background:var(--accent);color:#fff;padding:9px 15px;font-weight:850}.send:disabled{opacity:.5;cursor:wait}.fine{font-size:10px;color:#9197a1;text-align:center;margin:9px 0 0}.hidden{display:none!important}.modal-back{position:fixed;inset:0;background:rgba(18,22,32,.35);z-index:20;display:grid;place-items:center;padding:18px}.modal{width:min(480px,100%);max-height:min( min(760px, calc(100dvh - 36px)), 100%);overflow-y:auto;overscroll-behavior:contain;background:#fff;border-radius:18px;padding:21px;box-shadow:0 20px 80px rgba(0,0,0,.18)}.modal-back[role=dialog]{overscroll-behavior:contain}.modal :focus-visible{outline:2px solid var(--accent);outline-offset:3px}.modal h3{margin:0 0 6px;font-size:18px}.modal p{margin:0 0 17px;color:var(--muted);font-size:12px}.field{display:grid;gap:6px;margin:12px 0}.field label{font-size:11px;font-weight:850;color:#59616e}.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);background:#fafbfc;border-radius:10px;padding:10px;color:var(--ink);outline:none}.field textarea{min-height:75px;resize:vertical}.avatars{display:flex;flex-wrap:wrap;gap:8px}.avatar-choice{width:40px;height:40px;border:1px solid var(--line);background:#fff;border-radius:12px;font-size:20px}.avatar-choice.selected{border:2px solid var(--accent);background:var(--accent-soft)}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.status{font-size:11px;color:var(--muted);min-height:17px}.control-card{border:1px solid var(--line);border-radius:14px;background:#fff;padding:15px;margin:14px 0}.control-card h3{font-size:13px;margin:0 0 5px}.control-card p{font-size:11px;color:var(--muted);margin:0 0 12px}.control-card input{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-bottom:8px}.control-card button{border:0;background:var(--accent);color:#fff;padding:9px 12px;border-radius:9px;font-weight:800}.mobile-menu{display:none}
 @media(max-width:760px){.shell{grid-template-columns:1fr}.side{height:auto;position:fixed;z-index:10;left:0;top:0;bottom:0;width:min(290px,84vw);transform:translateX(-105%);transition:transform .2s;box-shadow:var(--shadow)}.side.open{transform:translateX(0)}.mobile-menu{display:inline-grid;place-items:center}.top{padding:0 14px}.content{padding:24px 13px}.welcome h2{font-size:25px}.suggestions{grid-template-columns:1fr}.top-right .pill{display:none}}
 
-/* Work Mode: a first-class workspace, not a permission modal. */
-.work-panel{width:100%;border:1px solid var(--line);background:var(--panel);border-radius:18px;padding:clamp(16px,3vw,26px);box-shadow:var(--shadow);margin:0 0 12px;max-height:44vh;overflow:auto}
-.work-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.work-head h2{font-size:22px;margin:3px 0}.work-head p,.work-task>p{font-size:12px;color:var(--muted);margin:0 0 14px}.work-kicker{font-size:10px;font-weight:900;letter-spacing:.14em;color:var(--accent)}
-.work-task label{display:block;font-weight:800;font-size:12px;margin:12px 0 6px}.work-task input{width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--bg);color:var(--ink)}
-.work-meta{display:flex;justify-content:space-between;gap:10px;font-size:11px;color:var(--muted);margin:12px 0 7px}.work-progress{height:6px;border-radius:20px;background:var(--soft);overflow:hidden}.work-progress span{display:block;width:0;height:100%;background:var(--accent);transition:width .2s}.work-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.work-plan{background:var(--soft);padding:12px 14px;border-radius:11px;font-size:12px}.work-plan ol{margin:7px 0 0;padding-left:20px;color:var(--muted)}.work-plan li{padding:2px 0}.work-plan.running{border:1px solid var(--accent)}.work-panel~.messages{min-height:0}
-:root.dark .work-panel{background:var(--panel)}:root.dark .work-task input{background:#15181e;color:var(--ink)}
-@media(max-width:700px){.work-panel{max-height:42vh;padding:14px}.work-head h2{font-size:19px}.work-actions>*{flex:1}.work-meta{font-size:10px}}
 
-#elementorBoot{position:fixed;inset:0;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:var(--bg);color:var(--ink);transition:opacity .24s ease,visibility .24s ease}
-#elementorBoot.done{opacity:0;visibility:hidden;pointer-events:none}.boot-mark{width:54px;height:54px;border-radius:17px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:27px}.boot-track{width:150px;height:4px;background:var(--line);border-radius:8px;overflow:hidden;margin-top:8px}.boot-track i{display:block;height:100%;width:40%;background:var(--accent);animation:boot-progress 1.1s ease-in-out infinite alternate}
-@keyframes boot-progress{from{transform:translateX(-80%)}to{transform:translateX(250%)}}
 #elementorNotices{position:fixed;z-index:1001;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);display:grid;gap:8px;width:min(420px,calc(100vw - 24px));pointer-events:none}
 .elementor-notice{pointer-events:auto;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:12px 14px;display:flex;align-items:flex-start;gap:10px;animation:notice-in .28s ease both}
 .elementor-notice strong{display:block;font-size:13px}.elementor-notice small{display:block;color:var(--muted);font-size:11px;margin-top:2px}.elementor-notice button{margin-left:auto;border:0;background:transparent;color:var(--muted);font-size:18px}
@@ -29,7 +19,6 @@
 :root[data-accent="violet"]{--accent:#7655d9;--accent-soft:#f0ebff}:root[data-accent="teal"]{--accent:#087f83;--accent-soft:#e3f7f5}:root[data-accent="rose"]{--accent:#c04470;--accent-soft:#fff0f5}
 :root[data-font="serif"] body{font-family:Georgia,serif}:root[data-font="inter"] body{font-family:Inter,ui-sans-serif,system-ui,sans-serif}
 :root.reduce-motion *, :root.reduce-motion *:before,:root.reduce-motion *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
-@media(prefers-reduced-motion:reduce){#elementorBoot .boot-track i{animation:none}}
 </style>
 <style>
 /* Elementor workspace refinement: stable viewport, readable chat, and touch-first layouts */
@@ -136,16 +125,7 @@ body{min-height:100dvh}
 </style>
 
 <style>
-/* Greeting and startup motion: quick, calm, and resilient on low-power devices. */
-#elementorBoot{background:var(--bg);isolation:isolate}
-#elementorBoot .boot-mark{animation:boot-mark-in .55s cubic-bezier(.2,.8,.2,1) both,boot-mark-float 2.4s ease-in-out .55s infinite}
-#elementorBoot strong{font-size:15px;letter-spacing:-.02em}
-#elementorBoot>span{font-size:12px;color:var(--muted)}
-#elementorBoot .boot-track{width:min(190px,52vw);height:5px}
-#elementorBoot .boot-track i{width:34%;border-radius:inherit;animation:boot-progress 1.35s cubic-bezier(.4,0,.2,1) infinite}
-@keyframes boot-mark-in{from{opacity:0;transform:translateY(10px) scale(.88)}to{opacity:1;transform:translateY(0) scale(1)}}
-@keyframes boot-mark-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-@keyframes boot-progress{0%{transform:translateX(-110%)}100%{transform:translateX(330%)}}
+/* Greeting notification styling. */
 .elementor-greeting{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:12px;padding:15px 17px;border-radius:17px;animation:greeting-enter .62s cubic-bezier(.18,.85,.25,1.18) both}
 .greeting-mark{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font-size:21px}
 .elementor-greeting strong{font-size:14px}.elementor-greeting small{font-size:11px}.elementor-greeting button{font-size:19px}
@@ -176,13 +156,54 @@ body{min-height:100dvh}
 .plugin-note p{margin:5px 0 0}
 :root.dark .plugin-card{background:var(--panel)}
 </style>
+
+<style>
+/* Branded Elementor startup screen */
+#elementorBoot{display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at 50% 38%,color-mix(in srgb,var(--accent-soft) 78%,transparent),transparent 52%),var(--bg);transition:opacity .32s ease,visibility .32s ease}
+#elementorBoot .boot-card{width:min(430px,100%);padding:clamp(25px,5vw,42px);border:1px solid var(--line);border-radius:25px;background:var(--panel);box-shadow:0 24px 80px rgba(25,35,60,.09);text-align:left;animation:boot-card-in .65s cubic-bezier(.2,.8,.2,1) both}
+#elementorBoot .boot-brand{display:flex;align-items:center;gap:12px}
+#elementorBoot .boot-mark{width:47px;height:47px;flex:none;display:grid;place-items:center;border-radius:15px;background:var(--accent);color:white;box-shadow:0 7px 20px color-mix(in srgb,var(--accent) 25%,transparent);font-size:23px;animation:boot-mark-breathe 2.8s ease-in-out infinite}
+#elementorBoot .boot-spark{display:block;animation:boot-spark-turn 9s linear infinite}
+#elementorBoot .boot-brand-copy strong{display:block;font-size:17px;letter-spacing:-.7px;line-height:1.2}
+#elementorBoot .boot-brand-copy strong i{font-style:normal;color:var(--accent)}
+#elementorBoot .boot-brand-copy small{display:block;margin-top:4px;color:var(--muted);font-size:8px;font-weight:850;letter-spacing:.16em}
+#elementorBoot .boot-message{margin:43px 0 34px}
+#elementorBoot .boot-eyebrow{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:9px;font-weight:850;letter-spacing:.15em}
+#elementorBoot .boot-live-dot{width:7px;height:7px;border-radius:50%;background:#27ae78;box-shadow:0 0 0 4px color-mix(in srgb,#27ae78 13%,transparent);animation:boot-dot-pulse 1.8s ease-out infinite}
+#elementorBoot .boot-message h1{margin:15px 0 9px;font-size:clamp(29px,7vw,38px);line-height:1.08;letter-spacing:-1.8px;font-weight:760}
+#elementorBoot .boot-message h1 em{font-style:normal;color:var(--accent)}
+#elementorBoot .boot-message p{margin:0;color:var(--muted);font-size:12px}
+#elementorBoot .boot-progress{display:grid;gap:10px}
+#elementorBoot .boot-track{width:100%;height:4px;margin:0;border-radius:99px;background:var(--soft);overflow:hidden}
+#elementorBoot .boot-track i{width:31%;height:100%;border-radius:inherit;background:var(--accent);animation:boot-progress-sweep 1.45s cubic-bezier(.45,0,.25,1) infinite}
+#elementorBoot .boot-loading-label{color:var(--muted);font-size:10px}
+#elementorBoot .boot-footer{display:flex;align-items:center;gap:9px;margin-top:32px;padding-top:15px;border-top:1px solid var(--line);color:var(--muted);font-size:8px;font-weight:800;letter-spacing:.12em}
+#elementorBoot .boot-footer span:nth-child(2){font-size:6px;color:var(--accent)}
+#elementorBoot.done{opacity:0;visibility:hidden;pointer-events:none}
+@keyframes boot-card-in{from{opacity:0;transform:translateY(13px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes boot-mark-breathe{0%,100%{box-shadow:0 7px 20px color-mix(in srgb,var(--accent) 22%,transparent);transform:translateY(0)}50%{box-shadow:0 10px 27px color-mix(in srgb,var(--accent) 34%,transparent);transform:translateY(-2px)}}
+@keyframes boot-spark-turn{to{transform:rotate(360deg)}}
+@keyframes boot-dot-pulse{0%,100%{box-shadow:0 0 0 3px color-mix(in srgb,#27ae78 12%,transparent)}50%{box-shadow:0 0 0 6px color-mix(in srgb,#27ae78 5%,transparent)}}
+@keyframes boot-progress-sweep{0%{transform:translateX(-115%)}100%{transform:translateX(430%)}}
+:root.dark #elementorBoot .boot-card{box-shadow:0 24px 80px rgba(0,0,0,.28)}
+@media(max-width:480px){#elementorBoot{padding:18px}#elementorBoot .boot-card{border-radius:21px;padding:26px 23px}#elementorBoot .boot-message{margin:37px 0 29px}#elementorBoot .boot-message h1{font-size:32px}}
+@media(prefers-reduced-motion:reduce){#elementorBoot .boot-card,#elementorBoot .boot-mark,#elementorBoot .boot-spark,#elementorBoot .boot-live-dot,#elementorBoot .boot-track i{animation:none!important}#elementorBoot .boot-track i{width:100%;opacity:.65}}
+</style>
+<style>
+/* Keyboard access and landmark clarity */
+.skip-link{position:fixed;z-index:2000;top:10px;left:10px;padding:10px 14px;border-radius:9px;background:var(--ink);color:#fff;transform:translateY(-160%);transition:transform .16s ease}
+.skip-link:focus{transform:translateY(0);outline:3px solid var(--accent);outline-offset:3px}
+#prompt:focus-visible,.history-search:focus-visible,button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.skip-link{transition:none}}
+</style>
 </head>
 <body>
-<div id="elementorBoot" role="status" aria-live="polite"><div class="boot-mark">&#10022;</div><strong>Elementor</strong><span>Preparing your workspace...</span><div class="boot-track"><i></i></div></div>
+<a class="skip-link" href="#prompt">Skip to message composer</a>
+<div id="elementorBoot" role="status" aria-live="polite" aria-label="Loading Elementor workspace" aria-busy="true"><div class="boot-card"><div class="boot-brand"><span class="boot-mark"><span class="boot-spark">&#10022;</span></span><span class="boot-brand-copy"><strong>Elementor <i>AI</i></strong><small>ALL IN ONE EDITION</small></span></div><div class="boot-message"><span class="boot-eyebrow"><span class="boot-live-dot"></span> YOUR WORKSPACE</span><h1>Making room for<br><em>great ideas.</em></h1><p>Preparing your chats, tools and workspace.</p></div><div class="boot-progress"><div class="boot-track"><i></i></div><span class="boot-loading-label">Getting things ready</span></div><div class="boot-footer"><span>ELEMENTOR AI</span><span>●</span><span>ALL IN ONE EDITION</span></div></div></div>
 <div id="elementorNotices" aria-live="polite" aria-atomic="false"></div>
 <div class="shell">
-<aside class="side" id="sidebar">
- <a class="brand" href="/"><img src="/favicon.png" alt=""><span><strong>Elementor AI</strong><small>All in One Edition</small></span></a>
+<aside class="side" id="sidebar" aria-label="Conversation and settings sidebar">
+ <a class="brand" href="/"><img src="/brand-mark.svg" alt=""><span><strong>Elementor AI</strong><small>All in One Edition</small></span></a>
  <button class="new" id="newChat">＋ New chat</button>
  <div class="side-label">Your conversations</div><input class="history-search" id="historySearch" placeholder="Search chats…" aria-label="Search conversations"><div class="history" id="history"><div class="status">Sign in to sync your chats.</div></div>
  <div class="side-bottom">
@@ -194,41 +215,31 @@ body{min-height:100dvh}
   <div class="account"><div class="avatar" id="accountAvatar">✦</div><div><strong id="accountName">Not signed in</strong><small id="accountState">Sign in to use Elementor</small></div></div>
  </div>
 </aside>
-<section class="main">
+<main class="main" id="mainContent">
  <header class="top"><div style="display:flex;align-items:center;gap:10px"><button class="icon-btn mobile-menu" id="menuBtn" aria-label="Open menu">☰</button><h1 id="chatTitle">New chat</h1></div><div class="top-right"><span class="pill">Elementor workspace</span><button class="icon-btn" id="renameChat" aria-label="Rename chat" title="Rename chat">✎</button><button class="icon-btn" id="deleteChat" aria-label="Delete chat" title="Delete chat">⌫</button><button class="icon-btn" id="themeToggle" aria-label="Switch colour theme" title="Switch colour theme">◐</button><button class="icon-btn" id="profileTop" aria-label="Personalisation">⚙</button></div></header>
  <div class="content">
   <div class="welcome" id="welcome"><div class="orb">✦</div><h2>What are we building today?</h2><p>Ask questions, create images, or manage parts of All in One Edition.</p>
    <div class="suggestions"><button class="suggestion" data-prompt="Help me improve the All in One Edition homepage."><strong>Improve my website</strong>Review ideas and suggest practical upgrades</button><button class="suggestion" data-prompt="Create an image of a cosy futuristic gaming room with soft blue lighting."> <strong>Create an image</strong>Turn an idea into an original image</button><button class="suggestion" data-prompt="Explain how to organise my games catalogue better."><strong>Organise my games</strong>Plan a cleaner games catalogue</button><button class="suggestion" data-prompt="Give me a quick overview of what Elementor can do."><strong>Explore Elementor</strong>See what your AI workspace can do</button></div>
   </div>
-  <section class="work-panel hidden" id="workPanel" aria-label="Work Mode task workspace">
- <div class="work-head"><div><span class="work-kicker">ELEMENTOR WORKSPACE</span><h2>Work Mode</h2><p>Read-only research of public webpages. No extension or blanket Chrome permission is required.</p></div><button class="tool-btn" id="workExit">Exit Work</button></div>
- <div class="work-task"><label for="workUrl">Website to inspect</label><input id="workUrl" type="url" inputmode="url" placeholder="https://example.com"><p>Enter a public page URL. Elementor will fetch and analyse its readable page content through its cloud browser.</p><label class="work-consent"><input type="checkbox" id="workConsent"> I approve a read-only visit to this public page for this task. No sign-in, form submission, or private tab access.</label>
- <div class="work-meta"><span id="workCurrent">Ready for a task</span><span id="workProgress">0 steps completed</span></div>
- <div class="work-progress"><span id="workProgressBar"></span></div>
- <div class="work-actions"><button class="tool-btn" id="workPause" disabled>Pause</button><button class="tool-btn" id="workResume" disabled>Resume</button><button class="tool-btn" id="workStop" disabled>Cancel task</button><button class="send" id="workRun">Run task</button></div>
- <div class="status" id="workStatus" aria-live="polite">No website has been accessed.</div>
- <div class="work-plan" id="workPlan"><strong>Task plan</strong><ol><li>Validate the public URL.</li><li>Fetch the page without signing in or submitting forms.</li><li>Extract readable text and links.</li><li>Analyse the page and return findings in chat.</li></ol></div>
+  <div class="messages" id="messages" role="log" aria-label="Chat messages" aria-live="polite" aria-relevant="additions"></div><button class="tool-btn scroll-bottom hidden" id="scrollBottom" type="button" aria-label="Scroll to latest message">↓ Latest</button>
+  <div class="composer-wrap"><div class="composer"><textarea id="prompt" aria-label="Message Elementor" aria-describedby="composerHelp" placeholder="Message Elementor…" rows="2"></textarea><div class="composer-bottom"><div class="tools"><button class="tool-btn" id="imageMode" title="Optional explicit image mode">▧ Image</button><button class="tool-btn" id="thinkMode" aria-pressed="false" title="Use a reasoning-capable model">✧ Think</button><button class="tool-btn" id="codeMode">⌘ Code mode</button><button class="tool-btn" id="voiceInput" title="Dictate a message">🎙 Dictate</button><button class="tool-btn" id="voiceChat" title="Hands-free voice conversation">◉ Voice chat</button><button class="tool-btn" id="voiceOutput" title="Read replies aloud">🔊 Read replies</button><button class="tool-btn" id="clearMode">Clear mode</button><span class="voice-status" id="voiceStatus" aria-live="polite"></span></div><button class="tool-btn hidden" id="stop" type="button">Stop ■</button><button class="send" id="send">Send ↑</button></div></div><p class="fine" id="composerHelp">Elementor can make mistakes. Check important changes before applying them.</p></div>
  </div>
-</section>
-  <div class="messages" id="messages"></div><button class="tool-btn scroll-bottom hidden" id="scrollBottom" type="button">↓ Latest</button>
-  <div class="composer-wrap"><div class="composer"><textarea id="prompt" placeholder="Message Elementor…" rows="2"></textarea><div class="composer-bottom"><div class="tools"><button class="tool-btn" id="imageMode" title="Optional explicit image mode">▧ Image</button><button class="tool-btn" id="thinkMode" aria-pressed="false" title="Use a reasoning-capable model">✧ Think</button><button class="tool-btn" id="workModeOpen" aria-pressed="false" title="Switch to Work Mode">Work</button><button class="tool-btn" id="codeMode">⌘ Code mode</button><button class="tool-btn" id="voiceInput" title="Dictate a message">🎙 Dictate</button><button class="tool-btn" id="voiceChat" title="Hands-free voice conversation">◉ Voice chat</button><button class="tool-btn" id="voiceOutput" title="Read replies aloud">🔊 Read replies</button><button class="tool-btn" id="clearMode">Clear mode</button><span class="voice-status" id="voiceStatus" aria-live="polite"></span></div><button class="tool-btn hidden" id="stop" type="button">Stop ■</button><button class="send" id="send">Send ↑</button></div></div><p class="fine">Elementor can make mistakes. Check important changes before applying them.</p></div>
- </div>
-</section>
+</main>
 </div>
 
-<div class="modal-back hidden" id="pluginsModal" role="dialog" aria-modal="true" aria-labelledby="pluginsTitle"><div class="modal plugin-modal"><h3 id="pluginsTitle">Plugin marketplace</h3><p>Choose which built-in Elementor capabilities may run. Permissions are off by default and can be revoked here at any time.</p><div class="plugin-card"><div><strong>Cloud Browser Research</strong><small>Read public webpages only. It cannot sign in, submit forms, or access your private browser tabs.</small></div><label class="plugin-toggle"><input type="checkbox" id="pluginBrowserPermission"> Allow</label></div><div class="plugin-card"><div><strong>Image Studio</strong><small>Send your image prompt to the image generator and show the result in this conversation.</small></div><label class="plugin-toggle"><input type="checkbox" id="pluginImagePermission"> Allow</label></div><div class="plugin-note"><strong>External integrations</strong><p>No third-party accounts are connected in this build. External providers will appear here only after a verified OAuth flow, server-side token storage, and a separate scope approval screen are configured.</p></div><div class="status" id="pluginStatus" aria-live="polite"></div><div class="modal-actions"><button class="tool-btn" data-close="pluginsModal">Close</button><button class="send" id="savePluginPermissions">Save permissions</button></div></div></div>
-<div class="modal-back hidden" id="profileModal"><div class="modal"><h3>Personalise Elementor</h3><p>Choose how Elementor appears and responds. These preferences are saved to your account.</p>
- <div class="field"><label>Display name</label><input id="displayName" maxlength="48" placeholder="Elementor"></div>
- <div class="field"><label>Profile picture</label><div class="avatars" id="avatarChoices"></div><input id="avatarUpload" type="file" accept="image/png,image/jpeg,image/webp" style="margin-top:9px"></div>
- <div class="field"><label>Accent colour</label><select id="elementorAccent"><option value="blue">Blue</option><option value="violet">Violet</option><option value="teal">Teal</option><option value="rose">Rose</option></select></div>
- <div class="field"><label>Font</label><select id="elementorFont"><option value="system">System</option><option value="inter">Inter</option><option value="serif">Serif</option></select></div>
+<div class="modal-back hidden" id="pluginsModal" role="dialog" aria-modal="true" aria-labelledby="pluginsTitle"><div class="modal plugin-modal"><h3 id="pluginsTitle">Plugin marketplace</h3><p>Choose which built-in Elementor capabilities may run. Permissions are off by default and can be revoked here at any time.</p><div class="plugin-card"><div><strong>Image Studio</strong><small>Send your image prompt to the image generator and show the result in this conversation.</small></div><label class="plugin-toggle"><input type="checkbox" id="pluginImagePermission"> Allow</label></div><div class="plugin-note"><strong>External integrations</strong><p>No third-party accounts are connected in this build. External providers will appear here only after a verified OAuth flow, server-side token storage, and a separate scope approval screen are configured.</p></div><div class="status" id="pluginStatus" aria-live="polite"></div><div class="modal-actions"><button class="tool-btn" data-close="pluginsModal">Close</button><button class="send" id="savePluginPermissions">Save permissions</button></div></div></div>
+<div class="modal-back hidden" id="profileModal" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle"><div class="modal"><h3 id="profileModalTitle" tabindex="-1">Personalise Elementor</h3><p>Choose how Elementor appears and responds. These preferences are saved to your account.</p>
+ <div class="field"><label for="displayName">Display name</label><input id="displayName" maxlength="48" placeholder="Elementor"></div>
+ <div class="field"><label>Profile picture</label><div class="avatars" id="avatarChoices"></div><input id="avatarUpload" aria-label="Upload profile picture" type="file" accept="image/png,image/jpeg,image/webp" style="margin-top:9px"></div>
+ <div class="field"><label for="elementorAccent">Accent colour</label><select id="elementorAccent"><option value="blue">Blue</option><option value="violet">Violet</option><option value="teal">Teal</option><option value="rose">Rose</option></select></div>
+ <div class="field"><label for="elementorFont">Font</label><select id="elementorFont"><option value="system">System</option><option value="inter">Inter</option><option value="serif">Serif</option></select></div>
  <div class="field"><label><input type="checkbox" id="elementorReducedMotion"> Reduce animations</label></div>
  <div class="field"><label><input type="checkbox" id="elementorGreetingEnabled" checked> Show startup greeting</label></div>
- <div class="field"><label>Response style</label><select id="responseStyle"><option value="balanced">Balanced</option><option value="concise">Concise</option><option value="detailed">Detailed</option><option value="friendly">Friendly</option></select></div>
- <div class="field"><label>Custom instructions</label><textarea id="instructions" maxlength="1200" placeholder="Tell Elementor how you like answers, what to focus on, and what to avoid."></textarea></div><div class="status" id="profileStatus"></div><div class="modal-actions"><button class="tool-btn" data-close="profileModal">Cancel</button><button class="send" id="saveProfile">Save preferences</button></div>
+ <div class="field"><label for="responseStyle">Response style</label><select id="responseStyle"><option value="balanced">Balanced</option><option value="concise">Concise</option><option value="detailed">Detailed</option><option value="friendly">Friendly</option></select></div>
+ <div class="field"><label for="instructions">Custom instructions</label><textarea id="instructions" maxlength="1200" placeholder="Tell Elementor how you like answers, what to focus on, and what to avoid."></textarea></div><div class="status" id="profileStatus"></div><div class="modal-actions"><button class="tool-btn" data-close="profileModal">Cancel</button><button class="send" id="saveProfile">Save preferences</button></div>
 </div></div>
-<div class="modal-back hidden" id="controlsModal"><div class="modal"><h3>Website controls</h3><p>Owner-only controls are verified by Supabase Row Level Security. Changes are applied only after you press Save.</p>
- <div class="control-card"><h3>Homepage announcement</h3><p>Publish a short notice across All in One Edition. Only the verified owner account can change this.</p><input id="announcementText" maxlength="180" placeholder="e.g. New games have been added!"><button id="saveAnnouncement">Publish announcement</button><button id="clearAnnouncement" style="background:#eef0f4;color:#343a45;margin-left:6px">Clear</button></div>
+<div class="modal-back hidden" id="controlsModal" role="dialog" aria-modal="true" aria-labelledby="controlsModalTitle"><div class="modal"><h3 id="controlsModalTitle" tabindex="-1">Website controls</h3><p>Owner-only controls are verified by Supabase Row Level Security. Changes are applied only after you press Save.</p>
+ <div class="control-card"><h3>Homepage announcement</h3><p>Publish a short notice across All in One Edition. Only the verified owner account can change this.</p><input id="announcementText" aria-label="Announcement message" maxlength="180" placeholder="e.g. New games have been added!"><button id="saveAnnouncement">Publish announcement</button><button id="clearAnnouncement" style="background:#eef0f4;color:#343a45;margin-left:6px">Clear</button></div>
  <div class="status" id="controlStatus">Checking owner permissions…</div><div class="modal-actions"><button class="tool-btn" data-close="controlsModal">Close</button></div>
 </div></div>
 <script>
@@ -240,17 +251,19 @@ const AI_API='https://aio-elementor-ai.plsgivemediscord981.workers.dev';
 const MEDIA_API='https://all-in-one-edition-media.plsgivemediscord981.workers.dev';
 const AVATARS=['✦','✧','◈','✺','⚡','🌙','🪐','🎮','🦊','🐼','🐸','🤖','🌸','☀️','💎','🦋'];
 const $=id=>document.getElementById(id);
+let elementorBootFailsafe=window.setTimeout(finishElementorBoot,8000);
+function finishElementorBoot(){const loader=$('elementorBoot');if(!loader)return;loader.classList.add('done');loader.setAttribute('aria-hidden','true');loader.setAttribute('aria-busy','false');}
 const db=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 let codeMode=false,voiceOutput=false,voiceChatMode=false,voiceTimer=null,voiceTranscript='',recognition=null,session=null,user=null,profile={display_name:'Elementor',avatar:'✦',instructions:'',response_style:'balanced'},currentId=null,messages=[],isSending=false,imageMode=false,isOwner=false,activeController=null,thinkMode=localStorage.getItem('elementor_think_mode')==='1',objectUrls=[],guestId=sessionStorage.getItem('elementor_guest_id')||crypto.randomUUID(),guestChats=JSON.parse(sessionStorage.getItem('elementor_guest_chats')||'{}');
 sessionStorage.setItem('elementor_guest_id',guestId);
 function saveGuestChats(){const safe={};for(const [id,chat] of Object.entries(guestChats)){safe[id]={...chat,messages:(chat.messages||[]).map(({image_url,...message})=>message)};}sessionStorage.setItem('elementor_guest_chats',JSON.stringify(safe));}
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const ELEMENTOR_PLUGIN_KEY='elementor_plugin_permissions_v1';
-const DEFAULT_PLUGIN_PERMISSIONS={browserResearch:false,imageStudio:false};
+const DEFAULT_PLUGIN_PERMISSIONS={imageStudio:false};
 function getPluginPermissions(){try{return {...DEFAULT_PLUGIN_PERMISSIONS,...JSON.parse(localStorage.getItem(ELEMENTOR_PLUGIN_KEY)||'{}')};}catch{return {...DEFAULT_PLUGIN_PERMISSIONS};}}
-function hasPluginPermission(name){const p=getPluginPermissions();return name==='browser-research'?p.browserResearch:name==='image-studio'?p.imageStudio:false;}
-function openPluginMarketplace(){const p=getPluginPermissions();$('pluginBrowserPermission').checked=p.browserResearch;$('pluginImagePermission').checked=p.imageStudio;$('pluginStatus').textContent='Permissions are stored on this device. No external account tokens are stored here.';openModal('pluginsModal');}
-function savePluginPermissions(){const next={browserResearch:$('pluginBrowserPermission').checked,imageStudio:$('pluginImagePermission').checked};localStorage.setItem(ELEMENTOR_PLUGIN_KEY,JSON.stringify(next));$('pluginStatus').textContent='Permissions saved. You can revoke either permission here.';showElementorNotice('Plugin permissions updated','Only the built-in capabilities you allowed can run.');}
+function hasPluginPermission(name){return name==='image-studio'?getPluginPermissions().imageStudio:false;}
+function openPluginMarketplace(){const p=getPluginPermissions();$('pluginImagePermission').checked=p.imageStudio;$('pluginStatus').textContent='Permissions are stored on this device. No external account tokens are stored here.';openModal('pluginsModal');}
+function savePluginPermissions(){const next={imageStudio:$('pluginImagePermission').checked};localStorage.setItem(ELEMENTOR_PLUGIN_KEY,JSON.stringify(next));$('pluginStatus').textContent='Permissions saved. You can revoke either permission here.';showElementorNotice('Plugin permissions updated','Image Studio is available when enabled.');}
 function sanitizeElementorOutput(value){
  let text=String(value??'').normalize('NFKC');
  const blocked=['fuck','fucking','motherfucker','shit','shitty','bullshit','bitch','bastard','asshole','arse','arsehole','dick','dickhead','piss','crap','damn','hell','bloody','bugger','bollocks','wanker','twat','prick'];
@@ -286,8 +299,34 @@ function showElementorGreeting(){
  if(user&&db){db.from('aio_elementor_site_settings').select('setting_value,updated_at').eq('setting_key','announcement').maybeSingle().then(({data,error})=>{const value=data?.setting_value?.text;if(!error&&value)showElementorNotice('Platform announcement',value,9000);}).catch(()=>{});}
 }
 
-function openModal(id){$(id).classList.remove('hidden');}
-function closeModal(id){$(id).classList.add('hidden');}
+let activeModalId=null,modalReturnFocus=null;
+const modalFocusable='a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+function openModal(id){
+ const overlay=$(id);if(!overlay)return;
+ if(activeModalId&&activeModalId!==id)closeModal(activeModalId);
+ modalReturnFocus=document.activeElement;activeModalId=id;
+ overlay.classList.remove('hidden');
+ const panel=overlay.querySelector('.modal');
+ const target=panel?.querySelector(modalFocusable)||panel?.querySelector('h3');
+ if(target){if(target.matches('h3')&&!target.hasAttribute('tabindex'))target.setAttribute('tabindex','-1');target.focus({preventScroll:true});}
+}
+function closeModal(id){
+ const overlay=$(id);if(!overlay)return;
+ overlay.classList.add('hidden');
+ if(activeModalId===id){activeModalId=null;const restore=modalReturnFocus;modalReturnFocus=null;if(restore?.isConnected)restore.focus({preventScroll:true});}
+}
+document.addEventListener('keydown',event=>{
+ if(!activeModalId)return;
+ const overlay=$(activeModalId);if(!overlay||overlay.classList.contains('hidden')){activeModalId=null;return;}
+ if(event.key==='Escape'){event.preventDefault();closeModal(activeModalId);return;}
+ if(event.key!=='Tab')return;
+ const panel=overlay.querySelector('.modal');const items=[...(panel?.querySelectorAll(modalFocusable)||[])].filter(el=>el.getClientRects().length);
+ if(!items.length){event.preventDefault();panel?.focus();return;}
+ const first=items[0],last=items[items.length-1];
+ if(event.shiftKey&&(document.activeElement===first||!panel.contains(document.activeElement))){event.preventDefault();last.focus();}
+ else if(!event.shiftKey&&(document.activeElement===last||!panel.contains(document.activeElement))){event.preventDefault();first.focus();}
+});
+document.querySelectorAll('.modal-back').forEach(overlay=>overlay.addEventListener('mousedown',event=>{if(event.target===overlay)closeModal(overlay.id);}));
 function token(){return session?.access_token||'';}
 function avatarMarkup(value){return AVATARS.includes(value)?escape(value):'✦';}
 function setAvatar(){ const el=$('accountAvatar');el.replaceChildren();if(profile.avatar_media_id){const img=document.createElement('img');img.alt='Elementor profile picture';el.append(img);attachMediaImage(img,profile.avatar_media_id);}else{el.textContent=avatarMarkup(profile.avatar);} $('accountName').textContent=profile.display_name||user?.email||'Elementor';$('accountState').textContent=user?.email||'Not signed in'; }
@@ -296,12 +335,12 @@ async function init(){
  applyElementorPreferences();
  try{
   if(!db){showAuth();return;}
-  const auth=await Promise.race([db.auth.getSession(),new Promise((_,reject)=>setTimeout(()=>reject(new Error('Authentication is taking too long.')),12000))]);
+  const auth=await Promise.race([db.auth.getSession(),new Promise((_,reject)=>setTimeout(()=>reject(new Error('Authentication is taking too long.')),6500))]);
   session=auth.data.session;user=session?.user||null;
   db.auth.onAuthStateChange((_e,s)=>{const nextUser=s?.user||null;if(nextUser?.id!==user?.id){currentId=null;messages=[];}session=s;user=nextUser;boot().then(showElementorGreeting).catch(console.warn);});
   await boot();
  }catch(error){console.warn('Elementor startup:',error);$('accountName').textContent='Guest';$('accountState').textContent='Offline or limited session';showAuth();await loadHistory().catch(()=>{});}
- finally{$('elementorBoot').classList.add('done');showElementorGreeting();}
+ finally{window.clearTimeout(elementorBootFailsafe);finishElementorBoot();showElementorGreeting();}
 }
 async function boot(){
  if(!user){$('accountName').textContent='Guest';$('accountState').textContent='Chats stay in this browser session';$('welcome').classList.remove('hidden');showAuth();await loadHistory();return;}
@@ -397,7 +436,7 @@ async function callAI(extraContext=''){
  if(extraContext)context.push({role:'user',content:String(extraContext).slice(0,12000)});
  const headers={'Content-Type':'application/json','X-Guest-Id':guestId};if(token())headers.Authorization='Bearer '+token();
  const controller=new AbortController();activeController=controller;
- const res=await fetch(AI_API+'/chat',{method:'POST',headers,signal:controller.signal,body:JSON.stringify({messages:context,workContext:!!extraContext,think:thinkMode,profile:{displayName:profile.display_name,style:profile.response_style,instructions:(profile.instructions||'')+(codeMode?'\\nUse Code mode: provide complete runnable code in fenced blocks, explain where it goes, and mention assumptions.':'')},site:'All in One Edition'})});
+ const res=await fetch(AI_API+'/chat',{method:'POST',headers,signal:controller.signal,body:JSON.stringify({messages:context,think:thinkMode,profile:{displayName:profile.display_name,style:profile.response_style,instructions:(profile.instructions||'')+(codeMode?'\\nUse Code mode: provide complete runnable code in fenced blocks, explain where it goes, and mention assumptions.':'')},site:'All in One Edition'})});
  if(!res.ok){const data=await res.json().catch(()=>({}));throw new Error(data.error||'Elementor could not reply.');}
  if(!res.body)throw new Error('Streaming is not supported by this connection.');
  const live={id:'stream-'+crypto.randomUUID(),role:'assistant',content:'',created_at:new Date().toISOString()};messages.push(live);renderMessages();
@@ -419,10 +458,10 @@ async function attachMediaImage(img,id){
  try{const res=await fetch(MEDIA_API+'/media/'+encodeURIComponent(id),{headers:{Authorization:'Bearer '+token()}});if(!res.ok)throw new Error('Private image unavailable');const blob=await res.blob();const src=URL.createObjectURL(blob);objectUrls.push(src);img.src=src;}catch(e){img.alt='Image is unavailable. Sign in again to load private media.';}
 }
 async function createImage(prompt){
- if(!hasPluginPermission('image-studio'))throw new Error('Image Studio permission is off. Open Plugin marketplace and allow it before generating an image.');
+ if(!hasPluginPermission('image-studio')){openPluginMarketplace();throw new Error('Allow Image Studio in the Plugin marketplace, then try generating your image again.');}
  const headers={'Content-Type':'application/json','X-Guest-Id':guestId};if(token())headers.Authorization='Bearer '+token();const r=await fetch(AI_API+'/generate',{method:'POST',headers,body:JSON.stringify({prompt,userConsent:true})});
  if(!r.ok){const d=await r.json().catch(()=>({}));throw new Error(d.error||'Image generation failed.');}
- const blob=await r.blob();if(!user){const src=URL.createObjectURL(blob);objectUrls.push(src);const m={id:'guest-image-'+crypto.randomUUID(),role:'assistant',content:'Created an image from: '+prompt,image_url:src,created_at:new Date().toISOString()};messages.push(m);if(guestChats[currentId]){guestChats[currentId].messages=messages;saveGuestChats();}renderMessages();return;}let id=null;try{id=await uploadImage(blob,'elementor-'+Date.now()+'.jpg');}catch(e){throw new Error('Image generated, but private B2 saving failed: '+e.message);}
+ const blob=await r.blob();if(!user){const src=URL.createObjectURL(blob);objectUrls.push(src);const m={id:'guest-image-'+crypto.randomUUID(),role:'assistant',content:'Created an image from: '+prompt,image_url:src,created_at:new Date().toISOString()};messages.push(m);if(guestChats[currentId]){guestChats[currentId].messages=messages;saveGuestChats();}renderMessages();return;}let id=null;try{id=await uploadImage(blob,'elementor-'+Date.now()+'.jpg');}catch(e){throw new Error('Image generated, but saving to private R2 storage failed: '+e.message);}
  await saveMessage('assistant','Created an image from: '+prompt,id);
 }
 async function handleSiteCommand(text){
@@ -438,7 +477,6 @@ async function handleSiteCommand(text){
  return true;
 }
 async function send(){
- if(workMode){const task=$('prompt').value.trim();if(!task)return;const saved=task;$('prompt').value='';await saveMessage('user',saved);await runWorkTask(saved);return;}
  if(!currentId||isSending)return;const input=$('prompt'),text=input.value.trim();if(!text)return;
  const wantsImage=imageMode||/(?:\b(?:generate|create|draw|design|make|illustrate|paint)\b.{0,70}\b(?:image|picture|illustration|artwork|logo|wallpaper|avatar|icon|poster|banner)\b|\b(?:image|picture|illustration|artwork|logo|wallpaper|avatar|icon|poster|banner)\b.{0,70}\b(?:of|for|showing|with)\b)/i.test(text);
  isSending=true;$('send').disabled=true;$('send').hidden=true;$('stop').classList.remove('hidden');input.value='';
@@ -528,7 +566,12 @@ $('historySearch').addEventListener('input',loadHistory);
 const savedTheme=localStorage.getItem('elementor_theme')||'light';document.documentElement.classList.toggle('dark',savedTheme==='dark');
 $('themeToggle').onclick=()=>{const dark=document.documentElement.classList.toggle('dark');localStorage.setItem('elementor_theme',dark?'dark':'light');$('themeToggle').textContent=dark?'☀':'◐';};
 $('themeToggle').textContent=document.documentElement.classList.contains('dark')?'☀':'◐';
-const resizePrompt=()=>{$('prompt').style.height='auto';$('prompt').style.height=Math.min($('prompt').scrollHeight,200)+'px';};$('prompt').addEventListener('input',resizePrompt);
+const promptInput=$('prompt');
+const resizePrompt=()=>{promptInput.style.height='auto';promptInput.style.height=Math.min(promptInput.scrollHeight,200)+'px';promptInput.style.overflowY=promptInput.scrollHeight>200?'auto':'hidden';};
+promptInput.addEventListener('input',resizePrompt);
+promptInput.addEventListener('paste',()=>requestAnimationFrame(resizePrompt));
+promptInput.addEventListener('focus',()=>{if(window.matchMedia('(max-width:700px)').matches)promptInput.scrollIntoView({block:'nearest',behavior:'smooth'});});
+
 const updateScrollButton=()=>{$('scrollBottom').classList.toggle('hidden',$('messages').scrollHeight-$('messages').scrollTop-$('messages').clientHeight<120);};$('messages').addEventListener('scroll',updateScrollButton);$('scrollBottom').onclick=()=>{$('messages').scrollTo({top:$('messages').scrollHeight,behavior:'smooth'});};
 
 $('thinkMode').classList.toggle('active',thinkMode);$('thinkMode').setAttribute('aria-pressed',String(thinkMode));$('thinkMode').onclick=()=>{thinkMode=!thinkMode;localStorage.setItem('elementor_think_mode',thinkMode?'1':'0');$('thinkMode').classList.toggle('active',thinkMode);$('thinkMode').setAttribute('aria-pressed',String(thinkMode));$('voiceStatus').textContent=thinkMode?'Think mode enabled · reasoning model':'Think mode disabled · standard model';};
@@ -542,270 +585,7 @@ document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.
 document.querySelectorAll('.suggestion').forEach(b=>b.onclick=()=>{$('prompt').value=b.dataset.prompt;$('prompt').focus();});
 $('menuBtn').onclick=()=>{const open=$('sidebar').classList.toggle('open');document.body.classList.toggle('sidebar-open',open);};document.addEventListener('click',event=>{if(window.matchMedia('(max-width:700px)').matches&&$('sidebar').classList.contains('open')&&!$('sidebar').contains(event.target)&&event.target!==$('menuBtn')){$('sidebar').classList.remove('open');document.body.classList.remove('sidebar-open');}});
 
-let workMode=false,workPaused=false,workCancelled=false,workController=null,workSteps=0;
-function setWorkStatus(message){$('workStatus').textContent=sanitizeElementorOutput(message);}
-function setWorkProgress(step,total,label){workSteps=step;$('workCurrent').textContent=sanitizeElementorOutput(label);$('workProgress').textContent=step+' of '+total+' steps completed';$('workProgressBar').style.width=Math.round(step/total*100)+'%';}
-function setWorkMode(enabled){
- workMode=!!enabled;$('workPanel').classList.toggle('hidden',!workMode);$('workModeOpen').classList.toggle('active',workMode);$('workModeOpen').setAttribute('aria-pressed',String(workMode));
- $('prompt').placeholder=workMode?'Describe the research task for this webpage':'Message Elementor';
- if(workMode){$('workUrl').focus();setWorkStatus('Enter a public URL and describe what you want analysed in the message box.');}
-}
-$('workModeOpen').onclick=()=>setWorkMode(!workMode);$('workExit').onclick=()=>setWorkMode(false);
-$('workPause').onclick=()=>{workPaused=true;$('workPause').disabled=true;$('workResume').disabled=false;setWorkStatus('Paused between steps. A request already in progress may finish; resume to continue.');};
-$('workResume').onclick=()=>{workPaused=false;$('workPause').disabled=false;$('workResume').disabled=true;setWorkStatus('Resumed.');};
-$('workStop').onclick=()=>{workCancelled=true;workController?.abort();activeController?.abort();workPaused=false;$('workPause').disabled=true;$('workResume').disabled=true;$('workStop').disabled=true;setWorkStatus('Task cancelled.');};
-function waitForWorkResume(){return new Promise((resolve,reject)=>{const check=()=>{if(workCancelled)return reject(new DOMException('Task cancelled','AbortError'));if(!workPaused)return resolve();setTimeout(check,150);};check();});}
-async function runWorkTask(instruction){
- if($('workRun').disabled)return;
- if(!hasPluginPermission('browser-research')){setWorkStatus('Cloud Browser Research is not allowed yet. Open Plugin marketplace and grant permission first.');return;}
- if(!$('workConsent').checked){setWorkStatus('Approve the read-only page visit before running this task.');return;}
- const rawUrl=$('workUrl').value.trim();let parsed;
- try{parsed=new URL(rawUrl);if(!['http:','https:'].includes(parsed.protocol))throw new Error();}catch{setWorkStatus('Enter a valid public HTTP or HTTPS website URL.');return;}
- workCancelled=false;workPaused=false;workController=new AbortController();const total=4;
- $('workRun').disabled=true;$('workPause').disabled=false;$('workStop').disabled=false;$('workResume').disabled=true;$('workPlan').classList.add('running');setWorkProgress(0,total,'Validating URL');
- try{
-  await waitForWorkResume();setWorkProgress(1,total,'Requesting public webpage');
-  const headers={'Content-Type':'application/json','X-Guest-Id':guestId};if(token())headers.Authorization='Bearer '+token();
-  const response=await fetch(AI_API+'/browse',{method:'POST',headers,signal:workController.signal,body:JSON.stringify({url:parsed.href,userConsent:true})});
-  const data=await response.json();if(!response.ok)throw new Error(data.error||'The page could not be fetched.');
-  await waitForWorkResume();setWorkProgress(2,total,'Extracting page content');
-  if(!data.text)throw new Error('The page did not contain readable text. It may require JavaScript or sign-in.');
-  $('workPlan').innerHTML='<strong>Task plan</strong><ol><li>Validate URL <span>?</span></li><li>Fetch public page <span>?</span></li><li>Extract readable content <span>?</span></li><li>Analyse and summarise in chat</li></ol>';
-  await waitForWorkResume();setWorkProgress(3,total,'Analysing '+data.title);
-  const prior=messages.slice(-10).map(m=>({role:m.role,content:m.content}));
-  const newline=String.fromCharCode(10);
-  const task=['Work Mode task: '+instruction,'','Public webpage fetched read-only:','Title: '+data.title,'URL: '+data.url,'Description: '+(data.description||''),'Links: '+(data.links||[]).slice(0,30).map(x=>x.text+' ('+x.url+')').join(newline),'','Extracted page text:',data.text.slice(0,14000),'','Analyse only this fetched evidence. State clearly if information is missing. Do not claim to click, submit forms, sign in, or control browser tabs.'].join(newline);
-  const result=await callAI(task);
-  await waitForWorkResume();setWorkProgress(4,total,'Completed research');
-  if(result.answer)await saveMessage('assistant',result.answer);else throw new Error('The AI analysis returned no answer.');
-  setWorkStatus('Completed. The page was fetched read-only; no forms were submitted and no browser tabs were controlled.');
-  $('workPlan').classList.remove('running');
- }catch(e){if(e.name==='AbortError'){setWorkStatus('Task cancelled.');}else{setWorkStatus('Task failed: '+e.message);await saveMessage('assistant','Work Mode could not complete the webpage inspection: '+e.message).catch(()=>{});}}
- finally{workController=null;$('workRun').disabled=false;$('workPause').disabled=true;$('workResume').disabled=true;$('workStop').disabled=true;$('workPlan').classList.remove('running');$('workConsent').checked=false;}
-}
-$('workRun').onclick=async()=>{const task=$('prompt').value.trim()||'Inspect this website and summarise its purpose, structure, useful information and potential issues.';$('prompt').value='';await saveMessage('user',task);runWorkTask(task);};
-
-
 init();
 })();
 </script>
 </body></html>
-
-),'');if(lang)node.className='language-'+lang.toLowerCase().replace(/[^a-z0-9-]/g,'');pre.append(node);const copy=document.createElement('button');copy.className='copy-code';copy.type='button';copy.textContent='Copy';copy.onclick=async()=>{try{await navigator.clipboard.writeText(node.textContent);copy.textContent='Copied';setTimeout(()=>copy.textContent='Copy',1200);}catch{copy.textContent='Unavailable';}};wrap.append(pre,copy);container.append(wrap);if(window.hljs)window.hljs.highlightElement(node);
-  }else renderMarkdownText(container,chunk);
- });
-}
-function renderMessages(){
- const scroller=$('messages'),wasNearBottom=scroller.scrollHeight-scroller.scrollTop-scroller.clientHeight<90;
- $('welcome').classList.toggle('hidden',messages.length>0);scroller.replaceChildren();
- for(const m of messages){const row=document.createElement('div');row.className='message '+m.role;const av=document.createElement('div');av.className='bubble-avatar';av.textContent=m.role==='assistant'?'✦':(profile.avatar||'U');const bubble=document.createElement('div');bubble.className='bubble';const body=document.createElement('div');renderRichText(body,m.content|| (m.image_media_id?'Generated image':''));bubble.append(body);if(m.image_media_id){const img=document.createElement('img');img.alt='Image generated in this chat';img.dataset.image=m.id;bubble.append(img);if(user)attachMediaImage(img,m.image_media_id);}else if(m.image_url){const img=document.createElement('img');img.alt='Image generated in this guest session';img.src=m.image_url;bubble.append(img);}if(m.role==='assistant'&&!String(m.id||'').startsWith('stream-')){const actions=document.createElement('div');actions.className='message-actions';const copy=document.createElement('button');copy.type='button';copy.textContent='Copy';copy.onclick=async()=>{try{await navigator.clipboard.writeText(m.content||'');copy.textContent='Copied';setTimeout(()=>copy.textContent='Copy',1200);}catch{copy.textContent='Unavailable';}};const regen=document.createElement('button');regen.type='button';regen.textContent='Regenerate';regen.disabled=isSending;regen.onclick=regenerateLast;actions.append(copy,regen);bubble.append(actions);}row.append(av,bubble);scroller.append(row);}
- if(wasNearBottom)scroller.scrollTop=scroller.scrollHeight;
-}
-function addLocalMessage(role,content,imageId=null){
- const m={id:'local-'+Math.random().toString(36).slice(2),role,content,image_media_id:imageId};messages.push(m);renderMessages();return m;
-}
-async function saveMessage(role,content,imageId=null){
- if(!user){const data={id:'guest-msg-'+crypto.randomUUID(),role,content,image_media_id:imageId,created_at:new Date().toISOString()};messages.push(data);if(guestChats[currentId]){guestChats[currentId].messages=messages;guestChats[currentId].updated_at=Date.now();saveGuestChats();}renderMessages();return data;}
- const {data,error}=await db.from('elementor_messages').insert({conversation_id:currentId,user_id:user.id,role,content,image_media_id:imageId}).select('*').single();
- if(error)throw error;messages.push(data);renderMessages();return data;
-}
-async function updateTitle(text){
- const title=text.trim().slice(0,48)||'New chat';if(!user){if(guestChats[currentId]){guestChats[currentId].title=title;guestChats[currentId].updated_at=Date.now();saveGuestChats();}$('chatTitle').textContent=title;await loadHistory();return;}await db.from('elementor_conversations').update({title,updated_at:new Date().toISOString()}).eq('id',currentId).eq('user_id',user.id);$('chatTitle').textContent=title;await loadHistory();
-}
-async function callAI(){
- const context=messages.filter(m=>m.role==='user'||m.role==='assistant').slice(-14).map(m=>({role:m.role,content:m.content||''}));
- const headers={'Content-Type':'application/json','X-Guest-Id':guestId};if(token())headers.Authorization='Bearer '+token();
- const controller=new AbortController();activeController=controller;
- const res=await fetch(AI_API+'/chat',{method:'POST',headers,signal:controller.signal,body:JSON.stringify({messages:context,think:thinkMode,profile:{displayName:profile.display_name,style:profile.response_style,instructions:(profile.instructions||'')+(codeMode?'\\nUse Code mode: provide complete runnable code in fenced blocks, explain where it goes, and mention assumptions.':'')},site:'All in One Edition'})});
- if(!res.ok){const data=await res.json().catch(()=>({}));throw new Error(data.error||'Elementor could not reply.');}
- if(!res.body)throw new Error('Streaming is not supported by this connection.');
- const live={id:'stream-'+crypto.randomUUID(),role:'assistant',content:'',created_at:new Date().toISOString()};messages.push(live);renderMessages();
- const reader=res.body.getReader(),decoder=new TextDecoder();let buffer='',answer='',stopped=false;
- try{while(true){const {value,done}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});const events=buffer.split(/\r?
-/);buffer=events.pop()||'';for(const line of events){if(!line.startsWith('data:'))continue;const raw=line.slice(5).trim();if(!raw||raw==='[DONE]')continue;try{const part=JSON.parse(raw);const delta=part.response||part.choices?.[0]?.delta?.content||part.choices?.[0]?.text||'';if(delta){answer+=delta;live.content=answer;renderMessages();}}catch{}}}}
- catch(error){if(error.name==='AbortError')stopped=true;else throw error;}
- finally{if(activeController===controller)activeController=null;messages=messages.filter(m=>m!==live);}
- return {answer:answer.trim(),stopped};
-}
-async function uploadImage(blob,name){
- const auth='Bearer '+token();const initRes=await fetch(MEDIA_API+'/uploads/initiate',{method:'POST',headers:{Authorization:auth,'Content-Type':'application/json'},body:JSON.stringify({filename:name,contentType:blob.type||'image/jpeg',sizeBytes:blob.size,visibility:'private'})});
- const init=await initRes.json();if(!initRes.ok)throw new Error(init.error||'Could not save image to private media storage.');
- const size=Number(init.partSizeBytes)||32*1024*1024,parts=[];
- try{let part=1;for(let off=0;off<blob.size;off+=size,part++){const chunk=blob.slice(off,Math.min(blob.size,off+size));const r=await fetch(MEDIA_API+'/uploads/'+encodeURIComponent(init.uploadId)+'/parts/'+part,{method:'POST',headers:{Authorization:auth,'Content-Type':'application/octet-stream','X-Part-Size':String(chunk.size)},body:chunk});const d=await r.json();if(!r.ok)throw new Error(d.error||'Image upload failed.');parts.push({partNumber:part,etag:d.etag});}
- const done=await fetch(MEDIA_API+'/uploads/'+encodeURIComponent(init.uploadId)+'/complete',{method:'POST',headers:{Authorization:auth,'Content-Type':'application/json'},body:JSON.stringify({parts})});const result=await done.json();if(!done.ok)throw new Error(result.error||'Could not finish image upload.');return init.uploadId;
- }catch(e){await fetch(MEDIA_API+'/uploads/'+encodeURIComponent(init.uploadId)+'/abort',{method:'POST',headers:{Authorization:auth}}).catch(()=>{});throw e;}
-}
-async function attachMediaImage(img,id){
- try{const res=await fetch(MEDIA_API+'/media/'+encodeURIComponent(id),{headers:{Authorization:'Bearer '+token()}});if(!res.ok)throw new Error('Private image unavailable');const blob=await res.blob();const src=URL.createObjectURL(blob);objectUrls.push(src);img.src=src;}catch(e){img.alt='Image is unavailable. Sign in again to load private media.';}
-}
-async function createImage(prompt){
- const headers={'Content-Type':'application/json','X-Guest-Id':guestId};if(token())headers.Authorization='Bearer '+token();const r=await fetch(AI_API+'/generate',{method:'POST',headers,body:JSON.stringify({prompt})});
- if(!r.ok){const d=await r.json().catch(()=>({}));throw new Error(d.error||'Image generation failed.');}
- const blob=await r.blob();if(!user){const src=URL.createObjectURL(blob);objectUrls.push(src);const m={id:'guest-image-'+crypto.randomUUID(),role:'assistant',content:'Created an image from: '+prompt,image_url:src,created_at:new Date().toISOString()};messages.push(m);if(guestChats[currentId]){guestChats[currentId].messages=messages;saveGuestChats();}renderMessages();return;}let id=null;try{id=await uploadImage(blob,'elementor-'+Date.now()+'.jpg');}catch(e){throw new Error('Image generated, but private B2 saving failed: '+e.message);}
- await saveMessage('assistant','Created an image from: '+prompt,id);
-}
-async function handleSiteCommand(text){
- const setMatch=text.match(/^(?:set|publish|change)\s+(?:the\s+)?(?:homepage\s+)?announcement\s*:\s*(.{1,180})$/i);
- const clearMatch=/^(?:clear|remove)\s+(?:the\s+)?(?:homepage\s+)?announcement$/i.test(text);
- if(!setMatch&&!clearMatch)return false;
- const role=await db.from('staff_roles').select('role').eq('user_id',user.id).maybeSingle();
- if(role.error||role.data?.role!=='owner'){await saveMessage('assistant','I can only change the homepage announcement from the verified owner account.');return true;}
- const value=clearMatch?'':setMatch[1].trim();
- if(!window.confirm(clearMatch?'Clear the homepage announcement?':'Publish this homepage announcement?
-
-'+value)){await saveMessage('assistant','Cancelled. No website changes were made.');return true;}
- const result=clearMatch?await db.from('aio_elementor_site_settings').delete().eq('setting_key','announcement'):await db.from('aio_elementor_site_settings').upsert({setting_key:'announcement',setting_value:{text:value},updated_by:user.id,updated_at:new Date().toISOString()},{onConflict:'setting_key'});
- await saveMessage('assistant',result.error?'The website setting could not be updated: '+result.error.message:(clearMatch?'The homepage announcement has been cleared.':'The homepage announcement is now published on All in One Edition.'));
- return true;
-}
-async function send(){
- if(workMode){const task=$('prompt').value.trim();if(!task)return;const saved=task;$('prompt').value='';await saveMessage('user',saved);await runWorkTask(saved);return;}
- if(!currentId||isSending)return;const input=$('prompt'),text=input.value.trim();if(!text)return;
- const wantsImage=imageMode||/(?:\b(?:generate|create|draw|design|make|illustrate|paint)\b.{0,70}\b(?:image|picture|illustration|artwork|logo|wallpaper|avatar|icon|poster|banner)\b|\b(?:image|picture|illustration|artwork|logo|wallpaper|avatar|icon|poster|banner)\b.{0,70}\b(?:of|for|showing|with)\b)/i.test(text);
- isSending=true;$('send').disabled=true;$('send').hidden=true;$('stop').classList.remove('hidden');input.value='';
- try{
-  await saveMessage('user',(wantsImage?'Create an image: ':'')+text);
-  if(messages.length===1)await updateTitle(text);
-  if(!wantsImage&&await handleSiteCommand(text)){await loadHistory();return;}
-  if(wantsImage){const pending=addLocalMessage('assistant','Creating your image…');try{await createImage(text);}finally{messages=messages.filter(m=>m!==pending);renderMessages();}imageMode=false;$('imageMode').classList.remove('active');}
-  else{
-   const result=await callAI();if(result.answer)await saveMessage('assistant',result.answer+(result.stopped?'\\n\\n*Generation stopped.*':''));else if(result.stopped)await saveMessage('assistant','Generation stopped before a response was produced.');if(voiceOutput&&result.answer)speakReply(result.answer);
-   if(user)await db.from('elementor_conversations').update({updated_at:new Date().toISOString()}).eq('id',currentId);
-  }
-  await loadHistory();
- }catch(e){if(e.name!=='AbortError')await saveMessage('assistant','I hit a problem: '+e.message).catch(()=>{});}
- finally{isSending=false;activeController=null;$('send').hidden=false;$('send').disabled=false;$('stop').classList.add('hidden');input.focus();if(voiceChatMode)setTimeout(startVoiceListening,350);}
-}
-async function regenerateLast(){
- if(isSending)return;let assistantIndex=-1;for(let i=messages.length-1;i>=0;i--){if(messages[i].role==='assistant'){assistantIndex=i;break;}}
- if(assistantIndex<0)return;let userIndex=assistantIndex-1;while(userIndex>=0&&messages[userIndex].role!=='user')userIndex--;if(userIndex<0)return;
- const old=messages.slice(userIndex,assistantIndex+1);messages.splice(userIndex,assistantIndex-userIndex+1);
- if(user){for(const item of old){if(item.id)await db.from('elementor_messages').delete().eq('id',item.id).eq('conversation_id',currentId);}}
- else{if(guestChats[currentId]){guestChats[currentId].messages=messages;saveGuestChats();}}
- renderMessages();$('prompt').value=old.find(x=>x.role==='user')?.content?.replace(/^Create an image:\s*/,'')||'';if(/^Create an image:/i.test(old.find(x=>x.role==='user')?.content||''))imageMode=true;await send();
-}
-async function openProfile(){
- applyElementorPreferences();if(!user)profile=JSON.parse(sessionStorage.getItem('elementor_guest_profile')||'null')||profile;$('displayName').value=profile.display_name||'Elementor';$('instructions').value=profile.instructions||'';$('responseStyle').value=profile.response_style||'balanced';$('avatarChoices').replaceChildren();
- AVATARS.forEach(a=>{const b=document.createElement('button');b.className='avatar-choice'+(a===profile.avatar?' selected':'');b.type='button';b.textContent=a;b.onclick=()=>{$('avatarChoices').querySelectorAll('button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');b.dataset.selected='1';};if(a===profile.avatar)b.dataset.selected='1';$('avatarChoices').append(b);});
- $('profileStatus').textContent='';openModal('profileModal');
-}
-async function saveProfile(){
- const selected=$('avatarChoices').querySelector('[data-selected="1"]')?.textContent||profile.avatar;
- let avatarMediaId=profile.avatar_media_id||null;const file=$('avatarUpload').files?.[0];if(file){if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>4*1024*1024){toast('Choose a PNG, JPG or WebP image under 4 MB.');return;}try{avatarMediaId=await uploadImage(file,file.name||'elementor-avatar');}catch(e){toast('Profile picture upload failed: '+e.message);return;}}
- saveElementorPreferences();const next={user_id:user.id,display_name:$('displayName').value.trim()||'Elementor',avatar:selected,avatar_media_id:avatarMediaId,instructions:$('instructions').value.trim(),response_style:$('responseStyle').value,updated_at:new Date().toISOString()};
- if(user){const {error}=await db.from('elementor_profiles').upsert(next,{onConflict:'user_id'});if(error){toast(error.message);return;}}profile={...profile,...next};if(!user)sessionStorage.setItem('elementor_guest_profile',JSON.stringify(profile));setAvatar();closeModal('profileModal');
-}
-async function openControls(){
- if(!user){$('controlStatus').textContent='Sign in with the owner account first.';openModal('controlsModal');return;}
- const {data,error}=await db.from('staff_roles').select('role').eq('user_id',user.id).maybeSingle();
- isOwner=!error&&data?.role==='owner';
- $('controlStatus').textContent=isOwner?'Verified owner. You can publish the homepage announcement.':'Owner permission not detected. Controls are locked.';
- $('saveAnnouncement').disabled=!isOwner;$('clearAnnouncement').disabled=!isOwner;
- if(isOwner){const s=await db.from('aio_elementor_site_settings').select('setting_value').eq('setting_key','announcement').maybeSingle();$('announcementText').value=s.data?.setting_value?.text||'';}
- openModal('controlsModal');
-}
-async function saveAnnouncement(clear=false){
- if(!isOwner)return;const value=clear?'':$('announcementText').value.trim();if(!clear&&!value){$('controlStatus').textContent='Enter an announcement first.';return;}
- const result=clear?await db.from('aio_elementor_site_settings').delete().eq('setting_key','announcement'):await db.from('aio_elementor_site_settings').upsert({setting_key:'announcement',setting_value:{text:value},updated_by:user.id,updated_at:new Date().toISOString()},{onConflict:'setting_key'});
- $('controlStatus').textContent=result.error?'Could not update the site: '+result.error.message:(clear?'Announcement cleared.':'Announcement published.');if(!result.error)window.setTimeout(()=>closeModal('controlsModal'),700);
-}
-$('newChat').onclick=newChat;$('send').onclick=send;
-$('codeMode').onclick=()=>{codeMode=!codeMode;$('codeMode').classList.toggle('active',codeMode);$('voiceStatus').textContent=codeMode?'Code mode is on.':'Code mode is off.';};
-function startVoiceListening(){
- const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!voiceChatMode||recognition||isSending||!Speech)return;
- const rec=new Speech();recognition=rec;rec.lang=navigator.language||'en-GB';rec.continuous=true;rec.interimResults=true;
- rec.onstart=()=>$('voiceStatus').textContent='Voice chat is listening. Speak naturally.';
- rec.onresult=event=>{
-  let finalText='';
-  for(let n=event.resultIndex;n<event.results.length;n++){const part=event.results[n][0].transcript;if(event.results[n].isFinal)finalText+=part;}
-  if(finalText.trim()){voiceTranscript=(voiceTranscript+' '+finalText).trim();$('prompt').value=voiceTranscript;clearTimeout(voiceTimer);voiceTimer=setTimeout(()=>{const message=voiceTranscript.trim();voiceTranscript='';if(message&&!isSending){$('prompt').value=message;rec.stop();send();}},1100);}
- };
- rec.onerror=event=>{if(event.error==='not-allowed'||event.error==='service-not-allowed'){voiceChatMode=false;$('voiceChat').classList.remove('active');$('voiceStatus').textContent='Microphone permission is blocked.';}else $('voiceStatus').textContent='Voice chat paused: '+event.error;};
- rec.onend=()=>{if(recognition===rec)recognition=null;if(voiceChatMode&&!isSending)setTimeout(startVoiceListening,350);};
- try{rec.start();}catch{if(recognition===rec)recognition=null;$('voiceStatus').textContent='Could not start voice chat.';}
-}
-$('voiceChat').onclick=()=>{
- if(voiceChatMode){voiceChatMode=false;voiceTranscript='';clearTimeout(voiceTimer);recognition?.stop();recognition=null;$('voiceChat').classList.remove('active');$('voiceStatus').textContent='Voice chat stopped.';return;}
- const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!Speech){$('voiceStatus').textContent='Live voice input is not supported in this browser.';return;}
- voiceChatMode=true;voiceOutput=true;$('voiceChat').classList.add('active');$('voiceOutput').classList.add('active');startVoiceListening();
-};
-function speakReply(text){if(!('speechSynthesis'in window)){$('voiceStatus').textContent='Speech playback is not supported in this browser.';return;}window.speechSynthesis.cancel();const clean=String(text).replace(/```[\s\S]*?```/g,'Code block omitted from speech.').slice(0,5000);const utterance=new SpeechSynthesisUtterance(clean);utterance.rate=1;utterance.onstart=()=>$('voiceStatus').textContent='Reading reply…';utterance.onend=()=>$('voiceStatus').textContent='';window.speechSynthesis.speak(utterance);}
-$('voiceOutput').onclick=()=>{voiceOutput=!voiceOutput;$('voiceOutput').classList.toggle('active',voiceOutput);$('voiceStatus').textContent=voiceOutput?'Replies will be read aloud.':'Spoken replies are off.';if(!voiceOutput&&'speechSynthesis'in window)window.speechSynthesis.cancel();};
-$('voiceInput').onclick=()=>{
- const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!Speech){$('voiceStatus').textContent='Voice input is not supported here. Try a supported browser.';return;}
- if(recognition){recognition.stop();recognition=null;$('voiceInput').classList.remove('active');$('voiceStatus').textContent='Voice input stopped.';return;}
- recognition=new Speech();recognition.lang=navigator.language||'en-GB';recognition.interimResults=true;recognition.continuous=false;
- recognition.onstart=()=>{$('voiceInput').classList.add('active');$('voiceStatus').textContent='Listening… speak now.';};
- recognition.onresult=event=>{let transcript='';for(let n=event.resultIndex;n<event.results.length;n++)transcript+=event.results[n][0].transcript;$('prompt').value=transcript;};
- recognition.onerror=event=>{$('voiceStatus').textContent=event.error==='not-allowed'?'Microphone permission was denied.':'Voice input error: '+event.error;};
- recognition.onend=()=>{$('voiceInput').classList.remove('active');recognition=null;if($('prompt').value.trim())$('voiceStatus').textContent='Voice captured. Press Send when ready.';};
- try{recognition.start();}catch{$('voiceStatus').textContent='Could not start microphone. Try again.';recognition=null;}
-};
-$('historySearch').addEventListener('input',loadHistory);
-const savedTheme=localStorage.getItem('elementor_theme')||'light';document.documentElement.classList.toggle('dark',savedTheme==='dark');
-$('themeToggle').onclick=()=>{const dark=document.documentElement.classList.toggle('dark');localStorage.setItem('elementor_theme',dark?'dark':'light');$('themeToggle').textContent=dark?'☀':'◐';};
-$('themeToggle').textContent=document.documentElement.classList.contains('dark')?'☀':'◐';
-const resizePrompt=()=>{$('prompt').style.height='auto';$('prompt').style.height=Math.min($('prompt').scrollHeight,200)+'px';};$('prompt').addEventListener('input',resizePrompt);
-const updateScrollButton=()=>{$('scrollBottom').classList.toggle('hidden',$('messages').scrollHeight-$('messages').scrollTop-$('messages').clientHeight<120);};$('messages').addEventListener('scroll',updateScrollButton);$('scrollBottom').onclick=()=>{$('messages').scrollTo({top:$('messages').scrollHeight,behavior:'smooth'});};
-
-$('thinkMode').classList.toggle('active',thinkMode);$('thinkMode').setAttribute('aria-pressed',String(thinkMode));$('thinkMode').onclick=()=>{thinkMode=!thinkMode;localStorage.setItem('elementor_think_mode',thinkMode?'1':'0');$('thinkMode').classList.toggle('active',thinkMode);$('thinkMode').setAttribute('aria-pressed',String(thinkMode));$('voiceStatus').textContent=thinkMode?'Think mode enabled · reasoning model':'Think mode disabled · standard model';};
-$('stop').onclick=()=>{if(activeController)activeController.abort();};
-$('renameChat').onclick=async()=>{if(!currentId)return;const title=window.prompt('Rename this conversation',$('chatTitle').textContent);if(!title?.trim())return;const clean=title.trim().slice(0,100);if(!user&&guestChats[currentId]){guestChats[currentId].title=clean;guestChats[currentId].updated_at=Date.now();saveGuestChats();}else if(user)await db.from('elementor_conversations').update({title:clean,updated_at:new Date().toISOString()}).eq('id',currentId).eq('user_id',user.id);$('chatTitle').textContent=clean;await loadHistory();};
-$('deleteChat').onclick=async()=>{if(!currentId||!window.confirm('Delete this conversation and its messages?'))return;if(!user)delete guestChats[currentId];else{const {error}=await db.from('elementor_conversations').delete().eq('id',currentId).eq('user_id',user.id);if(error){alert('Could not delete chat: '+error.message);return;}}saveGuestChats();currentId=null;messages=[];$('messages').replaceChildren();await loadHistory();};$('prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
-$('imageMode').onclick=()=>{imageMode=!imageMode;$('imageMode').classList.toggle('active',imageMode);$('prompt').placeholder=imageMode?'Describe the image you want Elementor to create…':'Message Elementor…';$('prompt').focus();};
-$('clearMode').onclick=()=>{imageMode=false;$('imageMode').classList.remove('active');$('prompt').placeholder='Message Elementor…';};
-$('profileOpen').onclick=openProfile;$('profileTop').onclick=openProfile;$('saveProfile').onclick=saveProfile;$('controlsOpen').onclick=openControls;$('saveAnnouncement').onclick=()=>saveAnnouncement(false);$('clearAnnouncement').onclick=()=>saveAnnouncement(true);
-document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
-document.querySelectorAll('.suggestion').forEach(b=>b.onclick=()=>{$('prompt').value=b.dataset.prompt;$('prompt').focus();});
-$('menuBtn').onclick=()=>{const open=$('sidebar').classList.toggle('open');document.body.classList.toggle('sidebar-open',open);};document.addEventListener('click',event=>{if(window.matchMedia('(max-width:700px)').matches&&$('sidebar').classList.contains('open')&&!$('sidebar').contains(event.target)&&event.target!==$('menuBtn')){$('sidebar').classList.remove('open');document.body.classList.remove('sidebar-open');}});
-
-let workMode=false,workPaused=false,workCancelled=false,workController=null,workSteps=0;
-function setWorkStatus(message){$('workStatus').textContent=message;}
-function setWorkProgress(step,total,label){workSteps=step;$('workCurrent').textContent=label;$('workProgress').textContent=step+' of '+total+' steps completed';$('workProgressBar').style.width=Math.round(step/total*100)+'%';}
-function setWorkMode(enabled){
- workMode=!!enabled;$('workPanel').classList.toggle('hidden',!workMode);$('workModeOpen').classList.toggle('active',workMode);$('workModeOpen').setAttribute('aria-pressed',String(workMode));
- $('prompt').placeholder=workMode?'Describe the research task for this webpage?':'Message Elementor?';
- if(workMode){$('workUrl').focus();setWorkStatus('Enter a public URL and describe what you want analysed in the message box.');}
-}
-$('workModeOpen').onclick=()=>setWorkMode(!workMode);$('workExit').onclick=()=>setWorkMode(false);
-$('workPause').onclick=()=>{workPaused=true;$('workPause').disabled=true;$('workResume').disabled=false;setWorkStatus('Paused between steps. A request already in progress may finish; resume to continue.');};
-$('workResume').onclick=()=>{workPaused=false;$('workPause').disabled=false;$('workResume').disabled=true;setWorkStatus('Resumed.');};
-$('workStop').onclick=()=>{workCancelled=true;workController?.abort();activeController?.abort();workPaused=false;$('workPause').disabled=true;$('workResume').disabled=true;$('workStop').disabled=true;setWorkStatus('Task cancelled.');};
-function waitForWorkResume(){return new Promise((resolve,reject)=>{const check=()=>{if(workCancelled)return reject(new DOMException('Task cancelled','AbortError'));if(!workPaused)return resolve();setTimeout(check,150);};check();});}
-async function runWorkTask(instruction){
- if($('workRun').disabled)return;
- const rawUrl=$('workUrl').value.trim();let parsed;
- try{parsed=new URL(rawUrl);if(!['http:','https:'].includes(parsed.protocol))throw new Error();}catch{setWorkStatus('Enter a valid public HTTP or HTTPS website URL.');return;}
- workCancelled=false;workPaused=false;workController=new AbortController();const total=4;
- $('workRun').disabled=true;$('workPause').disabled=false;$('workStop').disabled=false;$('workResume').disabled=true;$('workPlan').classList.add('running');setWorkProgress(0,total,'Validating URL');
- try{
-  await waitForWorkResume();setWorkProgress(1,total,'Requesting public webpage');
-  const headers={'Content-Type':'application/json','X-Guest-Id':guestId};if(token())headers.Authorization='Bearer '+token();
-  const response=await fetch(AI_API+'/browse',{method:'POST',headers,signal:workController.signal,body:JSON.stringify({url:parsed.href})});
-  const data=await response.json();if(!response.ok)throw new Error(data.error||'The page could not be fetched.');
-  await waitForWorkResume();setWorkProgress(2,total,'Extracting page content');
-  if(!data.text)throw new Error('The page did not contain readable text. It may require JavaScript or sign-in.');
-  $('workPlan').innerHTML='<strong>Task plan</strong><ol><li>Validate URL <span>?</span></li><li>Fetch public page <span>?</span></li><li>Extract readable content <span>?</span></li><li>Analyse and summarise in chat</li></ol>';
-  await waitForWorkResume();setWorkProgress(3,total,'Analysing '+data.title);
-  const prior=messages.slice(-10).map(m=>({role:m.role,content:m.content}));
-  const newline=String.fromCharCode(10);
-  const task=['Work Mode task: '+instruction,'','Public webpage fetched read-only:','Title: '+data.title,'URL: '+data.url,'Description: '+(data.description||''),'Links: '+(data.links||[]).slice(0,30).map(x=>x.text+' ('+x.url+')').join(newline),'','Extracted page text:',data.text.slice(0,14000),'','Analyse only this fetched evidence. State clearly if information is missing. Do not claim to click, submit forms, sign in, or control browser tabs.'].join(newline);
-  const result=await callAI();
-  await waitForWorkResume();setWorkProgress(4,total,'Completed research');
-  if(result.answer)await saveMessage('assistant',result.answer);else throw new Error('The AI analysis returned no answer.');
-  setWorkStatus('Completed. The page was fetched read-only; no forms were submitted and no browser tabs were controlled.');
-  $('workPlan').classList.remove('running');
- }catch(e){if(e.name==='AbortError'){setWorkStatus('Task cancelled.');}else{setWorkStatus('Task failed: '+e.message);await saveMessage('assistant','Work Mode could not complete the webpage inspection: '+e.message).catch(()=>{});}}
- finally{workController=null;$('workRun').disabled=false;$('workPause').disabled=true;$('workResume').disabled=true;$('workStop').disabled=true;$('workPlan').classList.remove('running');}
-}
-$('workRun').onclick=async()=>{const task=$('prompt').value.trim()||'Inspect this website and summarise its purpose, structure, useful information and potential issues.';$('prompt').value='';await saveMessage('user',task);runWorkTask(task);};
-
-
-init();
-})();
-</script>
-</body></html>
-

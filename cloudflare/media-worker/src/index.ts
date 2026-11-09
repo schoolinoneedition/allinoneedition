@@ -42,7 +42,7 @@ function cors(request: Request, env: Env) {
   const origin = request.headers.get("Origin");
   const headers = new Headers({
     "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Authorization, Content-Type, Content-Length",
+    "Access-Control-Allow-Headers": "Authorization, Content-Type, Content-Length, X-Part-Size",
     "Access-Control-Max-Age": "86400",
     "Vary": "Origin"
   });
@@ -213,8 +213,9 @@ export default {
         if (!safeId(id) || !Number.isInteger(partNumber) || partNumber < 1 || partNumber > MAX_PARTS) {
           return json({ error: "Invalid upload or part number" }, 400, headers);
         }
-        const contentLength = request.headers.get("Content-Length");
-        if (!contentLength || !/^\d+$/.test(contentLength)) return json({ error: "Content-Length is required for multipart parts" }, 411, headers);
+        // Browsers cannot set Content-Length from JavaScript. The client sends X-Part-Size explicitly.
+        const contentLength = request.headers.get("Content-Length") || request.headers.get("X-Part-Size");
+        if (!contentLength || !/^\d+$/.test(contentLength)) return json({ error: "Content-Length or X-Part-Size is required for multipart parts" }, 411, headers);
         const length = Number(contentLength);
         if (length <= 0 || length > MAX_PART_BYTES) return json({ error: "Part must be between 1 byte and 32 MiB" }, 413, headers);
         const row = await dbGet(env, id, user.id);
