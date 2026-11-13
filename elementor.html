@@ -552,7 +552,7 @@ async function callAI(){
  const context=messages.filter(m=>m.role==='user'||m.role==='assistant').slice(-14).map(m=>({role:m.role,content:m.content||''}));
  const headers={'Content-Type':'application/json','X-Guest-Id':guestId};if(token())headers.Authorization='Bearer '+token();
  const controller=new AbortController();activeController=controller;
- const res=await fetch(AI_API+'/chat',{method:'POST',headers,signal:controller.signal,body:JSON.stringify({messages:context,think:thinkMode,profile:{displayName:profile.display_name,style:profile.response_style,instructions:(profile.instructions||'')+(codeMode?'\\nUse Code mode: provide complete runnable code in fenced blocks, explain where it goes, and mention assumptions.':'')},site:'All in One Edition'})});
+ const res=await fetch(AI_API+'/chat',{method:'POST',headers,signal:controller.signal,body:JSON.stringify({messages:context,think:thinkMode,profile:{displayName:profile.display_name,style:profile.response_style,instructions:(profile.instructions||'')},site:'All in One Edition'})});
  if(!res.ok){const data=await res.json().catch(()=>({}));throw new Error(data.error||'Elementor could not reply.');}
  if(!res.body)throw new Error('Streaming is not supported by this connection.');
  const live={id:'stream-'+crypto.randomUUID(),role:'assistant',content:'',created_at:new Date().toISOString()};messages.push(live);renderMessages();
@@ -595,15 +595,14 @@ async function handleSiteCommand(text){
  return true;
 }
 async function send(){
- if(workMode){const task=$('prompt').value.trim();if(!task)return;const saved=task;$('prompt').value='';await saveMessage('user',saved);await runWorkTask(saved);return;}
  if(!currentId||isSending)return;const input=$('prompt'),text=input.value.trim();if(!text)return;
- const wantsImage=imageMode||/(?:\b(?:generate|create|draw|design|make|illustrate|paint)\b.{0,70}\b(?:image|picture|illustration|artwork|logo|wallpaper|avatar|icon|poster|banner)\b|\b(?:image|picture|illustration|artwork|logo|wallpaper|avatar|icon|poster|banner)\b.{0,70}\b(?:of|for|showing|with)\b)/i.test(text);
+ const wantsImage=/(?:\b(?:generate|create|draw|design|make|illustrate|paint)\b.{0,70}\b(?:image|picture|illustration|artwork|logo|wallpaper|avatar|icon|poster|banner)\b|\b(?:image|picture|illustration|artwork|logo|wallpaper|avatar|icon|poster|banner)\b.{0,70}\b(?:of|for|showing|with)\b)/i.test(text);
  isSending=true;$('send').disabled=true;$('send').hidden=true;$('stop').classList.remove('hidden');input.value='';
  try{
   await saveMessage('user',(wantsImage?'Create an image: ':'')+text);
   if(messages.length===1)await updateTitle(text);
   if(!wantsImage&&await handleSiteCommand(text)){await loadHistory();return;}
-  if(wantsImage){const pending=addLocalMessage('assistant','Creating your image…');try{await createImage(text);}finally{messages=messages.filter(m=>m!==pending);renderMessages();}imageMode=false;$('imageMode').classList.remove('active');}
+  if(wantsImage){const pending=addLocalMessage('assistant','Creating your image…');try{await createImage(text);}finally{messages=messages.filter(m=>m!==pending);renderMessages();}}
   else{
    const result=await callAI();if(result.answer)await saveMessage('assistant',result.answer+(result.stopped?'\\n\\n*Generation stopped.*':''));else if(result.stopped)await saveMessage('assistant','Generation stopped before a response was produced.');if(voiceOutput&&result.answer)speakReply(result.answer);
    if(user)await db.from('elementor_conversations').update({updated_at:new Date().toISOString()}).eq('id',currentId);
@@ -646,7 +645,6 @@ async function saveAnnouncement(clear=false){
  $('controlStatus').textContent=result.error?'Could not update the site: '+result.error.message:(clear?'Announcement cleared.':'Announcement published.');if(!result.error)window.setTimeout(()=>closeModal('controlsModal'),700);
 }
 $('newChat').onclick=newChat;$('send').onclick=send;
-$('codeMode').onclick=()=>{codeMode=!codeMode;$('codeMode').classList.toggle('active',codeMode);$('voiceStatus').textContent=codeMode?'Code mode is on.':'Code mode is off.';};
 function startVoiceListening(){
  const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
  if(!voiceChatMode||recognition||isSending||!Speech)return;
