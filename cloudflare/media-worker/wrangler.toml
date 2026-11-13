@@ -3,12 +3,11 @@ main = "src/index.ts"
 compatibility_date = "2026-11-06"
 workers_dev = true
 
-[[r2_buckets]]
-binding = "MEDIA"
-bucket_name = "aio-media"
-
 [vars]
 APP_ORIGIN = "https://allinoneedition.vercel.app"
+B2_ENDPOINT = "https://s3.us-east-005.backblazeb2.com"
+B2_REGION = "us-east-005"
+B2_BUCKET = "allinoneedition-media"
 SUPABASE_URL = "https://btnbuchsrfllpzlypjtn.supabase.co"
 
 previews = {}
