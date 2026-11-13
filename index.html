@@ -12,20 +12,24 @@
 
 
 <script>
-/* Boot guard: query the loader only after it exists, so a head script can never trap the page. */
+/* Independent, bounded loader: never waits on game thumbnails or external resources. */
 (()=>{
-  const finish=()=>{
-    const loader=document.getElementById('siteLoader');
-    if(!loader||loader.classList.contains('done'))return;
-    loader.classList.add('played');
-    setTimeout(()=>loader.classList.add('done'),900);
-  };
-  const failSafe=()=>setTimeout(finish,250);
-  addEventListener('error',failSafe);
-  addEventListener('unhandledrejection',failSafe);
-  addEventListener('load',()=>setTimeout(finish,3200),{once:true});
-  addEventListener('DOMContentLoaded',()=>setTimeout(finish,3600),{once:true});
-  setTimeout(finish,5500);
+ let completed=false;
+ const finish=()=>{
+  if(completed)return;
+  const loader=document.getElementById('siteLoader');
+  if(!loader)return;
+  completed=true;
+  loader.classList.add('done');
+  loader.setAttribute('aria-hidden','true');
+ };
+ window.aioFinishIntro=finish;
+ addEventListener('DOMContentLoaded',()=>{
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  requestAnimationFrame(()=>setTimeout(finish,reduced?0:850));
+ },{once:true});
+ addEventListener('load',()=>setTimeout(finish,80),{once:true});
+ setTimeout(finish,2200);
 })();
 window.aioSpotifyAPI=null;
 window.onSpotifyIframeApiReady=api=>{window.aioSpotifyAPI=api;};
@@ -79,51 +83,25 @@ html.game-fullscreen #gameFrame{width:100vw!important;height:100vh!important;min
 .assistant-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.assistant-actions .chip{cursor:pointer}.settings-box{width:min(760px,100%);height:min(690px,92vh)}.settings-body{padding:16px;overflow:auto}.setting-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px 0;border-bottom:1px solid var(--line)}.setting-row strong{display:block;font-size:13px}.setting-row span{display:block;color:var(--muted);font-size:11px;line-height:1.45;margin-top:3px}.switch{position:relative;width:44px;height:26px;flex:0 0 auto}.switch input{opacity:0;width:0;height:0}.switch span{position:absolute;inset:0;background:var(--soft);border:1px solid var(--line);border-radius:999px;transition:.18s}.switch span:before{content:"";position:absolute;width:18px;height:18px;left:3px;top:3px;border-radius:50%;background:var(--muted);transition:.18s}.switch input:checked+span{background:var(--accent);border-color:var(--accent)}.switch input:checked+span:before{transform:translateX(18px);background:#fff}.settings-help{margin-top:14px;padding:13px;border:1px solid var(--line);border-radius:14px;background:var(--soft)}.settings-help p{margin:5px 0 0;color:var(--muted);font-size:11px;line-height:1.55}.music-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:12px}.music-main{min-width:0}.music-now{display:flex;align-items:center;gap:12px;margin-bottom:10px}.music-art{width:58px;height:58px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:27px;font-weight:950;overflow:hidden;flex:0 0 auto}.music-art img{width:100%;height:100%;object-fit:cover}.music-now strong{display:block;font-size:14px}.music-now span{display:block;color:var(--muted);font-size:11px;margin-top:3px}.spotify-embed{min-height:175px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#0d0d0e}.spotify-embed iframe{width:100%;height:175px;border:0;display:block}.music-placeholder{min-height:175px;display:grid;place-items:center;text-align:center;color:#fff;padding:22px}.music-placeholder strong{font-size:16px}.music-placeholder span{display:block;color:#b9bdc7;font-size:11px;margin-top:5px}.music-url-row,.music-search-row{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}.music-url-row input,.music-search-row input{flex:1;min-width:180px;height:36px;border:1px solid var(--line);border-radius:9px;padding:0 9px;background:var(--soft);color:var(--text)}.music-note{margin:9px 0 0;color:var(--muted);font-size:10px;line-height:1.45}.audio-list{display:grid;gap:9px;margin-top:12px}.audio-item{display:grid;grid-template-columns:42px 1fr auto;gap:9px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:8px}.audio-art{width:42px;height:42px;border-radius:10px;overflow:hidden;background:var(--soft);display:grid;place-items:center;font-weight:950}.audio-art img{width:100%;height:100%;object-fit:cover}.audio-item strong{display:block;font-size:12px}.audio-item audio{width:100%;height:32px;margin-top:4px}.audio-delete{border:0;background:transparent;color:var(--muted);font-weight:950}.loop-toggle{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);white-space:nowrap}.calc-display{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:9px 10px;margin-top:8px;text-align:right;font-size:20px;font-weight:900;min-height:40px;overflow:auto}.calc-keys{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}.calc-keys button{height:34px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--text);font-weight:850}.calc-keys button:hover{background:var(--soft)}.calc-eq{grid-column:span 2;background:var(--accent)!important;color:#fff!important;border-color:var(--accent)!important}.tool-result{margin-top:8px;font-size:11px;color:var(--muted);line-height:1.4;min-height:16px}.world-clock{font-size:11px;line-height:1.7;margin-top:8px} .music-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}.music-result{display:grid;grid-template-columns:46px 1fr;gap:8px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:11px;background:var(--soft)}.music-result img{width:46px;height:46px;border-radius:9px;object-fit:cover}.music-result strong{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.music-result span{display:block;font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.music-result audio{width:100%;height:28px;margin-top:5px}.music-search-status{font-size:10px;color:var(--muted);margin-top:8px}@media(max-width:700px){.music-results{grid-template-columns:1fr}}
 .progressbarbox{display:none}.progressbarbox.progress-visible{display:block}.reduced-motion *, .reduced-motion *::before, .reduced-motion *::after{animation-duration:0.001ms!important;animation-iteration-count:1!important;transition-duration:0.001ms!important;scroll-behavior:auto!important}@media(max-width:900px){.music-grid{grid-template-columns:1fr}}
 
-/* startup loader */
-#siteLoader{position:fixed;inset:0;z-index:2000000;display:grid;place-items:center;background:var(--bg);transition:opacity .28s ease,visibility .28s ease}
+/* Lightweight new site intro. No images, network waits or large animated lists. */
+#siteLoader{position:fixed;inset:0;z-index:2000000;display:grid;place-items:center;background:#f7f9fd;color:#19233a;opacity:1;visibility:visible;transition:opacity .26s ease,visibility .26s ease}
 #siteLoader.done{opacity:0;visibility:hidden;pointer-events:none}
-.loader-card{width:min(330px,calc(100vw - 32px));background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:var(--shadow);text-align:center}
-.loader-logo{width:54px;height:54px;margin:0 auto 12px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),#8d5cf5);color:#fff;font-weight:950;font-size:25px;box-shadow:0 6px 16px rgba(27,92,255,.22)}
-.loader-title{font-size:18px;font-weight:950}.loader-sub{margin-top:5px;color:var(--muted);font-size:11px}.loader-track{height:6px;background:var(--soft);border-radius:999px;overflow:hidden;margin-top:15px}.loader-bar{height:100%;width:35%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:999px;animation:loaderMove 1.15s ease-in-out infinite}@keyframes loaderMove{0%{transform:translateX(-120%)}50%{transform:translateX(190%)}100%{transform:translateX(420%)}}
+.aio-boot{width:min(360px,calc(100vw - 40px));display:flex;flex-direction:column;align-items:center;text-align:center}
+.aio-boot-mark{width:68px;height:68px;position:relative;border-radius:19px;background:#1b5cff;display:grid;place-items:center;box-shadow:0 12px 28px rgba(27,92,255,.20);animation:aioBootArrive .46s cubic-bezier(.2,.8,.2,1) both}
+.aio-boot-mark::before{content:"";position:absolute;inset:13px;border:3px solid #fff;border-radius:11px;opacity:.96}
+.aio-boot-mark::after{content:"";position:absolute;width:14px;height:14px;border-radius:4px;background:#fff;transform:rotate(45deg)}
+.aio-boot-title{margin-top:19px;font-size:20px;line-height:1.25;font-weight:900;letter-spacing:-.55px}
+.aio-boot-tagline{margin-top:6px;font-size:12px;color:#67748a}
+.aio-boot-indicator{display:flex;gap:6px;align-items:center;height:16px;margin-top:22px}
+.aio-boot-indicator i{width:6px;height:6px;border-radius:50%;background:#1b5cff;animation:aioBootPulse .85s ease-in-out infinite alternate}
+.aio-boot-indicator i:nth-child(2){animation-delay:.15s}
+.aio-boot-indicator i:nth-child(3){animation-delay:.3s}
+@keyframes aioBootArrive{from{opacity:0;transform:translateY(12px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes aioBootPulse{from{opacity:.28;transform:scale(.7)}to{opacity:1;transform:scale(1.17)}}
+@media(prefers-reduced-motion:reduce){#siteLoader{transition:none}.aio-boot-mark,.aio-boot-indicator i{animation:none}}
 .game-error{position:absolute;inset:0;display:none;place-items:center;padding:20px;background:rgba(0,0,0,.86);color:#fff;text-align:center;z-index:3}.game-error.show{display:grid}.game-error-card{max-width:520px}.game-error-card h3{margin:0 0 7px;font-size:18px}.game-error-card p{margin:0;color:#c9cdd6;font-size:12px;line-height:1.5}.game-error-actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:13px}
 
 
-/* animated intro */
-.intro-backdrop{position:absolute;inset:0;background:radial-gradient(circle at 50% 25%,rgba(27,92,255,.16),transparent 45%),var(--bg)}
-.intro-scene{position:relative;width:100%;height:100%;display:grid;place-items:center;overflow:hidden}
-.intro-rail{position:absolute;left:-10%;right:-10%;top:50%;height:190px;display:flex;gap:18px;align-items:center;transform:translateY(-50%) rotate(-4deg);opacity:.8;filter:saturate(.95)}
-.intro-tile{width:150px;height:150px;flex:0 0 auto;border-radius:24px;overflow:hidden;background:var(--panel);border:1px solid var(--line);box-shadow:0 15px 42px rgba(0,0,0,.18);animation:introTileIn .85s cubic-bezier(.16,.84,.27,1) both;transform:scale(.72) rotate(var(--r));}
-.intro-tile img{width:100%;height:100%;object-fit:cover;display:block}
-.intro-tile.fallback{display:grid;place-items:center;font-size:34px;color:#fff;font-weight:950;background:linear-gradient(135deg,var(--c1),var(--c2))}
-@keyframes introTileIn{0%{opacity:0;transform:translateY(35px) scale(.66) rotate(var(--r))}100%{opacity:.92;transform:translateY(0) scale(.82) rotate(var(--r))}}
-.loader-card{position:relative;z-index:2}
-.intro-skip{margin-top:14px;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:10px;padding:8px 13px;font-size:11px;font-weight:900}
-.intro-skip:hover{background:var(--soft)}
-#siteLoader.played .intro-rail{animation:introRailOut .8s cubic-bezier(.65,0,.84,.18) forwards}
-#siteLoader.played .loader-card{animation:introCardOut .8s cubic-bezier(.65,0,.84,.18) forwards}
-@keyframes introRailOut{to{transform:translate(-5%, -50%) rotate(-4deg) scale(1.07);opacity:0}}
-@keyframes introCardOut{to{transform:translateY(-24px) scale(.96);opacity:0}}
-.intro-vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 50%,transparent 25%,rgba(0,0,0,.12) 72%,rgba(0,0,0,.38) 100%);z-index:1}
-.intro-rail-a{transform:translateY(-50%) rotate(-5deg);animation:introDriftA 2.9s cubic-bezier(.19,.8,.25,1) both}
-.intro-rail-b{top:64%;transform:translateY(-50%) rotate(4deg);opacity:.64;animation:introDriftB 3.2s cubic-bezier(.19,.8,.25,1) both}
-.intro-rail-c{top:34%;transform:translateY(-50%) rotate(2deg);opacity:.48;animation:introDriftC 3.4s cubic-bezier(.19,.8,.25,1) both}
-#siteLoader .loader-card{opacity:1;transform:none;filter:none;transition:opacity .55s ease,transform .7s cubic-bezier(.18,.9,.25,1),filter .55s ease}
-#siteLoader.intro-ready .loader-card{opacity:1;transform:none;filter:none}
-@keyframes introDriftA{0%{transform:translate(-18%, -50%) rotate(-8deg) scale(.8)}55%{transform:translate(3%, -50%) rotate(-4deg) scale(1)}100%{transform:translate(18%, -50%) rotate(-2deg) scale(.94);opacity:.72}}
-@keyframes introDriftB{0%{transform:translate(22%, -50%) rotate(7deg) scale(.78)}55%{transform:translate(-2%, -50%) rotate(4deg) scale(1)}100%{transform:translate(-18%, -50%) rotate(2deg) scale(.93);opacity:.50}}
-@keyframes introDriftC{0%{transform:translate(-22%, -50%) rotate(5deg) scale(.72)}55%{transform:translate(0%, -50%) rotate(1deg) scale(1)}100%{transform:translate(12%, -50%) rotate(0deg) scale(.9);opacity:.34}}
-.intro-tile{animation:introTileIn .8s cubic-bezier(.16,.84,.27,1) var(--d) both, introTileFloat 2.9s ease-in-out calc(var(--d) + .45s) infinite alternate}
-@keyframes introTileFloat{to{transform:translateY(-5px) scale(.84) rotate(var(--r))}}
-.intro-skipwrap{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);z-index:4}
-.intro-skip{min-width:110px}
-#siteLoader.played .intro-rail-a{animation:introRailOutA .85s cubic-bezier(.65,0,.84,.18) forwards}
-#siteLoader.played .intro-rail-b{animation:introRailOutB .9s cubic-bezier(.65,0,.84,.18) forwards}
-#siteLoader.played .intro-rail-c{animation:introRailOutC 1s cubic-bezier(.65,0,.84,.18) forwards}
-#siteLoader.played .loader-card{animation:introCardOut2 .9s cubic-bezier(.65,0,.84,.18) forwards}
-@keyframes introRailOutA{to{transform:translate(45%,-50%) rotate(-6deg) scale(1.12);opacity:0}}
-@keyframes introRailOutB{to{transform:translate(-45%,-50%) rotate(5deg) scale(1.12);opacity:0}}
-@keyframes introRailOutC{to{transform:translate(25%,-50%) rotate(3deg) scale(1.16);opacity:0}}
-@keyframes introCardOut2{to{transform:translateY(-18px) scale(1.06);opacity:0;filter:blur(6px)}}
 .game-float-btn svg{width:20px;height:20px;display:block}
 .game-float-btn[aria-pressed="true"]{background:rgba(215,45,57,.82)}
 .study-mode{overflow:hidden}
@@ -561,22 +539,13 @@ html.game-fullscreen #gameModal.open .game-stage{height:100dvh!important;width:1
 <script src="/html-game-sandbox.js" defer></script>
 </head>
 <body>
-<div id="siteLoader" aria-live="polite">
-  <div class="intro-backdrop"></div>
-  <div class="intro-scene">
-    <div class="intro-rail intro-rail-a" id="introRailA" aria-hidden="true"></div>
-    <div class="intro-rail intro-rail-b" id="introRailB" aria-hidden="true"></div>
-    <div class="intro-rail intro-rail-c" id="introRailC" aria-hidden="true"></div>
-    <div class="intro-vignette" aria-hidden="true"></div>
-    <div class="loader-card">
-      <div class="loader-logo">A</div>
-      <div class="loader-title">All in One Edition</div>
-      <div class="loader-sub" id="loaderSub">Loading your games, tools and everything else…</div>
-      <div class="loader-track"><div class="loader-bar"></div></div>
-      <div class="loader-hint">Preparing the hub</div>
-    </div>
-    <div class="intro-skipwrap"><button class="intro-skip" type="button" onclick="skipIntro()">Skip intro</button></div>
-  </div>
+<div id="siteLoader" role="status" aria-label="Opening All in One Edition">
+ <div class="aio-boot">
+  <div class="aio-boot-mark" aria-hidden="true"></div>
+  <div class="aio-boot-title">All in One Edition</div>
+  <div class="aio-boot-tagline">Your space for games, school and tools</div>
+  <div class="aio-boot-indicator" aria-hidden="true"><i></i><i></i><i></i></div>
+ </div>
 </div>
 
 <div class="afk-overlay" id="afkOverlay" role="dialog" aria-modal="true" aria-label="AFK mode">
@@ -1685,20 +1654,8 @@ function initLiveUpdates(){
     else if(liveSectionVisible)refreshLive();
   });
 }
-function skipIntro(){const loader=$('siteLoader');if(!loader)return;loader.classList.add('played');setTimeout(()=>loader.classList.add('done'),900)}
-function renderIntroCutscene(){
-  const loader=$('siteLoader');
-  const rails=[$('introRailA'),$('introRailB'),$('introRailC')].filter(Boolean);
-  if(!loader||!rails.length)return;
-  if(storage.getItem('aio-show-intro')==='0'||document.documentElement.classList.contains('reduced-motion')){skipIntro();return;}
-  const picks=GAMES.filter(g=>g.img).slice(0,18);
-  rails.forEach((rail,r)=>{
-    const subset=picks.slice(r*6,r*6+6);
-    rail.innerHTML=subset.map((g,i)=>`<div class="intro-tile" style="--r:${(i%2?-1:1)*(2+(i%3))}deg;--d:${i*45}ms"><img src="${esc(g.img)}" alt="" loading="lazy" fetchpriority="low" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><div class="fallback" style="display:none;--c1:#2f6fed;--c2:#7048e8">${initials(g.name)}</div></div>`).join('');
-  });
-  setTimeout(()=>loader.classList.add('intro-ready'),500);
-  setTimeout(()=>{if(!loader.classList.contains('done'))skipIntro()},4200);
-}
+function skipIntro(){window.aioFinishIntro?.()}
+function renderIntroCutscene(){/* Retired thumbnail intro: head guard controls the small CSS loader. */}
 setInterval(()=>{if(hidden&&$('studyClock'))$('studyClock').textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})},60000);
 safeBoot(updateResumeCard);safeBoot(renderChatHistory);safeBoot(renderAudioTracks);safeBoot(initLanguage);safeBoot(initSpotify);safeBoot(initMusicSearch);safeBoot(runCode);safeBoot(updateCacheStatus);safeBoot(renderAfkShuffle);safeBoot(initLiveUpdates);
 setTimeout(()=>safeBoot(loadOnlineGamesCatalog),650);
