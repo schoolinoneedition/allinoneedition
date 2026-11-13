@@ -1,0 +1,12 @@
+{
+  "name": "all-in-one-edition-media-worker",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "aws4fetch": "^1.0.20"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0",
+    "typescript": "^5.8.0"
+  }
+}
