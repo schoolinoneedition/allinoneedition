@@ -88,7 +88,7 @@ async function loadGames(){
  if(error){status('listStatus','Could not load games: '+error.message,'error');return}
  const rows=Array.isArray(data)?data:[];
  rows.forEach(row=>$('gameEntries').append(itemRow(row)));
- status('listStatus',rows.length?rows.length+' managed entry'+(rows.length===1?'':'ies').replace('entryies','entries'):'No submitted games yet.');
+ status('listStatus',rows.length?rows.length+' submitted game'+(rows.length===1?'':'s'):'No submitted games yet.');
 }
 async function moderate(g,state){
  if(!ownerId||busy)return;
