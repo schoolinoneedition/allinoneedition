@@ -495,7 +495,7 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
 }
 #gameModal.open.aio-3x3-mode .modalhead > div:nth-child(2){display:none!important}
 #gameModal.open.aio-3x3-mode .game-3x3-identity{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
-.game-3x3-identity[hidden],.game-3x3-corner[hidden]{display:none!important}
+.game-3x3-identity[hidden]{display:none!important}
 .game-3x3-identity{display:none}
 .game-3x3-identity img{height:48px;width:48px;object-fit:cover;border:1px solid var(--line);border-radius:11px;flex:none}
 .game-3x3-identity span{min-width:0;display:flex;flex-direction:column;gap:2px}
@@ -511,19 +511,19 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
 }
 #gameModal.open.aio-3x3-mode #gameFrame{height:100%!important;width:100%!important;min-height:0!important}
 #gameModal.open.aio-3x3-mode .game-float-controls{display:none!important}
-/* The host embeds their own top-right toolbar in a cross-origin iframe.
-   Cover just that corner with distinct game artwork rather than modifying host code. */
-.game-3x3-corner{
- position:absolute;top:0;right:0;width:min(330px,calc(100% - 100px));height:67px;
- z-index:7;display:flex;align-items:center;justify-content:flex-end;gap:10px;
- padding:8px 14px 8px 68px;box-sizing:border-box;
- background:linear-gradient(90deg,transparent 0%,#1e3858 18%,#132a47 100%);
- color:#fff;border-bottom-left-radius:16px;
- pointer-events:auto;user-select:none;
+/* Mask the third-party 3x3 toolbar at the iframe layer itself.
+   Parent overlays can disappear when the child requests fullscreen, so block
+   child fullscreen and keep the site's own working Fullscreen button.
+   This hides only the top-right toolbar region, including its click targets. */
+#gameModal.open.aio-3x3-mode #gameFrame{
+ --aio-toolbar-width:min(330px,78%);
+ --aio-toolbar-height:90px;
+ clip-path:polygon(0 0,
+   calc(100% - var(--aio-toolbar-width)) 0,
+   calc(100% - var(--aio-toolbar-width)) var(--aio-toolbar-height),
+   100% var(--aio-toolbar-height),
+   100% 100%,0 100%);
 }
-.game-3x3-corner[data-variant="egg"]{background:linear-gradient(90deg,transparent 0%,#794815 18%,#41290c 100%)}
-.game-3x3-corner img{width:49px;height:49px;object-fit:cover;border-radius:10px;flex:none;border:1px solid rgba(255,255,255,.25)}
-.game-3x3-corner span{font:750 12px/1.35 system-ui,sans-serif;text-align:right;max-width:144px}
 html.game-fullscreen #gameModal.aio-3x3-mode .modalhead{display:flex!important}
 html.game-fullscreen #gameModal.open.aio-3x3-mode #gameStage{position:relative!important;inset:auto!important;width:100%!important;height:auto!important;flex:1 1 0!important;z-index:auto!important}
 html.game-fullscreen #gameModal.open.aio-3x3-mode #gameFrame{width:100%!important;height:100%!important;min-height:0!important}
@@ -535,9 +535,6 @@ html.game-fullscreen #gameModal.open.aio-3x3-mode #gameFrame{width:100%!importan
  #gameModal.open.aio-3x3-mode .modal-actions{gap:4px}
  #gameModal.open.aio-3x3-mode .modal-actions .btn{padding:0 7px;height:32px;font-size:10px}
  #gameModal.open.aio-3x3-mode #newTabGameBtn{display:none}
- .game-3x3-corner{height:54px;width:min(255px,calc(100% - 110px));padding:6px 9px 6px 45px;gap:6px}
- .game-3x3-corner img{width:38px;height:38px}
- .game-3x3-corner span{font-size:10px;max-width:117px}
 }
 
 .search{flex:1 1 320px;min-width:220px;max-width:720px}
@@ -876,7 +873,7 @@ html.game-fullscreen #gameModal.open.aio-3x3-mode #gameFrame{width:100%!importan
 <section class="section"><div class="section-head"><h2>Elementor AI</h2><small>Your AI assistant for All in One Edition.</small></div><div class="panel chatbox" id="assistantChat"></div><div class="assistant-actions"><button class="chip" onclick="smartQuick('What time is it?')">What time is it?</button><button class="chip" onclick="smartQuick('Play Crossy Road')">Play a game</button><button class="chip" onclick="smartQuick('Make a sticky note that says test')">Make a note</button><button class="chip" onclick="smartQuick('Open settings')">Settings</button></div><div class="chatcomposer"><input id="assistantInput" autocomplete="off" placeholder="Message Elementor…"><button class="btn mini primary" id="assistantSend">Send</button></div></section>
 </main>
 <footer>All in One Edition · Roy owner · Single-file front end. Game library · fast loading · saved progress · more games</footer>
-<div class="modal" id="gameModal"><div class="modalbox" id="gameModalBox"><div class="modalhead"><div id="game3x3Identity" class="game-3x3-identity" hidden><img id="game3x3HeaderLogo" alt="3x3 game logo"><span><strong id="game3x3HeaderTitle"></strong><small>Original 3x3 gameplay</small></span></div><div style="display:flex;flex-direction:column;gap:2px"><strong id="modalTitle">Game</strong><small id="liveGamePlayers" class="muted" style="font-size:10px">Live players · —</small></div><div class="modal-actions"><span id="gameLoadStatus" class="muted" style="font-size:10px;align-self:center">Loading…</span><button class="btn mini" id="reloadGameBtn" onclick="reloadGame()">Reload</button><button class="btn mini" id="newTabGameBtn" onclick="openCurrentGameNewTab()">Open</button><button class="btn mini primary" id="fsBtn" onclick="fullscreenGame()">Fullscreen</button><button class="btn mini" id="modalAfkBtn" onclick="enterAFK()">AFK</button><button class="btn mini" onclick="closeGame()">Close</button></div></div><div class="progressbarbox"><div><strong>Game progress</strong><span id="progressLabel">0%</span></div><input id="progressRange" type="range" min="0" max="100" value="0" oninput="saveCurrentProgress()"><div class="progress-actions"><button class="btn mini" onclick="setGameProgress(0)">Reset</button><button class="btn mini" onclick="setGameProgress(100)">Mark complete</button><span class="muted" id="playCountLabel">0 plays</span></div></div><div class="modalnote" id="modalNote">Your hub progress is saved on this device. Games that support their own saves can keep their internal save separately.</div><div id="gameStage" class="game-stage"><iframe id="gameFrame" class="gameframe" referrerpolicy="no-referrer-when-downgrade" allow="fullscreen; autoplay; encrypted-media; gamepad; clipboard-read; clipboard-write" allowfullscreen></iframe><div id="gameLoading" class="game-loading-note" style="position:absolute;inset:0;display:grid;place-items:center;background:#000;color:#fff;z-index:2">Loading game…</div><div class="game-3x3-corner" id="game3x3Corner" hidden aria-hidden="true"><span id="game3x3CornerLabel">3×3</span><img id="game3x3CornerLogo" alt=""></div><div class="game-float-controls">
+<div class="modal" id="gameModal"><div class="modalbox" id="gameModalBox"><div class="modalhead"><div id="game3x3Identity" class="game-3x3-identity" hidden><img id="game3x3HeaderLogo" alt="3x3 game logo"><span><strong id="game3x3HeaderTitle"></strong><small>Original 3x3 gameplay</small></span></div><div style="display:flex;flex-direction:column;gap:2px"><strong id="modalTitle">Game</strong><small id="liveGamePlayers" class="muted" style="font-size:10px">Live players · —</small></div><div class="modal-actions"><span id="gameLoadStatus" class="muted" style="font-size:10px;align-self:center">Loading…</span><button class="btn mini" id="reloadGameBtn" onclick="reloadGame()">Reload</button><button class="btn mini" id="newTabGameBtn" onclick="openCurrentGameNewTab()">Open</button><button class="btn mini primary" id="fsBtn" onclick="fullscreenGame()">Fullscreen</button><button class="btn mini" id="modalAfkBtn" onclick="enterAFK()">AFK</button><button class="btn mini" onclick="closeGame()">Close</button></div></div><div class="progressbarbox"><div><strong>Game progress</strong><span id="progressLabel">0%</span></div><input id="progressRange" type="range" min="0" max="100" value="0" oninput="saveCurrentProgress()"><div class="progress-actions"><button class="btn mini" onclick="setGameProgress(0)">Reset</button><button class="btn mini" onclick="setGameProgress(100)">Mark complete</button><span class="muted" id="playCountLabel">0 plays</span></div></div><div class="modalnote" id="modalNote">Your hub progress is saved on this device. Games that support their own saves can keep their internal save separately.</div><div id="gameStage" class="game-stage"><iframe id="gameFrame" class="gameframe" referrerpolicy="no-referrer-when-downgrade" allow="fullscreen; autoplay; encrypted-media; gamepad; clipboard-read; clipboard-write" allowfullscreen></iframe><div id="gameLoading" class="game-loading-note" style="position:absolute;inset:0;display:grid;place-items:center;background:#000;color:#fff;z-index:2">Loading game…</div><div class="game-float-controls">
   <button class="game-float-btn" id="gameMuteBtn" type="button" onclick="toggleGameMute()" title="Mute game audio" aria-label="Mute game audio" aria-pressed="false"><span id="gameMuteIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Z" fill="currentColor"/><path d="M16 9.2a4.7 4.7 0 0 1 0 5.6M18.6 6.6a8.5 8.5 0 0 1 0 10.8" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg></span></button>
 <button class="game-float-btn" type="button" onclick="closeGame()" aria-label="Close game" title="Close game">×</button><button class="game-float-btn" type="button" onclick="fullscreenGame()" aria-label="Toggle fullscreen" title="Fullscreen">⛶</button>
 </div><div id="gameError" class="game-error"><div class="game-error-card"><h3>Game did not load in the embedded window</h3><p id="gameErrorText">The game host may block embedding, or the URL may have changed.</p><div class="game-error-actions"><button class="btn mini primary" onclick="reloadGame()">Try again</button><button class="btn mini" onclick="openCurrentGameNewTab()">Open game page</button></div></div></div></div></div></div>
@@ -1249,19 +1246,20 @@ function game3x3Config(game){
 }
 function applyGame3x3Mode(game){
  const info=game3x3Config(game);
- const modal=$('gameModal'),identity=$('game3x3Identity'),corner=$('game3x3Corner');
+ const modal=$('gameModal'),identity=$('game3x3Identity'),frame=$('gameFrame');
  modal.classList.toggle('aio-3x3-mode',!!info);
- identity.hidden=!info;corner.hidden=!info;
+ identity.hidden=!info;
+ // Remote games must not fullscreen their own iframe and bypass our crop.
+ // Our player header retains the fullscreen button for the complete modal.
+ frame.allowFullscreen=!info;
+ frame.setAttribute('allow',info
+  ?'autoplay; encrypted-media; gamepad; clipboard-read; clipboard-write'
+  :'fullscreen; autoplay; encrypted-media; gamepad; clipboard-read; clipboard-write');
  if(info){
   $('game3x3HeaderLogo').src=info.logo;
   $('game3x3HeaderTitle').textContent=game.name;
-  $('game3x3CornerLogo').src=info.logo;
-  $('game3x3CornerLabel').textContent=info.label;
-  corner.dataset.variant=info.type;
  }else{
   $('game3x3HeaderLogo').removeAttribute('src');
-  $('game3x3CornerLogo').removeAttribute('src');
-  corner.removeAttribute('data-variant');
  }
 }
 

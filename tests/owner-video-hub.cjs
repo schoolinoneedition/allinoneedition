@@ -95,7 +95,11 @@ for(const asset of [eggLogo,keyboardLogo]){
  assert.match(asset,/<\/svg>\s*$/);
  assert.ok(!/<script|onload=|foreignObject|<image\s/i.test(asset),'Vector artwork must not contain executable or remote content.');
 }
-assert.ok(index.includes('id="game3x3Identity"')&&index.includes('id="game3x3HeaderLogo"')&&index.includes('id="game3x3Corner"'),'The classic player must mount a 3x3-only header and game-toolbar mask.');
+assert.ok(index.includes('id="game3x3Identity"')&&index.includes('id="game3x3HeaderLogo"'),'The classic player must keep the 3x3-specific header logo.');
+assert.ok(!index.includes('game3x3Corner')&&!index.includes('game-3x3-corner'),'Do not replace the old game toolbar with another overlaid bar.');
+assert.ok(index.includes('--aio-toolbar-width:min(330px,78%)')&&index.includes('clip-path:polygon('),'The cross-origin toolbar must be cropped at the iframe layer.');
+assert.ok(index.includes('frame.allowFullscreen=!info')&&index.includes("?'autoplay; encrypted-media; gamepad; clipboard-read; clipboard-write'"),'The hosted game must not be able to enter a separate fullscreen layer that bypasses our crop.');
+assert.ok(index.includes(":'fullscreen; autoplay; encrypted-media; gamepad; clipboard-read; clipboard-write'"),'Regular games must retain their usual fullscreen permissions.');
 assert.ok(index.includes("if(url.includes('/gf/3x3-steal-egg/'))")&&index.includes("if(url.includes('/gf/3x3-speed/'))"),'Player overrides must target only these two game URLs.');
 assert.ok(index.includes('applyGame3x3Mode(g);currentGame=g;')&&index.includes('applyGame3x3Mode(null);'),'Open and close must reset 3x3-specific UI.');
 assert.match(index,/#gameModal\.open\.aio-3x3-mode \.modalhead\{\s*display:flex!important/,'The fullscreen modal must restore its original header for 3x3.');
