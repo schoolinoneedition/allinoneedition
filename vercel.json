@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/owner",
+      "destination": "/owner.html"
+    },
+    {
+      "source": "/video",
+      "destination": "/video.html"
+    },
+    {
       "source": "/videos/:series/:season/:filename",
       "destination": "https://btnbuchsrfllpzlypjtn.supabase.co/storage/v1/object/public/anime-episodes/:series/:season/:filename"
     },
