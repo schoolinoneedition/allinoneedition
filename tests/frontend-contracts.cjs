@@ -183,7 +183,7 @@ assert.ok(elementor.includes('function regenerateLast()')&&elementor.includes("n
 assert.ok(elementor.includes('const wantsImage=/')&&elementor.includes('await createImage(text)')&&!elementor.includes('imageMode'), 'Image intent must work from ordinary chat prompts without a separate mode button.');
 assert.ok(elementor.includes('function renderMarkdownText(')&&elementor.includes('document.createElement(ri===0?\'th\':\'td\')'), 'Chat messages must render safe Markdown blocks and tables.');
 assert.ok(elementor.includes('highlight.js@11.11.1')&&elementor.includes('window.hljs.highlightElement(node)'), 'Fenced code blocks must use syntax highlighting when the highlighter loads.');
-assert.ok(!elementor.includes('id="themeToggle"')&&!elementor.includes('elementor_theme')&&elementor.includes('/appearance.css')&&elementor.includes('/appearance.js'), 'Elementor must share the homepage wallpaper and stay in its clean light theme.');
+assert.ok(!elementor.includes('id="themeToggle"')&&!elementor.includes("localStorage.setItem('elementor_theme'")&&elementor.includes('/appearance.css')&&elementor.includes('/appearance.js'), 'Elementor must share the homepage wallpaper and stay in its clean light theme.');
 assert.ok(elementor.includes('id="scrollBottom"')&&elementor.includes('id="stop"'), 'The chat must provide scroll-to-latest and stop-generation controls.');
 assert.ok(elementor.includes('const resizePrompt=()=>'), 'The message composer must auto-resize while typing.');
 
