@@ -3,8 +3,9 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#f7f8fb"><meta name="description" content="Elementor AI workspace for All in One Edition.">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon.png"><link rel="shortcut icon" href="/favicon.ico"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><title>Elementor AI · All in One Edition</title>
+<link rel="stylesheet" href="/appearance.css"><link rel="icon" type="image/png" sizes="32x32" href="/favicon.png"><link rel="shortcut icon" href="/favicon.ico"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><title>Elementor AI · All in One Edition</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/styles/github-dark.min.css"><script defer src="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/lib/common.min.js"></script>
+<script defer src="/appearance.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{color-scheme:light;--bg:#f6f7f9;--panel:#fff;--ink:#20232a;--muted:#747b88;--line:#e6e8ed;--soft:#f1f3f6;--accent:#345eea;--accent-soft:#edf1ff;--shadow:0 8px 28px rgba(22,31,54,.06)}
@@ -23,6 +24,18 @@
 :root[data-font="serif"] body{font-family:Georgia,serif}:root[data-font="inter"] body{font-family:Inter,ui-sans-serif,system-ui,sans-serif}
 :root.reduce-motion *, :root.reduce-motion *:before,:root.reduce-motion *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 @media(prefers-reduced-motion:reduce){#elementorBoot .boot-track i{animation:none}}
+
+html[data-aio-wallpaper-active="1"] body{background:transparent!important}
+html[data-aio-wallpaper-active="1"] .shell,html[data-aio-wallpaper-active="1"] .content{background:transparent!important}
+html[data-aio-wallpaper-active="1"] .side{background:rgba(255,255,255,.84);backdrop-filter:blur(18px)}
+html[data-aio-wallpaper-active="1"] .top{background:rgba(255,255,255,.78)}
+.video-modal{width:min(640px,100%)}
+.video-cost-note{border:1px solid var(--line);background:var(--soft);border-radius:10px;padding:11px;font-size:12px;line-height:1.5;color:var(--muted)}
+.video-consent{display:flex;align-items:flex-start;gap:9px;margin:12px 0;font-size:12px;line-height:1.45}
+.video-consent input{margin-top:3px}
+#videoPreview{display:block;width:100%;max-height:360px;margin-top:14px;border-radius:12px;background:#10131a}
+#videoPreview[hidden]{display:none}
+.video-open-link{display:inline-block;margin-top:10px;color:var(--accent);font-weight:800;font-size:12px}
 </style>
 <style>
 /* Elementor workspace refinement: stable viewport, readable chat, and touch-first layouts */
@@ -109,12 +122,7 @@ body{min-height:100dvh}
 .bubble{white-space:normal}
 
 /* Responsive theme and spacing pass */
-:root.dark{color-scheme:dark;--bg:#111318;--panel:#191c22;--ink:#f2f3f5;--muted:#a1a6b1;--line:#2a2e37;--soft:#20242c;--accent:#86a5ff;--accent-soft:#202b48;--shadow:0 9px 24px rgba(0,0,0,.28)}
-:root.dark .side,:root.dark .top,:root.dark .composer,:root.dark .modal,:root.dark .control-card,:root.dark .suggestion{background:var(--panel);color:var(--ink);border-color:var(--line)}
-:root.dark .history-search,:root.dark .field input,:root.dark .field textarea,:root.dark .field select{background:#15181e;color:var(--ink);border-color:var(--line)}
-:root.dark .tool-btn,:root.dark .icon-btn,:root.dark .back,:root.dark .side-action{background:#1b1f27;color:var(--ink);border-color:var(--line)}
-:root.dark .message.user .bubble{background:#202b48;border-color:#34466f}
-:root.dark .bubble code.inline-code{background:#2a303a;color:#f2f3f5}
+
 .content{width:min(1100px,100%);padding-left:clamp(16px,4vw,48px);padding-right:clamp(16px,4vw,48px)}
 .messages{gap:22px}
 .bubble{max-width:min(900px,calc(100% - 48px));padding:15px 18px;font-size:14px;line-height:1.7}
@@ -158,8 +166,6 @@ body{min-height:100dvh}
 .typing-indicator span:nth-child(2){animation-delay:.14s}.typing-indicator span:nth-child(3){animation-delay:.28s}
 @keyframes elementor-typing{0%,60%,100%{opacity:.35;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
 :root.reduce-motion .typing-indicator span{animation:none;opacity:.7}
-.work-consent{display:flex!important;align-items:flex-start;gap:9px;padding:10px 12px;margin:12px 0!important;border:1px solid var(--line);border-radius:10px;background:var(--soft);font-weight:600!important;line-height:1.45}
-.work-consent input{width:auto;min-width:16px;margin:2px 0 0;accent-color:var(--accent)}
 .plugin-modal{width:min(620px,100%)}
 .plugin-card{display:flex;align-items:center;justify-content:space-between;gap:14px;border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0;background:var(--panel)}
 .plugin-card strong,.plugin-card small{display:block}.plugin-card small{max-width:420px;color:var(--muted);font-size:11px;margin-top:4px;line-height:1.5}
@@ -181,6 +187,7 @@ body{min-height:100dvh}
  <div class="side-bottom">
   <button class="side-action" id="profileOpen">◉ Personalisation</button>
   <button class="side-action" id="pluginsOpen">▦ Plugin marketplace</button>
+  <button class="side-action" id="videoStudioOpen">▣ Video Studio</button>
   <button class="side-action" id="controlsOpen">⌘ Website controls</button>
 
   <a class="back" href="/">← Back to All in One Edition</a>
@@ -188,7 +195,7 @@ body{min-height:100dvh}
  </div>
 </aside>
 <section class="main">
- <header class="top"><div style="display:flex;align-items:center;gap:10px"><button class="icon-btn mobile-menu" id="menuBtn" aria-label="Open menu">☰</button><h1 id="chatTitle">New chat</h1></div><div class="top-right"><span class="pill">Elementor workspace</span><button class="icon-btn" id="renameChat" aria-label="Rename chat" title="Rename chat">✎</button><button class="icon-btn" id="deleteChat" aria-label="Delete chat" title="Delete chat">⌫</button><button class="icon-btn" id="themeToggle" aria-label="Switch colour theme" title="Switch colour theme">◐</button><button class="icon-btn" id="profileTop" aria-label="Personalisation">⚙</button></div></header>
+ <header class="top"><div style="display:flex;align-items:center;gap:10px"><button class="icon-btn mobile-menu" id="menuBtn" aria-label="Open menu">☰</button><h1 id="chatTitle">New chat</h1></div><div class="top-right"><span class="pill">Elementor workspace</span><button class="icon-btn" id="renameChat" aria-label="Rename chat" title="Rename chat">✎</button><button class="icon-btn" id="deleteChat" aria-label="Delete chat" title="Delete chat">⌫</button><button class="icon-btn" id="profileTop" aria-label="Personalisation">⚙</button></div></header>
  <div class="content">
   <div class="welcome" id="welcome"><div class="orb">✦</div><h2>What are we building today?</h2><p>Ask questions, create images, or manage parts of All in One Edition.</p>
    <div class="suggestions"><button class="suggestion" data-prompt="Help me improve the All in One Edition homepage."><strong>Improve my website</strong>Review ideas and suggest practical upgrades</button><button class="suggestion" data-prompt="Create an image of a cosy futuristic gaming room with soft blue lighting."> <strong>Create an image</strong>Turn an idea into an original image</button><button class="suggestion" data-prompt="Explain how to organise my games catalogue better."><strong>Organise my games</strong>Plan a cleaner games catalogue</button><button class="suggestion" data-prompt="Give me a quick overview of what Elementor can do."><strong>Explore Elementor</strong>See what your AI workspace can do</button></div>
@@ -199,7 +206,8 @@ body{min-height:100dvh}
 </section>
 </div>
 
-<div class="modal-back hidden" id="pluginsModal" role="dialog" aria-modal="true" aria-labelledby="pluginsTitle"><div class="modal plugin-modal"><h3 id="pluginsTitle">Plugin marketplace</h3><p>Choose which built-in Elementor capabilities may run. Permissions are off by default and can be revoked here at any time.</p><div class="plugin-card"><div><strong>Cloud Browser Research</strong><small>Read public webpages only. It cannot sign in, submit forms, or access your private browser tabs.</small></div><label class="plugin-toggle"><input type="checkbox" id="pluginBrowserPermission"> Allow</label></div><div class="plugin-card"><div><strong>Image Studio</strong><small>Send your image prompt to the image generator and show the result in this conversation.</small></div><label class="plugin-toggle"><input type="checkbox" id="pluginImagePermission"> Allow</label></div><div class="plugin-note"><strong>External integrations</strong><p>No third-party accounts are connected in this build. External providers will appear here only after a verified OAuth flow, server-side token storage, and a separate scope approval screen are configured.</p></div><div class="status" id="pluginStatus" aria-live="polite"></div><div class="modal-actions"><button class="tool-btn" data-close="pluginsModal">Close</button><button class="send" id="savePluginPermissions">Save permissions</button></div></div></div>
+<div class="modal-back hidden" id="pluginsModal" role="dialog" aria-modal="true" aria-labelledby="pluginsTitle"><div class="modal plugin-modal"><h3 id="pluginsTitle">Plugin marketplace</h3><p>Choose which built-in Elementor capabilities may run. Permissions are off by default and can be revoked here.</p><div class="plugin-card"><div><strong>Image Studio</strong><small>Create an original image from a text prompt.</small></div><label class="plugin-toggle"><input type="checkbox" id="pluginImagePermission"> Allow</label></div><div class="plugin-card"><div><strong>Video Studio</strong><small>Create short, family-friendly 5-second draft videos. Sign-in and paid-credit confirmation are required.</small></div><label class="plugin-toggle"><input type="checkbox" id="pluginVideoPermission"> Allow</label></div><div class="plugin-note"><strong>Privacy and limits</strong><p>Prompts are sent to the generation service only after you press Generate. Video requests are limited, screened, and do not accept links or personal contact details.</p></div><div class="status" id="pluginStatus" aria-live="polite"></div><div class="modal-actions"><button class="tool-btn" data-close="pluginsModal">Close</button><button class="send" id="savePluginPermissions">Save permissions</button></div></div></div>
+<div class="modal-back hidden" id="videoModal" role="dialog" aria-modal="true" aria-labelledby="videoTitle"><div class="modal video-modal"><h3 id="videoTitle">Video Studio</h3><p>Generate a short, family-friendly video. Only 5-second 720p draft clips are enabled.</p><div class="field"><label for="videoPrompt">Describe your video</label><textarea id="videoPrompt" rows="4" maxlength="700" placeholder="A tiny orange robot exploring a colourful garden, gentle camera movement…"></textarea></div><div class="video-cost-note">Video generation uses paid Cloudflare AI credits billed to the site account. No video is generated until you confirm below.</div><label class="video-consent"><input type="checkbox" id="videoCostConsent"> I understand this uses paid AI credits and confirm my prompt is suitable for a general audience.</label><div class="status" id="videoStatus" aria-live="polite"></div><video id="videoPreview" controls playsinline preload="none" hidden></video><a id="videoOpenLink" class="video-open-link" href="#" target="_blank" rel="noopener noreferrer" hidden>Open generated video</a><div class="modal-actions"><button class="tool-btn" type="button" data-close="videoModal">Close</button><button class="send" type="button" id="videoGenerateBtn">Generate 5-second draft</button></div></div></div>
 <div class="modal-back hidden" id="profileModal"><div class="modal"><h3>Personalise Elementor</h3><p>Choose how Elementor appears and responds. These preferences are saved to your account.</p>
  <div class="field"><label>Display name</label><input id="displayName" maxlength="48" placeholder="Elementor"></div>
  <div class="field"><label>Profile picture</label><div class="avatars" id="avatarChoices"></div><input id="avatarUpload" type="file" accept="image/png,image/jpeg,image/webp" style="margin-top:9px"></div>
@@ -229,11 +237,11 @@ sessionStorage.setItem('elementor_guest_id',guestId);
 function saveGuestChats(){const safe={};for(const [id,chat] of Object.entries(guestChats)){safe[id]={...chat,messages:(chat.messages||[]).map(({image_url,...message})=>message)};}sessionStorage.setItem('elementor_guest_chats',JSON.stringify(safe));}
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const ELEMENTOR_PLUGIN_KEY='elementor_plugin_permissions_v1';
-const DEFAULT_PLUGIN_PERMISSIONS={browserResearch:false,imageStudio:false};
+const DEFAULT_PLUGIN_PERMISSIONS={imageStudio:false,videoStudio:false};
 function getPluginPermissions(){try{return {...DEFAULT_PLUGIN_PERMISSIONS,...JSON.parse(localStorage.getItem(ELEMENTOR_PLUGIN_KEY)||'{}')};}catch{return {...DEFAULT_PLUGIN_PERMISSIONS};}}
-function hasPluginPermission(name){const p=getPluginPermissions();return name==='browser-research'?p.browserResearch:name==='image-studio'?p.imageStudio:false;}
-function openPluginMarketplace(){const p=getPluginPermissions();$('pluginBrowserPermission').checked=p.browserResearch;$('pluginImagePermission').checked=p.imageStudio;$('pluginStatus').textContent='Permissions are stored on this device. No external account tokens are stored here.';openModal('pluginsModal');}
-function savePluginPermissions(){const next={browserResearch:$('pluginBrowserPermission').checked,imageStudio:$('pluginImagePermission').checked};localStorage.setItem(ELEMENTOR_PLUGIN_KEY,JSON.stringify(next));$('pluginStatus').textContent='Permissions saved. You can revoke either permission here.';showElementorNotice('Plugin permissions updated','Only the built-in capabilities you allowed can run.');}
+function hasPluginPermission(name){const p=getPluginPermissions();return name==='image-studio'?p.imageStudio:name==='video-studio'?p.videoStudio:false;}
+function openPluginMarketplace(){const p=getPluginPermissions();$('pluginImagePermission').checked=p.imageStudio;$('pluginVideoPermission').checked=p.videoStudio;$('pluginStatus').textContent='Permissions are stored on this device and can be revoked here.';openModal('pluginsModal');}
+function savePluginPermissions(){const next={imageStudio:$('pluginImagePermission').checked,videoStudio:$('pluginVideoPermission').checked};localStorage.setItem(ELEMENTOR_PLUGIN_KEY,JSON.stringify(next));$('pluginStatus').textContent='Permissions saved. You can revoke either tool here.';showElementorNotice('Plugin permissions updated','Only the creative tools you allowed can run.');}
 function sanitizeElementorOutput(value){
  let text=String(value??'').normalize('NFKC');
  const blocked=['fuck','fucking','motherfucker','shit','shitty','bullshit','bitch','bastard','asshole','arse','arsehole','dick','dickhead','piss','crap','damn','hell','bloody','bugger','bollocks','wanker','twat','prick'];
@@ -408,6 +416,30 @@ async function createImage(prompt){
  const blob=await r.blob();if(!user){const src=URL.createObjectURL(blob);objectUrls.push(src);const m={id:'guest-image-'+crypto.randomUUID(),role:'assistant',content:'Created an image from: '+prompt,image_url:src,created_at:new Date().toISOString()};messages.push(m);if(guestChats[currentId]){guestChats[currentId].messages=messages;saveGuestChats();}renderMessages();return;}let id=null;try{id=await uploadImage(blob,'elementor-'+Date.now()+'.jpg');}catch(e){throw new Error('Image generated, but private B2 saving failed: '+e.message);}
  await saveMessage('assistant','Created an image from: '+prompt,id);
 }
+function openVideoStudio(){
+ const permitted=hasPluginPermission('video-studio');
+ $('videoStatus').textContent=permitted?(user?'5-second draft · 720p · no generated audio.':'Sign in before generating videos.'):'Enable Video Studio in Plugin marketplace first.';
+ $('videoPreview').hidden=true;$('videoOpenLink').hidden=true;$('videoCostConsent').checked=false;
+ openModal('videoModal');
+}
+async function generateVideo(){
+ const button=$('videoGenerateBtn'),prompt=$('videoPrompt').value.trim();
+ if(!hasPluginPermission('video-studio')){$('videoStatus').textContent='Enable Video Studio in Plugin marketplace first.';return;}
+ if(!user||!token()){$('videoStatus').textContent='Sign in before generating a video.';return;}
+ if(prompt.length<12||prompt.length>700){$('videoStatus').textContent='Write a description between 12 and 700 characters.';return;}
+ if(!$('videoCostConsent').checked){$('videoStatus').textContent='Confirm the paid-credit notice before generating.';return;}
+ button.disabled=true;$('videoStatus').textContent='Checking the prompt and creating your video…';$('videoPreview').hidden=true;$('videoOpenLink').hidden=true;
+ try{
+  const response=await fetch(AI_API+'/video',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token()},body:JSON.stringify({prompt,userConsent:true,costConfirmed:true})});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok||!data.video)throw new Error(data.error||'Video generation failed.');
+  const url=new URL(data.video);if(url.protocol!=='https:')throw new Error('The returned video link was not secure.');
+  $('videoPreview').src=url.href;$('videoPreview').hidden=false;$('videoPreview').load();
+  $('videoOpenLink').href=url.href;$('videoOpenLink').hidden=false;
+  $('videoStatus').textContent='Your 5-second draft is ready. The preview link may expire.';
+ }catch(error){$('videoStatus').textContent=error.message||'Video generation is unavailable right now.';}
+ finally{button.disabled=false;}
+}
 async function handleSiteCommand(text){
  const setMatch=text.match(/^(?:set|publish|change)\s+(?:the\s+)?(?:homepage\s+)?announcement\s*:\s*(.{1,180})$/i);
  const clearMatch=/^(?:clear|remove)\s+(?:the\s+)?(?:homepage\s+)?announcement$/i.test(text);
@@ -471,6 +503,7 @@ async function saveAnnouncement(clear=false){
  $('controlStatus').textContent=result.error?'Could not update the site: '+result.error.message:(clear?'Announcement cleared.':'Announcement published.');if(!result.error)window.setTimeout(()=>closeModal('controlsModal'),700);
 }
 $('newChat').onclick=newChat;$('send').onclick=send;
+$('videoStudioOpen').onclick=openVideoStudio;$('videoGenerateBtn').onclick=generateVideo;
 $('pluginsOpen').onclick=openPluginMarketplace;$('savePluginPermissions').onclick=savePluginPermissions;
 function startVoiceListening(){
  const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -506,9 +539,7 @@ $('voiceInput').onclick=()=>{
  try{recognition.start();}catch{$('voiceStatus').textContent='Could not start microphone. Try again.';recognition=null;}
 };
 $('historySearch').addEventListener('input',loadHistory);
-const savedTheme=localStorage.getItem('elementor_theme')||'light';document.documentElement.classList.toggle('dark',savedTheme==='dark');
-$('themeToggle').onclick=()=>{const dark=document.documentElement.classList.toggle('dark');localStorage.setItem('elementor_theme',dark?'dark':'light');$('themeToggle').textContent=dark?'☀':'◐';};
-$('themeToggle').textContent=document.documentElement.classList.contains('dark')?'☀':'◐';
+document.documentElement.classList.remove('dark');localStorage.removeItem('elementor_theme');
 const resizePrompt=()=>{$('prompt').style.height='auto';$('prompt').style.height=Math.min($('prompt').scrollHeight,200)+'px';};$('prompt').addEventListener('input',resizePrompt);
 const updateScrollButton=()=>{$('scrollBottom').classList.toggle('hidden',$('messages').scrollHeight-$('messages').scrollTop-$('messages').clientHeight<120);};$('messages').addEventListener('scroll',updateScrollButton);$('scrollBottom').onclick=()=>{$('messages').scrollTo({top:$('messages').scrollHeight,behavior:'smooth'});};
 
@@ -526,177 +557,3 @@ init();
 })();
 </script>
 </body></html>
-
-),'');if(lang)node.className='language-'+lang.toLowerCase().replace(/[^a-z0-9-]/g,'');pre.append(node);const copy=document.createElement('button');copy.className='copy-code';copy.type='button';copy.textContent='Copy';copy.onclick=async()=>{try{await navigator.clipboard.writeText(node.textContent);copy.textContent='Copied';setTimeout(()=>copy.textContent='Copy',1200);}catch{copy.textContent='Unavailable';}};wrap.append(pre,copy);container.append(wrap);if(window.hljs)window.hljs.highlightElement(node);
-  }else renderMarkdownText(container,chunk);
- });
-}
-function renderMessages(){
- const scroller=$('messages'),wasNearBottom=scroller.scrollHeight-scroller.scrollTop-scroller.clientHeight<90;
- $('welcome').classList.toggle('hidden',messages.length>0);scroller.replaceChildren();
- for(const m of messages){const row=document.createElement('div');row.className='message '+m.role;const av=document.createElement('div');av.className='bubble-avatar';av.textContent=m.role==='assistant'?'✦':(profile.avatar||'U');const bubble=document.createElement('div');bubble.className='bubble';const body=document.createElement('div');renderRichText(body,m.content|| (m.image_media_id?'Generated image':''));bubble.append(body);if(m.image_media_id){const img=document.createElement('img');img.alt='Image generated in this chat';img.dataset.image=m.id;bubble.append(img);if(user)attachMediaImage(img,m.image_media_id);}else if(m.image_url){const img=document.createElement('img');img.alt='Image generated in this guest session';img.src=m.image_url;bubble.append(img);}if(m.role==='assistant'&&!String(m.id||'').startsWith('stream-')){const actions=document.createElement('div');actions.className='message-actions';const copy=document.createElement('button');copy.type='button';copy.textContent='Copy';copy.onclick=async()=>{try{await navigator.clipboard.writeText(m.content||'');copy.textContent='Copied';setTimeout(()=>copy.textContent='Copy',1200);}catch{copy.textContent='Unavailable';}};const regen=document.createElement('button');regen.type='button';regen.textContent='Regenerate';regen.disabled=isSending;regen.onclick=regenerateLast;actions.append(copy,regen);bubble.append(actions);}row.append(av,bubble);scroller.append(row);}
- if(wasNearBottom)scroller.scrollTop=scroller.scrollHeight;
-}
-function addLocalMessage(role,content,imageId=null){
- const m={id:'local-'+Math.random().toString(36).slice(2),role,content,image_media_id:imageId};messages.push(m);renderMessages();return m;
-}
-async function saveMessage(role,content,imageId=null){
- if(!user){const data={id:'guest-msg-'+crypto.randomUUID(),role,content,image_media_id:imageId,created_at:new Date().toISOString()};messages.push(data);if(guestChats[currentId]){guestChats[currentId].messages=messages;guestChats[currentId].updated_at=Date.now();saveGuestChats();}renderMessages();return data;}
- const {data,error}=await db.from('elementor_messages').insert({conversation_id:currentId,user_id:user.id,role,content,image_media_id:imageId}).select('*').single();
- if(error)throw error;messages.push(data);renderMessages();return data;
-}
-async function updateTitle(text){
- const title=text.trim().slice(0,48)||'New chat';if(!user){if(guestChats[currentId]){guestChats[currentId].title=title;guestChats[currentId].updated_at=Date.now();saveGuestChats();}$('chatTitle').textContent=title;await loadHistory();return;}await db.from('elementor_conversations').update({title,updated_at:new Date().toISOString()}).eq('id',currentId).eq('user_id',user.id);$('chatTitle').textContent=title;await loadHistory();
-}
-async function callAI(){
- const context=messages.filter(m=>m.role==='user'||m.role==='assistant').slice(-14).map(m=>({role:m.role,content:m.content||''}));
- const headers={'Content-Type':'application/json','X-Guest-Id':guestId};if(token())headers.Authorization='Bearer '+token();
- const controller=new AbortController();activeController=controller;
- const res=await fetch(AI_API+'/chat',{method:'POST',headers,signal:controller.signal,body:JSON.stringify({messages:context,think:thinkMode,profile:{displayName:profile.display_name,style:profile.response_style,instructions:(profile.instructions||'')},site:'All in One Edition'})});
- if(!res.ok){const data=await res.json().catch(()=>({}));throw new Error(data.error||'Elementor could not reply.');}
- if(!res.body)throw new Error('Streaming is not supported by this connection.');
- const live={id:'stream-'+crypto.randomUUID(),role:'assistant',content:'',created_at:new Date().toISOString()};messages.push(live);renderMessages();
- const reader=res.body.getReader(),decoder=new TextDecoder();let buffer='',answer='',stopped=false;
- try{while(true){const {value,done}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});const events=buffer.split(/\r?
-/);buffer=events.pop()||'';for(const line of events){if(!line.startsWith('data:'))continue;const raw=line.slice(5).trim();if(!raw||raw==='[DONE]')continue;try{const part=JSON.parse(raw);const delta=part.response||part.choices?.[0]?.delta?.content||part.choices?.[0]?.text||'';if(delta){answer+=delta;live.content=answer;renderMessages();}}catch{}}}}
- catch(error){if(error.name==='AbortError')stopped=true;else throw error;}
- finally{if(activeController===controller)activeController=null;messages=messages.filter(m=>m!==live);}
- return {answer:answer.trim(),stopped};
-}
-async function uploadImage(blob,name){
- const auth='Bearer '+token();const initRes=await fetch(MEDIA_API+'/uploads/initiate',{method:'POST',headers:{Authorization:auth,'Content-Type':'application/json'},body:JSON.stringify({filename:name,contentType:blob.type||'image/jpeg',sizeBytes:blob.size,visibility:'private'})});
- const init=await initRes.json();if(!initRes.ok)throw new Error(init.error||'Could not save image to private media storage.');
- const size=Number(init.partSizeBytes)||32*1024*1024,parts=[];
- try{let part=1;for(let off=0;off<blob.size;off+=size,part++){const chunk=blob.slice(off,Math.min(blob.size,off+size));const r=await fetch(MEDIA_API+'/uploads/'+encodeURIComponent(init.uploadId)+'/parts/'+part,{method:'POST',headers:{Authorization:auth,'Content-Type':'application/octet-stream','X-Part-Size':String(chunk.size)},body:chunk});const d=await r.json();if(!r.ok)throw new Error(d.error||'Image upload failed.');parts.push({partNumber:part,etag:d.etag});}
- const done=await fetch(MEDIA_API+'/uploads/'+encodeURIComponent(init.uploadId)+'/complete',{method:'POST',headers:{Authorization:auth,'Content-Type':'application/json'},body:JSON.stringify({parts})});const result=await done.json();if(!done.ok)throw new Error(result.error||'Could not finish image upload.');return init.uploadId;
- }catch(e){await fetch(MEDIA_API+'/uploads/'+encodeURIComponent(init.uploadId)+'/abort',{method:'POST',headers:{Authorization:auth}}).catch(()=>{});throw e;}
-}
-async function attachMediaImage(img,id){
- try{const res=await fetch(MEDIA_API+'/media/'+encodeURIComponent(id),{headers:{Authorization:'Bearer '+token()}});if(!res.ok)throw new Error('Private image unavailable');const blob=await res.blob();const src=URL.createObjectURL(blob);objectUrls.push(src);img.src=src;}catch(e){img.alt='Image is unavailable. Sign in again to load private media.';}
-}
-async function createImage(prompt){
- const headers={'Content-Type':'application/json','X-Guest-Id':guestId};if(token())headers.Authorization='Bearer '+token();const r=await fetch(AI_API+'/generate',{method:'POST',headers,body:JSON.stringify({prompt})});
- if(!r.ok){const d=await r.json().catch(()=>({}));throw new Error(d.error||'Image generation failed.');}
- const blob=await r.blob();if(!user){const src=URL.createObjectURL(blob);objectUrls.push(src);const m={id:'guest-image-'+crypto.randomUUID(),role:'assistant',content:'Created an image from: '+prompt,image_url:src,created_at:new Date().toISOString()};messages.push(m);if(guestChats[currentId]){guestChats[currentId].messages=messages;saveGuestChats();}renderMessages();return;}let id=null;try{id=await uploadImage(blob,'elementor-'+Date.now()+'.jpg');}catch(e){throw new Error('Image generated, but private B2 saving failed: '+e.message);}
- await saveMessage('assistant','Created an image from: '+prompt,id);
-}
-async function handleSiteCommand(text){
- const setMatch=text.match(/^(?:set|publish|change)\s+(?:the\s+)?(?:homepage\s+)?announcement\s*:\s*(.{1,180})$/i);
- const clearMatch=/^(?:clear|remove)\s+(?:the\s+)?(?:homepage\s+)?announcement$/i.test(text);
- if(!setMatch&&!clearMatch)return false;
- const role=await db.from('staff_roles').select('role').eq('user_id',user.id).maybeSingle();
- if(role.error||role.data?.role!=='owner'){await saveMessage('assistant','I can only change the homepage announcement from the verified owner account.');return true;}
- const value=clearMatch?'':setMatch[1].trim();
- if(!window.confirm(clearMatch?'Clear the homepage announcement?':'Publish this homepage announcement?
-
-'+value)){await saveMessage('assistant','Cancelled. No website changes were made.');return true;}
- const result=clearMatch?await db.from('aio_elementor_site_settings').delete().eq('setting_key','announcement'):await db.from('aio_elementor_site_settings').upsert({setting_key:'announcement',setting_value:{text:value},updated_by:user.id,updated_at:new Date().toISOString()},{onConflict:'setting_key'});
- await saveMessage('assistant',result.error?'The website setting could not be updated: '+result.error.message:(clearMatch?'The homepage announcement has been cleared.':'The homepage announcement is now published on All in One Edition.'));
- return true;
-}
-async function send(){
- if(!currentId||isSending)return;const input=$('prompt'),text=input.value.trim();if(!text)return;
- const wantsImage=/(?:\b(?:generate|create|draw|design|make|illustrate|paint)\b.{0,70}\b(?:image|picture|illustration|artwork|logo|wallpaper|avatar|icon|poster|banner)\b|\b(?:image|picture|illustration|artwork|logo|wallpaper|avatar|icon|poster|banner)\b.{0,70}\b(?:of|for|showing|with)\b)/i.test(text);
- isSending=true;$('send').disabled=true;$('send').hidden=true;$('stop').classList.remove('hidden');input.value='';
- try{
-  await saveMessage('user',(wantsImage?'Create an image: ':'')+text);
-  if(messages.length===1)await updateTitle(text);
-  if(!wantsImage&&await handleSiteCommand(text)){await loadHistory();return;}
-  if(wantsImage){const pending=addLocalMessage('assistant','Creating your image…');try{await createImage(text);}finally{messages=messages.filter(m=>m!==pending);renderMessages();}}
-  else{
-   const result=await callAI();if(result.answer)await saveMessage('assistant',result.answer+(result.stopped?'\\n\\n*Generation stopped.*':''));else if(result.stopped)await saveMessage('assistant','Generation stopped before a response was produced.');if(voiceOutput&&result.answer)speakReply(result.answer);
-   if(user)await db.from('elementor_conversations').update({updated_at:new Date().toISOString()}).eq('id',currentId);
-  }
-  await loadHistory();
- }catch(e){if(e.name!=='AbortError')await saveMessage('assistant','I hit a problem: '+e.message).catch(()=>{});}
- finally{isSending=false;activeController=null;$('send').hidden=false;$('send').disabled=false;$('stop').classList.add('hidden');input.focus();if(voiceChatMode)setTimeout(startVoiceListening,350);}
-}
-async function regenerateLast(){
- if(isSending)return;let assistantIndex=-1;for(let i=messages.length-1;i>=0;i--){if(messages[i].role==='assistant'){assistantIndex=i;break;}}
- if(assistantIndex<0)return;let userIndex=assistantIndex-1;while(userIndex>=0&&messages[userIndex].role!=='user')userIndex--;if(userIndex<0)return;
- const old=messages.slice(userIndex,assistantIndex+1);messages.splice(userIndex,assistantIndex-userIndex+1);
- if(user){for(const item of old){if(item.id)await db.from('elementor_messages').delete().eq('id',item.id).eq('conversation_id',currentId);}}
- else{if(guestChats[currentId]){guestChats[currentId].messages=messages;saveGuestChats();}}
- renderMessages();$('prompt').value=old.find(x=>x.role==='user')?.content?.replace(/^Create an image:\s*/,'')||'';await send();
-}
-async function openProfile(){
- applyElementorPreferences();if(!user)profile=JSON.parse(sessionStorage.getItem('elementor_guest_profile')||'null')||profile;$('displayName').value=profile.display_name||'Elementor';$('instructions').value=profile.instructions||'';$('responseStyle').value=profile.response_style||'balanced';$('avatarChoices').replaceChildren();
- AVATARS.forEach(a=>{const b=document.createElement('button');b.className='avatar-choice'+(a===profile.avatar?' selected':'');b.type='button';b.textContent=a;b.onclick=()=>{$('avatarChoices').querySelectorAll('button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');b.dataset.selected='1';};if(a===profile.avatar)b.dataset.selected='1';$('avatarChoices').append(b);});
- $('profileStatus').textContent='';openModal('profileModal');
-}
-async function saveProfile(){
- const selected=$('avatarChoices').querySelector('[data-selected="1"]')?.textContent||profile.avatar;
- let avatarMediaId=profile.avatar_media_id||null;const file=$('avatarUpload').files?.[0];if(file){if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>4*1024*1024){toast('Choose a PNG, JPG or WebP image under 4 MB.');return;}try{avatarMediaId=await uploadImage(file,file.name||'elementor-avatar');}catch(e){toast('Profile picture upload failed: '+e.message);return;}}
- saveElementorPreferences();const next={user_id:user.id,display_name:$('displayName').value.trim()||'Elementor',avatar:selected,avatar_media_id:avatarMediaId,instructions:$('instructions').value.trim(),response_style:$('responseStyle').value,updated_at:new Date().toISOString()};
- if(user){const {error}=await db.from('elementor_profiles').upsert(next,{onConflict:'user_id'});if(error){toast(error.message);return;}}profile={...profile,...next};if(!user)sessionStorage.setItem('elementor_guest_profile',JSON.stringify(profile));setAvatar();closeModal('profileModal');
-}
-async function openControls(){
- if(!user){$('controlStatus').textContent='Sign in with the owner account first.';openModal('controlsModal');return;}
- const {data,error}=await db.from('staff_roles').select('role').eq('user_id',user.id).maybeSingle();
- isOwner=!error&&data?.role==='owner';
- $('controlStatus').textContent=isOwner?'Verified owner. You can publish the homepage announcement.':'Owner permission not detected. Controls are locked.';
- $('saveAnnouncement').disabled=!isOwner;$('clearAnnouncement').disabled=!isOwner;
- if(isOwner){const s=await db.from('aio_elementor_site_settings').select('setting_value').eq('setting_key','announcement').maybeSingle();$('announcementText').value=s.data?.setting_value?.text||'';}
- openModal('controlsModal');
-}
-async function saveAnnouncement(clear=false){
- if(!isOwner)return;const value=clear?'':$('announcementText').value.trim();if(!clear&&!value){$('controlStatus').textContent='Enter an announcement first.';return;}
- const result=clear?await db.from('aio_elementor_site_settings').delete().eq('setting_key','announcement'):await db.from('aio_elementor_site_settings').upsert({setting_key:'announcement',setting_value:{text:value},updated_by:user.id,updated_at:new Date().toISOString()},{onConflict:'setting_key'});
- $('controlStatus').textContent=result.error?'Could not update the site: '+result.error.message:(clear?'Announcement cleared.':'Announcement published.');if(!result.error)window.setTimeout(()=>closeModal('controlsModal'),700);
-}
-$('newChat').onclick=newChat;$('send').onclick=send;
-function startVoiceListening(){
- const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!voiceChatMode||recognition||isSending||!Speech)return;
- const rec=new Speech();recognition=rec;rec.lang=navigator.language||'en-GB';rec.continuous=true;rec.interimResults=true;
- rec.onstart=()=>$('voiceStatus').textContent='Voice chat is listening. Speak naturally.';
- rec.onresult=event=>{
-  let finalText='';
-  for(let n=event.resultIndex;n<event.results.length;n++){const part=event.results[n][0].transcript;if(event.results[n].isFinal)finalText+=part;}
-  if(finalText.trim()){voiceTranscript=(voiceTranscript+' '+finalText).trim();$('prompt').value=voiceTranscript;clearTimeout(voiceTimer);voiceTimer=setTimeout(()=>{const message=voiceTranscript.trim();voiceTranscript='';if(message&&!isSending){$('prompt').value=message;rec.stop();send();}},1100);}
- };
- rec.onerror=event=>{if(event.error==='not-allowed'||event.error==='service-not-allowed'){voiceChatMode=false;$('voiceChat').classList.remove('active');$('voiceStatus').textContent='Microphone permission is blocked.';}else $('voiceStatus').textContent='Voice chat paused: '+event.error;};
- rec.onend=()=>{if(recognition===rec)recognition=null;if(voiceChatMode&&!isSending)setTimeout(startVoiceListening,350);};
- try{rec.start();}catch{if(recognition===rec)recognition=null;$('voiceStatus').textContent='Could not start voice chat.';}
-}
-$('voiceChat').onclick=()=>{
- if(voiceChatMode){voiceChatMode=false;voiceTranscript='';clearTimeout(voiceTimer);recognition?.stop();recognition=null;$('voiceChat').classList.remove('active');$('voiceStatus').textContent='Voice chat stopped.';return;}
- const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!Speech){$('voiceStatus').textContent='Live voice input is not supported in this browser.';return;}
- voiceChatMode=true;voiceOutput=true;$('voiceChat').classList.add('active');$('voiceOutput').classList.add('active');startVoiceListening();
-};
-function speakReply(text){if(!('speechSynthesis'in window)){$('voiceStatus').textContent='Speech playback is not supported in this browser.';return;}window.speechSynthesis.cancel();const clean=String(text).replace(/```[\s\S]*?```/g,'Code block omitted from speech.').slice(0,5000);const utterance=new SpeechSynthesisUtterance(clean);utterance.rate=1;utterance.onstart=()=>$('voiceStatus').textContent='Reading reply…';utterance.onend=()=>$('voiceStatus').textContent='';window.speechSynthesis.speak(utterance);}
-$('voiceOutput').onclick=()=>{voiceOutput=!voiceOutput;$('voiceOutput').classList.toggle('active',voiceOutput);$('voiceStatus').textContent=voiceOutput?'Replies will be read aloud.':'Spoken replies are off.';if(!voiceOutput&&'speechSynthesis'in window)window.speechSynthesis.cancel();};
-$('voiceInput').onclick=()=>{
- const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!Speech){$('voiceStatus').textContent='Voice input is not supported here. Try a supported browser.';return;}
- if(recognition){recognition.stop();recognition=null;$('voiceInput').classList.remove('active');$('voiceStatus').textContent='Voice input stopped.';return;}
- recognition=new Speech();recognition.lang=navigator.language||'en-GB';recognition.interimResults=true;recognition.continuous=false;
- recognition.onstart=()=>{$('voiceInput').classList.add('active');$('voiceStatus').textContent='Listening… speak now.';};
- recognition.onresult=event=>{let transcript='';for(let n=event.resultIndex;n<event.results.length;n++)transcript+=event.results[n][0].transcript;$('prompt').value=transcript;};
- recognition.onerror=event=>{$('voiceStatus').textContent=event.error==='not-allowed'?'Microphone permission was denied.':'Voice input error: '+event.error;};
- recognition.onend=()=>{$('voiceInput').classList.remove('active');recognition=null;if($('prompt').value.trim())$('voiceStatus').textContent='Voice captured. Press Send when ready.';};
- try{recognition.start();}catch{$('voiceStatus').textContent='Could not start microphone. Try again.';recognition=null;}
-};
-$('historySearch').addEventListener('input',loadHistory);
-const savedTheme=localStorage.getItem('elementor_theme')||'light';document.documentElement.classList.toggle('dark',savedTheme==='dark');
-$('themeToggle').onclick=()=>{const dark=document.documentElement.classList.toggle('dark');localStorage.setItem('elementor_theme',dark?'dark':'light');$('themeToggle').textContent=dark?'☀':'◐';};
-$('themeToggle').textContent=document.documentElement.classList.contains('dark')?'☀':'◐';
-const resizePrompt=()=>{$('prompt').style.height='auto';$('prompt').style.height=Math.min($('prompt').scrollHeight,200)+'px';};$('prompt').addEventListener('input',resizePrompt);
-const updateScrollButton=()=>{$('scrollBottom').classList.toggle('hidden',$('messages').scrollHeight-$('messages').scrollTop-$('messages').clientHeight<120);};$('messages').addEventListener('scroll',updateScrollButton);$('scrollBottom').onclick=()=>{$('messages').scrollTo({top:$('messages').scrollHeight,behavior:'smooth'});};
-
-$('thinkMode').classList.toggle('active',thinkMode);$('thinkMode').setAttribute('aria-pressed',String(thinkMode));$('thinkMode').onclick=()=>{thinkMode=!thinkMode;localStorage.setItem('elementor_think_mode',thinkMode?'1':'0');$('thinkMode').classList.toggle('active',thinkMode);$('thinkMode').setAttribute('aria-pressed',String(thinkMode));$('voiceStatus').textContent=thinkMode?'Think mode enabled · reasoning model':'Think mode disabled · standard model';};
-$('stop').onclick=()=>{if(activeController)activeController.abort();};
-$('renameChat').onclick=async()=>{if(!currentId)return;const title=window.prompt('Rename this conversation',$('chatTitle').textContent);if(!title?.trim())return;const clean=title.trim().slice(0,100);if(!user&&guestChats[currentId]){guestChats[currentId].title=clean;guestChats[currentId].updated_at=Date.now();saveGuestChats();}else if(user)await db.from('elementor_conversations').update({title:clean,updated_at:new Date().toISOString()}).eq('id',currentId).eq('user_id',user.id);$('chatTitle').textContent=clean;await loadHistory();};
-$('deleteChat').onclick=async()=>{if(!currentId||!window.confirm('Delete this conversation and its messages?'))return;if(!user)delete guestChats[currentId];else{const {error}=await db.from('elementor_conversations').delete().eq('id',currentId).eq('user_id',user.id);if(error){alert('Could not delete chat: '+error.message);return;}}saveGuestChats();currentId=null;messages=[];$('messages').replaceChildren();await loadHistory();};$('prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
-$('profileOpen').onclick=openProfile;$('profileTop').onclick=openProfile;$('saveProfile').onclick=saveProfile;$('controlsOpen').onclick=openControls;$('saveAnnouncement').onclick=()=>saveAnnouncement(false);$('clearAnnouncement').onclick=()=>saveAnnouncement(true);
-document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
-document.querySelectorAll('.suggestion').forEach(b=>b.onclick=()=>{$('prompt').value=b.dataset.prompt;$('prompt').focus();});
-$('menuBtn').onclick=()=>{const open=$('sidebar').classList.toggle('open');document.body.classList.toggle('sidebar-open',open);};document.addEventListener('click',event=>{if(window.matchMedia('(max-width:700px)').matches&&$('sidebar').classList.contains('open')&&!$('sidebar').contains(event.target)&&event.target!==$('menuBtn')){$('sidebar').classList.remove('open');document.body.classList.remove('sidebar-open');}});
-
-
-init();
-})();
-</script>
-</body></html>
-
