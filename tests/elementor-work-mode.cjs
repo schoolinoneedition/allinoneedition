@@ -2,42 +2,19 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const html = fs.readFileSync("elementor.html", "utf8");
 const worker = fs.readFileSync("cloudflare/elementor-ai/worker.ts", "utf8");
+const config = fs.readFileSync("cloudflare/elementor-ai/wrangler.toml", "utf8");
 
-assert.ok(html.includes('id="workModeOpen"') && html.includes('id="workPanel"'), "Work Mode must be a first-class in-chat mode.");
-assert.ok(html.indexOf('id="workPanel"') < html.indexOf('id="messages"'), "The Work Mode task workspace must sit inside the chat canvas.");
-assert.ok(html.includes("AI_API+'/browse'") && html.includes("runWorkTask"), "Work Mode must call the real webpage research endpoint.");
-assert.ok(html.includes("workController?.abort()") && html.includes("activeController?.abort()"), "Cancel must abort the active page fetch or AI request.");
-assert.ok(html.includes("waitForWorkResume") && html.includes("workPaused"), "Pause and resume must gate subsequent task steps.");
-assert.ok(!/elementor-work-bridge|Browser Bridge|workAllow|workModeModal|chrome\.tabs/i.test(html), "The UI must not depend on a browser extension or claim Chrome tab access.");
-assert.ok(worker.includes('url.pathname==="/browse"') && worker.includes('env.BROWSER.quickAction("markdown"'), "The worker must route public-page reading through the read-only Browser Run markdown action.");
-assert.ok(worker.includes('gotoOptions:{waitUntil:"networkidle2",timeout:25000}') && worker.includes('data.result'), "Page fetches must have a bounded timeout and returned page size.");
-assert.ok(worker.includes('host.endsWith(".local")') && worker.includes('Private, local and internal network addresses are not allowed.'), "Redirects and private network targets must be rejected.");
-assert.ok(worker.includes('mode:"browser-run-read-only"') && worker.includes('Cloudflare Browser Run'), "Only HTML page reading is supported and must be labelled read-only.");
-assert.ok(!html.includes('Install the Elementor Browser Bridge') && !html.includes('grant its site access'), "No extension installation instructions may remain.");
-assert.ok(html.includes('id="elementorBoot"') && html.includes('id="elementorBoot"'), "The startup loading experience must be present.");
-assert.ok(html.includes('elementorNotices') && html.includes('showElementorGreeting') && html.includes('aio_elementor_site_settings'), "Startup greetings and real published announcements must use real account data.");
-assert.ok(html.includes('elementor_preferences') && html.includes('elementorReducedMotion') && html.includes('elementorAccent') && html.includes('elementorFont'), "Appearance preferences must persist locally and support reduced motion.");
-assert.ok(html.includes("callAI(task)") && html.includes("workContext:!!extraContext"), "Fetched page evidence must reach the AI analysis request with bounded work context.");
-assert.ok(worker.includes("body.workContext===true?(index===raw.length-1?12000:500):3000"), "Normal chat must retain its original message limit while Work Mode gets bounded page evidence.");
-console.log("Elementor Work Mode contracts passed: first-class mode, extension-free read-only page research, cancellation, progress, startup experience and preferences.");
-
-
-
-assert.ok(html.includes('id="pluginsOpen"') && html.includes('id="pluginsModal"'), "The plugin marketplace must be reachable and rendered in the existing workspace.");
-assert.ok(html.includes("function getPluginPermissions()") && html.includes("function savePluginPermissions()"), "Plugin permissions must be explicit, persisted and revocable.");
-assert.ok(html.includes("hasPluginPermission('browser-research')") && html.includes("hasPluginPermission('image-studio')"), "Cloud Browser and Image Studio must check their separate permissions before running.");
-assert.ok(html.includes('id="workConsent"') && html.includes("!$('workConsent').checked"), "Every cloud browser task must require fresh, explicit user consent.");
-assert.ok(html.includes("body:JSON.stringify({url:parsed.href,userConsent:true})") && html.includes("body:JSON.stringify({prompt,userConsent:true})"), "Consent must be carried to the server for each privileged built-in action.");
-assert.ok(worker.includes('body.userConsent!==true') && worker.includes('Explicit permission is required'), "The AI Worker must reject browser and image requests without explicit consent.");
-assert.ok(html.includes("function sanitizeElementorOutput(value)") && html.includes("sanitizeElementorOutput(text)") && html.includes("content=role==='assistant'?sanitizeElementorOutput(content)"), "Assistant output must be filtered before rendering and persistence.");
-assert.ok(html.includes(".code-wrap{overflow:hidden;contain:inline-size") && html.includes(".code-wrap pre{display:block;width:100%;min-width:0;max-width:100%;overflow-x:auto"), "Long code blocks must scroll inside their own bounded container.");
-assert.ok(worker.includes("Never use profanity, insults, vulgar language, or mild swear words."), "The model instruction must prohibit profanity in all assistant replies.");
-
-assert.ok(worker.includes("function sanitizeAssistantText") && worker.includes("function filterAssistantStream") && worker.includes("new Response(filterAssistantStream(stream)"), "The AI Worker must filter streamed model text before it reaches the browser.");
-assert.ok(worker.includes("blockedOutputTerms") && worker.includes('"[filtered]"'), "The server-side output guard must replace prohibited terms before sending a response.");
-assert.ok(html.includes("'bollocks'") && html.includes("'bloody'") && html.includes("function sanitizeElementorOutput(value)"), "The browser must apply a second general-audience output filter.");
-assert.ok(html.includes("className='typing-indicator'") && html.includes("@keyframes elementor-typing"), "A visible typing indicator must appear while the model is preparing its first streamed token.");
-assert.ok(html.includes('id="workConsent"') && html.includes("!$('workConsent').checked") && worker.includes("body.userConsent!==true"), "Work Mode must require fresh browser consent and enforce it again on the server.");
-assert.ok(html.includes("hasPluginPermission('image-studio')") && html.includes("hasPluginPermission('browser-research')"), "Each built-in capability must check its own permission before use.");
-
-assert.ok(worker.includes("blockedOutputTerms.some") && worker.includes("Any visible text must be family-friendly"), "Image requests must reject prohibited wording and ask the image model for family-friendly visible text.");
+assert.ok(!html.includes("workModeOpen") && !html.includes("workPanel") && !worker.includes('"/browse"'), "The retired Work Mode UI and endpoint must stay removed.");
+assert.ok(!config.includes('[browser]') && !worker.includes("BROWSER"), "The Elementor Worker must not bind or use browser automation.");
+assert.ok(html.includes('id="videoStudioOpen"') && html.includes('id="videoModal"'), "Video Studio must be available from the workspace.");
+assert.ok(html.includes('id="pluginVideoPermission"') && html.includes("hasPluginPermission('video-studio')"), "Video Studio must have a separate, revocable permission.");
+assert.ok(html.includes("AI_API+'/video'") && html.includes("costConfirmed:true"), "The UI must send explicit paid-credit confirmation to the video endpoint.");
+assert.ok(worker.includes('url.pathname==="/video"') && worker.includes('pruna/p-video'), "The AI Worker must route text-to-video generation to the configured model.");
+assert.ok(worker.includes("if(!user)return json({error:\"Sign in before using Video Studio.\"},401)"), "Video generation must require an authenticated account.");
+assert.ok(worker.includes("body.userConsent!==true||body.costConfirmed!==true"), "Video generation must require explicit per-request consent.");
+assert.ok(worker.includes("unsafeVideoPrompt.test(prompt)") && worker.includes("disable_safety_filter:false"), "Video prompts must be screened and the model safety filter must remain enabled.");
+assert.ok(worker.includes("allowRate(recentVideos,rateKey,2)") && worker.includes("duration:5") && worker.includes('resolution:"720p"'), "Video generation must be rate-limited to short draft clips.");
+assert.ok(html.includes('/appearance.css') && html.includes('/appearance.js'), "Elementor must inherit the same saved wallpaper as the homepage.");
+assert.ok(!html.includes("themeToggle") && !html.includes(":root.dark"), "Elementor must not expose a dark-mode toggle or dark theme.");
+assert.ok(html.includes("function sanitizeElementorOutput(value)") && worker.includes("function sanitizeAssistantText"), "Elementor must keep its output safety filters.");
+console.log("Elementor contracts passed: chat-only workspace, shared wallpaper, explicit creative permissions, and restricted video generation.");
