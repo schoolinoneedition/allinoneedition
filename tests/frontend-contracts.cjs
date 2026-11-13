@@ -179,11 +179,11 @@ assert.ok(elementorWorker.includes('if(user&&!allowRate(recentChats,rateKey,24))
 assert.ok(elementor.includes('id="thinkMode"')&&elementor.includes('think:thinkMode'), 'Think mode must select a real backend reasoning configuration.');
 assert.ok(elementor.includes('id="stop"')&&elementor.includes('activeController.abort()'), 'Users must be able to stop a live generation.');
 assert.ok(elementor.includes("res.body.getReader()")&&elementor.includes("decoder.decode(value"), 'Chat replies must render from the actual backend stream.');
-assert.ok(elementor.includes('function regenerateLast()')&&elementor.includes('navigator.clipboard.writeText(m.content'), 'Assistant replies must support regenerate and copy.');
-assert.ok(elementor.includes('const wantsImage=imageMode||')&&elementor.includes('await createImage(text)'), 'Explicit image intent must automatically invoke the existing image endpoint.');
+assert.ok(elementor.includes('function regenerateLast()')&&elementor.includes("navigator.clipboard.writeText(sanitizeElementorOutput(m.content||''))"), 'Assistant replies must support regenerate and safe copy.');
+assert.ok(elementor.includes('const wantsImage=/')&&elementor.includes('await createImage(text)')&&!elementor.includes('imageMode'), 'Image intent must work from ordinary chat prompts without a separate mode button.');
 assert.ok(elementor.includes('function renderMarkdownText(')&&elementor.includes('document.createElement(ri===0?\'th\':\'td\')'), 'Chat messages must render safe Markdown blocks and tables.');
 assert.ok(elementor.includes('highlight.js@11.11.1')&&elementor.includes('window.hljs.highlightElement(node)'), 'Fenced code blocks must use syntax highlighting when the highlighter loads.');
-assert.ok(elementor.includes('id="themeToggle"')&&elementor.includes("elementor_theme"), 'The chat must provide a persistent light/dark theme choice for the current session.');
+assert.ok(!elementor.includes('id="themeToggle"')&&!elementor.includes('elementor_theme')&&elementor.includes('/appearance.css')&&elementor.includes('/appearance.js'), 'Elementor must share the homepage wallpaper and stay in its clean light theme.');
 assert.ok(elementor.includes('id="scrollBottom"')&&elementor.includes('id="stop"'), 'The chat must provide scroll-to-latest and stop-generation controls.');
 assert.ok(elementor.includes('const resizePrompt=()=>'), 'The message composer must auto-resize while typing.');
 
