@@ -1,5 +1,4 @@
 interface Env {
-  BROWSER: { quickAction(action: string, options: Record<string, unknown>): Promise<Response> };
   AI: { run(model: string, input: Record<string, unknown>): Promise<any> };
   SUPABASE_URL: string;
   SUPABASE_ANON_KEY: string;
@@ -12,6 +11,7 @@ const CORS = {
   "Vary": "Origin"
 };
 const recentImages = new Map<string, number[]>();
+const recentVideos = new Map<string, number[]>();
 const recentChats = new Map<string, number[]>();
 const unsafePrompt = /\b(nude|nudity|porn|sexual|explicit sex|rape|gore|gory|dismember|self[- ]?harm|suicide|graphic violence|torture|bloodbath|gun|firearm|weapon|knife|bomb|explosive)\b/i;
 function json(data: unknown, status = 200) {
@@ -78,7 +78,7 @@ export default {
   if(request.method==="OPTIONS")return new Response(null,{headers:CORS});
   const url=new URL(request.url);
   if(url.pathname==="/health"&&request.method==="GET")return json({ok:true,service:"elementor-ai"});
-  if(request.method!=="POST"||!["/generate","/chat","/browse"].includes(url.pathname))return json({error:"Not found"},404);
+  if(request.method!=="POST"||!["/generate","/video","/chat"].includes(url.pathname))return json({error:"Not found"},404);
   if(Number(request.headers.get("Content-Length")||0)>18000)return json({error:"Request is too large"},413);
   const user=await authenticatedUser(request,env);
   const guestId=request.headers.get("X-Guest-Id")||"";
@@ -87,29 +87,34 @@ export default {
   const clientIp=request.headers.get("CF-Connecting-IP")||"unknown";
   const rateKey=user?"user:"+user.id:"guest-ip:"+clientIp;
   let body:any;try{body=await request.json();}catch{return json({error:"Invalid JSON"},400);}
-  if(url.pathname==="/browse"){
-    if(body.userConsent!==true)return json({error:"Explicit permission is required before the cloud browser can visit a page."},403);
-    const target=String(body.url||"").trim();
-    let page:URL;
-    try{page=new URL(target);}catch{return json({error:"Enter a valid public webpage URL."},400);}
-    if(!["http:","https:"].includes(page.protocol)||page.username||page.password)return json({error:"Only public HTTP or HTTPS URLs are supported."},400);
-    const host=page.hostname.toLowerCase();
-    const blocked=host==="localhost"||host.endsWith(".localhost")||host.endsWith(".local")||host==="metadata.google.internal"||/^(127\.|10\.|192\.168\.|169\.254\.|0\.|224\.|240\.)/.test(host)||/^172\.(1[6-9]|2\d|3[01])\./.test(host)||host.startsWith("[")||/^[0-9.]+$/.test(host);
-    if(blocked)return json({error:"Private, local and internal network addresses are not allowed."},400);
-    if(!allowRate(recentChats,rateKey,12))return json({error:"Work Mode request limit reached. Try again later."},429);
+  if(url.pathname==="/video"){
+    if(!user)return json({error:"Sign in before using Video Studio."},401);
+    if(body.userConsent!==true||body.costConfirmed!==true)return json({error:"Confirm the paid generation notice before creating a video."},403);
+    const prompt=String(body.prompt||"").trim();
+    if(prompt.length<12||prompt.length>700)return json({error:"Video prompts must be between 12 and 700 characters."},400);
+    if(/https?:\/\/|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/i.test(prompt))return json({error:"Video prompts cannot contain links or email addresses."},400);
+    if(unsafeVideoPrompt.test(prompt))return json({error:"That video request is not supported. Try a safe, family-friendly scene without sexual content, violence, weapons, substances or dangerous behaviour."},400);
+    if(!allowRate(recentVideos,rateKey,2))return json({error:"Video limit reached. Try again in 10 minutes."},429);
     try{
-      const response=await env.BROWSER.quickAction("markdown",{url:page.href,gotoOptions:{waitUntil:"networkidle2",timeout:25000}});
-      if(!response.ok){const detail=(await response.text()).slice(0,350);return json({error:"Browser Run could not read this page ("+response.status+"): "+detail},502);}
-      const data=await response.json() as {success?:boolean;result?:string};
-      if(!data.success||typeof data.result!=="string")return json({error:"Browser Run returned no readable page content."},502);
-      const markdown=data.result.slice(0,16000);
-      const title=markdown.match(/^#\s+(.+)$/m)?.[1]?.slice(0,180)||page.hostname;
-      const links:Array<{text:string,url:string}>=[];
-      for(const match of markdown.matchAll(/\[([^\]]{1,100})\]\((https?:\/\/[^\s)]+)\)/g)){
-        try{const link=new URL(match[2]);if(link.protocol.startsWith("http")&&links.length<40)links.push({text:match[1],url:link.href});}catch{}
-      }
-      return json({ok:true,title,url:page.href,description:"Rendered with Cloudflare Browser Run",text:markdown,links,mode:"browser-run-read-only",browser:"Cloudflare Browser Run"});
-    }catch(error){console.error("Work Mode Browser Run failed",error);return json({error:"The remote browser could not load this page. It may block automated browsers or exceed the page-load timeout."},502);}
+      const result=await env.AI.run("pruna/p-video",{
+        prompt:prompt+"\n\nCreate a family-friendly, non-violent scene. Do not depict weapons, dangerous behaviour, sexual content, or profanity.",
+        duration:5,
+        resolution:"720p",
+        aspect_ratio:"16:9",
+        draft:true,
+        save_audio:false,
+        prompt_upsampling:true,
+        disable_safety_filter:false
+      });
+      const video=String(result?.result?.video||result?.video||"");
+      let parsed:URL;
+      try{parsed=new URL(video)}catch{return json({error:"The video service returned no usable video link."},502);}
+      if(parsed.protocol!=="https:")return json({error:"The video service returned an unsafe link."},502);
+      return json({ok:true,video:parsed.href,duration:5,resolution:"720p",draft:true});
+    }catch(error){
+      console.error("Elementor video generation failed",error);
+      return json({error:"Video generation is temporarily unavailable. No video was created."},502);
+    }
   }
   if(url.pathname==="/generate"){
     if(body.userConsent!==true)return json({error:"Explicit permission is required before image generation."},403);
@@ -127,7 +132,7 @@ export default {
   }
   if(user&&!allowRate(recentChats,rateKey,24))return json({error:"You are sending messages too quickly. Wait a little and try again."},429);
   const raw=Array.isArray(body.messages)?body.messages.slice(-14):[];
-  const messages=raw.map((m:any,index:number)=>({role:m?.role==="assistant"?"assistant":"user",content:String(m?.content||"").slice(0,body.workContext===true?(index===raw.length-1?12000:500):3000)})).filter((m:any)=>m.content);
+  const messages=raw.map((m:any,index:number)=>({role:m?.role==="assistant"?"assistant":"user",content:String(m?.content||"").slice(0,3000)})).filter((m:any)=>m.content);
   if(!messages.length)return json({error:"Add a message first."},400);
   const style=["concise","detailed","friendly"].includes(body.profile?.style)?body.profile.style:"balanced";
   const instructions=String(body.profile?.instructions||"").slice(0,1200);
