@@ -270,8 +270,8 @@ assert.ok(glassCss.includes('data-aio-performance-profile="lite"') && glassCss.i
  assert.ok(html.includes('visibleLimit=48')&&html.includes('visibleLimit+=48'),'The initial game grid and load-more batches should stay bounded');
  assert.ok(html.includes('let gameSearchTimer=0;')&&(html.includes('renderGames()},80)')||html.includes('gameSearchTimer=setTimeout(()=>')&&html.includes('},100)')),'Game search should debounce rapid keystrokes');
  assert.ok(html.includes('Render the local game catalogue immediately'),'The game catalogue must render on first page load.');
- assert.ok(html.includes('class="loader-logo" src="/favicon.png"')&&!html.includes('introRailA'),'The startup screen must use one local logo without fetching game thumbnails.');
-assert.ok(html.includes('setTimeout(finish,2300)')&&html.includes("addEventListener('DOMContentLoaded',afterPaint"),'Loading screen must automatically release after first paint with a hard fallback.');
+ assert.ok(html.includes('id="siteLoader"')&&html.includes('id="introRailA"')&&html.includes('function renderIntroCutscene()'),'The pre-redesign animated loader must be restored.');
+assert.ok(html.includes('setTimeout(finish,5500)')&&html.includes("function skipIntro()"),'The original loader must still provide a working exit and fail-safe.');
  assert.ok(ux.includes('function startAioDashboardClock()')&&ux.includes('window.aioDashboardClockTimer=setInterval(tick,1000)')&&ux.includes("document.addEventListener('visibilitychange',sync)"),'Dashboard date, time and hometime should share one visible-tab clock');
 assert.ok(ux.includes('WELCOME · SETUP + WALKTHROUGH')&&ux.includes('STEP 5 OF 6 · QUICK TOUR')&&ux.includes('aio-setup-tour-card'),'The first-run setup must include the guided hub walkthrough');
 assert.ok(html.includes('Personalisation · Setup tutorial')&&html.includes('window.openAioOnboarding?.()')&&html.includes('window.resetAioOnboarding?.()')&&ux.includes('aioOnboardProgress'),'Settings should replay or reset the integrated setup and show progress');
@@ -288,10 +288,16 @@ assert.ok(!html.includes('tutorialOverlay')&&!html.includes('function startTutor
 
  
 assert.ok(!/A-Coins|a-coins|aioCoin|coinPrice|coinReward|questEligible|aio_buy_game|aio_game_prices|aio_game_purchases|syncOfflineGamePurchases|aioGameToolbar/i.test(ux),'The live JS must not contain any A-Coins economy or extra toolbar code.');
-assert.ok(!/aio-coin|aio-economy|aio-quest|aio-price-label|aio-wallet|aio-game-toolbar/i.test(css),'Remove unused currency and duplicate-toolbar styles.');
-assert.ok(!html.includes('open.spotify.com/embed/iframe-api/v1"></script>'),'Spotify SDK must not load during homepage boot.');
-assert.ok(html.includes('function ensureSpotifySdk()')&&html.includes('ensureSpotifySdk();'),'Spotify SDK must load only when Music is used.');
-assert.ok(!html.includes("if(saved&&getSpotifyTarget(saved)){$('spotifyUrl').value=saved;loadSpotifyEmbed();}"),'Do not autoplay a saved Spotify iframe while the user is browsing the homepage.');
+assert.ok(!ux.includes('setupGameControls();')&&!ux.includes('ensureCoinUI();'),'The old stylesheet may contain dormant rules but no coins or extra toolbar may be mounted.');
+assert.ok(html.includes('function initSpotifyBridge()')&&html.includes('function loadSpotifyEmbed()'),'Restore the original Music player with the classic hub.');
+
+
+const oldStableHero = '<h1>One site. Games, school, tools and live info.</h1>';
+assert.ok(html.includes(oldStableHero),'Restore the original hero from before the catalogue redesign.');
+assert.ok(html.includes('id="introRailA"')&&html.includes('id="introRailB"')&&html.includes('id="introRailC"'),'Restore the original game-tile intro.');
+assert.ok(html.indexOf('id="search"')<html.indexOf('<main id="app">'),'Keep the original topbar search.');
+assert.ok(html.includes('async function loadGameIntoFrame(g)')&&html.includes('AioHtmlGameSandbox.loadIntoFrame'),'Keep safe uploaded HTML gameplay even after rollback.');
+assert.ok(html.includes('loadPublishedOwnerGames()')&&html.includes('loadPublishedHtmlGames()'),'Keep the existing owner-published games after rollback.');
 
 console.log('Frontend contract checks passed: restored search, fast loader, appearance persistence, and currency removal.');
 
@@ -345,7 +351,8 @@ assert.ok(ownerSchema.includes('Site owner can insert staff roles') && ownerSche
 assert.ok(html.includes('id="search"') && html.includes("addEventListener('input'"), 'The homepage game search must filter the local catalogue.');
 assert.ok(html.indexOf('id="unifiedGameSearch"') < html.indexOf('<main id="app">'),'Restore search to the original top navigation.');
 assert.equal((html.match(/id="search"/g)||[]).length,1,'The restored navigation must not duplicate search inputs.');
-assert.ok(!html.includes('<strong>Quick picks</strong>'),'Remove clutter that was added above the original game catalogue.');
+assert.ok(html.includes('One site. Games, school, tools and live info.'),'The original homepage hero must be restored.');
+assert.ok(!html.includes('id="aio-feature-hub"'),'Do not reintroduce the redesigned homepage feature tiles.');
 assert.ok(!html.includes('id="aiSearchOpen"') && !html.includes('id="aioAiSearch"') && !html.includes('searchSparkle'), 'The unused AI Search panel and search-options popup must stay removed.');
 assert.ok(html.includes('"name":"Shy Safari"') && html.includes('"name":"3x3 +1 Keyboard Escape"') && html.includes('"name":"3x3 Steal an Egg"'), 'The three requested games must be in the visible game catalogue.');
 assert.ok(!html.includes('Slime Keyboard Escape'), 'Slime Keyboard Escape must remain removed.');
