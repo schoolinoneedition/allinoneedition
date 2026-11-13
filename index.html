@@ -30,9 +30,9 @@
  setTimeout(finish,2300);
 })();
 window.aioSpotifyAPI=null;
-window.onSpotifyIframeApiReady=api=>{window.aioSpotifyAPI=api;};
+window.onSpotifyIframeApiReady=api=>{window.aioSpotifyAPI=api;window.initSpotifyBridge?.();};
 </script>
-<script async src="https://open.spotify.com/embed/iframe-api/v1"></script>
+<!-- Spotify API is loaded only when a visitor uses the Music player. -->
 
 <!-- Keep only the backend connection warm on first paint. Game and music
      providers are preconnected only when the visitor approaches that content. -->
@@ -1327,6 +1327,7 @@ function scheduleSpotifyLoop(data){
 }
 function createSpotifyController(target){
   if(!target)return;
+  ensureSpotifySdk();
   clearSpotifyLoopTimer();
   spotifyPlaybackState=null;
   const host=$('spotifyEmbed');if(!host)return;
@@ -1373,7 +1374,7 @@ function initSpotify(){
   if($('spotifyLoop'))$('spotifyLoop').checked=loop;
   $('spotifyLoop')?.addEventListener('change',e=>{storage.setItem('aio-spotify-loop',e.target.checked?'1':'0');scheduleSpotifyLoop(spotifyPlaybackState);$('spotifyMeta').textContent=e.target.checked?'Spotify loop enabled':'Spotify loop disabled';});
   const saved=storage.getItem('aio-spotify-url');
-  if(saved&&getSpotifyTarget(saved)){$('spotifyUrl').value=saved;loadSpotifyEmbed();}
+  if(saved&&getSpotifyTarget(saved)){$('spotifyUrl').value=saved;$('spotifyMeta').textContent='Saved Spotify link · press Load to start.';}
 }
 function spotifyTogglePlay(){if(spotifyController){try{spotifyController.togglePlay();return}catch{}}showToast('Load a Spotify item first')}
 function spotifyRestart(){if(spotifyController){try{spotifyController.restart();return}catch{}}showToast('Load a Spotify item first')}
@@ -1605,7 +1606,20 @@ function initSettings(){
 }
 function getSpotifyTarget(raw){try{const u=new URL(String(raw||''));if(!/^(?:www\.)?open\.spotify\.com$/i.test(u.hostname))return null;const parts=u.pathname.split('/').filter(Boolean);const type=parts[0],id=parts[1];if(!['track','album','playlist','artist','episode','show'].includes(type)||!id)return null;return{type,id,url:`https://open.spotify.com/${type}/${id}`};}catch{return null}}
 let spotifyAPI=window.aioSpotifyAPI||null,spotifyController=null,currentSpotifyUrl='',currentSpotifyType='',spotifyPlaybackState=null,spotifyLoopTimer=0,spotifyLoopLast=0;
-function initSpotifyBridge(){if(window.aioSpotifyAPI&&!spotifyAPI)spotifyAPI=window.aioSpotifyAPI;if(!spotifyAPI)setTimeout(initSpotifyBridge,900);else if(currentSpotifyUrl&&!spotifyController)loadSpotifyEmbed();}
+function ensureSpotifySdk(){
+ if(window.aioSpotifySDKRequested)return;
+ window.aioSpotifySDKRequested=true;
+ const script=document.createElement('script');
+ script.async=true;script.src='https://open.spotify.com/embed/iframe-api/v1';
+ document.head.appendChild(script);
+}
+function initSpotifyBridge(){
+ if(window.aioSpotifyAPI&&!spotifyAPI)spotifyAPI=window.aioSpotifyAPI;
+ if(spotifyAPI&&currentSpotifyUrl&&!spotifyController&&$('spotifyEmbed')?.querySelector('iframe')){
+  const target=getSpotifyTarget(currentSpotifyUrl);
+  if(target)createSpotifyController(target);
+ }
+}
 function clearMusicResults(){if($('musicResults'))$('musicResults').innerHTML='';if($('musicSearchStatus'))$('musicSearchStatus').textContent='';window._musicSearchResults=[];}
 function playPreview(i){const x=window._musicSearchResults?.[i];if(!x?.previewUrl)return;const holder=$('previewPlayer');if(!holder)return;holder.innerHTML='';const a=document.createElement('audio');a.controls=true;a.autoplay=true;a.loop=$('spotifyLoop')?.checked!==false;a.src=x.previewUrl;holder.appendChild(a);if($('previewTitle'))$('previewTitle').textContent=`Preview: ${x.trackName} — ${x.artistName}`;}
 function initMusicSearch(){const inp=$('musicSearch');if(inp&&!inp.dataset.bound){let timer=0;inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();searchMusic('inside')}});inp.addEventListener('input',()=>{clearTimeout(timer);if(inp.value.trim().length>=3)timer=setTimeout(()=>searchMusic('inside'),450)});inp.dataset.bound='1';}}
@@ -1693,7 +1707,7 @@ async function loadPublishedOwnerGames(){
 
 /* Keep every startup feature isolated: one optional error must not stop the rest of the hub. */
 function safeBoot(fn){try{return fn()}catch(e){console.error('All in One boot:',e);return null}}
-safeBoot(renderFilters);safeBoot(initSettings);if($('previewTitle'))$('previewTitle').textContent='No preview playing';safeBoot(initExtraTools);safeBoot(renderNotes);safeBoot(renderTodos);safeBoot(renderCalc);safeBoot(renderChatBoot);safeBoot(updateStudyProgress);safeBoot(updateWorldClock);safeBoot(initSpotifyBridge);setTimeout(()=>safeBoot(initSpotifyBridge),1200);setTimeout(()=>{safeBoot(renderIntroCutscene);safeBoot(renderGames)},80);
+safeBoot(renderFilters);safeBoot(initSettings);if($('previewTitle'))$('previewTitle').textContent='No preview playing';safeBoot(initExtraTools);safeBoot(renderNotes);safeBoot(renderTodos);safeBoot(renderCalc);safeBoot(renderChatBoot);safeBoot(updateStudyProgress);safeBoot(updateWorldClock);safeBoot(initSpotifyBridge);setTimeout(()=>{safeBoot(renderIntroCutscene);safeBoot(renderGames)},80);
 // Load the provider's public game catalogue after the initial UI is responsive.
 
 
