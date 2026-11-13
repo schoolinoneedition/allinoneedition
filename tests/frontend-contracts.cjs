@@ -17,8 +17,7 @@ const elementorSchema = read('supabase/migrations/20261107120000_elementor_works
 const elementorAvatarSchema = read('supabase/migrations/20261107121000_elementor_profile_avatar_media.sql');
 const study = read('study.html');
 const glassCss = read('appearance.css');
-const economy = read('supabase/migrations/20261028093212_aio_coin_quests_pricing_security.sql');
-const rewardRules = read('supabase/migrations/20261028094634_aio_game_reward_rules.sql');
+const retiredEconomy = read('supabase/migrations/20261113193000_retire_aio_coins.sql');
 const counter = read('supabase/migrations/20261028102739_secure_tiktok_sticker_download_counter.sql');
 const eventPolicy = read('supabase/migrations/20261028103352_deny_client_access_to_tiktok_sticker_download_events.sql');
 const eventIndex = read('supabase/migrations/20261028103427_index_tiktok_sticker_download_events_sticker_id.sql');
@@ -74,15 +73,13 @@ assert.match(css, /\.aio-wallpaper-gallery/);
 assert.match(css, /\.aio-wallpaper-preview/);
 assert.match(css, /\.aio-font-preview/);
 
-// Context actions should report errors; freeze must block input and game switching should close sessions.
-assert.match(ux, /Menu action failed:/);
-assert.match(ux, /f\.blur\(\)/);
-assert.match(ux, /f\.style\.pointerEvents=frozen\?'none':''/);
-assert.match(ux, /await endSession\(\);orig\(i\)/);
-assert.match(ux, /window\.open\('about:blank','_blank'\)/);
-assert.match(ux, /openContext\(p\.x,p\.y\)/);
-assert.match(ux, /e\.key==='ContextMenu'/);
-assert.match(ux, /aio-wallpaper-hidden/);
+// Keep the original context menu and appearance controls without reintroducing
+// the A-Coins purchase gate or an unwanted Freeze/Info toolbar.
+assert.match(ux,/Menu action failed:/);
+assert.match(ux,/openContext\(p\.x,p\.y\)/);
+assert.match(ux,/e\.key==='ContextMenu'/);
+assert.match(ux,/aio-wallpaper-hidden/);
+assert.ok(!ux.includes('aioGameToolbar')&&!ux.includes('setupGameControls()'),'Do not recreate the extra game controls.');
 
 // Auth restoration, profile provisioning and media upload cleanup are wired in the existing page.
 assert.match(html, /persistSession:true/);
@@ -93,10 +90,12 @@ assert.match(html, /file&&isVideoFile&&file\.size>100\*1024\*1024/);
 assert.match(html, /storage\.from\('social-media'\)\.remove\(\[uploadedStoragePath\]\)/);
 assert.match(html, /__aioSocialPostBusy/);
 
-// Database-side controls, not browser-supplied reward amounts, govern the economy.
-assert.match(economy, /auth\.uid\(\)/);
-assert.match(economy, /for update/i);
-assert.match(rewardRules, /aio_game_reward_rules/);
+// Currency removal must also disable database RPCs and make all games free.
+assert.match(retiredEconomy,/revoke all on function public\.aio_buy_game\(text\)/i);
+assert.match(retiredEconomy,/revoke all on function public\.aio_start_game_session\(text\)/i);
+assert.match(retiredEconomy,/revoke all on function public\.aio_claim_quest\(text\)/i);
+assert.match(retiredEconomy,/aio_game_prices_all_free/);
+assert.match(retiredEconomy,/aio_submissions_all_free/);
 assert.match(counter, /primary key \(user_id, sticker_id, day_key\)/i);
 assert.match(counter, /revoke all on function public\.increment_tiktok_sticker_downloads\(uuid\) from public, anon, authenticated/i);
 assert.match(counter, /grant execute on function public\.increment_tiktok_sticker_downloads\(uuid\) to authenticated/i);
@@ -271,7 +270,8 @@ assert.ok(glassCss.includes('data-aio-performance-profile="lite"') && glassCss.i
  assert.ok(html.includes('visibleLimit=48')&&html.includes('visibleLimit+=48'),'The initial game grid and load-more batches should stay bounded');
  assert.ok(html.includes('let gameSearchTimer=0;')&&(html.includes('renderGames()},80)')||html.includes('gameSearchTimer=setTimeout(()=>')&&html.includes('},100)')),'Game search should debounce rapid keystrokes');
  assert.ok(html.includes('Render the local game catalogue immediately'),'The game catalogue must render on first page load.');
- assert.ok(html.includes('loading="lazy" fetchpriority="low"')&&html.includes('slice(0,18)'),'The intro should lazy-load a smaller set of game covers');
+ assert.ok(html.includes('class="loader-logo" src="/favicon.png"')&&!html.includes('introRailA'),'The startup screen must use one local logo without fetching game thumbnails.');
+assert.ok(html.includes('setTimeout(finish,2300)')&&html.includes("addEventListener('DOMContentLoaded',afterPaint"),'Loading screen must automatically release after first paint with a hard fallback.');
  assert.ok(ux.includes('function startAioDashboardClock()')&&ux.includes('window.aioDashboardClockTimer=setInterval(tick,1000)')&&ux.includes("document.addEventListener('visibilitychange',sync)"),'Dashboard date, time and hometime should share one visible-tab clock');
 assert.ok(ux.includes('WELCOME · SETUP + WALKTHROUGH')&&ux.includes('STEP 5 OF 6 · QUICK TOUR')&&ux.includes('aio-setup-tour-card'),'The first-run setup must include the guided hub walkthrough');
 assert.ok(html.includes('Personalisation · Setup tutorial')&&html.includes('window.openAioOnboarding?.()')&&html.includes('window.resetAioOnboarding?.()')&&ux.includes('aioOnboardProgress'),'Settings should replay or reset the integrated setup and show progress');
@@ -286,7 +286,14 @@ assert.ok(!html.includes('tutorialOverlay')&&!html.includes('function startTutor
  assert.ok(html.includes('Promise.allSettled([loadNews(),loadFootball()])')&&!html.includes('safeBoot(refreshLive)'),'News and football requests must not start during homepage boot');
  assert.ok(html.includes('clearTimeout(liveRefreshTimer)')&&html.includes('else if(liveSectionVisible)refreshLive()'),'Live refreshes should pause off-screen and while the tab is hidden');
 
- console.log('Frontend contract checks passed: appearance persistence, context menu/game freeze wiring, auth/video safeguards, and economy/security migration contracts.');
+ 
+assert.ok(!/A-Coins|a-coins|aioCoin|coinPrice|coinReward|questEligible|aio_buy_game|aio_game_prices|aio_game_purchases|syncOfflineGamePurchases|aioGameToolbar/i.test(ux),'The live JS must not contain any A-Coins economy or extra toolbar code.');
+assert.ok(!/aio-coin|aio-economy|aio-quest|aio-price-label|aio-wallet|aio-game-toolbar/i.test(css),'Remove unused currency and duplicate-toolbar styles.');
+assert.ok(!html.includes('open.spotify.com/embed/iframe-api/v1"></script>'),'Spotify SDK must not load during homepage boot.');
+assert.ok(html.includes('function ensureSpotifySdk()')&&html.includes('ensureSpotifySdk();'),'Spotify SDK must load only when Music is used.');
+assert.ok(!html.includes("if(saved&&getSpotifyTarget(saved)){$('spotifyUrl').value=saved;loadSpotifyEmbed();}"),'Do not autoplay a saved Spotify iframe while the user is browsing the homepage.');
+
+console.log('Frontend contract checks passed: restored search, fast loader, appearance persistence, and currency removal.');
 
 assert.ok(ux.includes("['sakura','Sakura (fallback)'"), 'First-run setup should expose the Sakura fallback font.');
 assert.ok(html.includes('Personalisation · Setup tutorial') && html.includes('Reset tutorial') && html.includes('window.resetAioOnboarding?.()'), 'Settings should offer both replay and reset for the integrated tutorial.');
@@ -336,6 +343,9 @@ assert.ok(ownerSchema.includes('Site owner can insert staff roles') && ownerSche
 
 // The homepage uses a simple local game search; the separate AI Search UI is removed.
 assert.ok(html.includes('id="search"') && html.includes("addEventListener('input'"), 'The homepage game search must filter the local catalogue.');
+assert.ok(html.indexOf('id="unifiedGameSearch"') < html.indexOf('<main id="app">'),'Restore search to the original top navigation.');
+assert.equal((html.match(/id="search"/g)||[]).length,1,'The restored navigation must not duplicate search inputs.');
+assert.ok(!html.includes('<strong>Quick picks</strong>'),'Remove clutter that was added above the original game catalogue.');
 assert.ok(!html.includes('id="aiSearchOpen"') && !html.includes('id="aioAiSearch"') && !html.includes('searchSparkle'), 'The unused AI Search panel and search-options popup must stay removed.');
 assert.ok(html.includes('"name":"Shy Safari"') && html.includes('"name":"3x3 +1 Keyboard Escape"') && html.includes('"name":"3x3 Steal an Egg"'), 'The three requested games must be in the visible game catalogue.');
 assert.ok(!html.includes('Slime Keyboard Escape'), 'Slime Keyboard Escape must remain removed.');
