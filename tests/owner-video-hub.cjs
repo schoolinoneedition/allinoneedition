@@ -8,7 +8,7 @@ const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 const index=read('index.html'),owner=read('owner.html'),video=read('video.html'),watch=read('anime.html'),worker=read('cloudflare/elementor-ai/worker.ts'),backend=read('backend-features.js');
 const routes=JSON.parse(read('vercel.json')).rewrites;
 assert.ok(!fs.existsSync(path.join(root,'game-catalogue.css')),'Broken catalogue override must remain removed.');
-assert.ok(index.includes('id="gameGrid"')&&index.includes('id="filters"')&&!index.includes('<strong>Quick picks</strong>'),'Restore the clean classic game grid and categories without the clutter panels.');
+assert.ok(index.includes('id="gameGrid"')&&index.includes('id="filters"')&&index.includes('<strong>Quick picks</strong>'),'Restore the original catalogue, including its original Quick picks section.');
 assert.ok(index.includes('id="unifiedGameSearch"')&&index.indexOf('id="unifiedGameSearch"')<index.indexOf('<main id="app">'),'Search must be in the original topbar.');
 assert.ok(index.includes('id="introRailA"')&&index.includes('id="siteLoader"'),'The original pre-redesign loading screen must be restored.');
 const start=index.indexOf('const GAMES=')+'const GAMES='.length,end=index.indexOf(';const EXTRA_',start);
