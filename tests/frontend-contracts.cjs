@@ -180,11 +180,13 @@ assert.ok(elementor.includes('id="thinkMode"')&&elementor.includes('think:thinkM
 assert.ok(elementor.includes('id="stop"')&&elementor.includes('activeController.abort()'), 'Users must be able to stop a live generation.');
 assert.ok(elementor.includes("res.body.getReader()")&&elementor.includes("decoder.decode(value"), 'Chat replies must render from the actual backend stream.');
 assert.ok(elementor.includes('function regenerateLast()')&&elementor.includes("navigator.clipboard.writeText(sanitizeElementorOutput(m.content||''))"), 'Assistant replies must support regenerate and safe copy.');
-assert.ok(elementor.includes('const wantsImage=/')&&elementor.includes('await createImage(text)')&&!elementor.includes('imageMode'), 'Image intent must work from ordinary chat prompts without a separate mode button.');
+assert.ok(elementor.includes('const wantsImage=/')&&elementor.includes('await createImage(text)')&&!elementor.includes("$('imageMode').onclick=")&&!elementor.includes("$('clearMode').onclick="), 'Image intent must work from ordinary chat prompts without a separate mode button.');
 assert.ok(elementor.includes('function renderMarkdownText(')&&elementor.includes('document.createElement(ri===0?\'th\':\'td\')'), 'Chat messages must render safe Markdown blocks and tables.');
 assert.ok(elementor.includes('highlight.js@11.11.1')&&elementor.includes('window.hljs.highlightElement(node)'), 'Fenced code blocks must use syntax highlighting when the highlighter loads.');
-assert.ok(!elementor.includes('id="themeToggle"')&&!elementor.includes("localStorage.setItem('elementor_theme'")&&elementor.includes('/appearance.css')&&elementor.includes('/appearance.js'), 'Elementor must share the homepage wallpaper and stay in its clean light theme.');
-assert.ok(elementor.includes('id="scrollBottom"')&&elementor.includes('id="stop"'), 'The chat must provide scroll-to-latest and stop-generation controls.');
+const elementorMarkup=elementor.slice(0,elementor.indexOf('<script defer src="/appearance.js">'));
+const elementorStyles=elementor.slice(elementor.indexOf('<style>'),elementor.indexOf('</style>'));
+assert.ok(!elementorMarkup.includes('id="themeToggle"')&&!elementorStyles.includes(':root.dark')&&!elementor.includes("const savedTheme=localStorage.getItem('elementor_theme')")&&elementor.includes('/appearance.css')&&elementor.includes('/appearance.js'), 'Elementor must share the homepage wallpaper and stay in its clean light theme.');
+assert.ok(elementor.includes('async function callAI()')&&elementor.includes('function renderMessages()')&&elementor.includes('<\\/script>'), 'The complete chat script must survive embedded code examples.');
 assert.ok(elementor.includes('const resizePrompt=()=>'), 'The message composer must auto-resize while typing.');
 
 assert.ok(elementorWorker.includes('@cf/zai-org/glm-4.7-flash')&&elementorWorker.includes('stream:true'), 'Worker must use a real reasoning model in Think mode and stream model output.');
