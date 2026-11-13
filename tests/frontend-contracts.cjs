@@ -337,7 +337,7 @@ assert.ok(ownerSchema.includes('Site owner can insert staff roles') && ownerSche
 // The homepage uses a simple local game search; the separate AI Search UI is removed.
 assert.ok(html.includes('id="search"') && html.includes("addEventListener('input'"), 'The homepage game search must filter the local catalogue.');
 assert.ok(!html.includes('id="aiSearchOpen"') && !html.includes('id="aioAiSearch"') && !html.includes('searchSparkle'), 'The unused AI Search panel and search-options popup must stay removed.');
-assert.ok(html.includes('"name":"Shy Safari"') && html.includes('"name":"Times Tables Speed Escape"') && html.includes('"name":"Steal an Egg 3x3"'), 'The three requested games must be in the visible game catalogue.');
+assert.ok(html.includes('"name":"Shy Safari"') && html.includes('"name":"3x3 +1 Keyboard Escape"') && html.includes('"name":"3x3 Steal an Egg"'), 'The three requested games must be in the visible game catalogue.');
 assert.ok(!html.includes('Slime Keyboard Escape'), 'Slime Keyboard Escape must remain removed.');
 assert.ok(!html.includes('id="hideBtn"') && !html.includes('id="darkBtn"'), 'The Hide and Dark controls must remain removed.');
 assert.ok(html.includes('#gameModal.open .modalhead') && html.includes('#gameModal.open .progressbarbox'), 'The game player must hide its bulky header and progress bars while a game is open.');
