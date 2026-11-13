@@ -160,7 +160,7 @@ for (const mode of ['reaction','math','pairs','sequence','scramble','typing','co
 }
 assert.match(arcade2, /addEventListener\('keydown'/);
 
-const cardRenderer = html.match(/function cardHTML\(g,i\)\{[\s\S]*?\n\}/)?.[0] || '';
+const cardRenderer = html.match(/function cardHTML\(g,i(?:,position=i)?\)\{[\s\S]*?\n\}/)?.[0] || '';
 const returnStart = cardRenderer.indexOf('return `');
 const returnEnd = returnStart >= 0 ? cardRenderer.indexOf('`;', returnStart) : -1;
 const cardMarkup = returnStart >= 0 && returnEnd >= 0 ? cardRenderer.slice(returnStart, returnEnd + 2) : '';
@@ -258,7 +258,7 @@ assert.ok(html.includes('href="https://btnbuchsrfllpzlypjtn.supabase.co" crossor
 assert.ok(!ux.includes('addFavouriteButtons'), 'Discovery must not inject a duplicate favourites button system');
 assert.ok(!ux.includes('aio-favourite-button'), 'Each game card should keep only its native favourite control');
 assert.ok(ux.includes("discoveryFilter==='favourites'") && ux.includes('favouriteGames.has(gameKey(x.g))'), 'The discovery favourites filter must use the existing saved favourites');
-assert.ok(html.includes("const priority=i<6?'eager':'lazy'"), 'Only the first six game covers should be eager-loaded for a lighter initial render');
+assert.ok((html.includes("const priority=i<6?'eager':'lazy'")||html.includes("const priority=position<6?'eager':'lazy'")), 'Only the first six game covers should be eager-loaded for a lighter initial render');
 assert.ok(ux.includes('60000-(Date.now()%60000)'), 'The minute-only clock should align updates to minute boundaries');
 assert.ok(appearance.includes('function applyPerformanceProfile()') && appearance.includes("root.dataset.aioPerformanceProfile=constrained?'lite':'full'"), 'Appearance should detect constrained hardware and apply a lightweight profile.');
 assert.ok(glassCss.includes('data-aio-performance-profile="lite"') && glassCss.includes('--aio-glass-blur:12px') && glassCss.includes('#gameGrid .card{animation:none!important'), 'The lightweight profile should reduce glass blur and card animation cost.');
@@ -268,8 +268,8 @@ assert.ok(glassCss.includes('data-aio-performance-profile="lite"') && glassCss.i
  // The hub should never bulk-download artwork or game pages while idle.
  assert.ok(!html.includes('cacheGameImagesInBackground')&&!html.includes('warmGamePagesInBackground')&&!html.includes('addEarlyPrefetchHints'),'Game artwork and game pages must not be prefetched in the background');
  assert.ok(!html.includes("link.rel='prefetch'"),'The homepage must not inject game-page prefetch links');
- assert.ok(html.includes('let visibleLimit=48;')&&html.includes('visibleLimit+=48'),'The initial game grid and load-more batches should stay bounded');
- assert.ok(html.includes('let gameSearchTimer=0;')&&html.includes('renderGames()},80)'),'Game search should debounce rapid keystrokes');
+ assert.ok(html.includes('visibleLimit=48')&&html.includes('visibleLimit+=48'),'The initial game grid and load-more batches should stay bounded');
+ assert.ok(html.includes('let gameSearchTimer=0;')&&html.includes('gameSearchTimer=setTimeout(()=>')&&html.includes('},100)'),'Game search should debounce rapid keystrokes');
  assert.ok(html.includes('Render the local game catalogue immediately'),'The game catalogue must render on first page load.');
  assert.ok(html.includes('loading="lazy" fetchpriority="low"')&&html.includes('slice(0,18)'),'The intro should lazy-load a smaller set of game covers');
  assert.ok(ux.includes('function startAioDashboardClock()')&&ux.includes('window.aioDashboardClockTimer=setInterval(tick,1000)')&&ux.includes("document.addEventListener('visibilitychange',sync)"),'Dashboard date, time and hometime should share one visible-tab clock');
@@ -364,3 +364,21 @@ assert.ok(elementor.includes("MEDIA_API+'/uploads/initiate'") && elementor.inclu
 assert.ok(elementor.includes("from('staff_roles')") && elementor.includes("data?.role==='owner'") && elementorSchema.includes("s.role = 'owner'"), 'Elementor site controls must be restricted to the verified owner role.');
 assert.ok(elementorWorker.includes('authenticatedUser') && elementorWorker.includes('llama-3.3-70b-instruct-fp8-fast') && elementorWorker.includes('flux-1-schnell'), 'Elementor Worker must authenticate chat and image requests.');
 assert.ok(elementorSchema.includes('enable row level security') && elementorSchema.includes('Users manage their Elementor conversations') && elementorSchema.includes('Public can read Elementor announcements'), 'Elementor chat data must be protected by RLS while public announcement text remains readable.');
+
+
+// Game catalogue refresh: keep the library intact and provide visible, usable controls.
+const catalogueCss=read('game-catalogue.css');
+const catalogRegistryStart=html.indexOf('const GAMES=')+'const GAMES='.length;
+const catalogRegistryEnd=html.indexOf(';const EXTRA_',catalogRegistryStart);
+assert.ok(catalogRegistryStart>='const GAMES='.length&&catalogRegistryEnd>catalogRegistryStart,'The games registry must stay readable.');
+const catalogueEntries=JSON.parse(html.slice(catalogRegistryStart,catalogRegistryEnd));
+assert.ok(catalogueEntries.length>=875,'All original game registry entries must stay present.');
+assert.ok(['Shy Safari','Times Tables Speed Escape','Steal an Egg 3x3'].every(title=>catalogueEntries.some(game=>game.name===title)),'Requested catalogue additions must stay intact.');
+assert.ok(html.includes('href="/game-catalogue.css"')&&catalogueCss.includes('#games .games')&&catalogueCss.includes('@media(max-width:700px)'),'Catalogue layout must stay responsive and scoped to the games section.');
+assert.ok(html.includes('id="catalogResults" role="status" aria-live="polite"')&&html.includes('id="gameSort"')&&html.includes('id="clearGameSearch"'),'Game controls must include live result counts, sorting, and search reset.');
+assert.ok(html.includes("const totalByCat=new Map()")&&html.includes("aria-pressed=")&&html.includes("data-cat="),'Category filters must show counts and selected state.');
+assert.ok(html.includes("function setGameSort(value)")&&html.includes("function resetCatalogueFilters()")&&html.includes("function loadMoreGames(){visibleLimit+=48;renderGames()}"),'Sorting, empty-state recovery, and load more must stay functional.');
+assert.ok(html.includes('visibleLimit=Math.max(48,visibleLimit)')&&html.includes('shown.map((entry,position)=>cardHTML(entry.g,entry.i,position))'),'A short filter result must not permanently shrink the next render, and image priority must use visible card order.');
+assert.ok(html.includes('role="button" tabindex="0" aria-label="Play ')&&catalogueCss.includes('.card:focus-visible'),'Game cards must be keyboard-accessible.');
+assert.ok(!html.includes('Huge game library')&&!html.includes('<strong>Quick picks</strong>'),'Duplicated clutter panels must remain removed.');
+console.log('Game catalogue UI contracts passed; preserved '+catalogueEntries.length+' original game entries.');

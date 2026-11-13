@@ -1,0 +1,45 @@
+/* All in One Edition: compact, responsive game library.
+   Keep these rules scoped to #games to avoid changing other site cards. */
+#games{scroll-margin-top:138px}
+#games .section-head{align-items:center;margin-bottom:14px}
+#games .section-head h2{font-size:clamp(23px,3vw,29px);letter-spacing:-.8px}
+#games .section-head small{display:block;margin-top:3px;font-size:12px}
+#games .catalog-count{display:inline-flex;align-items:center;white-space:nowrap;padding:8px 11px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--muted);font-size:12px;font-weight:800;font-variant-numeric:tabular-nums}
+#games .catalog-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 16px;border:1px solid var(--line);border-radius:15px;background:var(--panel)}
+#games .catalog-toolbar-copy{display:flex;flex-direction:column;gap:3px;min-width:0}
+#games .catalog-toolbar-copy strong{font-size:14px;font-weight:850}
+#games .catalog-toolbar-copy span{font-size:12px;color:var(--muted)}
+#games .catalog-toolbar-actions{display:flex;align-items:center;gap:9px;flex-shrink:0}
+#games .catalog-toolbar-actions [hidden]{display:none!important}
+#games .catalog-sort-label{display:flex;align-items:center;gap:8px;white-space:nowrap;color:var(--muted);font-size:12px;font-weight:750}
+#games .catalog-sort-label select{max-width:180px;height:36px;min-width:0;padding:0 31px 0 10px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--text);font-size:12px;font-weight:800;cursor:pointer}
+#games .filters{display:flex;gap:8px;flex-wrap:wrap;overflow:visible;padding:13px 0 16px}
+#games .filter{display:inline-flex;align-items:center;gap:7px;border-radius:10px;padding:8px 11px;font-size:12px;font-weight:750;transition:background-color .15s,border-color .15s}
+#games .filter:hover{border-color:#aebaca;background:var(--soft)}
+#games .filter.active,#games .filter.active:hover{background:var(--text);color:var(--panel);border-color:var(--text)}
+#games .filter-count{font-size:10px;font-variant-numeric:tabular-nums;opacity:.7}
+#games .games{grid-template-columns:repeat(auto-fill,minmax(166px,1fr));gap:23px 16px;align-items:start}
+#games .card{min-width:0;animation:none;will-change:auto;outline:none}
+#games .card:focus-visible .cover{outline:3px solid var(--accent)!important;outline-offset:3px!important}
+#games .cover{border-radius:13px!important;box-shadow:0 3px 13px rgba(18,30,52,.10)!important}
+#games .card:hover .cover{box-shadow:0 8px 19px rgba(18,30,52,.16)!important}
+#games .card-title{font-size:13px;line-height:1.35;min-height:35px;margin:8px 2px 0;white-space:normal;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2}
+#games .card-meta{display:flex;align-items:center;justify-content:space-between;gap:7px;font-size:11px;min-width:0}
+#games .card-meta span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#games .cover .badge{font-size:9px;max-width:calc(100% - 52px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#games .catalog-empty{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:35px 16px;text-align:center;min-height:190px;border:1px dashed var(--line);border-radius:14px;background:var(--panel)}
+#games .catalog-empty strong{font-size:16px}
+#games .catalog-empty p{margin:0;color:var(--muted);font-size:12px}
+#games #loadMoreWrap{padding-top:4px}
+#games #loadMoreBtn{min-width:180px}
+@media(max-width:700px){
+ #games{scroll-margin-top:178px}
+ #games .catalog-toolbar{align-items:flex-start;flex-wrap:wrap;padding:12px}
+ #games .catalog-toolbar-actions{width:100%;justify-content:space-between}
+ #games .filters{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:thin;padding:12px 1px 15px}
+ #games .filter{flex-shrink:0}
+ #games .games{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 12px}
+ #games .card-title{font-size:12px}
+ #games .cover{border-radius:11px!important}
+}
+@media(max-width:360px){#games .catalog-sort-label{gap:4px}#games .catalog-sort-label select{max-width:140px}}
