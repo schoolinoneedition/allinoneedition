@@ -508,6 +508,15 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
 @keyframes aio-release-pop{0%{opacity:0;transform:translateY(24px) scale(.9)}65%{opacity:1;transform:translateY(-3px) scale(1.015)}100%{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes aio-release-spark{0%,100%{transform:scale(1);opacity:.75}50%{transform:scale(1.14);opacity:1}}
 @media(prefers-reduced-motion:reduce){.aio-release-overlay,.aio-release-card,.aio-release-stars{animation:none!important}}
+
+/* Small shortcuts only; leave the original game catalogue untouched. */
+#aio-feature-hub{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin:10px 0 25px}
+.aio-feature-link{min-width:0;border:1px solid var(--line);background:var(--panel);border-radius:16px;padding:20px;text-decoration:none;display:flex;flex-direction:column;gap:8px;box-shadow:0 3px 10px rgba(20,30,45,.045)}
+.aio-feature-link:hover{border-color:#a9b8d4;background:var(--soft)}
+.aio-feature-link strong{font-size:19px;letter-spacing:-.35px}
+.aio-feature-link span{font-size:12px;color:var(--muted);line-height:1.55}
+.aio-feature-link em{font-size:11px;font-style:normal;color:var(--accent);font-weight:850}
+@media(max-width:650px){#aio-feature-hub{grid-template-columns:1fr}.aio-feature-link{padding:16px}}
 </style>
 <link rel="stylesheet" href="./appearance.css">
 <link rel="stylesheet" href="./ultimate-experience.css">
@@ -594,6 +603,10 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
  <div class="hero-card"><h1>One site. Games, school, tools and live info.</h1><p>A fast single-file hub. Game covers use lazy loading and a game iframe only starts after you click a card.</p><div class="chips"><button class="chip" onclick="scrollToId('games')">Browse games</button><button class="chip" onclick="scrollToId('school')">School apps</button><button class="chip" onclick="scrollToId('community')">Community</button><button class="chip" onclick="scrollToId('live')">Live info</button><button class="chip" onclick="scrollToId('tools')">Useful tools</button><button class="chip" onclick="location.href='study.html'">Open Study Hub</button><button class="chip" onclick="location.href='anime.html'">Anime Zone</button><button class="chip" onclick="openAssistant()">Ask Elementor</button></div></div>
  <div class="quick"><div class="qcard"><div class="k">Hometime</div><div class="v" id="homeCountdown">--:--:--</div></div><div class="qcard"><div class="k">Current time</div><div class="v" id="clock">--:--:--</div></div><div class="qcard"><div class="k">Today</div><div class="v" id="date">Loading…</div></div><div class="qcard"><div class="k">Game count</div><div class="v" id="gameCount">—</div></div></div>
 </section>
+<section id="aio-feature-hub" aria-label="Explore video and watch">
+ <a class="aio-feature-link" href="/video"><em>CREATE</em><strong>AI Video Studio</strong><span>Describe a scene and generate a short draft video. Simple controls, clear usage costs.</span></a>
+ <a class="aio-feature-link" href="/anime"><em>WATCH</em><strong>Watch anime and cartoons</strong><span>Browse episodes, keep your watch progress, and play videos from available sources.</span></a>
+</section>
 <section class="section" id="continueSection"><div class="section-head"><h2>Continue playing</h2><small>Your recent game progress stays on this device.</small></div><div id="resumePanel" class="resume-panel panel"><div><strong>No game started yet.</strong><span>Open a game and your last-played progress will appear here.</span></div><button class="btn mini" onclick="continueLastGame()">Continue</button></div></section>
 <section id="games" class="section"><div class="section-head"><h2>Games</h2><small>Fast games, quick search, saved progress</small></div><div class="panel catalog-info" style="margin-bottom:12px"><strong>Huge game library</strong><span><b id="librarySummary">Your games are rendered in fast batches while the browser warms images and game pages in the background</b> · fast-loading cards, saved progress and a full-screen game view.</span></div><div class="panel catalog-info" style="margin-bottom:12px"><strong>Quick picks</strong><span>Use New for the latest additions, the star on a card to save Favourites, or search and categories to find something to play.</span></div><div class="filters" id="filters"></div><div class="games" id="gameGrid"></div><div id="loadMoreWrap" style="display:none;justify-content:center;margin-top:18px"><button class="btn mini" id="loadMoreBtn" onclick="loadMoreGames()">Load more games</button></div></section>
 <section id="school" class="section"><div class="section-head"><h2>School apps</h2><small>In-page workspace with an external fallback.</small></div><div class="grid4">
@@ -634,7 +647,7 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
   <div id="aioStaffPanel" class="social-card aio-staff-panel hidden" style="margin-top:14px">
     <div class="section-head"><div><h3 style="margin:0">Staff management</h3><small id="aioStaffStatus">Checking your permissions…</small></div><button class="btn mini" type="button" onclick="loadAioStaffList()">Refresh staff</button></div>
     <div id="aioStaffOwnerSetup" class="hidden"><p class="tiny-status">No site owner is configured yet. Sign in with the account that should own the site, then use its account ID in the Supabase SQL Editor. Only a Supabase project administrator can run the owner bootstrap SQL.</p><label class="tiny-status" for="aioStaffCurrentId">Your account ID</label><input id="aioStaffCurrentId" class="social-input" readonly><button class="btn mini" type="button" onclick="copyAioOwnerSetup()">Copy owner setup SQL</button></div>
-    <div id="aioStaffControls" class="hidden"><div class="aio-staff-form"><input id="aioStaffUsername" class="social-input" maxlength="24" placeholder="Exact username of an existing account" aria-label="Staff username"><select id="aioStaffRole" class="social-select" aria-label="Staff role"><option value="staff">Staff</option><option value="admin">Admin</option></select><button class="btn mini primary" type="button" onclick="assignAioStaff()">Assign role</button></div><div id="aioStaffList" class="aio-staff-list"></div></div>
+    <div id="aioStaffControls" class="hidden"><a class="btn mini primary" href="/owner" style="display:inline-flex;align-items:center;text-decoration:none;margin-bottom:10px">Open Owner Studio · Add games and manage Watch</a><div class="aio-staff-form"><input id="aioStaffUsername" class="social-input" maxlength="24" placeholder="Exact username of an existing account" aria-label="Staff username"><select id="aioStaffRole" class="social-select" aria-label="Staff role"><option value="staff">Staff</option><option value="admin">Admin</option></select><button class="btn mini primary" type="button" onclick="assignAioStaff()">Assign role</button></div><div id="aioStaffList" class="aio-staff-list"></div></div>
   </div>
 </section>
 <section id="chat" class="section">
@@ -1552,6 +1565,31 @@ const AIO_TOPVAZ_EXTRA=[
 function addTopVazExtras(){const seen=new Set(GAMES.map(g=>String(g.url||'')));for(const [slug,name] of AIO_TOPVAZ_EXTRA){const url=`https://topvaz.github.io/play/${slug}.html`;if(seen.has(url)||GAMES.some(g=>normalizeText(g.name)===normalizeText(name)))continue;GAMES.push({name,cat:'Arcade',url,source:'TopVaz',img:`https://raw.githubusercontent.com/DP321827/topvaz.github.io/main/images/${slug}.webp`,tag:'New'});seen.add(url);}CATEGORIES=['All',...new Set(GAMES.map(g=>g.cat))];}
 addTopVazExtras();
 
+/* Owner-approved cloud games are appended to the preserved local registry.
+   RLS publishes only approved records; no imported scripts or HTML are run. */
+let aioCloudGamesLoaded=false;
+async function loadPublishedOwnerGames(){
+ if(aioCloudGamesLoaded||!supabaseClient)return;
+ const {data,error}=await supabaseClient.from('aio_game_submissions')
+  .select('id,title,description,category,thumbnail_url,game_url,featured')
+  .eq('status','approved').order('created_at',{ascending:false}).limit(200);
+ if(error){console.warn('Could not load published games:',error.message);return;}
+ aioCloudGamesLoaded=true;
+ const knownUrls=new Set(GAMES.map(g=>String(g.url||'').trim().toLowerCase()));
+ let added=0;
+ for(const row of data||[]){
+  const url=String(row.game_url||'').trim();
+  let parsed;try{parsed=new URL(url)}catch{continue}
+  if(parsed.protocol!=='https:'||parsed.username||parsed.password||knownUrls.has(url.toLowerCase()))continue;
+  const name=String(row.title||'').trim();
+  if(!name)continue;
+  const cover=String(row.thumbnail_url||'');
+  GAMES.push({name,cat:row.category||'Other',url,source:'Community',img:/^https:\/\//i.test(cover)?cover:'',desc:String(row.description||''),tag:row.featured?'Featured':'New'});
+  knownUrls.add(url.toLowerCase());added++;
+ }
+ if(added){CATEGORIES=['All',...new Set(GAMES.map(g=>g.cat))];renderFilters();renderGames();}
+}
+
 /* Keep every startup feature isolated: one optional error must not stop the rest of the hub. */
 function safeBoot(fn){try{return fn()}catch(e){console.error('All in One boot:',e);return null}}
 safeBoot(renderFilters);safeBoot(initSettings);if($('previewTitle'))$('previewTitle').textContent='No preview playing';safeBoot(initExtraTools);safeBoot(renderNotes);safeBoot(renderTodos);safeBoot(renderCalc);safeBoot(renderChatBoot);safeBoot(updateStudyProgress);safeBoot(updateWorldClock);safeBoot(initSpotifyBridge);setTimeout(()=>safeBoot(initSpotifyBridge),1200);setTimeout(()=>{safeBoot(renderIntroCutscene);safeBoot(renderGames)},80);
@@ -1949,6 +1987,7 @@ async function initCommunity(){
   try{
     if(!window.supabase?.createClient){$('supabaseStatus').textContent='Supabase library failed to load.';return;}
     supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+    loadPublishedOwnerGames().catch(error=>console.warn("Cloud catalogue unavailable:",error));
     const {data}=await supabaseClient.auth.getSession(); await handleAuthSession(data?.session||null);
     await loadReleaseBroadcast();
     supabaseClient.auth.onAuthStateChange((_event,session)=>setTimeout(()=>handleAuthSession(session),0));
