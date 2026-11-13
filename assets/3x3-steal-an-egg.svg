@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" role="img" aria-labelledby="title desc">
+<title id="title">3×3 Steal an Egg game cover</title>
+<desc id="desc">Black 3 by 3 wordmark with a golden egg, warm orange background, and Steal an Egg label.</desc>
+<defs>
+<linearGradient id="sky" x2="1" y2="1"><stop stop-color="#ffecb6"/><stop offset="1" stop-color="#ffd16b"/></linearGradient>
+<linearGradient id="shell" x2="0" y2="1"><stop stop-color="#fff7da"/><stop offset="1" stop-color="#f2c877"/></linearGradient>
+</defs>
+<rect width="640" height="640" rx="48" fill="url(#sky)"/>
+<path d="M0 495C148 462 205 516 316 491S544 461 640 499V640H0Z" fill="#eeb655"/>
+<circle cx="520" cy="122" r="57" fill="#fff7db" opacity=".6"/>
+<path d="M60 77h520" stroke="#a95e20" stroke-opacity=".22" stroke-width="7" stroke-linecap="round"/>
+<g fill="#17181a" font-family="Arial Black, Arial, sans-serif" font-weight="900">
+<text x="62" y="265" font-size="164" letter-spacing="-16">3×3</text>
+</g>
+<g transform="translate(318 292)">
+<ellipse cx="100" cy="194" rx="156" ry="33" fill="#88500a" opacity=".16"/>
+<path d="M100 12C30 12-19 113-11 169c6 68 62 110 115 110s108-42 114-110C226 113 175 12 100 12Z" fill="url(#shell)" stroke="#9e6525" stroke-width="10"/>
+<path d="M53 90C71 52 92 44 111 49" stroke="#fff" stroke-width="21" stroke-linecap="round" opacity=".8"/>
+<path d="m-5 179 35-18 26 20 34-28 31 26 37-23 52 17" fill="none" stroke="#a36a2f" stroke-width="8" stroke-linejoin="round"/>
+<path d="m-4 186 36-11 30 26 38-28 25 24 40-22 43 13-8 28c-18 48-58 63-96 63-44 0-89-20-108-62Z" fill="#ffe8a5" opacity=".94"/>
+</g>
+<g font-family="Arial Black, Arial, sans-serif" font-weight="900" fill="#17181a">
+<text x="50" y="445" font-size="53" letter-spacing="-2">STEAL AN EGG</text>
+</g>
+<rect x="49" y="466" width="283" height="8" rx="4" fill="#d47725"/>
+<text x="51" y="560" fill="#6b492d" font-family="Arial, sans-serif" font-size="25" font-weight="700">3×3 MATHS ADVENTURE</text>
+</svg>
