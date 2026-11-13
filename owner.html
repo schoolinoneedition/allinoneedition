@@ -95,7 +95,7 @@ function httpsUrl(value,required){
  return parsed.href;
 }
 async function verifyOwner(){
- $('ownerWorkspace').hidden=true;ownerId=null;status('gateStatus','Verifying your account…');
+ $('gate').hidden=false;$('ownerWorkspace').hidden=true;ownerId=null;status('gateStatus','Verifying your account…');
  if(!window.supabase?.createClient){status('gateStatus','The sign-in service could not load. Refresh the page.','error');return}
  try{
   client=client||window.supabase.createClient(API,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
