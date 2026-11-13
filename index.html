@@ -12,7 +12,7 @@
 
 
 <script>
-/* Independent, bounded loader: never waits on game thumbnails or external resources. */
+/* Short, self-contained launch sequence. Does not depend on images, APIs or game loading. */
 (()=>{
  let completed=false;
  const finish=()=>{
@@ -24,12 +24,13 @@
   loader.setAttribute('aria-hidden','true');
  };
  window.aioFinishIntro=finish;
- addEventListener('DOMContentLoaded',()=>{
-  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  requestAnimationFrame(()=>setTimeout(finish,reduced?0:850));
- },{once:true});
- addEventListener('load',()=>setTimeout(finish,80),{once:true});
- setTimeout(finish,2200);
+ const ready=()=>{
+  const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  setTimeout(finish,reduced?0:1080);
+ };
+ if(document.readyState==='loading')addEventListener('DOMContentLoaded',ready,{once:true});
+ else ready();
+ setTimeout(finish,2400);
 })();
 window.aioSpotifyAPI=null;
 window.onSpotifyIframeApiReady=api=>{window.aioSpotifyAPI=api;};
@@ -83,22 +84,27 @@ html.game-fullscreen #gameFrame{width:100vw!important;height:100vh!important;min
 .assistant-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.assistant-actions .chip{cursor:pointer}.settings-box{width:min(760px,100%);height:min(690px,92vh)}.settings-body{padding:16px;overflow:auto}.setting-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px 0;border-bottom:1px solid var(--line)}.setting-row strong{display:block;font-size:13px}.setting-row span{display:block;color:var(--muted);font-size:11px;line-height:1.45;margin-top:3px}.switch{position:relative;width:44px;height:26px;flex:0 0 auto}.switch input{opacity:0;width:0;height:0}.switch span{position:absolute;inset:0;background:var(--soft);border:1px solid var(--line);border-radius:999px;transition:.18s}.switch span:before{content:"";position:absolute;width:18px;height:18px;left:3px;top:3px;border-radius:50%;background:var(--muted);transition:.18s}.switch input:checked+span{background:var(--accent);border-color:var(--accent)}.switch input:checked+span:before{transform:translateX(18px);background:#fff}.settings-help{margin-top:14px;padding:13px;border:1px solid var(--line);border-radius:14px;background:var(--soft)}.settings-help p{margin:5px 0 0;color:var(--muted);font-size:11px;line-height:1.55}.music-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:12px}.music-main{min-width:0}.music-now{display:flex;align-items:center;gap:12px;margin-bottom:10px}.music-art{width:58px;height:58px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:27px;font-weight:950;overflow:hidden;flex:0 0 auto}.music-art img{width:100%;height:100%;object-fit:cover}.music-now strong{display:block;font-size:14px}.music-now span{display:block;color:var(--muted);font-size:11px;margin-top:3px}.spotify-embed{min-height:175px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#0d0d0e}.spotify-embed iframe{width:100%;height:175px;border:0;display:block}.music-placeholder{min-height:175px;display:grid;place-items:center;text-align:center;color:#fff;padding:22px}.music-placeholder strong{font-size:16px}.music-placeholder span{display:block;color:#b9bdc7;font-size:11px;margin-top:5px}.music-url-row,.music-search-row{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}.music-url-row input,.music-search-row input{flex:1;min-width:180px;height:36px;border:1px solid var(--line);border-radius:9px;padding:0 9px;background:var(--soft);color:var(--text)}.music-note{margin:9px 0 0;color:var(--muted);font-size:10px;line-height:1.45}.audio-list{display:grid;gap:9px;margin-top:12px}.audio-item{display:grid;grid-template-columns:42px 1fr auto;gap:9px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:8px}.audio-art{width:42px;height:42px;border-radius:10px;overflow:hidden;background:var(--soft);display:grid;place-items:center;font-weight:950}.audio-art img{width:100%;height:100%;object-fit:cover}.audio-item strong{display:block;font-size:12px}.audio-item audio{width:100%;height:32px;margin-top:4px}.audio-delete{border:0;background:transparent;color:var(--muted);font-weight:950}.loop-toggle{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);white-space:nowrap}.calc-display{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:9px 10px;margin-top:8px;text-align:right;font-size:20px;font-weight:900;min-height:40px;overflow:auto}.calc-keys{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}.calc-keys button{height:34px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--text);font-weight:850}.calc-keys button:hover{background:var(--soft)}.calc-eq{grid-column:span 2;background:var(--accent)!important;color:#fff!important;border-color:var(--accent)!important}.tool-result{margin-top:8px;font-size:11px;color:var(--muted);line-height:1.4;min-height:16px}.world-clock{font-size:11px;line-height:1.7;margin-top:8px} .music-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}.music-result{display:grid;grid-template-columns:46px 1fr;gap:8px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:11px;background:var(--soft)}.music-result img{width:46px;height:46px;border-radius:9px;object-fit:cover}.music-result strong{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.music-result span{display:block;font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.music-result audio{width:100%;height:28px;margin-top:5px}.music-search-status{font-size:10px;color:var(--muted);margin-top:8px}@media(max-width:700px){.music-results{grid-template-columns:1fr}}
 .progressbarbox{display:none}.progressbarbox.progress-visible{display:block}.reduced-motion *, .reduced-motion *::before, .reduced-motion *::after{animation-duration:0.001ms!important;animation-iteration-count:1!important;transition-duration:0.001ms!important;scroll-behavior:auto!important}@media(max-width:900px){.music-grid{grid-template-columns:1fr}}
 
-/* Lightweight new site intro. No images, network waits or large animated lists. */
-#siteLoader{position:fixed;inset:0;z-index:2000000;display:grid;place-items:center;background:#f7f9fd;color:#19233a;opacity:1;visibility:visible;transition:opacity .26s ease,visibility .26s ease}
+/* Launch sequence v2: lightweight, original typographic design. */
+#siteLoader{position:fixed;inset:0;z-index:2000000;display:grid;place-items:center;overflow:hidden;background:#0f1727;color:#fff;opacity:1;visibility:visible;transition:opacity .3s ease,visibility .3s ease}
 #siteLoader.done{opacity:0;visibility:hidden;pointer-events:none}
-.aio-boot{width:min(360px,calc(100vw - 40px));display:flex;flex-direction:column;align-items:center;text-align:center}
-.aio-boot-mark{width:68px;height:68px;position:relative;border-radius:19px;background:#1b5cff;display:grid;place-items:center;box-shadow:0 12px 28px rgba(27,92,255,.20);animation:aioBootArrive .46s cubic-bezier(.2,.8,.2,1) both}
-.aio-boot-mark::before{content:"";position:absolute;inset:13px;border:3px solid #fff;border-radius:11px;opacity:.96}
-.aio-boot-mark::after{content:"";position:absolute;width:14px;height:14px;border-radius:4px;background:#fff;transform:rotate(45deg)}
-.aio-boot-title{margin-top:19px;font-size:20px;line-height:1.25;font-weight:900;letter-spacing:-.55px}
-.aio-boot-tagline{margin-top:6px;font-size:12px;color:#67748a}
-.aio-boot-indicator{display:flex;gap:6px;align-items:center;height:16px;margin-top:22px}
-.aio-boot-indicator i{width:6px;height:6px;border-radius:50%;background:#1b5cff;animation:aioBootPulse .85s ease-in-out infinite alternate}
-.aio-boot-indicator i:nth-child(2){animation-delay:.15s}
-.aio-boot-indicator i:nth-child(3){animation-delay:.3s}
-@keyframes aioBootArrive{from{opacity:0;transform:translateY(12px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
-@keyframes aioBootPulse{from{opacity:.28;transform:scale(.7)}to{opacity:1;transform:scale(1.17)}}
-@media(prefers-reduced-motion:reduce){#siteLoader{transition:none}.aio-boot-mark,.aio-boot-indicator i{animation:none}}
+.aio-launch{position:relative;isolation:isolate;width:min(420px,calc(100vw - 42px));text-align:center;padding:30px 10px}
+.aio-launch-symbol{display:grid;grid-template-columns:repeat(2,24px);grid-template-rows:repeat(2,24px);gap:5px;width:max-content;margin:0 auto 25px;transform:rotate(-12deg);animation:aioLaunchSettle .7s cubic-bezier(.15,.85,.22,1) both}
+.aio-launch-symbol span{display:block;border-radius:6px;background:#80a7ff;animation:aioLaunchAssemble .65s cubic-bezier(.16,.8,.22,1) both}
+.aio-launch-symbol span:nth-child(2){background:#fff;animation-delay:.09s}
+.aio-launch-symbol span:nth-child(3){background:#4d76f5;animation-delay:.16s}
+.aio-launch-symbol span:nth-child(4){background:#a6bbec;animation-delay:.23s}
+.aio-launch-eyebrow{font-size:10px;font-weight:850;letter-spacing:.28em;color:#90a9d5}
+.aio-launch-name{margin:11px 0 0;font-size:clamp(27px,6vw,38px);font-weight:900;line-height:1.1;letter-spacing:-.065em;animation:aioLaunchWord .65s .15s both}
+.aio-launch-name span{color:#94b3ff}
+.aio-launch-caption{font-size:12px;margin:11px 0 0;color:#b9c5da;letter-spacing:.01em}
+.aio-launch-track{height:3px;width:min(190px,64%);margin:30px auto 0;background:#34445f;border-radius:99px;overflow:hidden}
+.aio-launch-track::after{content:"";display:block;width:100%;height:100%;background:#9bb7ff;transform:translateX(-100%);animation:aioLaunchProgress 1.1s cubic-bezier(.17,.77,.3,1) forwards}
+.aio-launch-foot{position:absolute;left:0;right:0;bottom:clamp(20px,5vh,48px);color:#8194b3;text-align:center;font-size:10px;letter-spacing:.19em;font-weight:750}
+@keyframes aioLaunchAssemble{from{opacity:0;transform:scale(.3) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes aioLaunchSettle{from{transform:rotate(-26deg) scale(.75)}to{transform:rotate(-12deg) scale(1)}}
+@keyframes aioLaunchWord{from{opacity:0;transform:translateY(11px)}to{opacity:1;transform:translateY(0)}}
+@keyframes aioLaunchProgress{to{transform:translateX(0)}}
+@media(prefers-reduced-motion:reduce){#siteLoader{transition:none}.aio-launch-symbol,.aio-launch-symbol span,.aio-launch-name,.aio-launch-track::after{animation:none}.aio-launch-track::after{transform:none}}
 .game-error{position:absolute;inset:0;display:none;place-items:center;padding:20px;background:rgba(0,0,0,.86);color:#fff;text-align:center;z-index:3}.game-error.show{display:grid}.game-error-card{max-width:520px}.game-error-card h3{margin:0 0 7px;font-size:18px}.game-error-card p{margin:0;color:#c9cdd6;font-size:12px;line-height:1.5}.game-error-actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:13px}
 
 
@@ -540,12 +546,14 @@ html.game-fullscreen #gameModal.open .game-stage{height:100dvh!important;width:1
 </head>
 <body>
 <div id="siteLoader" role="status" aria-label="Opening All in One Edition">
- <div class="aio-boot">
-  <div class="aio-boot-mark" aria-hidden="true"></div>
-  <div class="aio-boot-title">All in One Edition</div>
-  <div class="aio-boot-tagline">Your space for games, school and tools</div>
-  <div class="aio-boot-indicator" aria-hidden="true"><i></i><i></i><i></i></div>
+ <div class="aio-launch">
+  <div class="aio-launch-symbol" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+  <div class="aio-launch-eyebrow">YOUR HUB IS STARTING</div>
+  <div class="aio-launch-name">ALL IN ONE <span>EDITION</span></div>
+  <p class="aio-launch-caption">Play. Learn. Create.</p>
+  <div class="aio-launch-track" aria-hidden="true"></div>
  </div>
+ <div class="aio-launch-foot" aria-hidden="true">ALL IN ONE EDITION</div>
 </div>
 
 <div class="afk-overlay" id="afkOverlay" role="dialog" aria-modal="true" aria-label="AFK mode">
