@@ -251,7 +251,7 @@ assert.ok(backend.includes("rootMargin:'0px'") && backend.includes('prepareGalle
 
 assert.ok(social.includes('data-video-src=') && !social.includes("'<video src=\"'+escapeHTML(p.media_url)+'\" data-social-video"), 'Separate Social feed should not attach every video source during rendering');
 assert.ok(anime.includes("video.dataset.videoSrc=saved.watch_url;video.preload='none'"), 'Anime episodes should not request video bytes merely when selected');
-assert.ok(anime.includes("cacheControl:'31536000'"), 'Unique Anime episode uploads should receive long-lived cache headers');
+assert.ok(mediaWorker.includes('Cache-Control", "private, no-store')&&anime.includes('getB2PlaybackUrl'), 'B2 Watch playback should use short-lived signed URLs without caching private media.');
 assert.ok(html.includes('href="https://btnbuchsrfllpzlypjtn.supabase.co" crossorigin') && social.includes('href="https://btnbuchsrfllpzlypjtn.supabase.co" crossorigin') && anime.includes('href="https://btnbuchsrfllpzlypjtn.supabase.co" crossorigin'), 'Video pages should preconnect to their storage API');
 
 // Keep one source of truth for favourites and avoid eager-fetching dozens of covers.
