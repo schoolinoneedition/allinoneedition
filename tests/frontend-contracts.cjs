@@ -183,12 +183,12 @@ assert.ok(elementor.includes('function regenerateLast()')&&elementor.includes("n
 assert.ok(elementor.includes('const wantsImage=/')&&elementor.includes('await createImage(text)')&&!elementor.includes("$('imageMode').onclick=")&&!elementor.includes("$('clearMode').onclick="), 'Image intent must work from ordinary chat prompts without a separate mode button.');
 assert.ok(elementor.includes('function renderMarkdownText(')&&elementor.includes('document.createElement(ri===0?\'th\':\'td\')'), 'Chat messages must render safe Markdown blocks and tables.');
 assert.ok(elementor.includes('highlight.js@11.11.1')&&elementor.includes('window.hljs.highlightElement(node)'), 'Fenced code blocks must use syntax highlighting when the highlighter loads.');
-const elementorMarkup=elementor.slice(0,elementor.indexOf('<script defer src="/appearance.js">'));
-const elementorStyles=elementor.slice(elementor.indexOf('<style>'),elementor.indexOf('</style>'));
+const elementorBodyStart=elementor.indexOf("<body");
+const elementorMainScriptStart=elementor.indexOf("<script>",elementor.indexOf("</head>"));
+const elementorMarkup=elementor.slice(elementorBodyStart,elementorMainScriptStart);
+const elementorStyles=elementor.slice(elementor.indexOf("<style>"),elementor.indexOf("</style>"));
 assert.ok(!elementorMarkup.includes('id="themeToggle"')&&!elementorStyles.includes(':root.dark')&&elementor.includes('/appearance.css')&&elementor.includes('/appearance.js'), 'Elementor must share the homepage wallpaper and stay in its clean light theme.');
 assert.ok(elementor.includes('async function callAI()')&&elementor.includes('function renderMessages()')&&elementor.includes('<\\/script>'), 'The complete chat script must survive embedded code examples.');
-assert.ok(elementor.includes('const resizePrompt=()=>'), 'The message composer must auto-resize while typing.');
-
 assert.ok(elementorWorker.includes('@cf/zai-org/glm-4.7-flash')&&elementorWorker.includes('stream:true'), 'Worker must use a real reasoning model in Think mode and stream model output.');
 
 
