@@ -357,7 +357,10 @@ assert.ok(!html.includes('id="aiSearchOpen"') && !html.includes('id="aioAiSearch
 assert.ok(html.includes('"name":"Shy Safari"') && html.includes('"name":"3x3 +1 Keyboard Escape"') && html.includes('"name":"3x3 Steal an Egg"'), 'The three requested games must be in the visible game catalogue.');
 assert.ok(!html.includes('Slime Keyboard Escape'), 'Slime Keyboard Escape must remain removed.');
 assert.ok(!html.includes('id="hideBtn"') && !html.includes('id="darkBtn"'), 'The Hide and Dark controls must remain removed.');
-assert.ok(html.includes('#gameModal.open .modalhead') && html.includes('#gameModal.open .progressbarbox'), 'The game player must hide its bulky header and progress bars while a game is open.');
+assert.ok(html.includes('#gameModal.open .modalhead{display:flex!important') && html.includes('id="fsBtn"'), 'Every game must show the original game header with its Fullscreen button.');
+assert.ok(!html.includes('#gameModal.open .modalhead,#gameModal.open .progressbarbox') && !html.includes('#gameModal.open .modalbox{width:100vw!important'), 'Opening a game must not force edge-to-edge fullscreen or hide the original header.');
+assert.ok(html.includes('#gameModal.open .progressbarbox,#gameModal.open .modalnote{display:none!important}') && html.includes('#gameModal.open .game-stage{width:100%!important'), 'The classic player should hide only its extra info bars and keep the game canvas sized to its window.');
+assert.ok(html.includes("if(pseudoGameFullscreen&&!document.fullscreenElement)") && html.includes("if(e.key==='Escape'&&pseudoGameFullscreen)"), 'The fallback fullscreen view must be escapable on every game.');
 // Watch source metadata is private and only the canonical owner can inspect it.
 const watchSourceSchema = read('supabase/migrations/20261106204516_private_anime_episode_source_metadata.sql');
 assert.ok(watchSourceSchema.includes('drop policy if exists "Public can read anime episode watch links"') && watchSourceSchema.includes('revoke all on public.anime_episode_watch_links from public, anon'), 'Watch provider URLs must not be publicly readable.');
