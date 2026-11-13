@@ -478,13 +478,21 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
 @media(max-width:650px){html{scroll-padding-top:112px}.top{padding:8px 10px;gap:6px}.top .search{order:10;flex:1 1 100%;min-width:100%}.top .search input{height:37px}.quick-launch-trigger{height:36px;padding:0 9px;font-size:11px}.topbar .btn{padding-left:9px;padding-right:9px}.nav{padding:0 10px 9px;gap:4px}.nav button{padding:7px 9px;font-size:11px}.hero h1{font-size:29px}.section-head{align-items:flex-start;flex-direction:column}.section-head small{text-align:left}.aio-command-backdrop{padding:7vh 10px 12px}.aio-command-dialog{max-height:82dvh}}
 @media(prefers-reduced-motion:reduce){.topbar .brand,.nav button,.qcard,.tool{transition:none!important}}
 
-#gameModal.open .modalhead,#gameModal.open .progressbarbox,#gameModal.open .modalnote{display:none!important}
-#gameModal.open .modalbox{width:100vw!important;max-width:none!important;height:100dvh!important;max-height:none!important;border:0!important;border-radius:0!important;padding:0!important;gap:0!important}
-#gameModal.open .game-stage{width:100vw!important;height:100dvh!important;min-height:0!important;max-height:none!important;border-radius:0!important}
-#gameModal.open .gameframe{width:100%!important;height:100%!important;min-height:0!important}
-#gameModal.open .game-float-controls{opacity:.22;transition:opacity .2s ease}
-#gameModal.open .game-float-controls:hover,#gameModal.open .game-float-controls:focus-within{opacity:1}
+/* The classic game window is shared by every game. Only the explicit Fullscreen action fills the viewport. */
+#gameModal.open{padding:clamp(8px,2vw,18px);align-items:center;justify-content:center}
+#gameModal.open .modalbox{width:min(1280px,100%)!important;max-width:100%!important;height:min(860px,calc(100dvh - 36px))!important;max-height:calc(100dvh - 16px)!important;border:1px solid var(--line)!important;border-radius:17px!important;padding:0!important;gap:0!important;min-width:0}
+#gameModal.open .modalhead{display:flex!important;flex:0 0 auto;flex-wrap:wrap;gap:8px;min-height:52px;padding:9px 11px}
+#gameModal.open .modal-actions{display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:wrap}
+#gameModal.open .progressbarbox,#gameModal.open .modalnote{display:none!important}
+#gameModal.open .game-stage{width:100%!important;flex:1 1 auto;min-width:0;min-height:0!important;height:auto!important;max-height:none!important;overflow:hidden}
+#gameModal.open .gameframe{width:100%!important;height:100%!important;min-height:0!important;display:block}
+#gameModal.open .game-float-controls{opacity:1;transition:opacity .2s ease}
 #gameModal.open .game-float-btn{width:36px;height:36px}
+@media(max-width:600px){#gameModal.open .modalbox{height:calc(100dvh - 16px)!important;border-radius:12px!important}#gameModal.open .modalhead{padding:7px 9px}#gameModal.open .modal-actions .btn{padding:6px 8px;font-size:11px}}
+/* True fullscreen, including the accessible fallback, remains available on every game. */
+html.game-fullscreen #gameModal.open .modalbox{width:100vw!important;max-width:none!important;height:100dvh!important;max-height:none!important;border:0!important;border-radius:0!important}
+html.game-fullscreen #gameModal.open .modalhead{display:none!important}
+html.game-fullscreen #gameModal.open .game-stage{height:100dvh!important;width:100vw!important}
 .search{flex:1 1 320px;min-width:220px;max-width:720px}
 .search input{display:block;width:100%;min-width:0;height:42px;font-size:14px}
 @media(max-width:700px){.search{flex:1 1 100%;min-width:0;max-width:none;order:3}}
@@ -1205,7 +1213,7 @@ async function enterAFK(){
 }
 function exitAFK(resume){if(!afkActive)return;const overlay=$('afkOverlay');afkActive=false;if(resume)resumeCurrentGame();overlay?.classList.add('returning');setTimeout(()=>{overlay?.classList.remove('open','returning');overlay?.setAttribute('aria-hidden','true');document.body.classList.remove('afk-mode');renderAfkShuffle();showToast(resume?(currentGame?'Welcome back — resuming your game':'Welcome back'):'Back to the site')},520)}
 function closeGame(){++htmlGameLoadSerial;clearTimeout(gameLoadTimer);stopGamePresence();$('gameModal').classList.remove('aio-3x3-direct');$('gameFrame').allowFullscreen=true;window.AioHtmlGameSandbox?.clearFrame($('gameFrame'));if(document.fullscreenElement){document.exitFullscreen?.().catch?.(()=>{})}pseudoGameFullscreen=false;document.documentElement.classList.remove('game-fullscreen');$('gameModal').classList.remove('open');$('gameFrame').src='about:blank';$('gameLoading').style.display='grid';$('gameError').classList.remove('show');currentGame=null;renderGames()}
-let pseudoGameFullscreen=false;async function fullscreenGame(){const stage=$('gameStage');if(!stage)return;if(document.fullscreenElement){try{await document.exitFullscreen()}catch{}return}try{pseudoGameFullscreen=false;if(stage.requestFullscreen)await stage.requestFullscreen({navigationUI:'hide'});else throw Error('no fullscreen api')}catch{pseudoGameFullscreen=true;document.documentElement.classList.add('game-fullscreen');showToast('Game-only view enabled. Browser fullscreen was blocked.')}}function syncGameFullscreen(){document.documentElement.classList.toggle('game-fullscreen',!!document.fullscreenElement||pseudoGameFullscreen);const b=$('fsBtn');if(b)b.textContent=(document.fullscreenElement||pseudoGameFullscreen)?'Exit fullscreen':'Fullscreen'}document.addEventListener('fullscreenchange',syncGameFullscreen);
+let pseudoGameFullscreen=false;async function fullscreenGame(){const stage=$('gameStage');if(!stage)return;if(pseudoGameFullscreen&&!document.fullscreenElement){pseudoGameFullscreen=false;syncGameFullscreen();return}if(document.fullscreenElement){try{await document.exitFullscreen()}catch{}return}try{pseudoGameFullscreen=false;if(stage.requestFullscreen)await stage.requestFullscreen({navigationUI:'hide'});else throw Error('no fullscreen api')}catch{pseudoGameFullscreen=true;document.documentElement.classList.add('game-fullscreen');showToast('Game-only view enabled. Browser fullscreen was blocked.')}}function syncGameFullscreen(){document.documentElement.classList.toggle('game-fullscreen',!!document.fullscreenElement||pseudoGameFullscreen);const b=$('fsBtn');if(b)b.textContent=(document.fullscreenElement||pseudoGameFullscreen)?'Exit fullscreen':'Fullscreen'}document.addEventListener('fullscreenchange',syncGameFullscreen);document.addEventListener('keydown',e=>{if(e.key==='Escape'&&pseudoGameFullscreen){pseudoGameFullscreen=false;syncGameFullscreen()}});
 $('gameModal').addEventListener('click',e=>{if(e.target.id==='gameModal')closeGame()});
 let schoolUrl='';function openSchool(n,u){schoolUrl=u;$('schoolTitle').textContent=n;$('schoolFrame').src=u;$('schoolModal').classList.add('open')}function closeSchool(){$('schoolModal').classList.remove('open');$('schoolFrame').src='about:blank'}function schoolExternal(){if(schoolUrl)window.open(schoolUrl,'_blank','noopener,noreferrer')}$('schoolModal').addEventListener('click',e=>{if(e.target.id==='schoolModal')closeSchool()});
 let countdownEnd=0,countdownTimer=0;
