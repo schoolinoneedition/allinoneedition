@@ -31,6 +31,7 @@ jobs:
         run: |
           node tests/frontend-contracts.cjs
           node tests/elementor-work-mode.cjs
+          node tests/owner-video-hub.cjs
       - name: Audit game catalogue duplicates and required fields
         run: node scripts/audit-games.cjs
       - name: Check inline JavaScript in app and original games
@@ -38,7 +39,7 @@ jobs:
           python - <<'PY'
           import pathlib, re, subprocess, sys
           checked = 0
-          for html_path in ["index.html", "social.html", "study.html", "anime.html", "elementor.html", "games/originals.html", "games/arcade-pack-2.html", "games/arcade-pack-3.html"]:
+          for html_path in ["index.html", "social.html", "study.html", "anime.html", "elementor.html", "owner.html", "video.html", "games/originals.html", "games/arcade-pack-2.html", "games/arcade-pack-3.html"]:
               html = pathlib.Path(html_path).read_text(encoding="utf-8")
               scripts = re.findall(r"<script\b([^>]*)>([\s\S]*?)</script>", html, flags=re.I)
               for index, (attrs, body) in enumerate(scripts):

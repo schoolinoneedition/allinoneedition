@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f7f8fb"><title>Owner Studio · All in One Edition</title>
+<link rel="icon" href="/favicon.png">
+<style>
+:root{color-scheme:light;--bg:#f6f7f9;--paper:#fff;--text:#20242d;--muted:#677181;--line:#e2e6ec;--accent:#2259ce}
+*{box-sizing:border-box}body{background:var(--bg);color:var(--text);font:15px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;margin:0}
+a{color:inherit}header{background:#fff;border-bottom:1px solid var(--line)}.shell{width:min(1080px,calc(100% - 32px));margin:auto}.top{display:flex;justify-content:space-between;gap:16px;align-items:center;min-height:66px}.brand{font-weight:850;display:flex;align-items:center;gap:10px;text-decoration:none}.brand img{width:32px;height:32px;object-fit:contain}.toplinks{display:flex;gap:15px;flex-wrap:wrap}.toplinks a{font-size:13px;text-decoration:none;color:var(--muted);font-weight:700}.toplinks a:hover{color:var(--accent)}
+main{padding:28px 0 65px}h1{font-size:clamp(26px,4vw,35px);letter-spacing:-1.1px;line-height:1.2;margin:0 0 9px}h2{font-size:18px;letter-spacing:-.4px;margin:0 0 5px}.lede{color:var(--muted);margin:0 0 22px;max-width:670px}.card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:22px;margin:17px 0;box-shadow:0 3px 13px rgba(29,45,70,.04)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grid .wide{grid-column:1/-1}label{display:block;font-size:12px;font-weight:800;margin-bottom:5px}input,textarea,select{width:100%;border-radius:10px;border:1px solid #cfd5df;background:white;color:var(--text);font:inherit;padding:10px 11px;min-height:42px}textarea{min-height:84px;resize:vertical}input:focus,textarea:focus,select:focus{outline:3px solid #d7e3ff;border-color:var(--accent)}
+button,.action{appearance:none;display:inline-flex;justify-content:center;align-items:center;text-decoration:none;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--text);padding:10px 13px;font:inherit;font-weight:800;font-size:13px;cursor:pointer}button.primary,.action.primary{background:var(--accent);border-color:var(--accent);color:#fff}button:disabled{opacity:.5;cursor:wait}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}.status{color:var(--muted);font-size:13px;min-height:22px;margin:12px 0 0}.success{color:#116a3e}.error{color:#a42525}.hint{font-size:12px;color:var(--muted)}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}.steps a{text-decoration:none;display:block;border:1px solid var(--line);border-radius:12px;padding:13px;background:#fafbfc}.steps strong{display:block;font-size:13px}.steps span{display:block;color:var(--muted);font-size:12px;margin-top:4px}
+.item{display:flex;justify-content:space-between;align-items:center;gap:13px;padding:13px 0;border-top:1px solid var(--line)}.item strong{display:block;font-size:14px;word-break:break-word}.item small{display:block;color:var(--muted);font-size:12px;margin-top:2px}.item-actions{display:flex;align-items:center;flex-wrap:wrap;gap:7px}.item-actions button{padding:7px 10px}.hidden,[hidden]{display:none!important}
+@media(max-width:700px){.grid,.steps{grid-template-columns:1fr}.grid .wide{grid-column:auto}.top{align-items:flex-start;flex-direction:column;padding:14px 0}.item{align-items:flex-start;flex-direction:column}.card{padding:17px}}
+</style>
+</head>
+<body>
+<header><div class="shell top"><a class="brand" href="/"><img src="/favicon.png" alt="">All in One Edition <span style="color:var(--muted);font-weight:650">/ Owner Studio</span></a><nav class="toplinks"><a href="/">Home</a><a href="/video">AI Video</a><a href="/anime">Watch</a></nav></div></header>
+<main class="shell">
+<h1>Owner Studio</h1><p class="lede">One place to publish games, manage your Watch uploads and open AI video generation. Owner access is verified against your signed-in Supabase account.</p>
+<section class="card" id="gate" role="status" aria-live="polite"><h2>Checking account access</h2><p class="status" id="gateStatus">Verifying your session and owner role…</p><a href="/#community" class="action">Sign in from the main site</a><button type="button" id="retry">Check again</button></section>
+<div id="ownerWorkspace" hidden>
+<section class="card"><h2>Quick management</h2><p class="hint">Watch videos use Backblaze B2. Video Studio generates preview clips; it does not automatically publish them as episodes.</p><div class="steps">
+<a href="/video"><strong>AI Video Studio</strong><span>Make short family-friendly video drafts.</span></a>
+<a href="/anime#episodeCatalog"><strong>Watch uploader</strong><span>Choose a series and episode to upload a rights-cleared video.</span></a>
+<a href="/#community"><strong>Community and staff</strong><span>Manage accounts and community permissions from the existing hub.</span></a>
+</div></section>
+<section class="card"><h2>Add a game</h2><p class="hint">Paste a secure game URL and optionally a cover URL. This publishes a new cloud entry to the existing game library. Original games stay untouched. Some websites block in-page embedding.</p>
+<form id="gameForm"><div class="grid">
+<div><label for="gameTitle">Game title</label><input id="gameTitle" maxlength="80" minlength="3" required placeholder="My new game"></div>
+<div><label for="gameCategory">Category</label><select id="gameCategory"><option>Arcade</option><option>Classic</option><option>Puzzle</option><option>Platformer</option><option>Racing</option><option>Sports</option><option>Casual</option><option>Idle</option><option>Other</option></select></div>
+<div class="wide"><label for="gameUrl">Game URL (HTTPS)</label><input id="gameUrl" type="url" required placeholder="https://example.com/game" maxlength="2048"></div>
+<div class="wide"><label for="gameThumb">Cover image URL (optional, HTTPS)</label><input id="gameThumb" type="url" placeholder="https://example.com/cover.jpg" maxlength="2048"></div>
+<div class="wide"><label for="gameDesc">Short description (optional)</label><textarea id="gameDesc" maxlength="1000" placeholder="What is this game about?"></textarea></div>
+<div class="wide"><label for="gameControls">Controls (optional)</label><input id="gameControls" maxlength="500" placeholder="Arrow keys, mouse, touch"></div>
+</div><div class="actions"><button type="submit" class="primary" id="publishBtn">Publish game</button><a class="action" href="/#games">View game library</a></div><p class="status" id="addStatus" role="status" aria-live="polite"></p></form></section>
+<section class="card"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><div><h2>Manage submitted games</h2><p class="hint" style="margin:0">Approve new submissions or remove a published entry without editing GitHub.</p></div><button type="button" id="refreshGames">Refresh</button></div><div id="gameEntries"></div><p class="status" id="listStatus" role="status" aria-live="polite"></p></section>
+</div></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id);
+const API='https://btnbuchsrfllpzlypjtn.supabase.co';
+const KEY='sb_publishable_a1gdNTiQdF9587p5K-Sw-Q_nFbvWRmp';
+let client=null,ownerId=null,busy=false;
+function status(id,message,type=''){const target=$(id);target.textContent=message;target.className='status '+type}
+function httpsUrl(value,required){
+ value=String(value||'').trim();
+ if(!value){if(required)throw Error('A game URL is required.');return ''}
+ let parsed;try{parsed=new URL(value)}catch{throw Error('Enter a valid URL.')}
+ if(parsed.protocol!=='https:'||parsed.username||parsed.password||['localhost','127.0.0.1','::1'].includes(parsed.hostname)||!parsed.hostname.includes('.'))throw Error('Use a publicly accessible HTTPS link.');
+ return parsed.href;
+}
+async function verifyOwner(){
+ $('ownerWorkspace').hidden=true;ownerId=null;status('gateStatus','Verifying your account…');
+ if(!window.supabase?.createClient){status('gateStatus','The sign-in service could not load. Refresh the page.','error');return}
+ try{
+  client=client||window.supabase.createClient(API,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  const {data,error}=await client.auth.getUser();
+  if(error||!data?.user){status('gateStatus','Sign in on the main site using your owner account, then return here.','error');return}
+  const role=await client.from('staff_roles').select('role').eq('user_id',data.user.id).maybeSingle();
+  if(role.error||role.data?.role!=='owner'){status('gateStatus','This account does not have owner access. The management tools are locked.','error');return}
+  ownerId=data.user.id;
+  $('gate').hidden=true;$('ownerWorkspace').hidden=false;
+  await loadGames();
+ }catch(error){status('gateStatus','Could not verify owner permissions. Please try again.','error')}
+}
+function itemRow(g){
+ const row=document.createElement('article');row.className='item';
+ const text=document.createElement('div'),title=document.createElement('strong'),meta=document.createElement('small');
+ title.textContent=g.title||'Untitled';
+ meta.textContent=(g.status||'pending')+' · '+(g.category||'Other')+' · '+(g.gameUrl||'');
+ text.append(title,meta);
+ const actions=document.createElement('div');actions.className='item-actions';
+ if(g.status!=='approved'){
+  const approve=document.createElement('button');approve.type='button';approve.textContent='Approve';approve.addEventListener('click',()=>moderate(g,'approved'));actions.append(approve);
+ }
+ if(g.status!=='removed'){
+  const remove=document.createElement('button');remove.type='button';remove.textContent='Remove';remove.addEventListener('click',()=>moderate(g,'removed'));actions.append(remove);
+ }
+ row.append(text,actions);return row;
+}
+async function loadGames(){
+ if(!ownerId||busy)return;status('listStatus','Loading game entries…');$('gameEntries').replaceChildren();
+ const {data,error}=await client.rpc('aio_owner_game_submissions');
+ if(error){status('listStatus','Could not load games: '+error.message,'error');return}
+ const rows=Array.isArray(data)?data:[];
+ rows.forEach(row=>$('gameEntries').append(itemRow(row)));
+ status('listStatus',rows.length?rows.length+' submitted game'+(rows.length===1?'':'s'):'No submitted games yet.');
+}
+async function moderate(g,state){
+ if(!ownerId||busy)return;
+ if(!confirm((state==='approved'?'Approve and publish ':'Remove ')+(g.title||'this game')+'?'))return;
+ busy=true;status('listStatus','Saving moderation decision…');
+ try{
+  const {error}=await client.rpc('aio_review_game_submission',{p_submission_id:g.id,p_status:state,p_featured:!!g.featured,p_coin_price:0,p_review_note:'Managed in Owner Studio'});
+  if(error)throw error;
+  status('listStatus',state==='approved'?'Published. Refresh the game library to see it.':'Game removed from the public library.','success');
+ }catch(e){status('listStatus','Could not update: '+e.message,'error')}
+ finally{busy=false;await loadGames()}
+}
+async function publish(e){
+ e.preventDefault();if(!ownerId||busy)return;
+ let gameUrl,thumbnail;
+ try{gameUrl=httpsUrl($('gameUrl').value,true);thumbnail=httpsUrl($('gameThumb').value,false)}catch(error){status('addStatus',error.message,'error');return}
+ busy=true;$('publishBtn').disabled=true;status('addStatus','Saving the game and verifying owner approval…');
+ try{
+  const args={p_title:$('gameTitle').value.trim(),p_description:$('gameDesc').value.trim(),p_category:$('gameCategory').value,p_thumbnail_url:thumbnail,p_game_url:gameUrl,p_controls:$('gameControls').value.trim(),p_creator_name:'All in One Edition'};
+  const submitted=await client.rpc('aio_submit_game',args);
+  if(submitted.error)throw submitted.error;
+  const review=await client.rpc('aio_review_game_submission',{p_submission_id:submitted.data,p_status:'approved',p_featured:false,p_coin_price:0,p_review_note:'Owner added game'});
+  if(review.error)throw Error('Saved for review but not published: '+review.error.message);
+  $('gameForm').reset();status('addStatus','Game published! Refresh the main site to see it.','success');
+ }catch(error){status('addStatus',error.message||'Could not publish this game.','error')}
+ finally{busy=false;$('publishBtn').disabled=false;await loadGames()}
+}
+$('retry').onclick=()=>verifyOwner();$('gameForm').addEventListener('submit',publish);$('refreshGames').onclick=()=>loadGames();
+verifyOwner();
+})();
+</script>
+</body></html>

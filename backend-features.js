@@ -31,6 +31,8 @@
     const panel=byId('aioStaffPanel');
     if(!panel)return;
     const status=byId('aioStaffStatus'),setup=byId('aioStaffOwnerSetup'),controls=byId('aioStaffControls');
+    const ownerStudioButton=byId('ownerStudioBtn');
+    ownerStudioButton?.classList.add('hidden');
     // Fail closed: keep the entire privileged panel hidden until the server-backed
     // staff_roles lookup has positively verified the site owner account.
     panel.classList.add('hidden');
@@ -51,6 +53,7 @@
       }
       if(status)status.textContent='Site owner · you can assign and revoke staff roles.';
       controls?.classList.remove('hidden');
+      ownerStudioButton?.classList.remove('hidden');
       panel.classList.remove('hidden');
       await window.loadAioStaffList();
     }catch(error){
