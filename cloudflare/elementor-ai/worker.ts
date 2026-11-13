@@ -133,8 +133,8 @@ export default {
     }catch{return json({error:"Image generation is temporarily unavailable. Try again later."},502);}
   }
   if(user&&!allowRate(recentChats,rateKey,24))return json({error:"You are sending messages too quickly. Wait a little and try again."},429);
-  const raw=Array.isArray(body.messages)?body.messages.slice(-14):[];
-  const messages=raw.map((m:any,index:number)=>({role:m?.role==="assistant"?"assistant":"user",content:String(m?.content||"").slice(0,3000)})).filter((m:any)=>m.content);
+  const raw=Array.isArray(body.messages)?body.messages.slice(-10):[];
+  const messages=raw.map((m:any,index:number)=>({role:m?.role==="assistant"?"assistant":"user",content:String(m?.content||"").slice(0,2000)})).filter((m:any)=>m.content);
   if(!messages.length)return json({error:"Add a message first."},400);
   const style=["concise","detailed","friendly"].includes(body.profile?.style)?body.profile.style:"balanced";
   const instructions=String(body.profile?.instructions||"").slice(0,1200);
