@@ -549,6 +549,7 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
 }
 @media(max-width:390px){.brandtext{font-size:15px}.brandmark{width:30px}.brandmark img{width:30px;height:30px}.top>#accountBtn{font-size:0}.top>#accountBtn .account-avatar{font-size:12px}}
 </style>
+<script src="/html-game-sandbox.js" defer></script>
 </head>
 <body>
 <div id="siteLoader" aria-live="polite">
@@ -1119,8 +1120,54 @@ function setupGameConnectionWarmup(){
 }
 
 function gameShell(g){return String(g.url||'')}
-let gameLoadTimer=0;
-function loadGameIntoFrame(g){clearTimeout(gameLoadTimer);const frame=$('gameFrame');if(!frame)return;$('gameLoading').style.display='grid';$('gameError').classList.remove('show');$('gameLoadStatus').textContent='Loading…';frame.loading='eager';try{if('fetchPriority'in frame)frame.fetchPriority='high'}catch{}frame.src=gameShell(g);gameLoadTimer=setTimeout(()=>{if(currentGame===g){$('gameLoading').style.display='none';$('gameError').classList.add('show');$('gameLoadStatus').textContent='Check the game link'}},12000)}
+let gameLoadTimer=0,htmlGameLoadSerial=0;
+function isUploadedHtmlGame(g){return !!window.AioHtmlGameSandbox?.extractId(g?.url)}
+async function loadGameIntoFrame(g){
+ const serial=++htmlGameLoadSerial;
+ clearTimeout(gameLoadTimer);
+ const frame=$('gameFrame');
+ if(!frame)return;
+ $('gameLoading').style.display='grid';
+ $('gameError').classList.remove('show');
+ $('gameLoadStatus').textContent='Loading…';
+ frame.loading='eager';
+ try{if('fetchPriority'in frame)frame.fetchPriority='high'}catch{}
+ if(isUploadedHtmlGame(g)){
+  try{
+   const id=window.AioHtmlGameSandbox.extractId(g.url);
+   const db=supabaseClient||window.supabase?.createClient?.(SUPABASE_URL,SUPABASE_KEY);
+   if(!db)throw Error('Game service is not available right now.');
+   const {data,error}=await db.from('aio_uploaded_html_games').select('html_content')
+    .eq('id',id).eq('published',true).maybeSingle();
+   if(serial!==htmlGameLoadSerial||currentGame!==g)return;
+   if(error||!data?.html_content)throw Error('This HTML game is unavailable or has been unpublished.');
+   window.AioHtmlGameSandbox.loadIntoFrame(frame,data.html_content);
+   gameLoadTimer=setTimeout(()=>{
+    if(serial===htmlGameLoadSerial&&currentGame===g){
+     $('gameLoading').style.display='none';
+     $('gameError').classList.add('show');
+     $('gameLoadStatus').textContent='Could not start this HTML game';
+    }
+   },12000);
+  }catch(error){
+   if(serial!==htmlGameLoadSerial||currentGame!==g)return;
+   console.warn('Uploaded HTML game failed to load:',error);
+   $('gameLoading').style.display='none';
+   $('gameError').classList.add('show');
+   $('gameLoadStatus').textContent=error.message||'Could not load HTML game';
+  }
+  return;
+ }
+ window.AioHtmlGameSandbox?.clearFrame(frame);
+ frame.src=gameShell(g);
+ gameLoadTimer=setTimeout(()=>{
+  if(serial===htmlGameLoadSerial&&currentGame===g){
+   $('gameLoading').style.display='none';
+   $('gameError').classList.add('show');
+   $('gameLoadStatus').textContent='Check the game link';
+  }
+ },12000);
+}
 function stopGamePresence(){if(gamePresenceChannel&&supabaseClient){Promise.resolve(supabaseClient.removeChannel(gamePresenceChannel)).catch(()=>{});gamePresenceChannel=null;}}
 async function startGamePresence(game){
   stopGamePresence();const label=$('liveGamePlayers');if(label)label.textContent='Live players · connecting…';
@@ -1137,7 +1184,7 @@ async function startGamePresence(game){
   }catch{if(label)label.textContent='Live players · unavailable';}
 }
 function openGame(i){const g=GAMES[i];if(!g)return;currentGame=g;startGamePresence(g);warmGameConnection(g.url);gameMuted=false;updateGameMuteButton();const k=gameKey(g),st=gameProgress[k]||{progress:0,plays:0};st.plays=(st.plays||0)+1;st.lastPlayed=Date.now();gameProgress[k]=st;storage.setItem(GAME_PROGRESS_KEY,JSON.stringify(gameProgress));$('modalTitle').textContent=g.name;if($('progressRange'))$('progressRange').value=st.progress||0;if($('progressLabel'))$('progressLabel').textContent=(st.progress||0)+'%';if($('playCountLabel'))$('playCountLabel').textContent=(st.plays||0)+' play'+(st.plays===1?'':'s');if($('modalNote'))$('modalNote').textContent='Hub progress is saved locally on this device.';document.querySelectorAll('.progressbarbox').forEach(e=>e.classList.remove('progress-visible'));$('gameLoading').style.display='grid';$('gameError').classList.remove('show');$('gameModal').classList.add('open');updateResumeCard();loadGameIntoFrame(g)}
-function reloadGame(){if(!currentGame)return;$('gameError').classList.remove('show');loadGameIntoFrame(currentGame)}function openCurrentGameNewTab(){if(currentGame)window.open(currentGame.url,'_blank','noopener,noreferrer')}
+function reloadGame(){if(!currentGame)return;$('gameError').classList.remove('show');loadGameIntoFrame(currentGame)}function openCurrentGameNewTab(){if(!currentGame)return;if(isUploadedHtmlGame(currentGame)){showToast('Uploaded HTML games play inside the protected game player.');return;}window.open(currentGame.url,'_blank','noopener,noreferrer')}
 $('gameFrame').addEventListener('load',()=>{if(currentGame){clearTimeout(gameLoadTimer);$('gameLoading').style.display='none';$('gameError').classList.remove('show');$('gameLoadStatus').textContent='Loaded';applyGameMute()}});
 $('gameFrame').addEventListener('error',()=>{if(currentGame){$('gameLoading').style.display='none';$('gameError').classList.add('show');$('gameLoadStatus').textContent='Could not load'}})
 let afkActive=false;let afkWasFullscreen=false;function shuffleCopy(a){return [...a].sort(()=>Math.random()-.5)}
@@ -1156,7 +1203,7 @@ async function enterAFK(){
   showToast('AFK mode on');
 }
 function exitAFK(resume){if(!afkActive)return;const overlay=$('afkOverlay');afkActive=false;if(resume)resumeCurrentGame();overlay?.classList.add('returning');setTimeout(()=>{overlay?.classList.remove('open','returning');overlay?.setAttribute('aria-hidden','true');document.body.classList.remove('afk-mode');renderAfkShuffle();showToast(resume?(currentGame?'Welcome back — resuming your game':'Welcome back'):'Back to the site')},520)}
-function closeGame(){stopGamePresence();if(document.fullscreenElement){document.exitFullscreen?.().catch?.(()=>{})}pseudoGameFullscreen=false;document.documentElement.classList.remove('game-fullscreen');$('gameModal').classList.remove('open');$('gameFrame').src='about:blank';$('gameLoading').style.display='grid';$('gameError').classList.remove('show');currentGame=null;renderGames()}
+function closeGame(){++htmlGameLoadSerial;clearTimeout(gameLoadTimer);stopGamePresence();if(document.fullscreenElement){document.exitFullscreen?.().catch?.(()=>{})}pseudoGameFullscreen=false;document.documentElement.classList.remove('game-fullscreen');$('gameModal').classList.remove('open');window.AioHtmlGameSandbox?.clearFrame($('gameFrame'));$('gameFrame').src='about:blank';$('gameLoading').style.display='grid';$('gameError').classList.remove('show');currentGame=null;renderGames()}
 let pseudoGameFullscreen=false;async function fullscreenGame(){const stage=$('gameStage');if(!stage)return;if(document.fullscreenElement){try{await document.exitFullscreen()}catch{}return}try{pseudoGameFullscreen=false;if(stage.requestFullscreen)await stage.requestFullscreen({navigationUI:'hide'});else throw Error('no fullscreen api')}catch{pseudoGameFullscreen=true;document.documentElement.classList.add('game-fullscreen');showToast('Game-only view enabled. Browser fullscreen was blocked.')}}function syncGameFullscreen(){document.documentElement.classList.toggle('game-fullscreen',!!document.fullscreenElement||pseudoGameFullscreen);const b=$('fsBtn');if(b)b.textContent=(document.fullscreenElement||pseudoGameFullscreen)?'Exit fullscreen':'Fullscreen'}document.addEventListener('fullscreenchange',syncGameFullscreen);
 $('gameModal').addEventListener('click',e=>{if(e.target.id==='gameModal')closeGame()});
 let schoolUrl='';function openSchool(n,u){schoolUrl=u;$('schoolTitle').textContent=n;$('schoolFrame').src=u;$('schoolModal').classList.add('open')}function closeSchool(){$('schoolModal').classList.remove('open');$('schoolFrame').src='about:blank'}function schoolExternal(){if(schoolUrl)window.open(schoolUrl,'_blank','noopener,noreferrer')}$('schoolModal').addEventListener('click',e=>{if(e.target.id==='schoolModal')closeSchool()});
@@ -1549,6 +1596,33 @@ addTopVazExtras();
 
 /* Owner-approved cloud games are appended to the preserved local registry.
    RLS publishes only approved records; no imported scripts or HTML are run. */
+
+/* Load only published HTML-game metadata. Fetch the HTML itself after Play,
+   then run it with sandbox="allow-scripts" (without allow-same-origin) and CSP. */
+let aioHtmlGamesLoaded=false;
+async function loadPublishedHtmlGames(){
+ if(aioHtmlGamesLoaded||!supabaseClient)return;
+ const {data,error}=await supabaseClient.from('aio_uploaded_html_games')
+  .select('id,title,description,category,thumbnail_url')
+  .eq('published',true).order('created_at',{ascending:false}).limit(200);
+ if(error){console.warn('HTML games could not be loaded:',error.message);return;}
+ aioHtmlGamesLoaded=true;
+ const seen=new Set(GAMES.map(g=>String(g.url||'')));
+ let added=0;
+ for(const row of data||[]){
+  const id=String(row.id||'');
+  if(!window.AioHtmlGameSandbox?.extractId('aio-html:'+id))continue;
+  const url='aio-html:'+id;
+  if(seen.has(url))continue;
+  const name=String(row.title||'').trim();
+  if(!name)continue;
+  const img=String(row.thumbnail_url||'');
+  GAMES.push({name,cat:row.category||'Arcade',url,source:'Owner uploaded HTML',img:/^https:\/\//i.test(img)?img:'',desc:String(row.description||''),tag:'New'});
+  seen.add(url);added++;
+ }
+ if(added){CATEGORIES=['All',...new Set(GAMES.map(g=>g.cat))];renderFilters();renderGames();}
+}
+
 let aioCloudGamesLoaded=false;
 async function loadPublishedOwnerGames(){
  if(aioCloudGamesLoaded||!supabaseClient)return;
@@ -1970,6 +2044,7 @@ async function initCommunity(){
     if(!window.supabase?.createClient){$('supabaseStatus').textContent='Supabase library failed to load.';return;}
     supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
     loadPublishedOwnerGames().catch(error=>console.warn("Cloud catalogue unavailable:",error));
+    loadPublishedHtmlGames().catch(error=>console.warn('HTML catalogue unavailable:',error));
     const {data}=await supabaseClient.auth.getSession(); await handleAuthSession(data?.session||null);
     await loadReleaseBroadcast();
     supabaseClient.auth.onAuthStateChange((_event,session)=>setTimeout(()=>handleAuthSession(session),0));
