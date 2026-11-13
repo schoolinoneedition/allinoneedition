@@ -14,6 +14,7 @@ assert.ok(start>12&&end>start,'The original GAMES list must remain valid.');
 const games=JSON.parse(index.slice(start,end));
 assert.ok(games.length>=875,'The original game registry must stay intact.');
 for(const title of ['Shy Safari','Times Tables Speed Escape','Steal an Egg 3x3'])assert.ok(games.some(game=>game.name===title),'Missing original game '+title);
+assert.ok(index.includes('</textarea><iframe id="codePreview"')&&!index.slice(0,index.indexOf('</main>')).includes('</body>'),'Code Lab must not close the document before later sections.');
 assert.ok(index.includes('href="/video"')&&index.includes('href="/anime"')&&index.includes('id="aio-feature-hub"'),'Homepage must focus Video Studio and Watch.');
 assert.ok(index.includes('loadPublishedOwnerGames')&&index.includes(".eq('status','approved')"),'Only approved cloud games may enter the live catalogue.');
 assert.ok(index.includes("supabaseClient.from('aio_game_submissions')")&&index.includes('knownUrls.add('),'Cloud games must join the existing registry without duplicates.');
