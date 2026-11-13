@@ -13,6 +13,18 @@ main{padding:28px 0 65px}h1{font-size:clamp(26px,4vw,35px);letter-spacing:-1.1px
 button,.action{appearance:none;display:inline-flex;justify-content:center;align-items:center;text-decoration:none;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--text);padding:10px 13px;font:inherit;font-weight:800;font-size:13px;cursor:pointer}button.primary,.action.primary{background:var(--accent);border-color:var(--accent);color:#fff}button:disabled{opacity:.5;cursor:wait}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}.status{color:var(--muted);font-size:13px;min-height:22px;margin:12px 0 0}.success{color:#116a3e}.error{color:#a42525}.hint{font-size:12px;color:var(--muted)}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}.steps a{text-decoration:none;display:block;border:1px solid var(--line);border-radius:12px;padding:13px;background:#fafbfc}.steps strong{display:block;font-size:13px}.steps span{display:block;color:var(--muted);font-size:12px;margin-top:4px}
 .item{display:flex;justify-content:space-between;align-items:center;gap:13px;padding:13px 0;border-top:1px solid var(--line)}.item strong{display:block;font-size:14px;word-break:break-word}.item small{display:block;color:var(--muted);font-size:12px;margin-top:2px}.item-actions{display:flex;align-items:center;flex-wrap:wrap;gap:7px}.item-actions button{padding:7px 10px}.hidden,[hidden]{display:none!important}
 @media(max-width:700px){.grid,.steps{grid-template-columns:1fr}.grid .wide{grid-column:auto}.top{align-items:flex-start;flex-direction:column;padding:14px 0}.item{align-items:flex-start;flex-direction:column}.card{padding:17px}}
+
+/* Deliberately small, separate upload card. Game HTML never touches this page's DOM. */
+.html-drop{border:2px dashed #bcc7db;border-radius:13px;padding:22px;text-align:center;background:#f8faff;transition:border-color .15s,background .15s}
+.html-drop.dragging{border-color:var(--accent);background:#edf3ff}
+.html-drop strong{display:block;font-size:14px}
+.html-drop small{display:block;color:var(--muted);margin:6px 0 13px;font-size:12px}
+.html-preview{margin-top:14px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#111}
+.html-preview iframe{width:100%;min-height:300px;aspect-ratio:16/9;display:block;border:0;background:white}
+.html-preview[hidden]{display:none!important}
+.html-file-name{margin:9px 0;color:var(--muted);font-size:12px}
+.html-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+@media(max-width:650px){.html-drop{padding:16px}.html-preview iframe{min-height:220px}}
 </style>
 </head>
 <body>
@@ -35,9 +47,38 @@ button,.action{appearance:none;display:inline-flex;justify-content:center;align-
 <div class="wide"><label for="gameDesc">Short description (optional)</label><textarea id="gameDesc" maxlength="1000" placeholder="What is this game about?"></textarea></div>
 <div class="wide"><label for="gameControls">Controls (optional)</label><input id="gameControls" maxlength="500" placeholder="Arrow keys, mouse, touch"></div>
 </div><div class="actions"><button type="submit" class="primary" id="publishBtn">Publish game</button><a class="action" href="/#games">View game library</a></div><p class="status" id="addStatus" role="status" aria-live="polite"></p></form></section>
+
+<section class="card" id="htmlGameSection">
+ <h2>Upload an HTML game</h2>
+ <p class="hint">No GitHub edits needed. Upload a standalone <strong>.html</strong> or <strong>.htm</strong> game, preview it safely, and publish it to Games. Maximum 512 KB. Put all JavaScript, CSS and images inside one HTML file (embedded or data URLs). External scripts, network calls and extra files are blocked for security.</p>
+ <form id="htmlGameForm">
+  <div id="htmlDrop" class="html-drop">
+   <strong>Drop your HTML game here</strong>
+   <small>Or choose a single HTML file from your device · .html / .htm · up to 512 KB</small>
+   <button type="button" id="htmlChoose">Choose HTML file</button>
+   <input type="file" id="htmlGameFile" accept=".html,.htm,text/html" hidden required>
+   <div id="htmlFileName" class="html-file-name">No file selected</div>
+  </div>
+  <div class="grid" style="margin-top:16px">
+   <div><label for="htmlTitle">Game title</label><input id="htmlTitle" minlength="3" maxlength="80" placeholder="My HTML game" required></div>
+   <div><label for="htmlCategory">Category</label><select id="htmlCategory"><option>Arcade</option><option>Classic</option><option>Puzzle</option><option>Action</option><option>Platformer</option><option>Racing</option><option>Sports</option><option>Casual</option><option>Idle</option><option>Other</option></select></div>
+   <div class="wide"><label for="htmlDescription">Description (optional)</label><textarea id="htmlDescription" maxlength="1000" placeholder="A quick description of your game"></textarea></div>
+   <div class="wide"><label for="htmlThumbnail">Cover image URL (optional)</label><input id="htmlThumbnail" type="url" maxlength="2048" placeholder="https://example.com/cover.png"></div>
+  </div>
+  <div class="actions"><button type="button" id="htmlPreviewBtn" disabled>Preview safely</button><button type="submit" id="htmlPublishBtn" class="primary" disabled>Publish HTML game</button></div>
+  <div class="html-preview" id="htmlPreviewBox" hidden><iframe id="htmlPreviewFrame" title="Isolated HTML game preview" loading="lazy"></iframe></div>
+  <p class="status" id="htmlUploadStatus" role="status" aria-live="polite">Choose a file to start.</p>
+ </form>
+</section>
+<section class="card" id="htmlManageSection">
+ <div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><div><h2>Your uploaded HTML games</h2><p class="hint" style="margin:0">Turn a game on or off, or delete it. Published games appear in the regular library.</p></div><button type="button" id="refreshHtmlGames">Refresh</button></div>
+ <div id="htmlGameEntries"></div>
+ <p class="status" id="htmlListStatus" role="status" aria-live="polite"></p>
+</section>
 <section class="card"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><div><h2>Manage submitted games</h2><p class="hint" style="margin:0">Approve new submissions or remove a published entry without editing GitHub.</p></div><button type="button" id="refreshGames">Refresh</button></div><div id="gameEntries"></div><p class="status" id="listStatus" role="status" aria-live="polite"></p></section>
 </div></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/html-game-sandbox.js"></script>
 <script>
 (()=>{
 'use strict';
@@ -65,6 +106,7 @@ async function verifyOwner(){
   ownerId=data.user.id;
   $('gate').hidden=true;$('ownerWorkspace').hidden=false;
   await loadGames();
+  await loadHtmlGames();
  }catch(error){status('gateStatus','Could not verify owner permissions. Please try again.','error')}
 }
 function itemRow(g){
@@ -116,6 +158,120 @@ async function publish(e){
  }catch(error){status('addStatus',error.message||'Could not publish this game.','error')}
  finally{busy=false;$('publishBtn').disabled=false;await loadGames()}
 }
+
+let selectedHtmlFile=null;
+const HTML_LIMIT=524288;
+function setSelectedHtmlFile(file){
+ selectedHtmlFile=null;
+ $('htmlPreviewBox').hidden=true;
+ window.AioHtmlGameSandbox?.clearFrame($('htmlPreviewFrame'));
+ $('htmlPreviewFrame').src='about:blank';
+ $('htmlPreviewBtn').disabled=true;
+ $('htmlPublishBtn').disabled=true;
+ if(!file){$('htmlFileName').textContent='No file selected';status('htmlUploadStatus','Choose an HTML file.');return}
+ if(!/\.(html?|HTML?)$/i.test(file.name)){status('htmlUploadStatus','Choose a .html or .htm file.','error');return}
+ if(file.size<64||file.size>HTML_LIMIT){status('htmlUploadStatus','HTML files must be between 64 bytes and 512 KB.','error');return}
+ selectedHtmlFile=file;
+ $('htmlFileName').textContent=file.name+' · '+Math.ceil(file.size/1024)+' KB';
+ if(!$('htmlTitle').value.trim())$('htmlTitle').value=file.name.replace(/\.html?$/i,'').replace(/[_-]/g,' ').slice(0,80);
+ $('htmlPreviewBtn').disabled=false;
+ $('htmlPublishBtn').disabled=false;
+ status('htmlUploadStatus','Ready to preview or publish. Only self-contained HTML games will work.','success');
+}
+async function readSelectedHtml(){
+ if(!selectedHtmlFile)throw Error('Choose an HTML file first.');
+ if(selectedHtmlFile.size>HTML_LIMIT)throw Error('That file is larger than 512 KB.');
+ const html=await selectedHtmlFile.text();
+ if(new TextEncoder().encode(html).byteLength>HTML_LIMIT)throw Error('That HTML game is larger than 512 KB.');
+ if(!/<(?:!doctype|html|body|canvas|script|div)\b/i.test(html))throw Error('This does not look like a valid HTML game.');
+ return html;
+}
+async function previewHtmlGame(){
+ try{
+  const html=await readSelectedHtml();
+  const frame=$('htmlPreviewFrame');
+  window.AioHtmlGameSandbox.loadIntoFrame(frame,html);
+  $('htmlPreviewBox').hidden=false;
+  status('htmlUploadStatus','Preview is isolated. External network access is disabled.','success');
+ }catch(error){status('htmlUploadStatus',error.message||'Could not preview HTML.','error')}
+}
+async function publishHtmlGame(event){
+ event.preventDefault();
+ if(!ownerId||busy)return;
+ busy=true;$('htmlPublishBtn').disabled=true;
+ status('htmlUploadStatus','Checking and publishing the HTML file…');
+ try{
+  const html=await readSelectedHtml();
+  const title=$('htmlTitle').value.trim();
+  if(title.length<3||title.length>80)throw Error('Game title must be 3–80 characters.');
+  const thumbnail=httpsUrl($('htmlThumbnail').value,false);
+  const {data,error}=await client.from('aio_uploaded_html_games').insert({
+   owner_id:ownerId,title,description:$('htmlDescription').value.trim(),
+   category:$('htmlCategory').value,thumbnail_url:thumbnail,
+   html_content:html,published:true
+  }).select('id').single();
+  if(error)throw error;
+  if(!data?.id)throw Error('Game was not saved.');
+  status('htmlUploadStatus','Published! Open Games and refresh the page to play it.','success');
+  selectedHtmlFile=null;
+  $('htmlGameFile').value='';
+  $('htmlGameForm').reset();
+  $('htmlFileName').textContent='No file selected';
+  $('htmlPreviewBox').hidden=true;
+  $('htmlPreviewBtn').disabled=true;
+  await loadHtmlGames();
+ }catch(error){status('htmlUploadStatus','Could not publish: '+(error.message||'Unknown error'),'error')}
+ finally{busy=false;$('htmlPublishBtn').disabled=!selectedHtmlFile}
+}
+async function loadHtmlGames(){
+ if(!ownerId)return;
+ const box=$('htmlGameEntries');
+ box.replaceChildren();
+ status('htmlListStatus','Loading HTML games…');
+ const {data,error}=await client.from('aio_uploaded_html_games')
+  .select('id,title,category,published,created_at')
+  .eq('owner_id',ownerId).order('created_at',{ascending:false}).limit(100);
+ if(error){status('htmlListStatus','Could not load HTML games: '+error.message,'error');return}
+ for(const item of data||[]){
+  const row=document.createElement('article');row.className='item';
+  const info=document.createElement('div'),heading=document.createElement('strong'),details=document.createElement('small');
+  heading.textContent=item.title;
+  details.textContent=(item.published?'Published':'Hidden')+' · '+item.category;
+  info.append(heading,details);
+  const actions=document.createElement('div');actions.className='item-actions';
+  const toggle=document.createElement('button');toggle.type='button';toggle.textContent=item.published?'Unpublish':'Publish';
+  toggle.addEventListener('click',()=>updateHtmlGame(item,'toggle'));
+  const remove=document.createElement('button');remove.type='button';remove.textContent='Delete';
+  remove.addEventListener('click',()=>updateHtmlGame(item,'delete'));
+  actions.append(toggle,remove);row.append(info,actions);box.append(row);
+ }
+ status('htmlListStatus',(data||[]).length+' HTML game'+((data||[]).length===1?'':'s')+' stored.');
+}
+async function updateHtmlGame(item,action){
+ if(!ownerId||busy)return;
+ if(action==='delete'&&!confirm('Permanently delete "'+item.title+'"?'))return;
+ busy=true;
+ status('htmlListStatus',action==='delete'?'Deleting game…':'Updating visibility…');
+ try{
+  const query=client.from('aio_uploaded_html_games');
+  const {error}=action==='delete'
+   ?await query.delete().eq('id',item.id).eq('owner_id',ownerId)
+   :await query.update({published:!item.published,updated_at:new Date().toISOString()}).eq('id',item.id).eq('owner_id',ownerId);
+  if(error)throw error;
+  status('htmlListStatus',action==='delete'?'HTML game deleted.':'Visibility updated. Refresh the Games page.','success');
+ }catch(error){status('htmlListStatus','Could not update HTML game: '+error.message,'error')}
+ finally{busy=false;await loadHtmlGames()}
+}
+$('htmlChoose').onclick=()=>$('htmlGameFile').click();
+$('htmlGameFile').addEventListener('change',e=>setSelectedHtmlFile(e.target.files?.[0]));
+$('htmlPreviewBtn').onclick=previewHtmlGame;
+$('htmlGameForm').addEventListener('submit',publishHtmlGame);
+$('refreshHtmlGames').onclick=loadHtmlGames;
+const drop=$('htmlDrop');
+drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('dragging')});
+drop.addEventListener('dragleave',()=>drop.classList.remove('dragging'));
+drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('dragging');setSelectedHtmlFile(e.dataTransfer?.files?.[0])});
+
 $('retry').onclick=()=>verifyOwner();$('gameForm').addEventListener('submit',publish);$('refreshGames').onclick=()=>loadGames();
 verifyOwner();
 })();
