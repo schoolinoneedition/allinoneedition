@@ -365,10 +365,10 @@ assert.ok(elementorSchema.includes('enable row level security') && elementorSche
 
 // Game catalogue refresh: keep the library intact and provide visible, usable controls.
 const catalogueCss=read('game-catalogue.css');
-const registryStart=html.indexOf('const GAMES=')+'const GAMES='.length;
-const registryEnd=html.indexOf(';const EXTRA_',registryStart);
-assert.ok(registryStart>='const GAMES='.length&&registryEnd>registryStart,'The games registry must stay readable.');
-const catalogueEntries=JSON.parse(html.slice(registryStart,registryEnd));
+const catalogRegistryStart=html.indexOf('const GAMES=')+'const GAMES='.length;
+const catalogRegistryEnd=html.indexOf(';const EXTRA_',catalogRegistryStart);
+assert.ok(catalogRegistryStart>='const GAMES='.length&&catalogRegistryEnd>catalogRegistryStart,'The games registry must stay readable.');
+const catalogueEntries=JSON.parse(html.slice(catalogRegistryStart,catalogRegistryEnd));
 assert.ok(catalogueEntries.length>=875,'All original game registry entries must stay present.');
 assert.ok(['Shy Safari','Times Tables Speed Escape','Steal an Egg 3x3'].every(title=>catalogueEntries.some(game=>game.name===title)),'Requested catalogue additions must stay intact.');
 assert.ok(html.includes('href="/game-catalogue.css"')&&catalogueCss.includes('#games .games')&&catalogueCss.includes('@media(max-width:700px)'),'Catalogue layout must stay responsive and scoped to the games section.');
