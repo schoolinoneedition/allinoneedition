@@ -14,6 +14,7 @@ const recentImages = new Map<string, number[]>();
 const recentVideos = new Map<string, number[]>();
 const recentChats = new Map<string, number[]>();
 const unsafePrompt = /\b(nude|nudity|porn|sexual|explicit sex|rape|gore|gory|dismember|self[- ]?harm|suicide|graphic violence|torture|bloodbath|gun|firearm|weapon|knife|bomb|explosive)\b/i;
+const unsafeVideoPrompt = /\b(nude|nudity|porn|sexual|explicit|rape|gore|gory|dismember|self[- ]?harm|suicide|violence|violent|blood|torture|gun|firearm|weapon|knife|bomb|explosive|drug|cocaine|meth|cannabis|alcohol|vape|cigarette|fight|attack|shoot|stab|murder|kill|dangerous stunt|jump off|deepfake|impersonate)\b/i;
 function json(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { ...CORS, "Content-Type": "application/json", "Cache-Control": "no-store" } });
 }
@@ -100,6 +101,7 @@ export default {
         prompt:prompt+"\n\nCreate a family-friendly, non-violent scene. Do not depict weapons, dangerous behaviour, sexual content, or profanity.",
         duration:5,
         resolution:"720p",
+        fps:24,
         aspect_ratio:"16:9",
         draft:true,
         save_audio:false,
@@ -110,7 +112,7 @@ export default {
       let parsed:URL;
       try{parsed=new URL(video)}catch{return json({error:"The video service returned no usable video link."},502);}
       if(parsed.protocol!=="https:")return json({error:"The video service returned an unsafe link."},502);
-      return json({ok:true,video:parsed.href,duration:5,resolution:"720p",draft:true});
+      return json({ok:true,video:parsed.href,duration:5,resolution:"720p",draft:true,estimatedUsd:0.025});
     }catch(error){
       console.error("Elementor video generation failed",error);
       return json({error:"Video generation is temporarily unavailable. No video was created."},502);
