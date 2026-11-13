@@ -13,7 +13,7 @@ const start=index.indexOf('const GAMES=')+'const GAMES='.length,end=index.indexO
 assert.ok(start>12&&end>start,'The original GAMES list must remain valid.');
 const games=JSON.parse(index.slice(start,end));
 assert.ok(games.length>=875,'The original game registry must stay intact.');
-for(const title of ['Shy Safari','Times Tables Speed Escape','Steal an Egg 3x3'])assert.ok(games.some(game=>game.name===title),'Missing original game '+title);
+for(const title of ['Shy Safari','3x3 +1 Keyboard Escape','3x3 Steal an Egg'])assert.ok(games.some(game=>game.name===title),'Missing original game '+title);
 assert.ok(index.includes('</textarea><iframe id="codePreview"')&&!index.slice(0,index.indexOf('</main>')).includes('</body>'),'Code Lab must not close the document before later sections.');
 assert.ok(index.includes('href="/video"')&&index.includes('href="/anime"')&&index.includes('id="aio-feature-hub"'),'Homepage must focus Video Studio and Watch.');
 assert.ok(index.includes('loadPublishedOwnerGames')&&index.includes(".eq('status','approved')"),'Only approved cloud games may enter the live catalogue.');
