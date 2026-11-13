@@ -29,7 +29,7 @@
   if(new TextEncoder().encode(html).byteLength>MAX_BYTES)throw Error('This HTML game exceeds the 512 KB limit.');
   const doc=new DOMParser().parseFromString(html,'text/html');
   // Remove attacker-supplied base tags and CSP meta tags before setting ours first.
-  doc.querySelectorAll('base, meta[http-equiv="Content-Security-Policy" i]').forEach(el=>el.remove());
+  doc.querySelectorAll('base, meta[http-equiv="Content-Security-Policy" i], meta[http-equiv="refresh" i]').forEach(el=>el.remove());
   const meta=doc.createElement('meta');
   meta.setAttribute('http-equiv','Content-Security-Policy');
   meta.setAttribute('content',CSP);
