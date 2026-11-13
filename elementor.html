@@ -617,7 +617,7 @@ async function regenerateLast(){
  const old=messages.slice(userIndex,assistantIndex+1);messages.splice(userIndex,assistantIndex-userIndex+1);
  if(user){for(const item of old){if(item.id)await db.from('elementor_messages').delete().eq('id',item.id).eq('conversation_id',currentId);}}
  else{if(guestChats[currentId]){guestChats[currentId].messages=messages;saveGuestChats();}}
- renderMessages();$('prompt').value=old.find(x=>x.role==='user')?.content?.replace(/^Create an image:\s*/,'')||'';if(/^Create an image:/i.test(old.find(x=>x.role==='user')?.content||''))imageMode=true;await send();
+ renderMessages();$('prompt').value=old.find(x=>x.role==='user')?.content?.replace(/^Create an image:\s*/,'')||'';await send();
 }
 async function openProfile(){
  applyElementorPreferences();if(!user)profile=JSON.parse(sessionStorage.getItem('elementor_guest_profile')||'null')||profile;$('displayName').value=profile.display_name||'Elementor';$('instructions').value=profile.instructions||'';$('responseStyle').value=profile.response_style||'balanced';$('avatarChoices').replaceChildren();
@@ -689,53 +689,10 @@ $('thinkMode').classList.toggle('active',thinkMode);$('thinkMode').setAttribute(
 $('stop').onclick=()=>{if(activeController)activeController.abort();};
 $('renameChat').onclick=async()=>{if(!currentId)return;const title=window.prompt('Rename this conversation',$('chatTitle').textContent);if(!title?.trim())return;const clean=title.trim().slice(0,100);if(!user&&guestChats[currentId]){guestChats[currentId].title=clean;guestChats[currentId].updated_at=Date.now();saveGuestChats();}else if(user)await db.from('elementor_conversations').update({title:clean,updated_at:new Date().toISOString()}).eq('id',currentId).eq('user_id',user.id);$('chatTitle').textContent=clean;await loadHistory();};
 $('deleteChat').onclick=async()=>{if(!currentId||!window.confirm('Delete this conversation and its messages?'))return;if(!user)delete guestChats[currentId];else{const {error}=await db.from('elementor_conversations').delete().eq('id',currentId).eq('user_id',user.id);if(error){alert('Could not delete chat: '+error.message);return;}}saveGuestChats();currentId=null;messages=[];$('messages').replaceChildren();await loadHistory();};$('prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
-$('imageMode').onclick=()=>{imageMode=!imageMode;$('imageMode').classList.toggle('active',imageMode);$('prompt').placeholder=imageMode?'Describe the image you want Elementor to create…':'Message Elementor…';$('prompt').focus();};
-$('clearMode').onclick=()=>{imageMode=false;$('imageMode').classList.remove('active');$('prompt').placeholder='Message Elementor…';};
 $('profileOpen').onclick=openProfile;$('profileTop').onclick=openProfile;$('saveProfile').onclick=saveProfile;$('controlsOpen').onclick=openControls;$('saveAnnouncement').onclick=()=>saveAnnouncement(false);$('clearAnnouncement').onclick=()=>saveAnnouncement(true);
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
 document.querySelectorAll('.suggestion').forEach(b=>b.onclick=()=>{$('prompt').value=b.dataset.prompt;$('prompt').focus();});
 $('menuBtn').onclick=()=>{const open=$('sidebar').classList.toggle('open');document.body.classList.toggle('sidebar-open',open);};document.addEventListener('click',event=>{if(window.matchMedia('(max-width:700px)').matches&&$('sidebar').classList.contains('open')&&!$('sidebar').contains(event.target)&&event.target!==$('menuBtn')){$('sidebar').classList.remove('open');document.body.classList.remove('sidebar-open');}});
-
-let workMode=false,workPaused=false,workCancelled=false,workController=null,workSteps=0;
-function setWorkStatus(message){$('workStatus').textContent=message;}
-function setWorkProgress(step,total,label){workSteps=step;$('workCurrent').textContent=label;$('workProgress').textContent=step+' of '+total+' steps completed';$('workProgressBar').style.width=Math.round(step/total*100)+'%';}
-function setWorkMode(enabled){
- workMode=!!enabled;$('workPanel').classList.toggle('hidden',!workMode);$('workModeOpen').classList.toggle('active',workMode);$('workModeOpen').setAttribute('aria-pressed',String(workMode));
- $('prompt').placeholder=workMode?'Describe the research task for this webpage?':'Message Elementor?';
- if(workMode){$('workUrl').focus();setWorkStatus('Enter a public URL and describe what you want analysed in the message box.');}
-}
-$('workModeOpen').onclick=()=>setWorkMode(!workMode);$('workExit').onclick=()=>setWorkMode(false);
-$('workPause').onclick=()=>{workPaused=true;$('workPause').disabled=true;$('workResume').disabled=false;setWorkStatus('Paused between steps. A request already in progress may finish; resume to continue.');};
-$('workResume').onclick=()=>{workPaused=false;$('workPause').disabled=false;$('workResume').disabled=true;setWorkStatus('Resumed.');};
-$('workStop').onclick=()=>{workCancelled=true;workController?.abort();activeController?.abort();workPaused=false;$('workPause').disabled=true;$('workResume').disabled=true;$('workStop').disabled=true;setWorkStatus('Task cancelled.');};
-function waitForWorkResume(){return new Promise((resolve,reject)=>{const check=()=>{if(workCancelled)return reject(new DOMException('Task cancelled','AbortError'));if(!workPaused)return resolve();setTimeout(check,150);};check();});}
-async function runWorkTask(instruction){
- if($('workRun').disabled)return;
- const rawUrl=$('workUrl').value.trim();let parsed;
- try{parsed=new URL(rawUrl);if(!['http:','https:'].includes(parsed.protocol))throw new Error();}catch{setWorkStatus('Enter a valid public HTTP or HTTPS website URL.');return;}
- workCancelled=false;workPaused=false;workController=new AbortController();const total=4;
- $('workRun').disabled=true;$('workPause').disabled=false;$('workStop').disabled=false;$('workResume').disabled=true;$('workPlan').classList.add('running');setWorkProgress(0,total,'Validating URL');
- try{
-  await waitForWorkResume();setWorkProgress(1,total,'Requesting public webpage');
-  const headers={'Content-Type':'application/json','X-Guest-Id':guestId};if(token())headers.Authorization='Bearer '+token();
-  const response=await fetch(AI_API+'/browse',{method:'POST',headers,signal:workController.signal,body:JSON.stringify({url:parsed.href})});
-  const data=await response.json();if(!response.ok)throw new Error(data.error||'The page could not be fetched.');
-  await waitForWorkResume();setWorkProgress(2,total,'Extracting page content');
-  if(!data.text)throw new Error('The page did not contain readable text. It may require JavaScript or sign-in.');
-  $('workPlan').innerHTML='<strong>Task plan</strong><ol><li>Validate URL <span>?</span></li><li>Fetch public page <span>?</span></li><li>Extract readable content <span>?</span></li><li>Analyse and summarise in chat</li></ol>';
-  await waitForWorkResume();setWorkProgress(3,total,'Analysing '+data.title);
-  const prior=messages.slice(-10).map(m=>({role:m.role,content:m.content}));
-  const newline=String.fromCharCode(10);
-  const task=['Work Mode task: '+instruction,'','Public webpage fetched read-only:','Title: '+data.title,'URL: '+data.url,'Description: '+(data.description||''),'Links: '+(data.links||[]).slice(0,30).map(x=>x.text+' ('+x.url+')').join(newline),'','Extracted page text:',data.text.slice(0,14000),'','Analyse only this fetched evidence. State clearly if information is missing. Do not claim to click, submit forms, sign in, or control browser tabs.'].join(newline);
-  const result=await callAI();
-  await waitForWorkResume();setWorkProgress(4,total,'Completed research');
-  if(result.answer)await saveMessage('assistant',result.answer);else throw new Error('The AI analysis returned no answer.');
-  setWorkStatus('Completed. The page was fetched read-only; no forms were submitted and no browser tabs were controlled.');
-  $('workPlan').classList.remove('running');
- }catch(e){if(e.name==='AbortError'){setWorkStatus('Task cancelled.');}else{setWorkStatus('Task failed: '+e.message);await saveMessage('assistant','Work Mode could not complete the webpage inspection: '+e.message).catch(()=>{});}}
- finally{workController=null;$('workRun').disabled=false;$('workPause').disabled=true;$('workResume').disabled=true;$('workStop').disabled=true;$('workPlan').classList.remove('running');}
-}
-$('workRun').onclick=async()=>{const task=$('prompt').value.trim()||'Inspect this website and summarise its purpose, structure, useful information and potential issues.';$('prompt').value='';await saveMessage('user',task);runWorkTask(task);};
 
 
 init();
