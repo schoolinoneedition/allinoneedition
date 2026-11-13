@@ -270,9 +270,10 @@ assert.ok(glassCss.includes('data-aio-performance-profile="lite"') && glassCss.i
  assert.ok(html.includes('visibleLimit=48')&&html.includes('visibleLimit+=48'),'The initial game grid and load-more batches should stay bounded');
  assert.ok(html.includes('let gameSearchTimer=0;')&&(html.includes('renderGames()},80)')||html.includes('gameSearchTimer=setTimeout(()=>')&&html.includes('},100)')),'Game search should debounce rapid keystrokes');
  assert.ok(html.includes('Render the local game catalogue immediately'),'The game catalogue must render on first page load.');
- assert.ok(html.includes('id="siteLoader"')&&html.includes('class="aio-boot-mark"')&&html.includes('@keyframes aioBootPulse'),'The new startup animation must use local CSS and lightweight markup.');
+ assert.ok(html.includes('id="siteLoader"')&&html.includes('class="aio-launch-symbol"')&&html.includes('@keyframes aioLaunchAssemble')&&html.includes('aio-launch-track'),'The launch screen should use the new tiled emblem and progress sweep without external images.');
+assert.ok(!html.includes('class="aio-boot-mark"')&&!html.includes('@keyframes aioBootPulse'),'The retired dot loader must not reappear.');
 assert.ok(!html.includes('id="introRailA"')&&!html.includes('id="introRailB"')&&!html.includes('id="introRailC"'),'The startup animation must never fetch or animate a carousel of game thumbnails.');
-assert.ok(html.includes('setTimeout(finish,2200)')&&html.includes("window.aioFinishIntro=finish")&&html.includes("classList.add('done')"),'The new loader must always release without waiting for external resources.');
+assert.ok(html.includes('setTimeout(finish,2400)')&&html.includes("window.aioFinishIntro=finish")&&html.includes("classList.add('done')"),'The launch screen must always release without waiting for external resources.');
  assert.ok(ux.includes('function startAioDashboardClock()')&&ux.includes('window.aioDashboardClockTimer=setInterval(tick,1000)')&&ux.includes("document.addEventListener('visibilitychange',sync)"),'Dashboard date, time and hometime should share one visible-tab clock');
 assert.ok(ux.includes('WELCOME · SETUP + WALKTHROUGH')&&ux.includes('STEP 5 OF 6 · QUICK TOUR')&&ux.includes('aio-setup-tour-card'),'The first-run setup must include the guided hub walkthrough');
 assert.ok(html.includes('Personalisation · Setup tutorial')&&html.includes('window.openAioOnboarding?.()')&&html.includes('window.resetAioOnboarding?.()')&&ux.includes('aioOnboardProgress'),'Settings should replay or reset the integrated setup and show progress');
