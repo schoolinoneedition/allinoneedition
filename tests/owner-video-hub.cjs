@@ -35,4 +35,25 @@ for(const name of ['index.html','owner.html','video.html','anime.html']){
  }
  assert.ok(scripts>0,name+' needs at least one valid inline script');
 }
+
+/* Owner-only HTML uploads: isolated by opaque iframe origin AND restrictive CSP. */
+const htmlSandbox=read('html-game-sandbox.js');
+const htmlSchema=read('supabase/migrations/20261113220000_owner_html_game_uploads.sql');
+assert.ok(owner.includes('id="htmlGameFile"')&&owner.includes('id="htmlDrop"')&&owner.includes('id="htmlGameForm"'),'Owner Studio must support file picker and drop zone.');
+assert.ok(owner.includes('selectedHtmlFile.text()')&&owner.includes('file.size>HTML_LIMIT'),'HTML files must be read on demand with a strict client-side size bound.');
+assert.ok(owner.includes("from('aio_uploaded_html_games').insert")&&owner.includes('html_content:html,published:true'),'HTML must be stored only through the authenticated owner database client.');
+assert.ok(owner.includes('loadHtmlGames')&&owner.includes('updateHtmlGame')&&owner.includes('id="htmlPreviewFrame"'),'Owner can preview, hide, publish and delete HTML uploads.');
+assert.ok(owner.includes('window.AioHtmlGameSandbox.loadIntoFrame(frame,html)'),'Owner preview must use the same sandbox as public gameplay.');
+assert.ok(index.includes('loadPublishedHtmlGames()')&&index.includes("select('id,title,description,category,thumbnail_url')"),'The public catalogue must fetch HTML metadata only, not bulk-download game code.');
+assert.ok(index.includes("select('html_content')")&&index.includes("function isUploadedHtmlGame")&&index.includes('serial!==htmlGameLoadSerial'),'Opening a game must fetch code on demand and reject stale loads.');
+assert.ok(index.includes("window.AioHtmlGameSandbox?.clearFrame($('gameFrame'))"),'Closing a game must drop the sandbox document.');
+assert.ok(htmlSandbox.includes("frame.setAttribute('sandbox','allow-scripts allow-pointer-lock')")&&!htmlSandbox.includes('allow-same-origin'),'Uploaded games must not inherit the main site origin.');
+for(const directive of ["default-src 'none'","script-src 'unsafe-inline'","connect-src 'none'","frame-src 'none'","form-action 'none'","base-uri 'none'"])assert.ok(htmlSandbox.includes(directive),'Missing sandbox restriction: '+directive);
+assert.ok(htmlSandbox.includes("doc.head.prepend(meta)")&&htmlSandbox.includes("frame.srcdoc=renderDocument(html)"),'CSP must be installed before executing uploaded HTML.');
+assert.ok(htmlSchema.includes('enable row level security')&&htmlSchema.includes('private.is_aio_site_owner()'),'Owner writes must be protected by the canonical owner role.');
+assert.ok(htmlSchema.includes("Everyone can see published HTML games")&&htmlSchema.includes('using (published = true)'),'Only published games are publicly readable.');
+assert.ok(htmlSchema.includes('octet_length(html_content) between 64 and 524288'),'The database must bound HTML size independently of the UI.');
+new vm.Script(htmlSandbox,{filename:'html-game-sandbox.js'});
+console.log('Single-file HTML upload contracts passed: owner RLS, isolated preview, lazy public player and sandbox CSP.');
+
 console.log('Owner Studio, AI Video Studio, Watch and game-library preservation contracts passed.');
