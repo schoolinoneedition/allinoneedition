@@ -251,7 +251,7 @@ assert.ok(backend.includes("rootMargin:'0px'") && backend.includes('prepareGalle
 
 assert.ok(social.includes('data-video-src=') && !social.includes("'<video src=\"'+escapeHTML(p.media_url)+'\" data-social-video"), 'Separate Social feed should not attach every video source during rendering');
 assert.ok(anime.includes("video.dataset.videoSrc=saved.watch_url;video.preload='none'"), 'Anime episodes should not request video bytes merely when selected');
-assert.ok(mediaWorker.includes('Cache-Control", "private, no-store')&&anime.includes('getB2PlaybackUrl'), 'B2 Watch playback should use short-lived signed URLs without caching private media.');
+assert.ok(anime.includes('getB2PlaybackUrl'), 'B2 Watch playback must use short-lived signed media URLs.');
 assert.ok(html.includes('href="https://btnbuchsrfllpzlypjtn.supabase.co" crossorigin') && social.includes('href="https://btnbuchsrfllpzlypjtn.supabase.co" crossorigin') && anime.includes('href="https://btnbuchsrfllpzlypjtn.supabase.co" crossorigin'), 'Video pages should preconnect to their storage API');
 
 // Keep one source of truth for favourites and avoid eager-fetching dozens of covers.
@@ -301,6 +301,7 @@ assert.ok(social.includes('function renderFeed(preserveScroll=false)') && social
 
 // Backblaze B2 media storage contract.
 const mediaWorker = read('cloudflare/media-worker/src/index.ts');
+assert.ok(mediaWorker.includes('Cache-Control", "private, no-store'), "Signed B2 media responses must not be cached as public content.");
 const mediaWrangler = read('cloudflare/media-worker/wrangler.toml');
 const mediaSchema = read('supabase/migrations/20261106202316_aio_r2_media_objects.sql');
 const mediaRlsSchema = read('supabase/migrations/20261106202335_optimize_aio_media_rls.sql');
