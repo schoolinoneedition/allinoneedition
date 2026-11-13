@@ -76,4 +76,32 @@ assert.equal(escapeUrl.searchParams.get('avatar'),'glb');
 assert.ok(!egg.url.includes('3x3-eggs.html')&&!escape.url.includes('3x3-speed-escape.html'),'3x3 games must not launch publisher page wrappers.');
 assert.ok(egg.cat==='Puzzle'&&escape.cat==='Puzzle','Keep original game category.');
 
+
+// Restore the user's original game-player controls for the two 3x3 games only.
+// The rest of the catalogue and its full-window player must remain unchanged.
+const eggLogo=read('assets/3x3-steal-an-egg.svg');
+const keyboardLogo=read('assets/3x3-keyboard-escape.svg');
+const egg3x3=games.find(g=>g.name==='3x3 Steal an Egg');
+const keyboard3x3=games.find(g=>g.name==='3x3 +1 Keyboard Escape');
+assert.ok(egg3x3&&keyboard3x3,'Both requested 3x3 games must remain published in the original registry.');
+assert.equal(games.length,875,'No original games may be removed or duplicated.');
+assert.equal(egg3x3.img,'/assets/3x3-steal-an-egg.svg');
+assert.equal(keyboard3x3.img,'/assets/3x3-keyboard-escape.svg');
+assert.notEqual(egg3x3.img,keyboard3x3.img,'Each 3x3 game needs its own cover artwork.');
+assert.ok(eggLogo.includes('STEAL AN EGG')&&eggLogo.includes('3×3'),'Eggs logo needs its own recognisable artwork and wording.');
+assert.ok(keyboardLogo.includes('KEYBOARD ESCAPE')&&keyboardLogo.includes('3×3'),'Keyboard logo needs its own recognisable artwork and wording.');
+for(const asset of [eggLogo,keyboardLogo]){
+ assert.match(asset,/^<svg xmlns="http:\/\/www.w3.org\/2000\/svg"/);
+ assert.match(asset,/<\/svg>\s*$/);
+ assert.ok(!/<script|onload=|foreignObject|<image\s/i.test(asset),'Vector artwork must not contain executable or remote content.');
+}
+assert.ok(index.includes('id="game3x3Identity"')&&index.includes('id="game3x3HeaderLogo"')&&index.includes('id="game3x3Corner"'),'The classic player must mount a 3x3-only header and game-toolbar mask.');
+assert.ok(index.includes("if(url.includes('/gf/3x3-steal-egg/'))")&&index.includes("if(url.includes('/gf/3x3-speed/'))"),'Player overrides must target only these two game URLs.');
+assert.ok(index.includes('applyGame3x3Mode(g);currentGame=g;')&&index.includes('applyGame3x3Mode(null);'),'Open and close must reset 3x3-specific UI.');
+assert.match(index,/#gameModal\.open\.aio-3x3-mode \.modalhead\{\s*display:flex!important/,'The fullscreen modal must restore its original header for 3x3.');
+assert.ok(index.includes('#gameModal.open.aio-3x3-mode .modalhead > div:nth-child(2){display:none!important}'),'Only the old title block should be hidden, not the custom logo.');
+assert.ok(index.includes('#gameModal.open.aio-3x3-mode .game-float-controls{display:none!important}'),'Hide the duplicated site toolbar only for 3x3.');
+assert.ok(index.includes("contains('aio-3x3-mode')?$('gameModalBox'):$('gameStage')"),'For 3x3, fullscreen must include the header controls; ordinary games remain unchanged.');
+assert.ok(index.includes('#gameModal.open.aio-3x3-mode #gameStage')&&index.includes('html.game-fullscreen #gameModal.aio-3x3-mode .modalhead{display:flex!important}'),'Player layout must remain navigable after fullscreen.');
+
 console.log('Owner Studio, AI Video Studio, Watch and game-library preservation contracts passed.');
