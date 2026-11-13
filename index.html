@@ -14,7 +14,7 @@
 <script>
 /* Keep the launch screen visible for an actual animation, even when page load is instant. */
 (()=>{
- const MIN_VISIBLE_MS=5000;
+ const MIN_VISIBLE_MS=7500;
  let completed=false,startedAt=0,finishTimer=0;
  const finish=()=>{
   if(completed)return;
@@ -43,7 +43,7 @@
  if(document.readyState==='loading')addEventListener('DOMContentLoaded',start,{once:true});
  else start();
  // Recovery only: always dismiss if animations or script execution fail.
- setTimeout(()=>{if(!completed)finish()},7500);
+ setTimeout(()=>{if(!completed)finish()},11000);
 })();
 window.aioSpotifyAPI=null;
 window.onSpotifyIframeApiReady=api=>{window.aioSpotifyAPI=api;};
@@ -101,7 +101,7 @@ html.game-fullscreen #gameFrame{width:100vw!important;height:100vh!important;min
 #siteLoader{position:fixed;inset:0;z-index:2000000;display:grid;place-items:center;overflow:hidden;background:#0f1727;color:#fff;opacity:1;visibility:visible;transition:opacity .3s ease,visibility .3s ease}
 #siteLoader.done{opacity:0;visibility:hidden;pointer-events:none}
 .aio-launch{position:relative;isolation:isolate;width:min(420px,calc(100vw - 42px));text-align:center;padding:30px 10px}
-.aio-launch-symbol{display:grid;grid-template-columns:repeat(2,24px);grid-template-rows:repeat(2,24px);gap:5px;width:max-content;margin:0 auto 25px;transform:rotate(-12deg);animation:aioLaunchSettle .7s cubic-bezier(.15,.85,.22,1) both}
+.aio-launch-symbol{display:grid;grid-template-columns:repeat(2,24px);grid-template-rows:repeat(2,24px);gap:5px;width:max-content;margin:0 auto 25px;transform-origin:center;animation:aioLaunchRollIn 1.35s cubic-bezier(.17,.8,.22,1) both,aioLaunchIdle 2.1s ease-in-out 1.35s infinite alternate}
 .aio-launch-symbol span{display:block;border-radius:6px;background:#80a7ff;animation:aioLaunchAssemble .65s cubic-bezier(.16,.8,.22,1) both}
 .aio-launch-symbol span:nth-child(2){background:#fff;animation-delay:.09s}
 .aio-launch-symbol span:nth-child(3){background:#4d76f5;animation-delay:.16s}
@@ -111,10 +111,11 @@ html.game-fullscreen #gameFrame{width:100vw!important;height:100vh!important;min
 .aio-launch-name span{color:#94b3ff}
 .aio-launch-caption{font-size:12px;margin:11px 0 0;color:#b9c5da;letter-spacing:.01em}
 .aio-launch-track{height:3px;width:min(190px,64%);margin:30px auto 0;background:#34445f;border-radius:99px;overflow:hidden}
-.aio-launch-track::after{content:"";display:block;width:100%;height:100%;background:#9bb7ff;transform:translateX(-100%);animation:aioLaunchProgress 4.7s cubic-bezier(.17,.77,.3,1) forwards}
+.aio-launch-track::after{content:"";display:block;width:100%;height:100%;background:#9bb7ff;transform:translateX(-100%);animation:aioLaunchProgress 7.2s cubic-bezier(.17,.77,.3,1) forwards}
 .aio-launch-foot{position:absolute;left:0;right:0;bottom:clamp(20px,5vh,48px);color:#8194b3;text-align:center;font-size:10px;letter-spacing:.19em;font-weight:750}
 @keyframes aioLaunchAssemble{from{opacity:0;transform:scale(.3) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
-@keyframes aioLaunchSettle{from{transform:rotate(-26deg) scale(.75)}to{transform:rotate(-12deg) scale(1)}}
+@keyframes aioLaunchRollIn{0%{opacity:0;transform:translateX(-65px) rotate(-260deg) scale(.48)}58%{opacity:1;transform:translateX(12px) rotate(26deg) scale(1.1)}78%{transform:translateX(-3px) rotate(-11deg) scale(.98)}100%{opacity:1;transform:translateX(0) rotate(0deg) scale(1)}}
+@keyframes aioLaunchIdle{from{transform:translateY(0) rotate(-4deg)}to{transform:translateY(-5px) rotate(4deg)}}
 @keyframes aioLaunchWord{from{opacity:0;transform:translateY(11px)}to{opacity:1;transform:translateY(0)}}
 @keyframes aioLaunchProgress{to{transform:translateX(0)}}
 @media(prefers-reduced-motion:reduce){#siteLoader{transition:none}.aio-launch-symbol,.aio-launch-symbol span,.aio-launch-name,.aio-launch-track::after{animation:none}.aio-launch-track::after{transform:none}}
