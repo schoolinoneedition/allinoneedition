@@ -12,25 +12,38 @@
 
 
 <script>
-/* Short, self-contained launch sequence. Does not depend on images, APIs or game loading. */
+/* Keep the launch screen visible for an actual animation, even when page load is instant. */
 (()=>{
- let completed=false;
+ const MIN_VISIBLE_MS=1900;
+ let completed=false,startedAt=0,finishTimer=0;
  const finish=()=>{
   if(completed)return;
   const loader=document.getElementById('siteLoader');
   if(!loader)return;
+  if(!startedAt){startedAt=performance.now();}
+  const elapsed=performance.now()-startedAt;
+  if(elapsed<MIN_VISIBLE_MS){
+   clearTimeout(finishTimer);
+   finishTimer=setTimeout(finish,MIN_VISIBLE_MS-elapsed);
+   return;
+  }
   completed=true;
   loader.classList.add('done');
   loader.setAttribute('aria-hidden','true');
  };
  window.aioFinishIntro=finish;
- const ready=()=>{
+ const start=()=>{
+  const loader=document.getElementById('siteLoader');
+  if(!loader||startedAt)return;
+  startedAt=performance.now();
   const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  setTimeout(finish,reduced?0:1080);
+  if(reduced){finish();return;}
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{finishTimer=setTimeout(finish,MIN_VISIBLE_MS)}));
  };
- if(document.readyState==='loading')addEventListener('DOMContentLoaded',ready,{once:true});
- else ready();
- setTimeout(finish,2400);
+ if(document.readyState==='loading')addEventListener('DOMContentLoaded',start,{once:true});
+ else start();
+ // Recovery only: always dismiss if animations or script execution fail.
+ setTimeout(()=>{if(!completed)finish()},5000);
 })();
 window.aioSpotifyAPI=null;
 window.onSpotifyIframeApiReady=api=>{window.aioSpotifyAPI=api;};
@@ -98,7 +111,7 @@ html.game-fullscreen #gameFrame{width:100vw!important;height:100vh!important;min
 .aio-launch-name span{color:#94b3ff}
 .aio-launch-caption{font-size:12px;margin:11px 0 0;color:#b9c5da;letter-spacing:.01em}
 .aio-launch-track{height:3px;width:min(190px,64%);margin:30px auto 0;background:#34445f;border-radius:99px;overflow:hidden}
-.aio-launch-track::after{content:"";display:block;width:100%;height:100%;background:#9bb7ff;transform:translateX(-100%);animation:aioLaunchProgress 1.1s cubic-bezier(.17,.77,.3,1) forwards}
+.aio-launch-track::after{content:"";display:block;width:100%;height:100%;background:#9bb7ff;transform:translateX(-100%);animation:aioLaunchProgress 1.75s cubic-bezier(.17,.77,.3,1) forwards}
 .aio-launch-foot{position:absolute;left:0;right:0;bottom:clamp(20px,5vh,48px);color:#8194b3;text-align:center;font-size:10px;letter-spacing:.19em;font-weight:750}
 @keyframes aioLaunchAssemble{from{opacity:0;transform:scale(.3) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
 @keyframes aioLaunchSettle{from{transform:rotate(-26deg) scale(.75)}to{transform:rotate(-12deg) scale(1)}}
