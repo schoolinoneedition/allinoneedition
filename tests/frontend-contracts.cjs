@@ -174,7 +174,7 @@ const nextLiveSection=html.indexOf('<section class="section">',codeEditorClose);
 assert.ok(codeEditorStart>=0&&codeEditorClose>codeEditorStart&&nextLiveSection>codeEditorClose, 'Code Lab textarea must close immediately after its sample so the remaining page stays live HTML.');
 assert.match(html, /replace\(\/\\b\(find\|show/);
 assert.ok(html.includes('const scoreGame=g=>')&&html.includes('hits.length===terms.length')&&html.includes('list.sort((a,b)=>b.score-a.score'), 'Game search must rank name, category, tag and description matches.');
-assert.ok(html.includes('Search games by name, category or keyword'), 'The search placeholder must describe the actual game-search scope.');
+assert.ok(html.includes('Search games…'), 'The search placeholder must describe the actual game-search scope.');
 assert.ok(elementorWorker.includes('if(user&&!allowRate(recentChats,rateKey,24))')&&elementorWorker.includes('if(user&&!allowRate(recentImages,rateKey,3))'), 'Guest AI chat and image generation must not have a usage quota.');
 assert.ok(elementor.includes('id="thinkMode"')&&elementor.includes('think:thinkMode'), 'Think mode must select a real backend reasoning configuration.');
 assert.ok(elementor.includes('id="stop"')&&elementor.includes('activeController.abort()'), 'Users must be able to stop a live generation.');
@@ -267,7 +267,8 @@ assert.ok(glassCss.includes('data-aio-performance-profile="lite"') && glassCss.i
  assert.ok(!html.includes('cacheGameImagesInBackground')&&!html.includes('warmGamePagesInBackground')&&!html.includes('addEarlyPrefetchHints'),'Game artwork and game pages must not be prefetched in the background');
  assert.ok(!html.includes("link.rel='prefetch'"),'The homepage must not inject game-page prefetch links');
  assert.ok(html.includes('let visibleLimit=48;')&&html.includes('visibleLimit+=48'),'The initial game grid and load-more batches should stay bounded');
- assert.ok(html.includes('let gameSearchTimer=0;')&&html.includes('renderGames()},100)'),'Game search should debounce rapid keystrokes');
+ assert.ok(html.includes('let gameSearchTimer=0;')&&html.includes('renderGames()},80)'),'Game search should debounce rapid keystrokes');
+ assert.ok(html.includes('Render the local game catalogue immediately'),'The game catalogue must render on first page load.');
  assert.ok(html.includes('loading="lazy" fetchpriority="low"')&&html.includes('slice(0,18)'),'The intro should lazy-load a smaller set of game covers');
  assert.ok(ux.includes('function startAioDashboardClock()')&&ux.includes('window.aioDashboardClockTimer=setInterval(tick,1000)')&&ux.includes("document.addEventListener('visibilitychange',sync)"),'Dashboard date, time and hometime should share one visible-tab clock');
 assert.ok(ux.includes('WELCOME · SETUP + WALKTHROUGH')&&ux.includes('STEP 5 OF 6 · QUICK TOUR')&&ux.includes('aio-setup-tour-card'),'The first-run setup must include the guided hub walkthrough');
