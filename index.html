@@ -540,7 +540,6 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
 }
 @media(max-width:390px){.brandtext{font-size:15px}.brandmark{width:30px}.brandmark img{width:30px;height:30px}.top>#accountBtn{font-size:0}.top>#accountBtn .account-avatar{font-size:12px}}
 </style>
-<link rel="stylesheet" href="/game-catalogue.css">
 </head>
 <body>
 <div id="siteLoader" aria-live="polite">
@@ -596,16 +595,7 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
  <div class="quick"><div class="qcard"><div class="k">Hometime</div><div class="v" id="homeCountdown">--:--:--</div></div><div class="qcard"><div class="k">Current time</div><div class="v" id="clock">--:--:--</div></div><div class="qcard"><div class="k">Today</div><div class="v" id="date">Loading…</div></div><div class="qcard"><div class="k">Game count</div><div class="v" id="gameCount">—</div></div></div>
 </section>
 <section class="section" id="continueSection"><div class="section-head"><h2>Continue playing</h2><small>Your recent game progress stays on this device.</small></div><div id="resumePanel" class="resume-panel panel"><div><strong>No game started yet.</strong><span>Open a game and your last-played progress will appear here.</span></div><button class="btn mini" onclick="continueLastGame()">Continue</button></div></section>
-<section id="games" class="section game-library">
- <div class="section-head"><div><h2>Games</h2><small>Find something to play, or pick up where you left off.</small></div><span class="catalog-count" id="librarySummary">Loading games…</span></div>
- <div class="catalog-toolbar">
-  <div class="catalog-toolbar-copy"><strong>Explore the library</strong><span id="catalogResults" role="status" aria-live="polite">Loading your games…</span></div>
-  <div class="catalog-toolbar-actions"><button class="btn mini" id="clearGameSearch" type="button" onclick="clearCatalogueSearch()" hidden>Clear search</button><label class="catalog-sort-label" for="gameSort">Sort <select id="gameSort" onchange="setGameSort(this.value)"><option value="recommended">Recommended</option><option value="alphabetical">A–Z</option><option value="recent">Recently played</option></select></label></div>
- </div>
- <div class="filters" id="filters" role="group" aria-label="Filter games by category"></div>
- <div class="games" id="gameGrid"></div>
- <div id="loadMoreWrap" style="display:none;justify-content:center;margin-top:18px"><button class="btn mini" id="loadMoreBtn" onclick="loadMoreGames()">Load more games</button></div>
-</section>
+<section id="games" class="section"><div class="section-head"><h2>Games</h2><small>Fast games, quick search, saved progress</small></div><div class="panel catalog-info" style="margin-bottom:12px"><strong>Huge game library</strong><span><b id="librarySummary">Your games are rendered in fast batches while the browser warms images and game pages in the background</b> · fast-loading cards, saved progress and a full-screen game view.</span></div><div class="panel catalog-info" style="margin-bottom:12px"><strong>Quick picks</strong><span>Use New for the latest additions, the star on a card to save Favourites, or search and categories to find something to play.</span></div><div class="filters" id="filters"></div><div class="games" id="gameGrid"></div><div id="loadMoreWrap" style="display:none;justify-content:center;margin-top:18px"><button class="btn mini" id="loadMoreBtn" onclick="loadMoreGames()">Load more games</button></div></section>
 <section id="school" class="section"><div class="section-head"><h2>School apps</h2><small>In-page workspace with an external fallback.</small></div><div class="grid4">
  <div class="panel app"><div><strong>EdShed</strong><span>Spelling Shed / Maths Shed</span></div><button class="btn mini" onclick="openSchool('EdShed','https://www.edshed.com/en-gb/Login')">Open</button></div>
  <div class="panel app"><div><strong>Times Tables Rock Stars</strong><span>Tables practice</span></div><button class="btn mini" onclick="openSchool('Times Tables Rock Stars','https://play.ttrockstars.com/')">Open</button></div>
@@ -935,7 +925,7 @@ const GAME_PROGRESS_KEY='aio-game-progress-v4';let gameProgress=loadJSON(GAME_PR
 const FAVOURITES_KEY='aio-game-favourites-v1';
 const savedFavourites=loadJSON(FAVOURITES_KEY,[]);
 let favouriteGames=new Set(Array.isArray(savedFavourites)?savedFavourites.filter(x=>typeof x==='string'):[]);function saveGameProgress(){storage.setItem(GAME_PROGRESS_KEY,JSON.stringify(gameProgress));updateResumeCard();}function updateResumeCard(){let entries=Object.entries(gameProgress).filter(([k,v])=>v&&v.lastPlayed).sort((a,b)=>(b[1].lastPlayed||0)-(a[1].lastPlayed||0));let box=$('resumePanel');if(!box)return;if(!entries.length){box.innerHTML='<div><strong>No game started yet.</strong><span>Open a game and your last-played progress will appear here.</span></div><button class="btn mini" onclick="continueLastGame()">Continue</button>';return;}let key=entries[0][0],g=GAMES.find(x=>gameKey(x)===key),st=entries[0][1];if(!g){gameProgress={};storage.setItem(GAME_PROGRESS_KEY,'{}');updateResumeCard();return;}box.innerHTML=`<div><strong>${esc(g.name)}</strong><span>${Math.round(st.progress||0)}% saved · ${st.plays||0} play${(st.plays||0)===1?'':'s'}</span></div><button class="btn mini primary" onclick="continueLastGame()">Continue</button>`}function continueLastGame(){let entries=Object.entries(gameProgress).filter(([k,v])=>v&&v.lastPlayed).sort((a,b)=>(b[1].lastPlayed||0)-(a[1].lastPlayed||0));if(!entries.length)return showToast('Open a game first');let idx=GAMES.findIndex(x=>gameKey(x)===entries[0][0]);if(idx>=0)openGame(idx)}function setGameProgress(v){if(!currentGame)return;let k=gameKey(currentGame);gameProgress[k]=gameProgress[k]||{plays:0};gameProgress[k].progress=Number(v);gameProgress[k].lastPlayed=Date.now();saveGameProgress();renderGames();if($('progressRange')){$('progressRange').value=v;$('progressLabel').textContent=v+'%'}}function saveCurrentProgress(){if(!currentGame)return;let v=Number($('progressRange').value||0),k=gameKey(currentGame);gameProgress[k]=gameProgress[k]||{plays:0};gameProgress[k].progress=v;gameProgress[k].lastPlayed=Date.now();saveGameProgress();$('progressLabel').textContent=v+'%'}
-function cardHTML(g,i,position=i){
+function cardHTML(g,i){
   const[c1,c2]=colors(i);
   const fallback=logoData(g.name,c1,c2);
   const st=gameProgress[gameKey(g)]||{};
@@ -945,8 +935,8 @@ function cardHTML(g,i,position=i){
   const isFavourite=favouriteGames.has(gameKey(g));
   const favouriteMarkup=`<button class="favourite-toggle${isFavourite?' active':''}" type="button" aria-label="${isFavourite?'Remove':'Add'} ${esc(g.name)} ${isFavourite?'from':'to'} favourites" aria-pressed="${isFavourite}" onclick="toggleFavourite(event,${i})">${isFavourite?'★':'☆'}</button>`;
   // Keep the first viewport responsive; let the remaining cards decode lazily.
-  const priority=position<6?'eager':'lazy';
-  const fp=position<3?' fetchpriority="high"':'';
+  const priority=i<6?'eager':'lazy';
+  const fp=i<3?' fetchpriority="high"':'';
   const base=String(g.img||'').trim();
   const candidates=[];
   if(base)candidates.push(base);
@@ -968,7 +958,7 @@ function cardHTML(g,i,position=i){
   const progressMarkup=progressCardsEnabled&&pct>0?`<div class="cover-progress"><span style="width:${pct}%"></span></div>`:'';
   const pctMarkup=progressCardsEnabled&&pct>0?`<span class="progress-chip">${pct}%</span>`:'';
   const img=`<img loading="${priority}" decoding="async"${fp} class="image-loading" src="${esc(primary)}" data-candidates="${candidateAttr}" data-candidate-index="0" data-fallback="${esc(fallback)}" alt="${esc(g.name)}" onerror="useCardFallback(this)" onload="imageLoaded(this)">`;
-  return `<article class="card" data-game-index="${i}" style="--card-i:${Math.min(position,12)}" role="button" tabindex="0" aria-label="Play ${esc(g.name)}" onclick="openGame(${i})" onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();openGame(${i})}"><div class="cover" style="--c1:${c1};--c2:${c2}">${img}<div class="fallback" style="display:none">${initials(g.name)}</div><div class="badge">${esc(badgeText)}</div>${favouriteMarkup}<div class="playhint">PLAY</div>${progressMarkup}</div><div class="card-title" title="${esc(g.name)}">${esc(g.name)}</div><div class="card-meta"><span>${esc(g.cat)}</span>${pctMarkup}</div></article>`;
+  return `<article class="card" data-game-index="${i}" style="--card-i:${Math.min(i,24)}" onclick="openGame(${i})"><div class="cover" style="--c1:${c1};--c2:${c2}">${img}<div class="fallback" style="display:none">${initials(g.name)}</div><div class="badge">${esc(badgeText)}</div>${favouriteMarkup}<div class="playhint">PLAY</div>${progressMarkup}</div><div class="card-title" title="${esc(g.name)}">${esc(g.name)}</div><div class="card-meta"><span>${esc(g.cat)}</span>${pctMarkup}</div></article>`;
 }
 
 const MUSIC_TITLES={en:'Music streamer',es:'Reproductor de música',fr:'Lecteur de musique',de:'Musik-Player',pl:'Odtwarzacz muzyki',pt:'Leitor de música',tr:'Müzik oynatıcı',ar:'مشغل الموسيقى',it:'Lettore musicale',nl:'Muziekspeler',ja:'音楽プレーヤー',ko:'음악 플레이어'};
@@ -987,21 +977,7 @@ const I18N={
  ko:{assistant:'스마트 답변',settings:'설정',dark:'어두운 화면',light:'밝은 화면',hide:'숨기기',show:'표시',home:'홈',games:'게임',school:'학교',live:'라이브',tools:'도구',notes:'메모',code:'코드 랩',hero:'한 곳에서 게임, 학교, 도구와 라이브 정보를.',heroSub:'빠른 단일 파일 허브. 이미지는 필요할 때만 로드됩니다.',browse:'게임 보기',schoolApps:'학교 앱',liveInfo:'라이브 정보',useful:'유용한 도구',ask:'질문하기',continueTitle:'계속 플레이',continueSub:'최근 게임 진행은 이 기기에 저장됩니다.',gamesSub:'빠른 게임, 검색, 저장된 진행',schoolSub:'페이지 안 공간과 외부 옵션.',liveTitle:'라이브 뉴스와 최근 축구',toolsTitle:'유용한 기능',notesTitle:'메모와 할 일',codeTitle:'코드 랩'}
 };
 function applyLanguage(lang){const t=I18N[lang]||I18N.en;storage.setItem('aio-lang',lang);document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';const set=(id,key)=>{const e=$(id);if(e&&t[key]!=null)e.textContent=t[key]};set('assistantBtn','assistant');set('settingsBtn','settings');set('darkBtn',document.documentElement.classList.contains('dark')?'light':'dark');set('hideBtn',hidden?'show':'hide');document.querySelectorAll('.nav button').forEach((b,i)=>{const k=['home','games','school','social','community','chat','live','tools','notes','music','code'][i];if(t[k])b.textContent=t[k];else if(k==='music')b.textContent='Music'});const h=document.querySelector('#home h1');if(h)h.textContent=t.hero;const hp=document.querySelector('#home .hero-card p');if(hp)hp.textContent=t.heroSub;const chips=document.querySelectorAll('#home .chip');if(chips[0])chips[0].textContent=t.browse;if(chips[1])chips[1].textContent=t.schoolApps;if(chips[2])chips[2].textContent=t.liveInfo;if(chips[3])chips[3].textContent=t.useful;if(chips[4])chips[4].textContent=t.ask;const hs=document.querySelector('#continueSection h2');if(hs)hs.textContent=t.continueTitle;const hss=document.querySelector('#continueSection small');if(hss)hss.textContent=t.continueSub;const gs=document.querySelector('#games h2');if(gs)gs.textContent=t.games;const gss=document.querySelector('#games .section-head small');if(gss)gss.textContent=t.gamesSub;const sh=document.querySelector('#school h2');if(sh)sh.textContent=t.schoolApps;const liveh=document.querySelector('#live h2');if(liveh)liveh.textContent=t.liveTitle;const th=document.querySelector('#tools h2');if(th)th.textContent=t.toolsTitle;const nh=document.querySelector('#notes h2');if(nh)nh.textContent=t.notesTitle;const ch=document.querySelector('#code h2');if(ch)ch.textContent=t.codeTitle;const mh=document.querySelector('#music h2');if(mh)mh.textContent=MUSIC_TITLES[lang]||'Music streamer';const search=$('search');if(search)search.placeholder='Search games by name, category or keyword…';const sel=$('languageSelect');if(sel)sel.value=lang}function initLanguage(){const lang=storage.getItem('aio-lang')||'en';applyLanguage(lang);$('languageSelect')?.addEventListener('change',e=>applyLanguage(e.target.value))}
-let visibleLimit=48,gameSort='recommended';let currentFiltered=[];
-function renderFilters(){
- const totalByCat=new Map();
- for(const game of GAMES)totalByCat.set(game.cat,(totalByCat.get(game.cat)||0)+1);
- const favouriteCount=GAMES.filter(game=>favouriteGames.has(gameKey(game))).length;
- const newCount=GAMES.filter(game=>game.tag==='New'||game.source==='Mashukui Web Games').length;
- const filters=['All','New','Favourites',...CATEGORIES.filter(cat=>cat!=='All')];
- const container=$('filters');if(!container)return;
- container.innerHTML=filters.map(cat=>{
-  const count=cat==='All'?GAMES.length:cat==='New'?newCount:cat==='Favourites'?favouriteCount:totalByCat.get(cat)||0;
-  const label=cat==='Favourites'?'★ Favourites':cat;
-  return '<button class="filter'+(cat===activeCat?' active':'')+'" type="button" aria-pressed="'+(cat===activeCat)+'" data-cat="'+esc(cat)+'"><span>'+esc(label)+'</span><span class="filter-count">'+count+'</span></button>';
- }).join('');
- container.onclick=event=>{const button=event.target.closest('[data-cat]');if(button&&container.contains(button))setCat(button.dataset.cat)};
-}
+let visibleLimit=48;let currentFiltered=[];function renderFilters(){const filters=['All','New','Favourites',...CATEGORIES.filter(c=>c!=='All')];const favouriteCount=GAMES.filter(g=>favouriteGames.has(gameKey(g))).length;$('filters').innerHTML=filters.map(c=>{const label=c==='Favourites'?'★ Favourites ('+favouriteCount+')':esc(c);return `<button class="filter ${c===activeCat?'active':''}" onclick='setCat(${JSON.stringify(c)})'>${label}</button>`}).join('')}
 function filteredGames(){
  const raw=$('search').value.trim().toLowerCase();
  const aliases={'brain teaser':'puzzle','brain games':'puzzle','thinking games':'puzzle','word games':'word','typing games':'word','memory games':'memory','driving games':'racing','car games':'racing','football games':'sports','soccer games':'sports','2 player':'multiplayer','two player':'multiplayer','relaxing games':'casual','school games':'educational'};
@@ -1030,60 +1006,15 @@ function filteredGames(){
   const matchesCategory=activeCat==='All'||(activeCat==='New'?(x.g.tag==='New'||x.g.source==='Mashukui Web Games'):activeCat==='Favourites'?favouriteGames.has(gameKey(x.g)):x.g.cat===activeCat);
   return matchesCategory&&(!safeMode||!['Horror','Adventure'].includes(x.g.cat))&&(!raw||x.score>0);
  });
- if(gameSort==='alphabetical')list.sort((a,b)=>a.g.name.localeCompare(b.g.name,undefined,{sensitivity:'base'})||a.i-b.i);
- else if(gameSort==='recent')list.sort((a,b)=>(gameProgress[gameKey(b.g)]?.lastPlayed||0)-(gameProgress[gameKey(a.g)]?.lastPlayed||0)||a.i-b.i);
- else if(raw)list.sort((a,b)=>b.score-a.score||a.i-b.i);
+ if(raw)list.sort((a,b)=>b.score-a.score||a.i-b.i);
  else if(activeCat==='All')list.sort((a,b)=>{const rank=x=>/featured/i.test(x.g.tag)?0:/popular/i.test(x.g.tag)?1:2;return rank(a)-rank(b)||a.i-b.i});
  return list;
 }
-function renderGames(){
- const grid=$('gameGrid');if(!grid)return;
- currentFiltered=filteredGames();
- visibleLimit=Math.max(48,visibleLimit);
- const shown=currentFiltered.slice(0,visibleLimit);
- grid.innerHTML=shown.length
-  ?shown.map((entry,position)=>cardHTML(entry.g,entry.i,position)).join('')
-  :'<div class="catalog-empty"><strong>No games found</strong><p>Try another search or category.</p><button class="btn mini" type="button" onclick="resetCatalogueFilters()">Show all games</button></div>';
- const total=GAMES.length,matched=currentFiltered.length;
- if($('gameCount'))$('gameCount').textContent=String(total);
- if($('librarySummary'))$('librarySummary').textContent=total.toLocaleString()+' games';
- if($('catalogResults'))$('catalogResults').textContent=shown.length===matched
-  ?matched.toLocaleString()+' '+(matched===1?'game':'games')+' found'
-  :'Showing '+shown.length.toLocaleString()+' of '+matched.toLocaleString()+' games';
- if($('clearGameSearch'))$('clearGameSearch').hidden=!$('search').value.trim();
- const wrap=$('loadMoreWrap'),btn=$('loadMoreBtn');
- if(wrap&&btn){wrap.style.display=matched>shown.length?'flex':'none';btn.textContent='Load more games ('+Math.min(48,matched-shown.length)+' next)'}
- hydrateImages();setupGameConnectionWarmup();
-}
-function loadMoreGames(){visibleLimit+=48;renderGames()}
-function setCat(cat){activeCat=cat;visibleLimit=48;renderFilters();renderGames()}
-function setGameSort(value){gameSort=['recommended','alphabetical','recent'].includes(value)?value:'recommended';visibleLimit=48;renderGames()}
-function clearCatalogueSearch(){if($('search'))$('search').value='';visibleLimit=48;renderGames()}
-function resetCatalogueFilters(){activeCat='All';gameSort='recommended';if($('gameSort'))$('gameSort').value=gameSort;clearCatalogueSearch();renderFilters()}
-function toggleFavourite(event,index){
- if(event){event.preventDefault();event.stopPropagation()}
- const game=GAMES[index];if(!game)return;
- const key=gameKey(game);
- if(favouriteGames.has(key)){favouriteGames.delete(key);showToast('Removed from favourites')}
- else{favouriteGames.add(key);showToast('Added to favourites')}
- storage.setItem(FAVOURITES_KEY,JSON.stringify([...favouriteGames]));
- renderFilters();renderGames();
-}
-let gameSearchTimer=0;
-$('search').addEventListener('input',()=>{
- clearTimeout(gameSearchTimer);
- gameSearchTimer=setTimeout(()=>{
-  visibleLimit=48;renderGames();
-  const section=$('games');
-  if($('search').value.trim()&&section&&section.getBoundingClientRect().top>window.innerHeight-150){
-   section.scrollIntoView({behavior:'smooth',block:'start'});
-  }
- },100);
-});
-$('search').addEventListener('keydown',event=>{
- if(event.key==='Escape'){clearTimeout(gameSearchTimer);clearCatalogueSearch()}
- if(event.key==='Enter'){event.preventDefault();$('games')?.scrollIntoView({behavior:'smooth',block:'start'})}
-});
+function renderGames(){currentFiltered=filteredGames();if(visibleLimit>currentFiltered.length)visibleLimit=currentFiltered.length;const shown=currentFiltered.slice(0,visibleLimit);$('gameGrid').innerHTML=shown.length?shown.map(x=>cardHTML(x.g,x.i)).join(''):`<div class="panel" style="grid-column:1/-1">No games match that search.</div>`;$('gameCount').textContent=String(GAMES.length);$('librarySummary').textContent=`${GAMES.length} games ready`;const wrap=$('loadMoreWrap'),btn=$('loadMoreBtn');if(wrap&&btn){wrap.style.display=currentFiltered.length>visibleLimit?'flex':'none';btn.textContent=`Load more games (${Math.min(48,currentFiltered.length-visibleLimit)} more)`}hydrateImages();setupGameConnectionWarmup();}
+function loadMoreGames(){visibleLimit+=48;renderGames();window.scrollBy({top:140,behavior:'smooth'})}
+function setCat(c){activeCat=c;visibleLimit=48;renderFilters();renderGames()}
+function toggleFavourite(event,index){if(event){event.preventDefault();event.stopPropagation()}const game=GAMES[index];if(!game)return;const key=gameKey(game);if(favouriteGames.has(key)){favouriteGames.delete(key);showToast('Removed from favourites')}else{favouriteGames.add(key);showToast('Added to favourites')}storage.setItem(FAVOURITES_KEY,JSON.stringify([...favouriteGames]));renderFilters();renderGames()}
+let gameSearchTimer=0;$('search').addEventListener('input',()=>{clearTimeout(gameSearchTimer);gameSearchTimer=setTimeout(()=>{visibleLimit=48;renderGames()},80)});$('search').addEventListener('keydown',event=>{if(event.key==='Escape'){$('search').value='';visibleLimit=48;renderGames();}});
 
 const ONLINE_GAMES_FEED='https://www.onlinegames.io/media/plugins/genGames/embed.json';
 let onlineCatalogLoaded=false;
