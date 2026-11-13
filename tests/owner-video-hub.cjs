@@ -10,14 +10,14 @@ const routes=JSON.parse(read('vercel.json')).rewrites;
 assert.ok(!fs.existsSync(path.join(root,'game-catalogue.css')),'Broken catalogue override must remain removed.');
 assert.ok(index.includes('id="gameGrid"')&&index.includes('id="filters"')&&!index.includes('<strong>Quick picks</strong>'),'Restore the clean classic game grid and categories without the clutter panels.');
 assert.ok(index.includes('id="unifiedGameSearch"')&&index.indexOf('id="unifiedGameSearch"')<index.indexOf('<main id="app">'),'Search must be in the original topbar.');
-assert.ok(!index.includes('introRailA')&&index.includes('aria-label="Loading All in One Edition"'),'Remove the old thumbnail-heavy loader and keep an accessible startup screen.');
+assert.ok(index.includes('id="introRailA"')&&index.includes('id="siteLoader"'),'The original pre-redesign loading screen must be restored.');
 const start=index.indexOf('const GAMES=')+'const GAMES='.length,end=index.indexOf(';const EXTRA_',start);
 assert.ok(start>12&&end>start,'The original GAMES list must remain valid.');
 const games=JSON.parse(index.slice(start,end));
 assert.ok(games.length>=875,'The original game registry must stay intact.');
 for(const title of ['Shy Safari','3x3 +1 Keyboard Escape','3x3 Steal an Egg'])assert.ok(games.some(game=>game.name===title),'Missing original game '+title);
 assert.ok(index.includes('</textarea><iframe id="codePreview"')&&!index.slice(0,index.indexOf('</main>')).includes('</body>'),'Code Lab must not close the document before later sections.');
-assert.ok(index.includes('href="/video"')&&index.includes('href="/anime"')&&index.includes('id="aio-feature-hub"'),'Homepage must focus Video Studio and Watch.');
+assert.ok(index.includes('<h1>One site. Games, school, tools and live info.</h1>')&&!index.includes('id="aio-feature-hub"'),'Homepage must return to the exact pre-redesign hero and card layout.');
 assert.ok(index.includes('loadPublishedOwnerGames')&&index.includes(".eq('status','approved')"),'Only approved cloud games may enter the live catalogue.');
 assert.ok(index.includes("supabaseClient.from('aio_game_submissions')")&&index.includes('knownUrls.add('),'Cloud games must join the existing registry without duplicates.');
 assert.ok(owner.includes("auth.getUser()")&&owner.includes("from('staff_roles')")&&owner.includes("role.data?.role!=='owner'"),'Owner Studio must verify account and owner role before showing controls.');
@@ -97,17 +97,12 @@ for(const asset of [eggLogo,keyboardLogo]){
  assert.match(asset,/<\/svg>\s*$/);
  assert.ok(!/<script|onload=|foreignObject|<image\s/i.test(asset),'Vector artwork must not contain executable or remote content.');
 }
-assert.ok(index.includes('id="game3x3Identity"')&&index.includes('id="game3x3HeaderLogo"'),'The classic player must keep the 3x3-specific header logo.');
-assert.ok(!index.includes('game3x3Corner')&&!index.includes('game-3x3-corner'),'Do not replace the old game toolbar with another overlaid bar.');
-assert.ok(index.includes('--aio-toolbar-width:min(330px,78%)')&&index.includes('clip-path:polygon('),'The cross-origin toolbar must be cropped at the iframe layer.');
-assert.ok(index.includes('frame.allowFullscreen=!info')&&index.includes("?'autoplay; encrypted-media; gamepad; clipboard-read; clipboard-write'"),'The hosted game must not be able to enter a separate fullscreen layer that bypasses our crop.');
-assert.ok(index.includes(":'fullscreen; autoplay; encrypted-media; gamepad; clipboard-read; clipboard-write'"),'Regular games must retain their usual fullscreen permissions.');
-assert.ok(index.includes("if(url.includes('/gf/3x3-steal-egg/'))")&&index.includes("if(url.includes('/gf/3x3-speed/'))"),'Player overrides must target only these two game URLs.');
-assert.ok(index.includes('applyGame3x3Mode(g);currentGame=g;')&&index.includes('applyGame3x3Mode(null);'),'Open and close must reset 3x3-specific UI.');
-assert.match(index,/#gameModal\.open\.aio-3x3-mode \.modalhead\{\s*display:flex!important/,'The fullscreen modal must restore its original header for 3x3.');
-assert.ok(index.includes('#gameModal.open.aio-3x3-mode .modalhead > div:nth-child(2){display:none!important}'),'Only the old title block should be hidden, not the custom logo.');
-assert.ok(index.includes('#gameModal.open.aio-3x3-mode .game-float-controls{display:none!important}'),'Hide the duplicated site toolbar only for 3x3.');
-assert.ok(index.includes("contains('aio-3x3-mode')?$('gameModalBox'):$('gameStage')"),'For 3x3, fullscreen must include the header controls; ordinary games remain unchanged.');
-assert.ok(index.includes('#gameModal.open.aio-3x3-mode #gameStage')&&index.includes('html.game-fullscreen #gameModal.aio-3x3-mode .modalhead{display:flex!important}'),'Player layout must remain navigable after fullscreen.');
+
+assert.ok(index.includes('id="gameModal"')&&index.includes('id="gameModalBox"')&&index.includes('id="fsBtn"'),'Keep the original game modal and Fullscreen control.');
+assert.ok(!index.includes('game3x3Corner')&&!index.includes('game-3x3-corner')&&!index.includes('id="game3x3Identity"'),'Do not reintroduce the custom overlay player UI.');
+assert.ok(index.includes("classList.toggle('aio-3x3-direct',isThreeByThree)")&&index.includes("classList.remove('aio-3x3-direct')"),'Only apply the 3x3 host-toolbar crop while a direct 3x3 game is open.');
+assert.ok(index.includes('#gameModal.open.aio-3x3-direct #gameFrame')&&index.includes('clip-path:polygon('),'Keep the hidden third-party toolbar without changing the original player interface.');
+assert.ok(index.includes('async function loadGameIntoFrame(g)')&&index.includes("select('html_content')"),'Uploaded HTML game playback must survive the UI rollback.');
+assert.ok(!index.includes('id="aio-feature-hub"'),'The new video-first homepage redesign must stay reverted.');
 
 console.log('Owner Studio, AI Video Studio, Watch and game-library preservation contracts passed.');
