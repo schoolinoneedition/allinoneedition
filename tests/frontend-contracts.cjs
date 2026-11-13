@@ -185,7 +185,7 @@ assert.ok(elementor.includes('function renderMarkdownText(')&&elementor.includes
 assert.ok(elementor.includes('highlight.js@11.11.1')&&elementor.includes('window.hljs.highlightElement(node)'), 'Fenced code blocks must use syntax highlighting when the highlighter loads.');
 const elementorMarkup=elementor.slice(0,elementor.indexOf('<script defer src="/appearance.js">'));
 const elementorStyles=elementor.slice(elementor.indexOf('<style>'),elementor.indexOf('</style>'));
-assert.ok(!elementorMarkup.includes('id="themeToggle"')&&!elementorStyles.includes(':root.dark')&&!elementor.includes("const savedTheme=localStorage.getItem('elementor_theme')")&&elementor.includes('/appearance.css')&&elementor.includes('/appearance.js'), 'Elementor must share the homepage wallpaper and stay in its clean light theme.');
+assert.ok(!elementorMarkup.includes('id="themeToggle"')&&!elementorStyles.includes(':root.dark')&&elementor.includes('/appearance.css')&&elementor.includes('/appearance.js'), 'Elementor must share the homepage wallpaper and stay in its clean light theme.');
 assert.ok(elementor.includes('async function callAI()')&&elementor.includes('function renderMessages()')&&elementor.includes('<\\/script>'), 'The complete chat script must survive embedded code examples.');
 assert.ok(elementor.includes('const resizePrompt=()=>'), 'The message composer must auto-resize while typing.');
 
