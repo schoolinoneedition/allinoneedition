@@ -818,21 +818,7 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
 <html>
 <body style="font-family:system-ui;padding:20px">
 <h1>Hello from All in One</h1>
-<button onclick="document.body.style.background='#eaf2ff'">Click me</button></textarea>
-<script>
-window.addEventListener('load',()=>setTimeout(async()=>{
- try{
-  if(!window.supabase?.createClient)return;
-  const client=window.supabase.createClient('https://btnbuchsrfllpzlypjtn.supabase.co','sb_publishable_a1gdNTiQdF9587p5K-Sw-Q_nFbvWRmp');
-  const {data,error}=await client.from('aio_elementor_site_settings').select('setting_value').eq('setting_key','announcement').maybeSingle();
-  const message=data?.setting_value?.text;
-  const banner=document.getElementById('aioElementorAnnouncement');
-  if(!error&&banner&&typeof message==='string'&&message.trim()){banner.textContent=message.trim();banner.style.display='block';}
- }catch(e){console.warn('Elementor announcement unavailable:',e);}
-},900),{once:true});
-</script>
-</body>
-</html><iframe id="codePreview" class="preview" sandbox="allow-scripts"></iframe></div></div></section>
+<button onclick="document.body.style.background='#eaf2ff'">Click me</button></textarea><iframe id="codePreview" class="preview" sandbox="allow-scripts"></iframe></div></div></section>
 <section class="section"><div class="section-head"><h2>Elementor AI</h2><small>Your AI assistant for All in One Edition.</small></div><div class="panel chatbox" id="assistantChat"></div><div class="assistant-actions"><button class="chip" onclick="smartQuick('What time is it?')">What time is it?</button><button class="chip" onclick="smartQuick('Play Crossy Road')">Play a game</button><button class="chip" onclick="smartQuick('Make a sticky note that says test')">Make a note</button><button class="chip" onclick="smartQuick('Open settings')">Settings</button></div><div class="chatcomposer"><input id="assistantInput" autocomplete="off" placeholder="Message Elementor…"><button class="btn mini primary" id="assistantSend">Send</button></div></section>
 </main>
 <footer>All in One Edition · Roy owner · Single-file front end. Game library · fast loading · saved progress · more games</footer>
@@ -3399,5 +3385,17 @@ socialBind=function(){__oldSocialBind();socialBindPostManagement();setTimeout(()
 <script src="./appearance.js" defer></script>
 <script src="./ultimate-experience.js" defer></script>
 
+<script>
+window.addEventListener('load',()=>setTimeout(async()=>{
+ try{
+  if(!window.supabase?.createClient)return;
+  const client=window.supabase.createClient('https://btnbuchsrfllpzlypjtn.supabase.co','sb_publishable_a1gdNTiQdF9587p5K-Sw-Q_nFbvWRmp');
+  const {data,error}=await client.from('aio_elementor_site_settings').select('setting_value').eq('setting_key','announcement').maybeSingle();
+  const message=data?.setting_value?.text;
+  const banner=document.getElementById('aioElementorAnnouncement');
+  if(!error&&banner&&typeof message==='string'&&message.trim()){banner.textContent=message.trim();banner.style.display='block';}
+ }catch(e){console.warn('Elementor announcement unavailable:',e);}
+},900),{once:true});
+</script>
 </body>
 </html>
