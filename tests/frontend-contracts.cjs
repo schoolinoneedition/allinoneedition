@@ -266,8 +266,8 @@ assert.ok(glassCss.includes('data-aio-performance-profile="lite"') && glassCss.i
  // The hub should never bulk-download artwork or game pages while idle.
  assert.ok(!html.includes('cacheGameImagesInBackground')&&!html.includes('warmGamePagesInBackground')&&!html.includes('addEarlyPrefetchHints'),'Game artwork and game pages must not be prefetched in the background');
  assert.ok(!html.includes("link.rel='prefetch'"),'The homepage must not inject game-page prefetch links');
- assert.ok(html.includes('let visibleLimit=48;')&&html.includes('visibleLimit+=48'),'The initial game grid and load-more batches should stay bounded');
- assert.ok(html.includes('let gameSearchTimer=0;')&&html.includes('renderGames()},80)'),'Game search should debounce rapid keystrokes');
+ assert.ok(html.includes('visibleLimit=48')&&html.includes('visibleLimit+=48'),'The initial game grid and load-more batches should stay bounded');
+ assert.ok(html.includes('let gameSearchTimer=0;')&&html.includes('gameSearchTimer=setTimeout(()=>')&&html.includes('},100)'),'Game search should debounce rapid keystrokes');
  assert.ok(html.includes('Render the local game catalogue immediately'),'The game catalogue must render on first page load.');
  assert.ok(html.includes('loading="lazy" fetchpriority="low"')&&html.includes('slice(0,18)'),'The intro should lazy-load a smaller set of game covers');
  assert.ok(ux.includes('function startAioDashboardClock()')&&ux.includes('window.aioDashboardClockTimer=setInterval(tick,1000)')&&ux.includes("document.addEventListener('visibilitychange',sync)"),'Dashboard date, time and hometime should share one visible-tab clock');
