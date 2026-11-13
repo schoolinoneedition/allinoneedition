@@ -44,7 +44,7 @@ assert.match(html, /role="status" aria-live="polite"/);
  assert.ok(appleIcon.subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10])) && appleIcon.readUInt32BE(16) === 180 && faviconIco.subarray(0, 4).equals(Buffer.from([0,0,1,0])), 'Apple touch and ICO favicon variants must be present.');
  assert.ok([html, social, anime, elementor, study].every(page => page.includes('href="/favicon.png"') && page.includes('href="/favicon.ico"') && page.includes('href="/apple-touch-icon.png"')), 'Every main page must use the shared refreshed favicon set.');
  assert.ok([html, social, anime, elementor].every(page => page.includes('src="/favicon.png"')), 'Visible site brand marks must use the new artwork.');
- assert.ok(social.includes('./appearance.css')&&social.includes('./appearance.js')&&anime.includes('./appearance.css')&&anime.includes('./appearance.js'), 'Standalone Social and Watch pages must load the shared appearance system.');
+ assert.ok(social.includes('./appearance.css')&&social.includes('./appearance.js')&&anime.includes('./appearance.css')&&anime.includes('./appearance.js')&&elementor.includes('/appearance.css')&&elementor.includes('/appearance.js'), 'Social, Watch and Elementor must load the shared appearance system.');
  assert.ok(appearance.includes("root.dataset.aioWallpaperActive=active?'1':'0'")&&glassCss.includes('data-aio-wallpaper-active="1"'), 'Saved wallpapers must be applied consistently on standalone pages.');
  assert.ok(css.includes('aioOnboardSlideIn')&&css.includes('aio-ultimate-modal.open .aio-onboard-card'), 'Setup should use a smooth slide-in transition.');
  assert.ok(html.includes(`location.href='anime.html'">Watch`)&&anime.includes('<title>Watch · Anime & Cartoons'), 'The main navigation should call the separate anime page Watch.');
@@ -205,18 +205,16 @@ assert.ok(elementorWorker.includes('@cf/zai-org/glm-4.7-flash')&&elementorWorker
  assert.ok(!anime.includes('videoId:'),'Anime Zone must not contain broken hard-coded video IDs');
  assert.ok(anime.includes('No video added yet'),'Episodes without a saved video must show a clear empty player state');
  assert.ok(anime.includes("ownerClient.from('staff_roles').select('role')"),'Episode editing must verify the signed-in site owner role');
- assert.ok(anime.includes("ownerClient.from('anime_episode_watch_links').upsert"),'The owner must be able to save episode videos to Supabase');
- assert.ok(anime.includes("ownerClient.storage.from('anime-episodes').upload"),'The owner must be able to upload videos to XBT Storage');
- assert.ok(anime.includes("const siteUrl='https://allinoneedition.vercel.app/videos/'"),'Uploaded videos must be saved under the All in One Edition /videos/ route');
- assert.ok(anime.includes('validateSelfHostedVideoUrl'),'Direct video URLs must be validated');
- assert.ok(anime.includes("path.startsWith('/videos/')"),'Direct video URLs must use the dedicated AIO videos path');
+ assert.ok(anime.includes("ownerClient.from('anime_episode_watch_links').upsert"),'The owner must be able to save episode video metadata to Supabase');
+ assert.ok(anime.includes("B2_MEDIA_API='https://all-in-one-edition-media.plsgivemediscord981.workers.dev'"),'Watch uploads must use the configured Backblaze B2 media Worker');
+ assert.ok(anime.includes("visibility:'public'")&&anime.includes("'/signed-url'"),'Watch videos must use public B2 objects with signed playback links');
+ assert.ok(anime.includes('MAX_VIDEO_BYTES=1024*1024*1024')&&anime.includes('file.size>MAX_VIDEO_BYTES'),'The Watch uploader must enforce its 1 GB limit');
+ assert.ok(anime.includes("saveEpisodeVideoRow('B2 Storage',mediaUrl)")&&anime.includes("saved.provider==='B2 Storage'"),'New Watch videos must be saved and identified as B2 media');
+ assert.ok(anime.includes('await getB2PlaybackUrl(saved.watch_url)')&&anime.includes('deleteB2Media(existing.watch_url)'),'Watch playback and owner cleanup must use the B2 media API');
+ assert.ok(anime.includes('validateSelfHostedVideoUrl'),'Direct video URLs must still be validated');
  assert.ok(anime.includes('Drop your video file here'),'The owner must have a dedicated video upload drop zone');
- assert.ok(anime.includes('Upload and host on All in One Edition'),'The upload action must publish the video through the hub domain');
- assert.ok(anime.includes("navigator.clipboard.writeText(value)"),'The hosted episode URL must be copyable');
- assert.ok(vercel.includes('"source": "/videos/:series/:season/:filename"'),'Vercel must proxy uploaded video paths');
- assert.ok(vercel.includes('https://btnbuchsrfllpzlypjtn.supabase.co/storage/v1/object/public/anime-episodes/:series/:season/:filename'),'The AIO video route must proxy the Anime Storage bucket');
- assert.ok(vercel.includes('"source": "/videos"')&&vercel.includes('"destination": "/social.html"'),'The existing Videos social page route must remain intact');
- assert.ok(anime.includes('file.size>50*1024*1024'),'Uploads must respect the current 50 MB Free-plan limit');
+ assert.ok(anime.includes('This editor is restricted to the site owner account.'),'Episode editing must stay owner-only');
+ assert.ok(!anime.includes('watchLinks')&&!anime.includes('sourceLinks'),'The old external provider and episode-source panels should stay removed');
  assert.ok(anime.includes('video.controls=false'),'The player must hide native volume controls');
  assert.ok(anime.includes("video.addEventListener('click',toggle)"),'Clicking the video must play or pause');
  assert.ok(anime.includes('frame.requestFullscreen()'),'The player must include fullscreen');
@@ -298,29 +296,29 @@ assert.ok(social.includes("let feedSort=['latest','popular','oldest']") && socia
 assert.ok(social.includes('function renderFeed(preserveScroll=false)') && social.includes('if(preserveScroll)feed.scrollTop=previousScrollTop') && social.includes('renderFeed(addToFeed)'), 'Loading older posts should preserve the reader scroll position.');
 
 
-// Private Cloudflare R2 media storage contract.
+// Backblaze B2 media storage contract.
 const mediaWorker = read('cloudflare/media-worker/src/index.ts');
 const mediaWrangler = read('cloudflare/media-worker/wrangler.toml');
 const mediaSchema = read('supabase/migrations/20261106202316_aio_r2_media_objects.sql');
 const mediaRlsSchema = read('supabase/migrations/20261106202335_optimize_aio_media_rls.sql');
 const mediaPartsSchema = read('supabase/migrations/20261106202434_aio_r2_upload_parts.sql');
-assert.ok(mediaWorker.includes('/auth/v1/user') && mediaWorker.includes('Authorization: authorization'), 'R2 media routes must verify the Supabase access token.');
-assert.ok(mediaWorker.includes('user_id: `eq.${userId}`'), 'Every media lookup must be scoped to the authenticated owner.');
-assert.ok(mediaWorker.includes('createMultipartUpload') && mediaWorker.includes('resumeMultipartUpload') && mediaWorker.includes('uploadPart') && mediaWorker.includes('complete('), 'R2 uploads must use the multipart API.');
+const mediaPublicSchema = read('supabase/migrations/20261107081135_aio_media_public_playback.sql');
+assert.ok(mediaWorker.includes('B2_ENDPOINT') && mediaWorker.includes('B2_APPLICATION_KEY') && mediaWorker.includes('AwsClient'), 'The media Worker must use server-side Backblaze B2 credentials and SigV4.');
+assert.ok(mediaWorker.includes('user_id:') && mediaWorker.includes('eq.${userId}'), 'Every media lookup must be scoped to the authenticated owner.');
+assert.ok(mediaWorker.includes('b2Request(env') && mediaWorker.includes('UploadId'), 'B2 uploads must use authenticated multipart requests.');
 assert.ok(mediaWorker.includes('hasExpectedMagic') && mediaWorker.includes('video/quicktime'), 'The Worker must check uploaded file signatures, including iPad QuickTime videos.');
-assert.ok(mediaWorker.includes('dbUpsertPart') && mediaWorker.includes('dbGetParts') && mediaWorker.includes('dbDeleteParts'), 'Multipart progress must persist and be checked server-side for resumability.');
-assert.ok(mediaWorker.includes('Accept-Ranges') && mediaWorker.includes('Content-Range') && mediaWorker.includes('range = { offset: rangeStart, length: rangeLength! }'), 'Private video playback must support byte-range seeking.');
+assert.ok(mediaWorker.includes('dbUpsertPart') && mediaWorker.includes('dbGetParts') && mediaWorker.includes('dbDeleteParts'), 'Multipart progress must persist and be verified server-side.');
+assert.ok(mediaWorker.includes('Accept-Ranges') && mediaWorker.includes('Content-Range') && mediaWorker.includes('rangeHeader'), 'B2 video playback must support byte-range seeking.');
 assert.ok(mediaWorker.includes('status !== "ready"') && mediaWorker.includes('row.status !== "uploading"'), 'Only completed uploads may be played and only active uploads may be completed.');
 assert.ok(mediaWorker.includes('MAX_PART_BYTES = 32 * 1024 * 1024') && mediaWorker.includes('MAX_PARTS = 10_000') && mediaWorker.includes('MAX_OBJECT_BYTES = MAX_PARTS * MAX_PART_BYTES'), 'Multipart transport limits must be explicit and bounded.');
+assert.ok(mediaWorker.includes('input.visibility === "public"') && mediaWorker.includes('dbGetPublic') && mediaWorker.includes('signed-url'), 'Public Watch media must be served through short-lived signed links.');
 assert.ok(mediaSchema.includes('enable row level security') && mediaRlsSchema.includes('using ((select auth.uid()) = user_id)'), 'Media metadata must be protected by owner-scoped RLS.');
-assert.ok(mediaSchema.includes('revoke all on public.aio_media_objects from public, anon, authenticated') && mediaSchema.includes('grant select (id, user_id, filename, content_type, size_bytes, status, created_at, completed_at)'), 'Browser clients must not receive internal R2 keys or multipart IDs.');
+assert.ok(mediaSchema.includes('revoke all on public.aio_media_objects from public, anon, authenticated') && mediaSchema.includes('grant select (id, user_id, filename, content_type, size_bytes, status, created_at, completed_at)'), 'Browser clients must not receive internal B2 keys or multipart IDs.');
 assert.ok(mediaPartsSchema.includes('revoke all on public.aio_media_upload_parts from public, anon, authenticated'), 'Multipart ETags and upload state must remain server-only.');
-assert.ok(mediaWrangler.includes('binding = "MEDIA"') && mediaWrangler.includes('bucket_name = "aio-media"'), 'The Worker must bind the private aio-media bucket.');
+assert.ok(mediaWrangler.includes('B2_ENDPOINT') && mediaWrangler.includes('B2_BUCKET = "allinoneedition-media"') && !mediaWrangler.includes('r2_buckets'), 'The media Worker must be configured for Backblaze B2 rather than Cloudflare R2.');
+assert.ok(mediaPublicSchema.includes("check (visibility in ('private', 'public'))"), 'Public visibility must be represented in the database schema.');
 assert.ok(!html.includes('SUPABASE_SERVICE_ROLE_KEY') && !social.includes('SUPABASE_SERVICE_ROLE_KEY') && !anime.includes('SUPABASE_SERVICE_ROLE_KEY'), 'Privileged Supabase credentials must never be added to browser pages.');
-
-assert.ok(mediaWorker.includes('firstPart.byteLength !== length || !hasExpectedMagic(row.content_type, firstPart)'), 'The first uploaded part must match its declared content type before R2 stores it.');
-
-
+assert.ok(mediaWorker.includes('partNumber === 1 && !hasExpectedMagic(row.content_type, bytes)'), 'The first uploaded part must match its declared content type before B2 stores it.');
 // Owner-only administration must fail closed in the UI and be pinned in the database.
 const ownerSchema = read('supabase/migrations/20261106203137_pin_canonical_aio_owner.sql');
 const staffGate = backend.match(/window\.refreshAioStaffPanel = async function\(\)\{[\s\S]*?\n  \};/)?.[0] || '';
@@ -332,12 +330,13 @@ assert.ok(ownerSchema.includes('Only the canonical owner account may hold the ow
 assert.ok(ownerSchema.includes('Site owner can insert staff roles') && ownerSchema.includes('Site owner can update staff roles') && ownerSchema.includes('Site owner can delete staff roles'), 'Staff role changes must be protected by separate owner-only RLS policies.');
 
 
-// AI Search must be a real public-catalogue integration, not a mocked local response.
-assert.ok(html.includes('id="aiSearchOpen"') && html.includes('id="aioAiSearch"'), 'The AI Search control and dialog must be present in the live page DOM.');
-assert.ok(html.includes('16fdd2d2-aa84-4145-a0d5-be81366b07b1.search.ai.cloudflare.com') && html.includes("ENDPOINT+'/search'") && html.includes("ENDPOINT+'/chat/completions'"), 'AI Search must call the configured Cloudflare AI Search endpoint.');
-assert.ok(html.includes('stream:true') && html.includes('query_rewrite:{enabled:true}'), 'AI Search chat must stream real model output and use query rewriting.');
-
-
+// The homepage uses a simple local game search; the separate AI Search UI is removed.
+assert.ok(html.includes('id="search"') && html.includes("addEventListener('input'"), 'The homepage game search must filter the local catalogue.');
+assert.ok(!html.includes('id="aiSearchOpen"') && !html.includes('id="aioAiSearch"') && !html.includes('searchSparkle'), 'The unused AI Search panel and search-options popup must stay removed.');
+assert.ok(html.includes('"name":"Shy Safari"') && html.includes('"name":"Times Tables Speed Escape"') && html.includes('"name":"Steal an Egg 3x3"'), 'The three requested games must be in the visible game catalogue.');
+assert.ok(!html.includes('Slime Keyboard Escape'), 'Slime Keyboard Escape must remain removed.');
+assert.ok(!html.includes('id="hideBtn"') && !html.includes('id="darkBtn"'), 'The Hide and Dark controls must remain removed.');
+assert.ok(html.includes('#gameModal.open .modalhead') && html.includes('#gameModal.open .progressbarbox'), 'The game player must hide its bulky header and progress bars while a game is open.');
 // Watch source metadata is private and only the canonical owner can inspect it.
 const watchSourceSchema = read('supabase/migrations/20261106204516_private_anime_episode_source_metadata.sql');
 assert.ok(watchSourceSchema.includes('drop policy if exists "Public can read anime episode watch links"') && watchSourceSchema.includes('revoke all on public.anime_episode_watch_links from public, anon'), 'Watch provider URLs must not be publicly readable.');
@@ -347,13 +346,9 @@ assert.ok(!anime.includes('Open official Bing watch page'), 'The normal Watch pl
 
 
 assert.ok(html.includes('async function askAioAssistant') && html.includes("else askAioAssistant('assistantChat',q)") && html.includes("else askAioAssistant('assistantModalChat',q)"), 'Smart Answer must use real streaming AI for open-ended questions.');
-assert.ok(/find puzzle games/i.test(html), 'AI Search suggestions must use the curated public catalogue.');
 
 
-assert.ok(html.includes("'games-puzzle.md':'Puzzle games'") && html.includes("'games-word.md':'Word games'") && html.includes("'games-board.md':'Board games'"), 'AI Search must label category-specific catalogue results clearly.');
-assert.ok(html.includes('Do not help locate dangerous or age-restricted content'), 'AI Search chat must enforce the platform safety boundary.');
 
-assert.ok(html.includes('payload.chunks||payload.result?.chunks'), 'AI Search must parse the public endpoint response shape.');
 
 assert.ok(html.includes('id="assistantBtn" type="button" onclick="location.href=\'/elementor\'"'), 'The top-bar Elementor AI button must open the standalone workspace.');
 assert.ok(html.includes("location.href='/elementor'") && vercel.includes('"source": "/elementor"'), 'Elementor must have a dedicated route from the main site.');
