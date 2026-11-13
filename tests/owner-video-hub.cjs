@@ -56,4 +56,24 @@ assert.ok(htmlSchema.includes('octet_length(html_content) between 64 and 524288'
 new vm.Script(htmlSandbox,{filename:'html-game-sandbox.js'});
 console.log('Single-file HTML upload contracts passed: owner RLS, isolated preview, lazy public player and sandbox CSP.');
 
+
+// Supplied 3x3 game-page HTML includes standalone iframe sources, not the game assets.
+// Open the actual source game rather than nesting the original publisher's site chrome.
+const egg=games.find(g=>g.name==='3x3 Steal an Egg');
+const escape=games.find(g=>g.name==='3x3 +1 Keyboard Escape');
+assert.ok(egg&&escape,'Both user-requested 3x3 games must exist.');
+assert.equal(games.length,875,'Direct 3x3 embed updates should not add duplicate games.');
+const eggUrl=new URL(egg.url),escapeUrl=new URL(escape.url);
+assert.equal(eggUrl.hostname,'www.timestables.com');
+assert.equal(eggUrl.pathname,'/gf/3x3-steal-egg/20261112-1036/index.html');
+assert.equal(eggUrl.searchParams.get('multiplayer'),'wss://tsu3.tafeldiploma.nl/eggs/multiplayer');
+assert.equal(eggUrl.searchParams.get('swap'),'1');
+assert.equal(escapeUrl.hostname,'www.timestables.com');
+assert.equal(escapeUrl.pathname,'/gf/3x3-speed/20261102-1517/index.html');
+assert.equal(escapeUrl.searchParams.get('multiplayer'),'wss://tsu3.tafeldiploma.nl/multiplayer');
+assert.equal(escapeUrl.searchParams.get('keys'),'3d');
+assert.equal(escapeUrl.searchParams.get('avatar'),'glb');
+assert.ok(!egg.url.includes('3x3-eggs.html')&&!escape.url.includes('3x3-speed-escape.html'),'3x3 games must not launch publisher page wrappers.');
+assert.ok(egg.cat==='Puzzle'&&escape.cat==='Puzzle','Keep original game category.');
+
 console.log('Owner Studio, AI Video Studio, Watch and game-library preservation contracts passed.');
