@@ -160,7 +160,7 @@ for (const mode of ['reaction','math','pairs','sequence','scramble','typing','co
 }
 assert.match(arcade2, /addEventListener\('keydown'/);
 
-const cardRenderer = html.match(/function cardHTML\(g,i\)\{[\s\S]*?\n\}/)?.[0] || '';
+const cardRenderer = html.match(/function cardHTML\(g,i(?:,position=i)?\)\{[\s\S]*?\n\}/)?.[0] || '';
 const returnStart = cardRenderer.indexOf('return `');
 const returnEnd = returnStart >= 0 ? cardRenderer.indexOf('`;', returnStart) : -1;
 const cardMarkup = returnStart >= 0 && returnEnd >= 0 ? cardRenderer.slice(returnStart, returnEnd + 2) : '';
