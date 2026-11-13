@@ -442,7 +442,7 @@ function updateOwnerEditor(s,si,ep){
    const init=await initRes.json().catch(()=>({}));
    if(!initRes.ok||!init.uploadId)throw new Error(init.error||'B2 could not start the upload.');
    uploadId=init.uploadId;
-   const partSize=Math.max(5*1024*1024,Math.min(Number(init.partSizeBytes)||32*1024*1024,64*1024*1024));
+   const partSize=Math.max(5*1024*1024,Math.min(Number(init.partSizeBytes)||32*1024*1024,32*1024*1024));
    const parts=[];let uploaded=0,partNumber=1;
    for(let offset=0;offset<file.size;offset+=partSize,partNumber++){
     const chunk=file.slice(offset,Math.min(file.size,offset+partSize));
