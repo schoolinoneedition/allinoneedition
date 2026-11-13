@@ -185,7 +185,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
      <div class="episode-drop-zone" id="episodeDropZone">
       <div class="drop-icon">↑</div>
       <strong>Drop your video file here</strong>
-      <small>Or choose a file from your device. MP4 and WebM only, up to 50 MB.</small>
+      <small>Or choose a file from your device. MP4 and WebM only, up to 1 GB.</small>
       <div class="owner-form-actions" style="justify-content:center"><button class="primary" id="chooseEpisodeVideo" type="button">Choose video file</button></div>
       <input id="episodeVideoFile" type="file" accept="video/mp4,video/webm,.mp4,.webm">
       <div class="episode-upload-meta" id="episodeUploadMeta">No file selected</div>
@@ -200,7 +200,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
      <input id="episodeWatchUrl" type="url" inputmode="url" maxlength="2048" placeholder="https://allinoneedition.vercel.app/videos/episode.mp4">
      <div class="owner-form-actions"><button class="primary" id="saveEpisodeLink" type="button">Save hosted video URL</button><button id="removeEpisodeLink" type="button" disabled>Remove video</button></div>
      <div class="owner-link-status" id="ownerLinkStatus" role="status" aria-live="polite"></div>
-     <p class="owner-terms">Uploaded videos are stored in XBT Storage and served through your All in One Edition /videos/ address. The current XBT Free plan allows up to 50 MB per file. Only upload videos you own or are authorised to distribute.</p>
+     <p class="owner-terms">Uploaded videos are stored in Backblaze B2 and streamed through the media service. Maximum upload: 1 GB. Only upload videos you own or are authorised to distribute.</p>
     </div>
    </section>
    <section class="side-panel"><h3>Progress controls</h3><p>Watched ticks are stored only in this browser. You can export a backup or clear the watch history at any time.</p><div class="watch-links"><button class="watch-link" id="exportProgress" type="button">Export watch progress <span>↓</span></button><button class="watch-link" id="clearProgress" type="button">Clear watch progress <span>↺</span></button></div><p id="saveStatus" class="stat-caption" aria-live="polite" style="margin-top:9px">Progress saves automatically.</p></section>
@@ -218,6 +218,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
  const STORE='aio.anime.watch.v1',THEME='aio.anime.theme.v1';
  const SUPABASE_URL='https://btnbuchsrfllpzlypjtn.supabase.co';
  const SUPABASE_KEY='sb_publishable_a1gdNTiQdF9587p5K-Sw-Q_nFbvWRmp';
+ const B2_MEDIA_API='https://all-in-one-edition-media.plsgivemediscord981.workers.dev';
  const ownerClient=window.supabase?.createClient?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}):null;
  let watched=readStore(),activeId='pokemon',activeSeason=0,activeWatchFilter='all',cartoonAutoPlay=true;
  let currentSession=null,siteOwner=false,episodeLinks=new Map(),selectedEpisode=null;
@@ -312,8 +313,9 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   if(url.protocol!=='https:'||url.username||url.password||url.port)throw new Error('Use a secure https:// video URL without login details or a custom port.');
   const host=url.hostname.toLowerCase(),path=url.pathname.toLowerCase();
   const onVercel=host==='allinoneedition.vercel.app'&&path.startsWith('/videos/');
-  if(!onVercel)throw new Error('Use a video URL under https://allinoneedition.vercel.app/videos/. Upload your file in the Video Upload Zone to create one.');
-  if(!/\.(mp4|webm)$/i.test(url.pathname))throw new Error('The hosted video URL must end in .mp4 or .webm.');
+  const onB2=host==='all-in-one-edition-media.plsgivemediscord981.workers.dev'&&/^\/media\/[A-Za-z0-9_-]+$/.test(url.pathname);
+  if(!onVercel&&!onB2)throw new Error('Use an All in One Edition /videos/ URL or a public B2 media URL.');
+  if(onVercel&&!/\.(mp4|webm)$/i.test(url.pathname))throw new Error('The hosted video URL must end in .mp4 or .webm.');
   return url.href;
  }
  function videoObjectPath(url){
@@ -334,7 +336,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   selectedEpisode={seriesId:s.id,seasonIndex:si,episodeNumber:ep.number};
   const saved=episodeLinks.get(watchLinkKey(s.id,si,ep.number));
   $('ownerEpisodeTarget').textContent=s.title+' · '+s.seasons[si].name+' · Episode '+ep.number+' — '+ep.title;
-  if($('episodeWatchUrl'))$('episodeWatchUrl').value=saved?.provider==='Self-hosted video'?saved.watch_url:'';
+  if($('episodeWatchUrl'))$('episodeWatchUrl').value=['Self-hosted video','B2 Storage'].includes(saved?.provider)?saved.watch_url:'';
   if($('episodeVideoFile'))$('episodeVideoFile').value='';
   if($('episodeUploadMeta'))$('episodeUploadMeta').textContent='No file selected';
   if($('uploadEpisodeVideo'))$('uploadEpisodeVideo').disabled=true;
@@ -409,31 +411,43 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   const extension=(file.name.split('.').pop()||'').toLowerCase();
   const mimeOk=(extension==='mp4'&&file.type==='video/mp4')||(extension==='webm'&&file.type==='video/webm');
   if(!mimeOk){$('ownerLinkStatus').textContent='Choose a valid MP4 or WebM video file.';return}
-  if(file.size>50*1024*1024){$('ownerLinkStatus').textContent='This XBT Free-plan upload is over the 50 MB file limit. Host the file on your All in One Edition site and paste its direct URL instead.';return}
-  const button=$('uploadEpisodeVideo');button.disabled=true;
-  $('episodeUploadProgress').hidden=false;
-  $('episodeUploadProgress').removeAttribute('value');
-  $('ownerLinkStatus').textContent='Uploading '+file.name+' to XBT Storage, then serving it through All in One Edition…';
+  const MAX_VIDEO_BYTES=1024*1024*1024;
+  if(file.size<=0||file.size>MAX_VIDEO_BYTES){$('ownerLinkStatus').textContent='Choose a video between 1 byte and 1 GB.';return}
+  if(!currentSession.access_token){$('ownerLinkStatus').textContent='Your owner session needs refreshing. Sign in again, then retry.';return}
+  const button=$('uploadEpisodeVideo'),progress=$('episodeUploadProgress');
+  button.disabled=true;progress.hidden=false;progress.max=file.size;progress.value=0;
+  $('ownerLinkStatus').textContent='Preparing secure B2 upload…';
   const safeName=selectedEpisode.seriesId+'/'+(selectedEpisode.seasonIndex+1)+'/'+String(selectedEpisode.episodeNumber).padStart(3,'0')+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+extension;
-  let uploadedPath=null;
+  let uploadId=null,completed=false;
+  const headers={'Authorization':'Bearer '+currentSession.access_token,'Content-Type':'application/json'};
   try{
-   const upload=await ownerClient.storage.from('anime-episodes').upload(safeName,file,{contentType:file.type,cacheControl:'31536000',upsert:false});
-   if(upload.error)throw upload.error;
-   uploadedPath=safeName;
-   const siteUrl='https://allinoneedition.vercel.app/videos/'+safeName.split('/').map(encodeURIComponent).join('/');
-   await saveEpisodeVideoRow('Self-hosted video',siteUrl);
-   $('episodeWatchUrl').value=siteUrl;
-   $('hostedVideoUrl').value=siteUrl;
-   $('openHostedVideoUrl').href=siteUrl;
-   $('hostedVideoResult').hidden=false;
-   $('ownerLinkStatus').textContent='Uploaded. Your video is now hosted at your All in One Edition /videos/ address.';
-   $('episodeVideoFile').value='';
-   $('episodeUploadMeta').textContent='Upload complete · '+file.name;
-   $('uploadEpisodeVideo').disabled=true;
+   const initRes=await fetch(B2_MEDIA_API+'/uploads/initiate',{method:'POST',headers,body:JSON.stringify({filename:safeName,contentType:file.type,sizeBytes:file.size,visibility:'public'})});
+   const init=await initRes.json().catch(()=>({}));
+   if(!initRes.ok||!init.uploadId)throw new Error(init.error||'B2 could not start the upload.');
+   uploadId=init.uploadId;
+   const partSize=Math.max(5*1024*1024,Math.min(Number(init.partSizeBytes)||32*1024*1024,64*1024*1024));
+   const parts=[];let uploaded=0,partNumber=1;
+   for(let offset=0;offset<file.size;offset+=partSize,partNumber++){
+    const chunk=file.slice(offset,Math.min(file.size,offset+partSize));
+    const response=await fetch(B2_MEDIA_API+'/uploads/'+encodeURIComponent(uploadId)+'/parts/'+partNumber,{method:'POST',headers:{'Authorization':'Bearer '+currentSession.access_token,'Content-Type':'application/octet-stream','X-Part-Size':String(chunk.size)},body:chunk});
+    const part=await response.json().catch(()=>({}));
+    if(!response.ok||!part.etag)throw new Error(part.error||'B2 upload failed at part '+partNumber+'.');
+    parts.push({partNumber,etag:part.etag});uploaded+=chunk.size;progress.value=uploaded;
+    $('ownerLinkStatus').textContent='Uploading to B2 · '+Math.round(uploaded/file.size*100)+'%';
+   }
+   const completeRes=await fetch(B2_MEDIA_API+'/uploads/'+encodeURIComponent(uploadId)+'/complete',{method:'POST',headers,body:JSON.stringify({parts})});
+   const complete=await completeRes.json().catch(()=>({}));
+   if(!completeRes.ok)throw new Error(complete.error||'B2 could not finish the upload.');
+   completed=true;
+   const mediaUrl=B2_MEDIA_API+'/media/'+encodeURIComponent(uploadId);
+   await saveEpisodeVideoRow('B2 Storage',mediaUrl);
+   $('episodeWatchUrl').value=mediaUrl;$('hostedVideoUrl').value=mediaUrl;$('openHostedVideoUrl').href=mediaUrl;$('hostedVideoResult').hidden=false;
+   $('ownerLinkStatus').textContent='Uploaded to B2. The episode is now saved and ready to stream.';
+   $('episodeVideoFile').value='';$('episodeUploadMeta').textContent='B2 upload complete · '+file.name;button.disabled=true;
   }catch(error){
-   if(uploadedPath){try{await ownerClient.storage.from('anime-episodes').remove([uploadedPath])}catch{}}
-   $('ownerLinkStatus').textContent='Upload failed: '+(error?.message||'Storage error.');
-  }finally{$('episodeUploadProgress').hidden=true;button.disabled=!$('episodeVideoFile').files?.[0]}
+   if(uploadId&&!completed){try{await fetch(B2_MEDIA_API+'/uploads/'+encodeURIComponent(uploadId)+'/abort',{method:'POST',headers:{'Authorization':'Bearer '+currentSession.access_token}})}catch{}}
+   $('ownerLinkStatus').textContent='B2 upload failed: '+(error?.message||'Storage error.');
+  }finally{progress.hidden=true;button.disabled=!$('episodeVideoFile').files?.[0]}
  }
  async function removeOwnerEpisodeLink(){
   if(!siteOwner||!currentSession?.user||!selectedEpisode)return;
@@ -497,12 +511,12 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
    const box=document.createElement('div');box.className='watch-player-placeholder';const mark=document.createElement('div');mark.className='player-mark';mark.textContent='↗';const title=document.createElement('strong');title.textContent='Open the official episode guide';const description=document.createElement('p');description.textContent='This publisher provides its episode list and approved viewing options on its own website.';const link=document.createElement('a');link.href=s.episodeGuideUrl;link.target='_blank';link.rel='noopener noreferrer';link.className='action primary';link.textContent='Open official episode page';box.append(mark,title,description,link);stage.append(box);$('playerNote').textContent='Episode information is listed by the publisher. Availability depends on the viewing service and your region.';return;
   }
   const saved=episodeLinks.get(watchLinkKey(s.id,si,ep.number));
-  const isVideo=saved&&(saved.provider==='XBT Storage'||saved.provider==='Self-hosted video');
+  const isVideo=saved&&(saved.provider==='XBT Storage'||saved.provider==='Self-hosted video'||saved.provider==='B2 Storage');
   if(!isVideo){
    const box=document.createElement('div');box.className='watch-player-placeholder';
    const mark=document.createElement('div');mark.className='player-mark';mark.textContent='▶';
    const title=document.createElement('strong');title.textContent='No video added yet';
-   const description=document.createElement('p');description.textContent='The site owner can upload a rights-cleared MP4/WebM or paste a direct video URL hosted on All in One Edition. Select this episode in the manager to add it.';
+   const description=document.createElement('p');description.textContent='The site owner can upload a rights-cleared MP4/WebM to B2 or paste an approved hosted video URL. Select this episode in the manager to add it.';
    box.append(mark,title,description);stage.append(box);
    $('playerNote').textContent='No episode video has been added yet.';
    return;
