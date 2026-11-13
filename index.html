@@ -487,6 +487,7 @@ html{scroll-padding-top:118px}.section{scroll-margin-top:125px}.top{gap:9px}
 #gameModal.open .game-float-btn{width:36px;height:36px}
 .search{flex:1 1 320px;min-width:220px;max-width:720px}
 .search input{display:block;width:100%;min-width:0;height:42px;font-size:14px}
+@media(max-width:700px){.search{flex:1 1 100%;min-width:0;max-width:none;order:3}}
 
 .aio-release-setting{display:none!important;flex-direction:column;align-items:stretch;gap:10px}
 .aio-release-setting:not([hidden]){display:flex!important}
@@ -1011,7 +1012,7 @@ function renderGames(){currentFiltered=filteredGames();if(visibleLimit>currentFi
 function loadMoreGames(){visibleLimit+=48;renderGames();window.scrollBy({top:140,behavior:'smooth'})}
 function setCat(c){activeCat=c;visibleLimit=48;renderFilters();renderGames()}
 function toggleFavourite(event,index){if(event){event.preventDefault();event.stopPropagation()}const game=GAMES[index];if(!game)return;const key=gameKey(game);if(favouriteGames.has(key)){favouriteGames.delete(key);showToast('Removed from favourites')}else{favouriteGames.add(key);showToast('Added to favourites')}storage.setItem(FAVOURITES_KEY,JSON.stringify([...favouriteGames]));renderFilters();renderGames()}
-let gameSearchTimer=0;$('search').addEventListener('input',()=>{clearTimeout(gameSearchTimer);gameSearchTimer=setTimeout(()=>{visibleLimit=48;renderGames()},100)});
+let gameSearchTimer=0;$('search').addEventListener('input',()=>{clearTimeout(gameSearchTimer);gameSearchTimer=setTimeout(()=>{visibleLimit=48;renderGames()},80)});$('search').addEventListener('keydown',event=>{if(event.key==='Escape'){$('search').value='';visibleLimit=48;renderGames();}});
 
 const ONLINE_GAMES_FEED='https://www.onlinegames.io/media/plugins/genGames/embed.json';
 let onlineCatalogLoaded=false;
@@ -2242,6 +2243,9 @@ $('callModal')?.addEventListener('click',e=>{if(e.target.id==='callModal')endFri
 $('setupSqlModal')?.addEventListener('click',e=>{if(e.target.id==='setupSqlModal')closeSetupSQL();});
 // Add a friend-search Enter shortcut without hijacking the rest of the site.
 $('friendSearch')?.addEventListener('keydown',e=>{if(e.key==='Enter')searchFriends();});
+
+// Render the local game catalogue immediately; do not wait for a search or account response.
+setTimeout(()=>{try{renderFilters();renderGames();}catch(error){console.error('Game catalogue render failed:',error);}},0);
 
 // Initialise Supabase only after all community functions exist.
 setTimeout(()=>{try{initCommunity();}catch(e){console.error(e);}},80);
