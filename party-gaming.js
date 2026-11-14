@@ -7,6 +7,7 @@
  const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
  const participantId=crypto.randomUUID();
  const outgoing=new Map(),incoming=new Map(),earlyCandidates=new Map();
+ const chatLog=[],mutedPeers=new Set(),lastMessages=new Map();let sentAt=0;
  let channel=null,stream=null,shareId='',joining=false,members={},fallbackTimer=0,fallbackStarted=0,fallbackSending=false;
  const isLive=()=>Boolean(currentParty?.liveParty);
  window.aioPartyIdentity=()=>isLive()?participantId:(currentUser?.id||null);
@@ -15,6 +16,49 @@
  function niceCode(code){return (code.match(/.{1,5}/g)||[]).join(' ')}
  function name(){return String($('partyGuestName')?.value||currentProfile?.username||'Guest').trim().slice(0,24)||'Guest'}
  function setText(id,value){const el=$(id);if(el)el.textContent=value}
+ function installChat(){
+  const grid=document.querySelector?.('#party-workspace .party-page-grid');if(!grid||document.getElementById('partyChatMessages'))return;
+  const panel=document.createElement('div');panel.className='panel party-fun-wide aio-party-chat';
+  panel.innerHTML='<div class="party-tool-title"><h3>Party chat</h3><span id="partyChatStatus" class="tiny-status">Join a party to chat with guests.</span></div><div id="partyChatMessages" class="aio-party-chat-messages" role="log" aria-live="polite"></div><div class="aio-party-chat-composer"><input id="partyChatInput" class="social-input" maxlength="240" autocomplete="off" aria-label="Party chat message" placeholder="Join a party to chat" disabled><button id="partyChatSend" class="btn primary" type="button" disabled>Send</button></div><div class="tiny-status">Guest-friendly, live-only messages. Share the invite with people you trust.</div>';
+  grid.insertBefore(panel,grid.firstChild);
+  panel.querySelector('#partyChatSend').addEventListener('click',()=>window.sendPartyChat());
+  panel.querySelector('#partyChatInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();window.sendPartyChat()}});
+ }
+ function chatEnabled(value){
+  const input=$('partyChatInput'),button=$('partyChatSend');
+  if(input){input.disabled=!value;input.placeholder=value?'Message your party…':'Join a party to chat'}
+  if(button)button.disabled=!value;
+  setText('partyChatStatus',value?'Live-only chat · Not saved':'Join a party to chat with guests.');
+ }
+ function appendMessage(message){
+  if(!message||typeof message.id!=='string'||typeof message.from!=='string'||typeof message.text!=='string'||message.text.length>240||!message.text.trim())return;
+  if(chatLog.some(entry=>entry.id===message.id)||mutedPeers.has(message.from))return;
+  const peer=message.from===participantId?{username:name()}:(members[message.from]?.[0]||members[message.from]);
+  if(!peer?.username)return;
+  chatLog.push({id:message.id.slice(0,80),from:message.from,name:String(peer.username).slice(0,24),text:message.text.trim()});if(chatLog.length>60)chatLog.shift();
+  const box=$('partyChatMessages');if(!box)return;box.replaceChildren();
+  for(const entry of chatLog){
+   const item=document.createElement('div');item.className='aio-party-chat-line'+(entry.from===participantId?' own':'');
+   const nameEl=document.createElement('strong');nameEl.textContent=entry.name+(entry.from===participantId?' (you)':'');
+   const content=document.createElement('span');content.textContent=entry.text;item.append(nameEl,content);box.appendChild(item);
+  }
+  box.scrollTop=box.scrollHeight;
+ }
+ function receiveChat(message){
+  if(!isLive()||!message?.from||message.from===participantId||!members[message.from]||mutedPeers.has(message.from))return;
+  const now=Date.now();if(now-(lastMessages.get(message.from)||0)<600)return;
+  if(typeof message.text!=='string'||message.text.length>240)return;
+  lastMessages.set(message.from,now);appendMessage(message);
+ }
+ window.sendPartyChat=function(){
+  if(!isLive()||!channel)return showToast('Join a party to chat.');
+  const input=$('partyChatInput'),message=String(input?.value||'').trim();
+  if(!message)return;if(message.length>240)return showToast('Keep messages under 240 characters.');
+  if(Date.now()-sentAt<800)return showToast('Send messages a little slower.');
+  sentAt=Date.now();const entry={id:crypto.randomUUID(),from:participantId,text:message};
+  appendMessage(entry);if(input)input.value='';
+  Promise.resolve(send('party-chat',entry)).catch(()=>showToast('Message could not be sent.'));
+ };
  function safeTrack(){
   if(!channel||!isLive())return;
   const g=currentGame&&$('gameModal')?.classList.contains('open')?currentGame:null;
@@ -36,6 +80,11 @@
     const title=document.createElement('strong');title.textContent=String(member.username).slice(0,24)+(member.id===participantId?' (you)':'');
     const sub=document.createElement('div');sub.className='tiny-status';sub.textContent=(member.guest?'Guest':'Member')+' · '+(member.gameName?'Playing '+String(member.gameName).slice(0,80):'Browsing')+(member.sharing?' · Sharing':'');
     info.append(title,sub);row.appendChild(info);
+    if(member.id!==participantId){const mute=document.createElement('button');mute.className='btn mini';
+     mute.textContent=mutedPeers.has(member.id)?'Unmute chat':'Mute chat';
+     mute.addEventListener('click',()=>{if(mutedPeers.has(member.id))mutedPeers.delete(member.id);else mutedPeers.add(member.id);renderMembers()});
+     row.appendChild(mute);
+    }
     if(member.id!==participantId&&member.gameKey){const index=GAMES.findIndex(game=>gameKey(game)===member.gameKey);if(index>=0){const button=document.createElement('button');button.className='btn mini';button.textContent='Play same';button.addEventListener('click',()=>openGame(index));row.appendChild(button)}}
     box.appendChild(row);
    }
@@ -57,6 +106,7 @@
   chan.on('presence',{event:'sync'},presenceSync)
    .on('broadcast',{event:'draw'},({payload})=>receiveRemoteStroke(payload))
    .on('broadcast',{event:'draw-clear'},()=>clearCanvasLocal())
+   .on('broadcast',{event:'party-chat'},({payload})=>receiveChat(payload))
    .on('broadcast',{event:'screen-signal'},({payload})=>receiveSignal(payload))
    .on('broadcast',{event:'screen-frame'},({payload})=>receiveFallbackFrame(payload))
    .on('broadcast',{event:'screen-stop'},({payload})=>{if(payload?.from&&payload?.shareId){const key=payload.from+'-'+payload.shareId;closeRecord(incoming,key);removeVideo(key)}});
@@ -65,7 +115,7 @@
   if(!ok||channel!==chan){if(channel===chan){channel=null;currentParty=null}await supabaseClient.removeChannel(chan);showToast('Could not connect to the party. Check your connection and try again.');return}
   communityChannels.set('party',chan);$('partyPanel')?.classList.remove('hidden');setText('partyCode',niceCode(code));setText('partyWorkspaceCode',niceCode(code));
   $('partyLiveControls')?.classList.remove('hidden');$('partyJoinCode').value=code;const own=$('partyWorkspaceJoinCode');if(own)own.value=code;
-  try{localStorage.setItem('aio-party-name',name())}catch{}safeTrack();renderMembers();scrollToId('party-workspace');showToast('Party connected');
+  try{localStorage.setItem('aio-party-name',name())}catch{}safeTrack();chatEnabled(true);renderMembers();scrollToId('party-workspace');showToast('Party connected');
  }
  createParty=async function(){await openRoom(makeCode())};
  joinPartyByCode=async function(){
@@ -78,7 +128,7 @@
  leaveParty=async function(){
   if(!isLive())return legacyLeave();
   stopShare();for(const key of [...outgoing.keys()])closeRecord(outgoing,key);for(const key of [...incoming.keys()]){closeRecord(incoming,key);removeVideo(key)}earlyCandidates.clear();
-  if(meetingChannel)closeMeeting();const old=channel;channel=null;communityChannels.delete('party');currentParty=null;members={};if(old)await supabaseClient.removeChannel(old);
+  if(meetingChannel)closeMeeting();const old=channel;channel=null;communityChannels.delete('party');currentParty=null;members={};chatLog.length=0;mutedPeers.clear();lastMessages.clear();sentAt=0;if(old)await supabaseClient.removeChannel(old);chatEnabled(false);$('partyChatMessages')?.replaceChildren();
   $('partyPanel')?.classList.add('hidden');$('partyLiveControls')?.classList.add('hidden');setText('partyCode','------');setText('partyWorkspaceCode','------');setText('partyWorkspaceStatus','Create or join a party below.');
   for(const id of ['partyMembers','partyWorkspaceMembers']){const el=$(id);if(el)el.textContent='No party joined.'}const grid=$('partyStreams');if(grid)grid.replaceChildren();showToast('Left party');
  };
@@ -150,6 +200,7 @@
  };
  // New rooms keep meetings available to guests using the same per-tab identity.
  openMeeting=async function(){return legacyOpenMeeting()};
+ installChat();chatEnabled(false);
  const input=$('partyWorkspaceJoinCode'),community=$('partyJoinCode');
  if(input&&community){input.addEventListener('input',()=>{community.value=input.value});community.addEventListener('input',()=>{input.value=community.value});input.addEventListener('keydown',e=>{if(e.key==='Enter')joinPartyByCode()});community.addEventListener('keydown',e=>{if(e.key==='Enter')joinPartyByCode()})}
  try{const saved=localStorage.getItem('aio-party-name');if(saved&&$('partyGuestName'))$('partyGuestName').value=saved}catch{}
