@@ -156,6 +156,14 @@
     : 'Join a party first to share your cloud launch status. Your game link still works.';
  }
  enhanceCards();installToolkit();
+ // Real first-party browser games mount directly into this section. No provider iframe.
+ if(document.head&&!document.getElementById('aioInSitePlayScript')){
+  const css=document.createElement('link');css.rel='stylesheet';css.href='/in-site-play.css';
+  document.head.appendChild(css);
+  const script=document.createElement('script');
+  script.id='aioInSitePlayScript';script.src='/in-site-play.js';script.async=true;
+  document.head.appendChild(script);
+ }
  root.addEventListener('click',event=>{
   const target=event.target?.closest?.('a[data-cloud-game]');
   if(target)launched(target.dataset.cloudGame);
