@@ -194,7 +194,7 @@
  search.addEventListener('input',updateDiscovery);
  surprise.addEventListener('click',()=>{
   const visible=originals.filter(game=>{
-   const pick=picks.querySelectorAll('[data-aio-game]').find(button=>button.dataset.aioGame===game.id);
+   const pick=Array.from(picks.querySelectorAll('[data-aio-game]')).find(button=>button.dataset.aioGame===game.id);
    return pick&&!pick.hidden;
   });
   if(!visible.length)return;
