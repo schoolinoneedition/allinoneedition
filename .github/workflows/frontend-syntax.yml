@@ -25,6 +25,8 @@ jobs:
           node --check cloud-gaming.js
           node --check cloud-host-ui.js
           node --check api/cloud-host-status.js
+          node --check api/cloud-stream-session.js
+          node --check cloud-embedded-stream.js
           node --check in-site-play.js
           node --check game-motion.js
       - name: Install Backblaze B2 Worker dependencies
@@ -42,6 +44,8 @@ jobs:
           node tests/cloud-gaming.cjs
           node tests/cloud-host-status.cjs
           node tests/cloud-host-ui.cjs
+          node tests/cloud-stream-session.cjs
+          node tests/cloud-embedded-stream.cjs
           node tests/in-site-play.cjs
           node tests/game-motion.cjs
           node tests/real-games-loading.cjs

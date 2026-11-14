@@ -172,6 +172,14 @@
   script.id='aioCloudHostScript';script.src='/cloud-host-ui.js';script.async=true;
   document.head.appendChild(script);
  }
+ // Embed provider sessions only after the owner explicitly approves and configures a host.
+ if(document.head&&!document.getElementById('aioEmbeddedStreamScript')){
+  const css=document.createElement('link');css.rel='stylesheet';css.href='/cloud-embedded-stream.css';
+  document.head.appendChild(css);
+  const script=document.createElement('script');script.id='aioEmbeddedStreamScript';
+  script.src='/cloud-embedded-stream.js';script.async=true;
+  document.head.appendChild(script);
+ }
  root.addEventListener('click',event=>{
   const target=event.target?.closest?.('a[data-cloud-game]');
   if(target)launched(target.dataset.cloudGame);
