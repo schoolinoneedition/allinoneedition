@@ -25,3 +25,5 @@
 @media(max-width:720px){.aio-in-site-picks{grid-template-columns:repeat(2,minmax(0,1fr))}.aio-in-site-viewport{min-height:270px;height:min(62vh,510px)}}
 @media(max-width:410px){.aio-in-site-picks{grid-template-columns:1fr 1fr}.aio-in-site-pick{padding:10px}.aio-in-site-actions .btn{height:32px;padding:0 8px;font-size:10px}}
 @media(prefers-reduced-motion:reduce){.aio-in-site-pick{transition:none}.aio-in-site-pick:hover{transform:none}}
+
+.aio-in-site-provider-note{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--line);color:var(--muted);font-size:11px;line-height:1.6}
