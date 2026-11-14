@@ -148,3 +148,14 @@ html[data-aio-cursor-style="minimal"] body :is(.resize-handle,[data-resize]){cur
 .aio-ultimate-modal.open .aio-onboard-card{animation:aioOnboardSlideIn .34s cubic-bezier(.2,.78,.22,1) both}
 @keyframes aioOnboardSlideIn{from{opacity:0;transform:translate3d(34px,0,0) scale(.985)}to{opacity:1;transform:translate3d(0,0,0) scale(1)}}
 @media(prefers-reduced-motion:reduce){.aio-ultimate-modal.open .aio-onboard-card{animation:none}}
+
+/* Useful setup options: optional floating alerts, cover theme, and hometime. */
+.aio-setup-alert-choice{display:grid;gap:9px;border:1px solid var(--line,#e0e5ee);border-radius:16px;background:var(--soft,#f7f9fb);padding:15px;margin-top:18px}
+.aio-setup-alert-choice h3{font-size:15px;margin:0;letter-spacing:-.01em}
+.aio-setup-alert-choice p{font-size:12px;line-height:1.55;color:var(--muted,#657083);margin:0 0 3px}
+.aio-setup-alert-choice label{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:37px;padding:6px 0;border-bottom:1px solid var(--line,#dfe4e9);font-size:12px;font-weight:680;cursor:pointer}
+.aio-setup-alert-choice label span{flex:1}
+.aio-setup-alert-choice :is(input,select){accent-color:var(--accent,#4266eb)}
+.aio-setup-alert-choice select{padding:7px 8px;font:inherit;font-size:12px;border:1px solid var(--line,#dfe4e9);border-radius:8px;color:var(--text,#182233);background:var(--panel,#fff);max-width:55%}
+.aio-setup-alert-choice #aioSetupNoticePreview{justify-self:start}
+@media(max-width:600px){.aio-setup-alert-choice{padding:12px}.aio-setup-alert-choice label{align-items:flex-start}}
