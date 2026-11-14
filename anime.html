@@ -223,7 +223,18 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
  const B2_MEDIA_API='https://all-in-one-edition-media.plsgivemediscord981.workers.dev';
  const ownerClient=window.supabase?.createClient?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}):null;
  let watched=readStore(),activeId='pokemon',activeSeason=0,activeWatchFilter='all',cartoonAutoPlay=true;
- let currentSession=null,siteOwner=false,episodeLinks=new Map(),selectedEpisode=null;
+ let currentSession=null,siteOwner=false,episodeLinks=new Map(),selectedEpisode=null,episodeUploadActive=false;
+ let youtubePlayer=null,youtubeApiPromise=null,youtubeRender=0;
+ function loadYouTubeApi(){
+  if(window.YT?.Player)return Promise.resolve(window.YT);
+  if(youtubeApiPromise)return youtubeApiPromise;
+  youtubeApiPromise=new Promise((resolve,reject)=>{
+   const timer=setTimeout(()=>reject(Error('Video controls are unavailable.')),12000);
+   const previous=window.onYouTubeIframeAPIReady;window.onYouTubeIframeAPIReady=()=>{clearTimeout(timer);if(typeof previous==='function')previous();resolve(window.YT)};
+   const script=document.createElement('script');script.src='https://www.youtube.com/iframe_api';script.onerror=()=>{clearTimeout(timer);reject(Error('Video controls are unavailable.'))};document.head.append(script);
+  }).catch(error=>{youtubeApiPromise=null;throw error});
+  return youtubeApiPromise;
+ }
  function readStore(){try{const x=JSON.parse(localStorage.getItem(STORE)||'{}');return x&&typeof x==='object'?x:{}}catch{return {}}}
  function save(){try{localStorage.setItem(STORE,JSON.stringify(watched));$('saveStatus').textContent='Saved automatically on this device.'}catch{$('saveStatus').textContent='Browser storage is full or unavailable.'}renderStats();renderSeries()}
  const makeEpisodes=(names,prefix='Episode')=>names.map((name,i)=>({number:i+1,title:name||prefix+' '+String(i+1).padStart(2,'0')}));
@@ -315,9 +326,10 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
   if(url.protocol!=='https:'||url.username||url.password||url.port)throw new Error('Use a secure https:// video URL without login details or a custom port.');
   const host=url.hostname.toLowerCase(),path=url.pathname.toLowerCase();
   const onVercel=host==='allinoneedition.vercel.app'&&path.startsWith('/videos/');
-  const onB2=host==='all-in-one-edition-media.plsgivemediscord981.workers.dev'&&/^\/media\/[A-Za-z0-9_-]+$/.test(url.pathname);
+  const onB2=host==='all-in-one-edition-media.plsgivemediscord981.workers.dev'&&/^\/media\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(url.pathname);
   if(!onVercel&&!onB2)throw new Error('Use an All in One Edition /videos/ URL or a public B2 media URL.');
   if(onVercel&&!/\.(mp4|webm)$/i.test(url.pathname))throw new Error('The hosted video URL must end in .mp4 or .webm.');
+  if(onB2){url.pathname=url.pathname.toLowerCase();url.search='';url.hash=''}
   return url.href;
  }
  function videoObjectPath(url){
@@ -349,7 +361,6 @@ async function deleteB2Media(mediaUrl){
   }catch(error){console.warn('B2 cleanup:',error);}
 }
 function updateOwnerEditor(s,si,ep){
-  if(s.kind==='cartoon'){selectedEpisode=null;$('ownerLinkPanel').hidden=true;return}
   $('ownerLinkPanel').hidden=false;
   selectedEpisode={seriesId:s.id,seasonIndex:si,episodeNumber:ep.number};
   const saved=episodeLinks.get(watchLinkKey(s.id,si,ep.number));
@@ -367,20 +378,26 @@ function updateOwnerEditor(s,si,ep){
   if(!ownerClient)return;
   const rows=[];
   try{
+   const table=siteOwner?'anime_episode_watch_links':'aio_watch_public_episodes';
+   const columns=siteOwner?'series_id,season_index,episode_number,provider,watch_url':'series_id,season_index,episode_number,media_id';
    for(let start=0;start<5000;start+=500){
-    const result=await ownerClient.from('anime_episode_watch_links').select('series_id,season_index,episode_number,provider,watch_url').order('series_id').order('season_index').order('episode_number').range(start,start+499);
+    const result=await ownerClient.from(table).select(columns).order('series_id').order('season_index').order('episode_number').range(start,start+499);
     if(result.error)throw result.error;
     rows.push(...(result.data||[]));
     if(!result.data||result.data.length<500)break;
    }
-   episodeLinks=new Map(rows.map(row=>[watchLinkKey(row.series_id,row.season_index,row.episode_number),row]));
+   episodeLinks=new Map(rows.map(row=>{
+    const item=siteOwner?row:{...row,provider:'B2 Storage',watch_url:B2_MEDIA_API+'/media/'+encodeURIComponent(row.media_id)};
+    return [watchLinkKey(item.series_id,item.season_index,item.episode_number),item];
+   }));
    renderCatalog();
    if(selectedEpisode){
-    const s=series.find(item=>item.id===selectedEpisode.seriesId),ep=s?.seasons[selectedEpisode.seasonIndex]?.episodes.find(item=>item.number===selectedEpisode.episodeNumber);
-    if(s&&ep)renderPlayer(s,selectedEpisode.seasonIndex,ep);
+    const seriesItem=series.find(item=>item.id===selectedEpisode.seriesId),ep=seriesItem?.seasons[selectedEpisode.seasonIndex]?.episodes.find(item=>item.number===selectedEpisode.episodeNumber);
+    if(seriesItem&&ep)renderPlayer(seriesItem,selectedEpisode.seasonIndex,ep);
    }
   }catch(error){
-   $('ownerAccessText').textContent='Episode links could not be loaded: '+(error?.message||'Cloud database error.');
+   if(siteOwner)$('ownerAccessText').textContent='Episode links could not be loaded: '+(error?.message||'Cloud database error.');
+   else console.warn('Public episode listing unavailable:',error);
   }
  }
  async function refreshOwnerAccess(){
@@ -398,10 +415,11 @@ function updateOwnerEditor(s,si,ep){
    }
   }catch(error){siteOwner=false;editor.hidden=true;access.textContent='Could not verify owner permissions. '+(error?.message||'Try signing in again from the main hub.')}
  }
- async function saveEpisodeVideoRow(provider,watchUrl){
-  const mapKey=watchLinkKey(selectedEpisode.seriesId,selectedEpisode.seasonIndex,selectedEpisode.episodeNumber);
+ async function saveEpisodeVideoRow(provider,watchUrl,target=selectedEpisode){
+  if(!target||!currentSession?.user)throw Error('Select an episode and sign in again.');
+  const mapKey=watchLinkKey(target.seriesId,target.seasonIndex,target.episodeNumber);
   const previous=episodeLinks.get(mapKey);
-  const row={...selectedEpisode,provider,watch_url:watchUrl,updated_by:currentSession.user.id,updated_at:new Date().toISOString()};
+  const row={series_id:target.seriesId,season_index:target.seasonIndex,episode_number:target.episodeNumber,provider,watch_url:watchUrl,updated_by:currentSession.user.id,updated_at:new Date().toISOString()};
   const result=await ownerClient.from('anime_episode_watch_links').upsert(row,{onConflict:'series_id,season_index,episode_number'});
   if(result.error)throw result.error;
   episodeLinks.set(mapKey,row);
@@ -409,8 +427,10 @@ function updateOwnerEditor(s,si,ep){
   if(oldObject){try{await ownerClient.storage.from('anime-episodes').remove([oldObject])}catch{}}
   if(previous?.provider==='B2 Storage'&&previous.watch_url!==watchUrl)await deleteB2Media(previous.watch_url);
   renderCatalog();
-  const s=series.find(item=>item.id===row.series_id),ep=s?.seasons[row.season_index]?.episodes.find(item=>item.number===row.episode_number);
-  if(s&&ep)renderPlayer(s,row.season_index,ep);
+  if(selectedEpisode&&watchLinkKey(selectedEpisode.seriesId,selectedEpisode.seasonIndex,selectedEpisode.episodeNumber)===mapKey){
+   const item=series.find(item=>item.id===row.series_id),ep=item?.seasons[row.season_index]?.episodes.find(item=>item.number===row.episode_number);
+   if(item&&ep)renderPlayer(item,row.season_index,ep);
+  }
  }
  async function saveOwnerEpisodeLink(){
   if(!siteOwner||!currentSession?.user||!selectedEpisode){$('ownerLinkStatus').textContent='Only the verified site owner can save a video. Select an episode first.';return}
@@ -418,29 +438,33 @@ function updateOwnerEditor(s,si,ep){
   try{watchUrl=validateSelfHostedVideoUrl($('episodeWatchUrl').value)}catch(error){$('ownerLinkStatus').textContent=error.message;return}
   const button=$('saveEpisodeLink');button.disabled=true;
   try{
-   await saveEpisodeVideoRow('Self-hosted video',watchUrl);
+   const provider=new URL(watchUrl).hostname==='all-in-one-edition-media.plsgivemediscord981.workers.dev'?'B2 Storage':'Self-hosted video';
+   await saveEpisodeVideoRow(provider,watchUrl);
    $('ownerLinkStatus').textContent='Direct video URL saved. The episode is ready to play in Anime Zone.';
   }catch(error){$('ownerLinkStatus').textContent='Could not save: '+(error?.message||'Database error.')}
   finally{button.disabled=false}
  }
  async function uploadOwnerEpisodeVideo(){
+  if(episodeUploadActive){$('ownerLinkStatus').textContent='An upload is already in progress.';return}
   if(!siteOwner||!currentSession?.user||!selectedEpisode){$('ownerLinkStatus').textContent='Only the verified site owner can upload a video. Select an episode first.';return}
   const file=$('episodeVideoFile').files?.[0];
   if(!file){$('ownerLinkStatus').textContent='Choose an MP4 or WebM file first.';return}
   const extension=(file.name.split('.').pop()||'').toLowerCase();
-  const mimeOk=(extension==='mp4'&&file.type==='video/mp4')||(extension==='webm'&&file.type==='video/webm');
+  const contentType=extension==='mp4'?'video/mp4':extension==='webm'?'video/webm':'';
+  const mimeOk=!!contentType&&(!file.type||file.type===contentType);
   if(!mimeOk){$('ownerLinkStatus').textContent='Choose a valid MP4 or WebM video file.';return}
   const MAX_VIDEO_BYTES=1024*1024*1024;
   if(file.size<=0||file.size>MAX_VIDEO_BYTES){$('ownerLinkStatus').textContent='Choose a video between 1 byte and 1 GB.';return}
   if(!currentSession.access_token){$('ownerLinkStatus').textContent='Your owner session needs refreshing. Sign in again, then retry.';return}
   const button=$('uploadEpisodeVideo'),progress=$('episodeUploadProgress');
-  button.disabled=true;progress.hidden=false;progress.max=file.size;progress.value=0;
+  episodeUploadActive=true;button.disabled=true;progress.hidden=false;progress.max=file.size;progress.value=0;
   $('ownerLinkStatus').textContent='Preparing secure B2 upload…';
-  const safeName=selectedEpisode.seriesId+'/'+(selectedEpisode.seasonIndex+1)+'/'+String(selectedEpisode.episodeNumber).padStart(3,'0')+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+extension;
-  let uploadId=null,completed=false;
+  const target={...selectedEpisode};
+  const safeName=target.seriesId+'/'+(target.seasonIndex+1)+'/'+String(target.episodeNumber).padStart(3,'0')+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+extension;
+  let uploadId=null,completed=false,saved=false;
   const headers={'Authorization':'Bearer '+currentSession.access_token,'Content-Type':'application/json'};
   try{
-   const initRes=await fetch(B2_MEDIA_API+'/uploads/initiate',{method:'POST',headers,body:JSON.stringify({filename:safeName,contentType:file.type,sizeBytes:file.size,visibility:'public'})});
+   const initRes=await fetch(B2_MEDIA_API+'/uploads/initiate',{method:'POST',headers,body:JSON.stringify({filename:safeName,contentType,sizeBytes:file.size,visibility:'public'})});
    const init=await initRes.json().catch(()=>({}));
    if(!initRes.ok||!init.uploadId)throw new Error(init.error||'B2 could not start the upload.');
    uploadId=init.uploadId;
@@ -448,25 +472,42 @@ function updateOwnerEditor(s,si,ep){
    const parts=[];let uploaded=0,partNumber=1;
    for(let offset=0;offset<file.size;offset+=partSize,partNumber++){
     const chunk=file.slice(offset,Math.min(file.size,offset+partSize));
-    const response=await fetch(B2_MEDIA_API+'/uploads/'+encodeURIComponent(uploadId)+'/parts/'+partNumber,{method:'POST',headers:{'Authorization':'Bearer '+currentSession.access_token,'Content-Type':'application/octet-stream','X-Part-Size':String(chunk.size)},body:chunk});
-    const part=await response.json().catch(()=>({}));
-    if(!response.ok||!part.etag)throw new Error(part.error||'B2 upload failed at part '+partNumber+'.');
+    let part=null,lastError=null;
+    for(let attempt=0;attempt<3;attempt++){
+     try{
+      const sessionResult=await ownerClient.auth.getSession();const token=sessionResult.data?.session?.access_token;
+      if(!token)throw Error('Session expired. Sign in again.');
+      const response=await fetch(B2_MEDIA_API+'/uploads/'+encodeURIComponent(uploadId)+'/parts/'+partNumber,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/octet-stream','X-Part-Size':String(chunk.size)},body:chunk});
+      const result=await response.json().catch(()=>({}));
+      if(response.ok&&result.etag){part=result;break}
+      if(response.status<500&&response.status!==429)throw Error(result.error||'Upload rejected at part '+partNumber+'.');
+      throw Error(result.error||'Temporary upload error.');
+     }catch(error){lastError=error;if(attempt<2)await new Promise(resolve=>setTimeout(resolve,750*(attempt+1)))}
+    }
+    if(!part)throw lastError||Error('Upload failed at part '+partNumber+'.');
     parts.push({partNumber,etag:part.etag});uploaded+=chunk.size;progress.value=uploaded;
     $('ownerLinkStatus').textContent='Uploading to B2 · '+Math.round(uploaded/file.size*100)+'%';
    }
+   const finalSession=await ownerClient.auth.getSession();if(!finalSession.data?.session?.access_token)throw Error('Session expired. Sign in again.');headers.Authorization='Bearer '+finalSession.data.session.access_token;
    const completeRes=await fetch(B2_MEDIA_API+'/uploads/'+encodeURIComponent(uploadId)+'/complete',{method:'POST',headers,body:JSON.stringify({parts})});
    const complete=await completeRes.json().catch(()=>({}));
    if(!completeRes.ok)throw new Error(complete.error||'B2 could not finish the upload.');
    completed=true;
    const mediaUrl=B2_MEDIA_API+'/media/'+encodeURIComponent(uploadId);
-   await saveEpisodeVideoRow('B2 Storage',mediaUrl);
-   $('episodeWatchUrl').value=mediaUrl;$('hostedVideoUrl').value=mediaUrl;$('openHostedVideoUrl').href=mediaUrl;$('hostedVideoResult').hidden=false;
+   await saveEpisodeVideoRow('B2 Storage',mediaUrl,target);saved=true;
+   if(selectedEpisode&&watchLinkKey(selectedEpisode.seriesId,selectedEpisode.seasonIndex,selectedEpisode.episodeNumber)===watchLinkKey(target.seriesId,target.seasonIndex,target.episodeNumber)){
+    $('episodeWatchUrl').value=mediaUrl;$('hostedVideoUrl').value=mediaUrl;$('openHostedVideoUrl').href=mediaUrl;$('hostedVideoResult').hidden=false;
+   }
    $('ownerLinkStatus').textContent='Uploaded to B2. The episode is now saved and ready to stream.';
    $('episodeVideoFile').value='';$('episodeUploadMeta').textContent='B2 upload complete · '+file.name;button.disabled=true;
   }catch(error){
    if(uploadId&&!completed){try{await fetch(B2_MEDIA_API+'/uploads/'+encodeURIComponent(uploadId)+'/abort',{method:'POST',headers:{'Authorization':'Bearer '+currentSession.access_token}})}catch{}}
-   $('ownerLinkStatus').textContent='B2 upload failed: '+(error?.message||'Storage error.');
-  }finally{progress.hidden=true;button.disabled=!$('episodeVideoFile').files?.[0]}
+   if(uploadId&&completed&&!saved){
+    const mediaUrl=B2_MEDIA_API+'/media/'+encodeURIComponent(uploadId);
+    $('hostedVideoUrl').value=mediaUrl;$('openHostedVideoUrl').href=mediaUrl;$('hostedVideoResult').hidden=false;
+    $('ownerLinkStatus').textContent='The upload finished, but the episode could not be saved. Copy the hosted URL above and attach it to the episode again. '+(error?.message||'');
+   }else $('ownerLinkStatus').textContent='B2 upload failed: '+(error?.message||'Storage error.');
+  }finally{episodeUploadActive=false;progress.hidden=true;button.disabled=!$('episodeVideoFile').files?.[0]}
  }
  async function removeOwnerEpisodeLink(){
   if(!siteOwner||!currentSession?.user||!selectedEpisode)return;
@@ -493,7 +534,7 @@ function updateOwnerEditor(s,si,ep){
    if(error)throw error;currentSession=data?.session||null;
    await refreshOwnerAccess();await loadEpisodeLinks();
   }).catch(error=>{$('ownerAccessText').textContent='Could not connect to the account service: '+(error?.message||'Refresh the page to retry.')});
-  ownerClient.auth.onAuthStateChange((_event,session)=>{currentSession=session||null;setTimeout(()=>refreshOwnerAccess(),0)});
+  ownerClient.auth.onAuthStateChange((_event,session)=>{currentSession=session||null;setTimeout(async()=>{await refreshOwnerAccess();await loadEpisodeLinks()},0)});
  }
  function current(){return series.find(s=>s.id===activeId)||series[0]}
  function updateSpotlight(){
@@ -511,27 +552,46 @@ function updateOwnerEditor(s,si,ep){
   $('playerTitle').textContent=s.title+' · '+ep.title;
   $('playerSubtitle').textContent=s.seasons[si].name+' · Episode '+ep.number;
   updateOwnerEditor(s,si,ep);
-  const stage=$('playerStage');stage.replaceChildren();
-  if(s.embedVideoId){
+  const stage=$('playerStage');const renderId=++youtubeRender;
+  if(youtubePlayer){try{youtubePlayer.destroy()}catch{}youtubePlayer=null}
+  stage.replaceChildren();
+  const saved=episodeLinks.get(watchLinkKey(s.id,si,ep.number));
+  const isVideo=saved&&(saved.provider==='XBT Storage'||saved.provider==='Self-hosted video'||saved.provider==='B2 Storage');
+  if(s.embedVideoId&&!isVideo){
    const wrap=document.createElement('div');wrap.className='watch-embed-wrap';
    const frame=document.createElement('iframe');frame.className='watch-episode-embed';frame.title=s.title+' · '+ep.title;frame.loading='lazy';frame.referrerPolicy='strict-origin-when-cross-origin';frame.allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share';frame.allowFullscreen=true;
    const start=Math.max(0,Number(ep.start)||0),origin=encodeURIComponent(location.origin);
    frame.src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(s.embedVideoId)+'?start='+start+'&rel=0&controls=0&disablekb=1&enablejsapi=1&origin='+origin+'&playsinline=1&autoplay='+(cartoonAutoPlay?'1':'0');
    const controls=document.createElement('div');controls.className='watch-embed-controls';controls.setAttribute('aria-label','Video controls');
-   const command=(func)=>{try{frame.contentWindow.postMessage(JSON.stringify({event:'command',func,args:[]}),'*')}catch{}};
-   const pause=document.createElement('button');pause.type='button';let paused=false;pause.textContent='Ⅱ Pause';pause.setAttribute('aria-label','Pause video');pause.addEventListener('click',()=>{paused=!paused;command(paused?'pauseVideo':'playVideo');pause.textContent=paused?'▶ Play':'Ⅱ Pause';pause.setAttribute('aria-label',paused?'Play video':'Pause video')});
-   const sound=document.createElement('button');sound.type='button';sound.textContent='Sound on';sound.setAttribute('aria-pressed','true');let muted=false;sound.addEventListener('click',()=>{muted=!muted;command(muted?'mute':'unMute');sound.textContent=muted?'Sound off':'Sound on';sound.setAttribute('aria-pressed',String(!muted))});
-   const auto=document.createElement('button');auto.type='button';auto.textContent='Auto-play: On';auto.setAttribute('aria-pressed','true');auto.addEventListener('click',()=>{cartoonAutoPlay=!cartoonAutoPlay;auto.textContent='Auto-play: '+(cartoonAutoPlay?'On':'Off');auto.setAttribute('aria-pressed',String(cartoonAutoPlay));if(cartoonAutoPlay)command('playVideo')});
+   const pause=document.createElement('button');pause.type='button';pause.textContent='▶ Play';pause.setAttribute('aria-label','Play video');pause.disabled=true;
+   const sound=document.createElement('button');sound.type='button';sound.textContent='Sound on';sound.setAttribute('aria-pressed','true');sound.disabled=true;
+   const auto=document.createElement('button');auto.type='button';auto.textContent='Auto-play: '+(cartoonAutoPlay?'On':'Off');auto.setAttribute('aria-pressed',String(cartoonAutoPlay));
+   pause.addEventListener('click',()=>{if(!youtubePlayer)return;const playing=youtubePlayer.getPlayerState()===window.YT.PlayerState.PLAYING;if(playing)youtubePlayer.pauseVideo();else youtubePlayer.playVideo()});
+   sound.addEventListener('click',()=>{if(!youtubePlayer)return;const muted=youtubePlayer.isMuted();if(muted)youtubePlayer.unMute();else youtubePlayer.mute();sound.textContent=muted?'Sound on':'Sound off';sound.setAttribute('aria-pressed',String(muted))});
+   auto.addEventListener('click',()=>{cartoonAutoPlay=!cartoonAutoPlay;auto.textContent='Auto-play: '+(cartoonAutoPlay?'On':'Off');auto.setAttribute('aria-pressed',String(cartoonAutoPlay));if(cartoonAutoPlay)youtubePlayer?.playVideo()});
    const fullscreen=document.createElement('button');fullscreen.type='button';fullscreen.textContent='⛶ Fullscreen';fullscreen.addEventListener('click',async()=>{try{if(!document.fullscreenElement)await wrap.requestFullscreen();else await document.exitFullscreen()}catch{$('playerNote').textContent='Fullscreen is not available in this browser.'}});
    const openOfficial=document.createElement('a');openOfficial.className='action';openOfficial.href='https://www.youtube.com/watch?v='+encodeURIComponent(s.embedVideoId);openOfficial.target='_blank';openOfficial.rel='noopener noreferrer';openOfficial.textContent='Open official video';
    controls.append(pause,sound,auto,fullscreen,openOfficial);wrap.append(frame,controls);stage.append(wrap);
+   let playerReady=false,standardControls=false;
+   const useStandardControls=()=>{
+    if(renderId!==youtubeRender||playerReady||standardControls||!frame.isConnected)return;
+    standardControls=true;frame.src=frame.src.replace('controls=0','controls=1').replace('disablekb=1','disablekb=0');
+    pause.hidden=true;sound.hidden=true;auto.hidden=true;$('playerNote').textContent='Using standard video controls.';
+   };
+   const readyTimer=setTimeout(useStandardControls,12000);
+   loadYouTubeApi().then(YT=>{
+    if(renderId!==youtubeRender||standardControls||!frame.isConnected)return;
+    youtubePlayer=new YT.Player(frame,{events:{
+     onReady:()=>{if(renderId!==youtubeRender||standardControls)return;playerReady=true;clearTimeout(readyTimer);pause.disabled=false;sound.disabled=false},
+     onStateChange:event=>{if(renderId!==youtubeRender)return;const playing=event.data===YT.PlayerState.PLAYING;pause.textContent=playing?'Ⅱ Pause':'▶ Play';pause.setAttribute('aria-label',playing?'Pause video':'Play video')},
+     onError:()=>{if(renderId===youtubeRender){clearTimeout(readyTimer);$('playerNote').textContent='This video could not be played here. Try opening the official video.'}}
+    }});
+   }).catch(()=>{clearTimeout(readyTimer);useStandardControls()});
    $('playerNote').textContent='Custom pause, sound and auto-play controls are enabled. The video is from the official publisher on YouTube, so YouTube branding may still appear. Autoplay with sound depends on browser permissions.';return;
   }
-  if(s.kind==='cartoon'&&s.episodeGuideUrl){
+  if(s.kind==='cartoon'&&s.episodeGuideUrl&&!isVideo){
    const box=document.createElement('div');box.className='watch-player-placeholder';const mark=document.createElement('div');mark.className='player-mark';mark.textContent='↗';const title=document.createElement('strong');title.textContent='Open the official episode guide';const description=document.createElement('p');description.textContent='This publisher provides its episode list and approved viewing options on its own website.';const link=document.createElement('a');link.href=s.episodeGuideUrl;link.target='_blank';link.rel='noopener noreferrer';link.className='action primary';link.textContent='Open official episode page';box.append(mark,title,description,link);stage.append(box);$('playerNote').textContent='Episode information is listed by the publisher. Availability depends on the viewing service and your region.';return;
   }
-  const saved=episodeLinks.get(watchLinkKey(s.id,si,ep.number));
-  const isVideo=saved&&(saved.provider==='XBT Storage'||saved.provider==='Self-hosted video'||saved.provider==='B2 Storage');
   if(!isVideo){
    const box=document.createElement('div');box.className='watch-player-placeholder';
    const mark=document.createElement('div');mark.className='player-mark';mark.textContent='▶';

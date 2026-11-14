@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>All in One Arcade</title>
+<style>
+:root{color-scheme:dark;font-family:Inter,system-ui,sans-serif;background:#0d1424;color:#f4f7ff}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:12px}.shell{width:min(100%,480px,max(220px,calc(66.66vh - 107px)))}header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 2px 10px}h1{font-size:clamp(20px,5vw,27px);letter-spacing:-.04em;margin:0}header p{margin:4px 0 0;color:#a9b8cf;font-size:12px}.score{background:#1b2941;border:1px solid #334766;border-radius:12px;padding:8px 12px;font-size:12px;white-space:nowrap}.stage{position:relative;overflow:hidden;border-radius:20px;border:1px solid #344863;background:#111d31;box-shadow:0 18px 40px #0005}canvas{display:block;width:100%;height:auto;aspect-ratio:2/3;touch-action:none}.overlay{position:absolute;inset:0;display:grid;place-items:center;background:rgba(8,15,27,.8);padding:24px;text-align:center}.overlay[hidden]{display:none}.overlay h2{font-size:27px;margin:0 0 8px}.overlay p{color:#b4c2d7;font-size:14px;line-height:1.5}.overlay button,.controls button{font:inherit;font-weight:800;color:#fff;background:#416deb;border:0;border-radius:12px;padding:12px 20px;cursor:pointer}.controls{display:flex;justify-content:center;gap:9px;margin-top:10px;touch-action:manipulation}.controls button{background:#233552;min-width:76px;border:1px solid #3b5174}.controls button:active{background:#416deb}.hint{text-align:center;color:#aab9d1;font-size:12px;line-height:1.45;margin:10px 3px 0}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+</style>
+</head>
+<body><main class="shell"><header><div><h1 id="title">All in One Arcade</h1><p id="subtitle"></p></div><div class="score" id="score">Ready</div></header><div class="stage"><canvas id="game" width="400" height="600" aria-label="Game board"></canvas><div class="overlay" id="overlay"><div><h2 id="overlayTitle">Ready to play?</h2><p id="overlayText"></p><button id="start">Play</button></div></div></div><div class="controls" aria-label="Game controls"><button id="left" type="button" aria-label="Move left">◀</button><button id="action" type="button">Action</button><button id="right" type="button" aria-label="Move right">▶</button></div><p class="hint" id="hint"></p><div class="sr" id="announce" aria-live="polite"></div></main>
+<script>
+'use strict';
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const $=id=>document.getElementById(id),W=400,H=600;
+const definitions={
+ meteor:{title:'Meteor Drift',sub:'A space survival run',hint:'Move with arrows, A/D, or drag. Dodge meteors and collect stars.'},
+ tower:{title:'Tower Timing',sub:'Build as high as you can',hint:'Tap Action, Space, or the board to place each moving block.'},
+ golf:{title:'Pocket Putt',sub:'Three quick mini-golf holes',hint:'Drag backwards from the ball and release to shoot. Or aim with arrows and press Space.'},
+ hop:{title:'Skybound Hop',sub:'Bounce towards the clouds',hint:'Move with arrows, A/D, or drag. Land on platforms and climb.'},
+ hockey:{title:'Air Hockey Arena',sub:'First to five wins',hint:'Drag your paddle or use arrows and W/S. Score in the top goal.'},
+ blocks:{title:'Block Drop',sub:'Clear lines before the board fills',hint:'Arrows move and rotate. Down speeds up; Space drops. Touch controls work too.'}
+};
+const mode=Object.hasOwn(definitions,new URLSearchParams(location.search).get('game'))?new URLSearchParams(location.search).get('game'):'meteor',info=definitions[mode];
+$('title').textContent=info.title;$('subtitle').textContent=info.sub;$('hint').textContent=info.hint;$('overlayText').textContent=info.hint;
+let state=null,running=false,last=0,keys=new Set(),pointer=null;
+function rect(x,y,w,h,color,r=5){ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill()}
+function circle(x,y,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill()}
+function label(text,x,y,size=16,color='#eaf1ff',align='center'){ctx.fillStyle=color;ctx.font=`700 ${size}px system-ui`;ctx.textAlign=align;ctx.fillText(text,x,y)}
+function bg(){ctx.fillStyle='#111d31';ctx.fillRect(0,0,W,H);ctx.fillStyle='#ffffff0b';for(let y=30;y<H;y+=70)for(let x=30;x<W;x+=70)circle(x,y,1.5,'#ffffff20')}
+function end(message){running=false;$('overlayTitle').textContent='Game over';$('overlayText').textContent=message;$('start').textContent='Play again';$('overlay').hidden=false;$('announce').textContent=message}
+function score(text){$('score').textContent=text}
+function init(){
+ keys.clear();pointer=null;last=0;$('overlay').hidden=true;running=true;
+ if(mode==='meteor')state={x:200,rocks:[],stars:[],time:0,spawn:0,starTime:0,points:0,lives:3};
+ if(mode==='tower')state={levels:[{x:100,w:200,y:550}],x:0,dir:1,w:200,y:520,points:0,speed:170};
+ if(mode==='golf')state={hole:0,strokes:0,ball:{x:70,y:520,vx:0,vy:0},aim:0,drag:null};
+ if(mode==='hop')state={x:200,y:450,vx:0,vy:-360,platforms:[{x:150,y:520,w:100},{x:80,y:420,w:85},{x:230,y:320,w:85},{x:120,y:220,w:85},{x:250,y:120,w:85},{x:100,y:20,w:85}],points:0};
+ if(mode==='hockey')state={player:{x:200,y:520},bot:{x:200,y:80},puck:{x:200,y:300,vx:90,vy:150},us:0,them:0};
+ if(mode==='blocks'){state={board:Array.from({length:20},()=>Array(10).fill(0)),piece:null,x:3,y:0,fall:0,points:0};newPiece()}
+ requestAnimationFrame(loop);
+}
+function action(){if(!running)return;
+ if(mode==='tower'){const base=state.levels[state.levels.length-1],x=Math.max(base.x,state.x),right=Math.min(base.x+base.w,state.x+state.w),w=right-x;if(w<5)return end('Your tower reached '+state.points+' blocks.');state.levels.push({x,w,y:state.y});state.points++;state.w=w;state.y-=30;state.x=state.dir>0?0:W-w;state.speed=Math.min(350,state.speed+5);if(state.y<180){state.levels.forEach(b=>b.y+=30);state.y+=30;}}
+ if(mode==='golf'&&Math.hypot(state.ball.vx,state.ball.vy)<3){state.ball.vx=Math.sin(state.aim)*250;state.ball.vy=-Math.cos(state.aim)*250;state.strokes++}
+ if(mode==='blocks'){while(canMove(state.x,state.y+1,state.piece))state.y++;lockPiece()}
+}
+const holes=[{ball:[70,520],cup:[330,90],walls:[{x:105,y:310,w:190,h:18}]},{ball:[330,520],cup:[65,75],walls:[{x:0,y:360,w:260,h:18},{x:140,y:210,w:260,h:18}]},{ball:[60,520],cup:[330,70],walls:[{x:110,y:440,w:18,h:170},{x:260,y:260,w:18,h:180},{x:110,y:150,w:150,h:18}]}];
+function nextHole(){state.hole++;if(state.hole>=holes.length){running=false;$('overlayTitle').textContent='Course complete!';$('overlayText').textContent=`You finished all three holes in ${state.strokes} strokes.`;$('start').textContent='Play again';$('overlay').hidden=false;return}const p=holes[state.hole].ball;Object.assign(state.ball,{x:p[0],y:p[1],vx:0,vy:0})}
+const shapes=[[[1,1,1,1]],[[1,1],[1,1]],[[0,1,0],[1,1,1]],[[1,0,0],[1,1,1]],[[0,0,1],[1,1,1]],[[1,1,0],[0,1,1]],[[0,1,1],[1,1,0]]];
+function newPiece(){state.piece=shapes[Math.floor(Math.random()*shapes.length)].map(row=>row.slice());state.x=3;state.y=0;if(!canMove(state.x,state.y,state.piece))end('You cleared '+state.points+' lines.')}
+function canMove(x,y,p){return p.every((row,dy)=>row.every((v,dx)=>!v||((x+dx)>=0&&(x+dx)<10&&(y+dy)<20&&((y+dy)<0||!state.board[y+dy][x+dx]))))}
+function lockPiece(){state.piece.forEach((row,dy)=>row.forEach((v,dx)=>{if(v&&state.y+dy>=0)state.board[state.y+dy][state.x+dx]=1}));for(let y=19;y>=0;y--)if(state.board[y].every(Boolean)){state.board.splice(y,1);state.board.unshift(Array(10).fill(0));state.points++;y++}newPiece()}
+function rotate(){if(mode!=='blocks'||!running)return;const p=state.piece[0].map((_,x)=>state.piece.map(row=>row[x]).reverse());if(canMove(state.x,state.y,p))state.piece=p}
+function move(dir){if(!running)return;if(mode==='blocks'){if(canMove(state.x+dir,state.y,state.piece))state.x+=dir}else if(mode==='golf')state.aim+=dir*.18}
+function point(event){const r=canvas.getBoundingClientRect();return{x:(event.clientX-r.left)*W/r.width,y:(event.clientY-r.top)*H/r.height}}
+canvas.addEventListener('pointerdown',e=>{if(!running)return;const p=point(e);pointer=p;canvas.setPointerCapture?.(e.pointerId);if(mode==='tower')action();if(mode==='blocks'){if(p.y>490)action();else rotate()}if(mode==='golf'&&Math.hypot(state.ball.vx,state.ball.vy)<3)state.drag=p});
+canvas.addEventListener('pointermove',e=>{if(!running||!pointer)return;pointer=point(e);if(mode==='meteor'||mode==='hop')state.x=Math.max(15,Math.min(385,pointer.x));if(mode==='hockey'){state.player.x=Math.max(20,Math.min(380,pointer.x));state.player.y=Math.max(325,Math.min(580,pointer.y))}});
+canvas.addEventListener('pointerup',e=>{if(running&&mode==='golf'&&state.drag){const p=point(e),dx=state.drag.x-p.x,dy=state.drag.y-p.y,scale=Math.min(4,360/(Math.hypot(dx,dy)||1));if(Math.hypot(dx,dy)>5){state.ball.vx=dx*scale;state.ball.vy=dy*scale;state.strokes++}state.drag=null}pointer=null});canvas.addEventListener('pointercancel',()=>{pointer=null;if(state&&mode==='golf')state.drag=null});
+for(const [id,key] of [['left','ArrowLeft'],['right','ArrowRight']]){const b=$(id);b.addEventListener('pointerdown',e=>{e.preventDefault();keys.add(key);move(key==='ArrowLeft'?-1:1)});for(const event of ['pointerup','pointercancel','pointerleave'])b.addEventListener(event,()=>keys.delete(key))}
+$('action').addEventListener('click',action);$('start').addEventListener('click',init);
+addEventListener('keydown',e=>{if(!running)return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' ','a','d','w','s'].includes(e.key)){e.preventDefault();if(!keys.has(e.key)){if(e.key==='ArrowLeft'||e.key==='a')move(-1);if(e.key==='ArrowRight'||e.key==='d')move(1);if(e.key==='ArrowUp')rotate();if(e.key===' ')action()}keys.add(e.key)}});addEventListener('keyup',e=>keys.delete(e.key));addEventListener('blur',()=>keys.clear());
+function update(dt){
+ if(mode==='meteor'){const s=state;s.time+=dt;s.spawn-=dt;s.starTime-=dt;s.x=Math.max(18,Math.min(382,s.x+((keys.has('ArrowRight')||keys.has('d'))-(keys.has('ArrowLeft')||keys.has('a')))*240*dt));if(s.spawn<=0){s.rocks.push({x:20+Math.random()*360,y:-25,r:13+Math.random()*15,v:130+Math.min(170,s.time*2)});s.spawn=Math.max(.23,.75-s.time*.005)}if(s.starTime<=0){s.stars.push({x:25+Math.random()*350,y:-15});s.starTime=2.5}for(const r of s.rocks)r.y+=r.v*dt;for(const t of s.stars)t.y+=150*dt;for(const r of s.rocks)if(!r.hit&&Math.hypot(r.x-s.x,r.y-530)<r.r+13){r.hit=true;s.lives--}for(const t of s.stars)if(!t.hit&&Math.hypot(t.x-s.x,t.y-530)<22){t.hit=true;s.points+=10}s.rocks=s.rocks.filter(r=>r.y<640&&!r.hit);s.stars=s.stars.filter(t=>t.y<620&&!t.hit);s.points+=dt*2;score(`${Math.floor(s.points)} pts · ${s.lives} lives`);if(s.lives<=0)end('You earned '+Math.floor(s.points)+' points.')}
+ if(mode==='tower'){const s=state;s.x+=s.dir*s.speed*dt;if(s.x<0){s.x=0;s.dir=1}if(s.x+s.w>W){s.x=W-s.w;s.dir=-1}score(s.points+' blocks')}
+ if(mode==='golf'){const s=state,b=s.ball;b.x+=b.vx*dt;b.y+=b.vy*dt;const f=Math.pow(.18,dt);b.vx*=f;b.vy*=f;if(Math.hypot(b.vx,b.vy)<3)b.vx=b.vy=0;if(b.x<10||b.x>390){b.x=Math.max(10,Math.min(390,b.x));b.vx*=-.7}if(b.y<10||b.y>590){b.y=Math.max(10,Math.min(590,b.y));b.vy*=-.7}for(const r of holes[s.hole].walls){if(b.x+9>r.x&&b.x-9<r.x+r.w&&b.y+9>r.y&&b.y-9<r.y+r.h){const ox=Math.min(b.x+9-r.x,r.x+r.w-(b.x-9)),oy=Math.min(b.y+9-r.y,r.y+r.h-(b.y-9));if(ox<oy){b.x+=b.x<r.x+r.w/2?-ox:ox;b.vx*=-.7}else{b.y+=b.y<r.y+r.h/2?-oy:oy;b.vy*=-.7}}}const cup=holes[s.hole].cup;if(Math.hypot(b.x-cup[0],b.y-cup[1])<14&&Math.hypot(b.vx,b.vy)<180)nextHole();score(`Hole ${Math.min(s.hole+1,3)}/3 · ${s.strokes} shots`)}
+ if(mode==='hop'){const s=state,old=s.y;s.x+=((keys.has('ArrowRight')||keys.has('d'))-(keys.has('ArrowLeft')||keys.has('a')))*220*dt;s.x=Math.max(14,Math.min(386,s.x));s.vy+=720*dt;s.y+=s.vy*dt;if(s.vy>0)for(const p of s.platforms)if(old+13<=p.y&&s.y+13>=p.y&&s.x+12>p.x&&s.x-12<p.x+p.w){s.y=p.y-13;s.vy=-390;break}if(s.y<220){const shift=220-s.y;s.y=220;s.points+=shift;s.platforms.forEach(p=>p.y+=shift)}s.platforms=s.platforms.filter(p=>p.y<630);while(s.platforms.length<7){const top=Math.min(...s.platforms.map(p=>p.y));s.platforms.push({x:20+Math.random()*290,y:top-95,w:85})}score(Math.floor(s.points/10)+' m');if(s.y>620)end('You climbed '+Math.floor(s.points/10)+' metres.')}
+ if(mode==='hockey'){const s=state,p=s.player,b=s.bot,k=s.puck;p.x=Math.max(20,Math.min(380,p.x+((keys.has('ArrowRight')||keys.has('d'))-(keys.has('ArrowLeft')||keys.has('a')))*230*dt));p.y=Math.max(325,Math.min(580,p.y+((keys.has('s')||keys.has('ArrowDown'))-(keys.has('w')||keys.has('ArrowUp')))*230*dt));b.x+=Math.max(-145*dt,Math.min(145*dt,k.x-b.x));k.x+=k.vx*dt;k.y+=k.vy*dt;k.vx*=Math.pow(.99,dt*60);k.vy*=Math.pow(.99,dt*60);if(k.x<10||k.x>390){k.x=Math.max(10,Math.min(390,k.x));k.vx*=-1}if(k.y<10||k.y>590){if(k.x>145&&k.x<255){if(k.y<10)s.us++;else s.them++;Object.assign(k,{x:200,y:300,vx:(Math.random()-.5)*150,vy:k.y<10?140:-140});if(s.us>=5||s.them>=5)return end(s.us>=5?'You won '+s.us+'–'+s.them+'!':'Final score: '+s.us+'–'+s.them+'.')}else{k.y=Math.max(10,Math.min(590,k.y));k.vy*=-1}}for(const m of [p,b]){const dx=k.x-m.x,dy=k.y-m.y,d=Math.hypot(dx,dy)||1;if(d<31){k.x=m.x+dx/d*32;k.y=m.y+dy/d*32;const v=Math.max(180,Math.hypot(k.vx,k.vy));k.vx=dx/d*Math.min(410,v+40);k.vy=dy/d*Math.min(410,v+40)}}score(s.us+' : '+s.them)}
+ if(mode==='blocks'){const s=state;s.fall+=dt;if(s.fall>(keys.has('ArrowDown')?.06:.55)){s.fall=0;if(canMove(s.x,s.y+1,s.piece))s.y++;else lockPiece()}score(s.points+' lines')}
+}
+function draw(){bg();const s=state;
+ if(mode==='meteor'){s.rocks.forEach(r=>circle(r.x,r.y,r.r,'#d98c7b'));s.stars.forEach(t=>{circle(t.x,t.y,8,'#ffdc73')});ctx.fillStyle='#8fb4ff';ctx.beginPath();ctx.moveTo(s.x,510);ctx.lineTo(s.x-16,545);ctx.lineTo(s.x,538);ctx.lineTo(s.x+16,545);ctx.closePath();ctx.fill()}
+ if(mode==='tower'){s.levels.forEach((b,i)=>rect(b.x,b.y,b.w,27,`hsl(${210+i*14} 76% 66%)`,4));rect(s.x,s.y,s.w,27,'#f7c86a',4)}
+ if(mode==='golf'){holes[s.hole].walls.forEach(r=>rect(r.x,r.y,r.w,r.h,'#7384a3'));const c=holes[s.hole].cup;circle(c[0],c[1],15,'#080d17');circle(c[0],c[1],8,'#537c6c');circle(s.ball.x,s.ball.y,9,'#fff');if(s.drag&&pointer){ctx.strokeStyle='#f5d37e';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(s.ball.x,s.ball.y);ctx.lineTo(s.ball.x+s.drag.x-pointer.x,s.ball.y+s.drag.y-pointer.y);ctx.stroke()}else if(Math.hypot(s.ball.vx,s.ball.vy)<3){ctx.strokeStyle='#f5d37e';ctx.beginPath();ctx.moveTo(s.ball.x,s.ball.y);ctx.lineTo(s.ball.x+Math.sin(s.aim)*45,s.ball.y-Math.cos(s.aim)*45);ctx.stroke()}}
+ if(mode==='hop'){s.platforms.forEach(p=>rect(p.x,p.y,p.w,12,'#75d9ba'));circle(s.x,s.y,13,'#ffd67d');circle(s.x-4,s.y-2,2,'#122035');circle(s.x+4,s.y-2,2,'#122035')}
+ if(mode==='hockey'){ctx.strokeStyle='#ffffff40';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,300);ctx.lineTo(400,300);ctx.stroke();rect(145,0,110,7,'#78d1b4');rect(145,593,110,7,'#f38d91');circle(s.player.x,s.player.y,22,'#81aaff');circle(s.bot.x,s.bot.y,22,'#f28b91');circle(s.puck.x,s.puck.y,10,'#fff')}
+ if(mode==='blocks'){const ox=75,oy=50,z=25;for(let y=0;y<20;y++)for(let x=0;x<10;x++)rect(ox+x*z,oy+y*z,23,23,s.board[y][x]?'#82aaff':'#ffffff0c',3);s.piece.forEach((row,y)=>row.forEach((v,x)=>{if(v)rect(ox+(s.x+x)*z,oy+(s.y+y)*z,23,23,'#f2cb7b',3)}))}
+}
+function loop(t){if(!running)return;const dt=last?Math.min((t-last)/1000,.04):0;last=t;update(dt);if(state)draw();if(running)requestAnimationFrame(loop)}
+</script></body></html>

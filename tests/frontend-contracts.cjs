@@ -50,7 +50,7 @@ assert.match(html, /role="status" aria-live="polite"/);
  assert.ok(anime.includes("id:'bluey',kind:'cartoon'")&&anime.includes("id:'pocoyo',kind:'cartoon'")&&anime.includes("id:'bing',kind:'cartoon'"), 'Watch should keep anime and include family cartoon collections.');
  assert.ok(anime.includes('youtube-nocookie.com/embed/')&&anime.includes('aP-qKaig84M')&&anime.includes('dDP-jzPV5fo'), 'Family cartoon episodes should use official publisher embeds.');
  assert.ok(anime.includes('uk.bingbunny.com/spis-odcinkow')&&anime.includes('data-watch-filter="cartoons"'), 'Cartoon browsing should include an official Bing episode guide and a dedicated filter.');
- assert.ok(anime.includes("if(s.kind==='cartoon'){selectedEpisode=null;$('ownerLinkPanel').hidden=true;return}"), 'Family cartoon listings must not write into the anime-only episode storage table.');
+ assert.ok(anime.includes("if(s.embedVideoId&&!isVideo)")&&anime.includes("s.episodeGuideUrl&&!isVideo"), 'A hosted episode should take priority while cartoons keep their official fallback.');
 
 
 // Appearance choices must change the real UI and persist, not just update previews.
@@ -210,7 +210,7 @@ assert.ok(elementorWorker.includes('@cf/zai-org/glm-4.7-flash')&&elementorWorker
  assert.ok(anime.includes("B2_MEDIA_API='https://all-in-one-edition-media.plsgivemediscord981.workers.dev'"),'Watch uploads must use the configured Backblaze B2 media Worker');
  assert.ok(anime.includes("visibility:'public'")&&anime.includes("'/signed-url'"),'Watch videos must use public B2 objects with signed playback links');
  assert.ok(anime.includes('MAX_VIDEO_BYTES=1024*1024*1024')&&anime.includes('file.size>MAX_VIDEO_BYTES'),'The Watch uploader must enforce its 1 GB limit');
- assert.ok(anime.includes("saveEpisodeVideoRow('B2 Storage',mediaUrl)")&&anime.includes("saved.provider==='B2 Storage'"),'New Watch videos must be saved and identified as B2 media');
+ assert.ok(anime.includes("saveEpisodeVideoRow('B2 Storage',mediaUrl,target)")&&anime.includes("saved.provider==='B2 Storage'"),'New Watch videos must be saved and identified as B2 media');
  assert.ok(anime.includes('await getB2PlaybackUrl(saved.watch_url)')&&anime.includes('deleteB2Media(existing.watch_url)'),'Watch playback and owner cleanup must use the B2 media API');
  assert.ok(anime.includes('validateSelfHostedVideoUrl'),'Direct video URLs must still be validated');
  assert.ok(anime.includes('Drop your video file here'),'The owner must have a dedicated video upload drop zone');
@@ -299,7 +299,7 @@ assert.ok(html.includes('function initSpotifyBridge()')&&html.includes('function
 
 const oldStableHero = '<h1>One site. Games, school, tools and live info.</h1>';
 assert.ok(html.includes(oldStableHero),'Restore the original hero from before the catalogue redesign.');
-assert.ok(html.includes('id="introRailA"')&&html.includes('id="introRailB"')&&html.includes('id="introRailC"'),'Restore the original game-tile intro.');
+assert.ok(html.includes('class="aio-launch-symbol"')&&html.includes('MIN_VISIBLE_MS=7500'),'Keep the requested rolling-logo intro.');
 assert.ok(html.indexOf('id="search"')<html.indexOf('<main id="app">'),'Keep the original topbar search.');
 assert.ok(html.includes('async function loadGameIntoFrame(g)')&&html.includes('AioHtmlGameSandbox.loadIntoFrame'),'Keep safe uploaded HTML gameplay even after rollback.');
 assert.ok(html.includes('loadPublishedOwnerGames()')&&html.includes('loadPublishedHtmlGames()'),'Keep the existing owner-published games after rollback.');
@@ -363,7 +363,7 @@ assert.ok(html.includes('"name":"Shy Safari"') && html.includes('"name":"3x3 +1 
 assert.ok(!html.includes('Slime Keyboard Escape'), 'Slime Keyboard Escape must remain removed.');
 assert.ok(!html.includes('id="hideBtn"') && !html.includes('id="darkBtn"'), 'The Hide and Dark controls must remain removed.');
 assert.ok(html.includes('#gameModal.open .modalhead{display:flex!important') && html.includes('id="fsBtn"'), 'Every game must show the original game header with its Fullscreen button.');
-assert.ok(!html.includes('#gameModal.open .modalhead,#gameModal.open .progressbarbox') && !html.includes('#gameModal.open .modalbox{width:100vw!important'), 'Opening a game must not force edge-to-edge fullscreen or hide the original header.');
+assert.ok(html.includes('html.game-fullscreen #gameModal.open .modalbox{width:100vw!important') && html.includes('html.game-fullscreen #gameModal.open .modalhead{display:none!important'), 'Only explicit fullscreen mode should use an edge-to-edge player.');
 assert.ok(html.includes('#gameModal.open .progressbarbox,#gameModal.open .modalnote{display:none!important}') && html.includes('#gameModal.open .game-stage{width:100%!important'), 'The classic player should hide only its extra info bars and keep the game canvas sized to its window.');
 assert.ok(html.includes("if(pseudoGameFullscreen&&!document.fullscreenElement)") && html.includes("if(e.key==='Escape'&&pseudoGameFullscreen)"), 'The fallback fullscreen view must be escapable on every game.');
 // Watch source metadata is private and only the canonical owner can inspect it.
