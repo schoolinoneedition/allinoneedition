@@ -1,0 +1,17 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const html=fs.readFileSync('index.html','utf8');
+const start=html.indexOf('function applyLanguage(lang)'),end=html.indexOf('function initLanguage()',start);
+assert.ok(start>=0&&end>start);
+const nav=['home','games','cloud-gaming','school','community','live','tools','notes','music','code'].map(id=>({dataset:{scroll:id},textContent:id}));
+const chips=Array.from({length:8},()=>({textContent:'unchanged'}));
+const elements=new Map();
+const document={documentElement:{classList:{contains:()=>false}},querySelectorAll:selector=>selector==='.nav button[data-scroll]'?nav:selector==='#home .chip'?chips:[],querySelector:()=>null};
+const ctx={document,I18N:{es:{assistant:'Elementor',settings:'Ajustes',home:'Inicio',games:'Juegos',school:'Colegio',live:'En vivo',tools:'Herramientas',notes:'Notas',code:'Código',browse:'Buscar juegos',schoolApps:'Aplicaciones',liveInfo:'Directo',useful:'Herramientas útiles',ask:'Preguntar'}},MUSIC_TITLES:{es:'Música'},storage:{setItem(){}},$:id=>elements.get(id)};
+vm.createContext(ctx);vm.runInContext(html.slice(start,end),ctx);ctx.applyLanguage('es');
+assert.equal(nav.find(e=>e.dataset.scroll==='games').textContent,'Juegos');
+assert.equal(nav.find(e=>e.dataset.scroll==='school').textContent,'Colegio');
+assert.equal(nav.find(e=>e.dataset.scroll==='cloud-gaming').textContent,'cloud-gaming','An untranslated cloud button must retain its label.');
+assert.equal(chips[2].textContent,'unchanged','Community must not be relabelled as live info.');
+assert.equal(chips[3].textContent,'Directo');assert.equal(chips[4].textContent,'Herramientas útiles');assert.equal(chips[7].textContent,'Preguntar');
+console.log('Language navigation passed: startup succeeds and menu labels match their destinations.');
