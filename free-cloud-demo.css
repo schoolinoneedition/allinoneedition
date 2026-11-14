@@ -1,0 +1,33 @@
+/* Real externally GPU-rendered showcase demos. No automatic streaming. */
+.aio-free-cloud{border:1px solid var(--line);border-radius:20px;background:var(--panel);padding:18px;margin:0 0 18px;box-shadow:0 6px 24px rgba(14,29,53,.055);display:grid;gap:14px}
+.aio-free-cloud-head{display:flex;flex-wrap:wrap;align-items:start;justify-content:space-between;gap:13px}
+.aio-free-cloud-title{max-width:620px}
+.aio-free-cloud-kicker{font-size:10px;font-weight:900;letter-spacing:.14em;color:var(--accent)}
+.aio-free-cloud-title h3{font-size:clamp(17px,3.3vw,21px);letter-spacing:-.035em;margin:5px 0 7px}
+.aio-free-cloud-title p{font-size:12px;line-height:1.55;color:var(--muted);margin:0}
+.aio-free-cloud-status{flex:1 1 220px;max-width:320px;font-size:11px;font-weight:760;line-height:1.5;margin:0;border:1px solid var(--line);background:var(--soft);padding:9px 10px;border-radius:10px;min-height:38px}
+.aio-free-cloud-status[data-state="playing"],.aio-free-cloud-status[data-state="ready"]{border-color:#5d9f8b}
+.aio-free-cloud-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.aio-free-cloud-choice{border:1px solid var(--line);border-radius:14px;padding:13px 15px;background:var(--soft);color:var(--text);text-align:left;display:flex;flex-direction:column;align-items:flex-start;gap:5px;cursor:pointer;transition:border-color .2s ease,transform .2s ease}
+.aio-free-cloud-choice strong{font-size:13px;line-height:1.35}
+.aio-free-cloud-choice span{font-size:11px;color:var(--muted);line-height:1.5}
+.aio-free-cloud-choice:hover:not(:disabled){border-color:var(--accent);transform:translateY(-2px)}
+.aio-free-cloud-choice:disabled{border-color:var(--accent);cursor:default;opacity:.85}
+.aio-free-cloud-choice:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.aio-free-cloud-viewer{border-radius:14px;overflow:hidden;border:1px solid #2c3e62;background:#0b1120}
+.aio-free-cloud-viewer[hidden]{display:none}
+.aio-free-cloud-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 12px;background:#172137;color:#e7eeff}
+.aio-free-cloud-toolbar strong{font-size:12px}
+.aio-free-cloud-controls{display:flex;gap:7px}
+.aio-free-cloud-controls button{background:#293650;border-color:#3e5373;color:white}
+.aio-free-cloud-stage{position:relative;min-height:340px;height:min(69vh,720px);background:#060e1e;overflow:hidden}
+.aio-free-cloud-stage:fullscreen{width:100vw;height:100vh}
+.aio-free-cloud-frame{width:100%;height:100%;display:block;border:0;background:#060e1e}
+.aio-free-cloud-wait{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;gap:17px;align-items:center;justify-content:center;text-align:center;padding:22px;background:radial-gradient(circle at 50% 28%,#1b2d52,#08101e 70%);color:#e7eeff;font-size:12px;font-weight:700;pointer-events:none}
+.aio-free-cloud-wait[hidden]{display:none}
+.aio-free-cloud-track{width:172px;height:4px;overflow:hidden;background:#354968;border-radius:10px}
+.aio-free-cloud-track::after{content:"";display:block;width:45%;height:100%;border-radius:10px;background:#a5c2ff;animation:aioCloudDemoSweep 1.5s ease-in-out infinite alternate}
+@keyframes aioCloudDemoSweep{from{transform:translateX(-100%)}to{transform:translateX(330%)}}
+.aio-free-cloud-disclaimer{border-top:1px solid var(--line);padding-top:10px;color:var(--muted);font-size:11px;line-height:1.6;margin:0}
+@media(max-width:700px){.aio-free-cloud{padding:13px}.aio-free-cloud-choices{grid-template-columns:1fr}.aio-free-cloud-stage{min-height:270px;height:55vh}}
+@media(prefers-reduced-motion:reduce){.aio-free-cloud-choice{transition:none}.aio-free-cloud-choice:hover{transform:none}.aio-free-cloud-track::after{animation:none}}
