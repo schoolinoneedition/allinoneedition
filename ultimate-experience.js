@@ -188,3 +188,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
   window.addEventListener('pageshow',refresh);
 })();
+
+/* Load the small game motion layer after the classic dashboard has initialised. */
+(()=>{
+ if(!document.getElementById('gameGrid')||document.getElementById('aioGameMotionScript'))return;
+ const script=document.createElement('script');script.id='aioGameMotionScript';
+ script.src='/game-motion.js';script.async=true;document.head.appendChild(script);
+})();
