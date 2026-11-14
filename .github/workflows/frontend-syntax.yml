@@ -22,6 +22,7 @@ jobs:
           node --check appearance.js
           node --check ultimate-experience.js
           node --check party-gaming.js
+          node --check cloud-gaming.js
       - name: Install Backblaze B2 Worker dependencies
         run: npm install --prefix cloudflare/media-worker --ignore-scripts --no-audit --no-fund
       - name: Build Cloudflare media Worker without deploying
@@ -34,6 +35,7 @@ jobs:
           node tests/elementor-work-mode.cjs
           node tests/owner-video-hub.cjs
           node tests/party-gaming.cjs
+          node tests/cloud-gaming.cjs
       - name: Audit game catalogue duplicates and required fields
         run: node scripts/audit-games.cjs
       - name: Check inline JavaScript in app and original games

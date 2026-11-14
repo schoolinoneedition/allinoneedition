@@ -1,1 +1,17 @@
 .aio-cloud-intro{max-width:620px;color:var(--muted);font-size:13px;line-height:1.55;margin:0 0 14px}.aio-cloud-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.aio-cloud-card{min-width:0;position:relative;overflow:hidden;border:1px solid var(--line);border-radius:20px;padding:20px;background:var(--panel);box-shadow:0 8px 28px #1b2d4c0a;display:flex;flex-direction:column;align-items:flex-start;gap:11px}.aio-cloud-card:before{content:"";position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,#4b8cf7,#91c6ff)}.aio-cloud-card.roblox:before{background:linear-gradient(90deg,#ef5f70,#ffac82)}.aio-cloud-top{display:flex;align-items:center;gap:12px;width:100%}.aio-cloud-icon{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:#e9f1ff;color:#315ee0;font-size:21px;font-weight:950}.roblox .aio-cloud-icon{background:#fff0ee;color:#d54e60}.aio-cloud-card h3{margin:0;font-size:18px;letter-spacing:-.03em}.aio-cloud-card small{color:var(--muted);font-size:11px}.aio-cloud-card p{color:var(--muted);font-size:12px;line-height:1.55;margin:0;min-height:38px}.aio-cloud-card a{display:inline-flex;align-items:center;text-decoration:none;margin-top:auto}.aio-cloud-card .cloud-status{font-weight:800;font-size:10px;letter-spacing:.04em;color:#315ee0}.aio-cloud-card.roblox .cloud-status{color:#ad4b5d}@media(max-width:650px){.aio-cloud-grid{grid-template-columns:1fr}.aio-cloud-card p{min-height:0}}
+
+/* Cloud launcher enhancements. No external iframes, credentials or video preloads. */
+.aio-cloud-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:auto}
+.aio-cloud-actions a{margin-top:0}
+.aio-cloud-provider-note{display:block;color:var(--muted);font-size:11px;line-height:1.55}
+.aio-cloud-tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}
+.aio-cloud-tool{display:flex;flex-direction:column;align-items:flex-start;gap:9px;min-width:0;padding:17px;border:1px solid var(--line);background:var(--panel);border-radius:17px}
+.aio-cloud-tool h3{margin:0;font-size:15px}
+.aio-cloud-tool p{font-size:12px;color:var(--muted);line-height:1.55;margin:0}
+.aio-cloud-tool .aio-cloud-fine{font-size:11px}
+.aio-cloud-tool-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%}
+.aio-cloud-party{display:flex;gap:9px;align-items:flex-start;line-height:1.5;font-size:12px;cursor:pointer;color:var(--text)}
+.aio-cloud-party input{flex:none;margin-top:3px;accent-color:var(--accent)}
+#aioCloudResume[hidden]{display:none}
+#aioCloudPartyClear{margin-top:auto}
+@media(max-width:650px){.aio-cloud-tools{grid-template-columns:1fr}.aio-cloud-actions{align-items:stretch}.aio-cloud-actions a{flex:1;justify-content:center}}

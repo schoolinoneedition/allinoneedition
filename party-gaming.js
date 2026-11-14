@@ -5,6 +5,9 @@
  const legacyRenderMembers=renderPartyWorkspaceMembers,legacyLoadMembers=loadPartyMembers;
  const legacyOpenMeeting=openMeeting;
  const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+ const cloudTitles=Object.freeze({fortnite:'Fortnite',roblox:'Roblox'});
+ const cloudLinks=Object.freeze({fortnite:'https://www.xbox.com/en-GB/play/games/fortnite/BT5P2X999VH2',roblox:'https://www.easyfun.gg/cloud-games/roblox.html'});
+ let cloudActivity='';
  const participantId=crypto.randomUUID();
  const outgoing=new Map(),incoming=new Map(),earlyCandidates=new Map();
  const chatLog=[],mutedPeers=new Set(),lastMessages=new Map();let sentAt=0;
@@ -75,8 +78,13 @@
  function safeTrack(){
   if(!channel||!isLive())return;
   const g=currentGame&&$('gameModal')?.classList.contains('open')?currentGame:null;
-  channel.track({username:name(),guest:!currentUser,gameKey:g?gameKey(g):'',gameName:g?String(g.name).slice(0,80):'',sharing:!!stream,shareId}).catch(()=>{});
+  channel.track({username:name(),guest:!currentUser,gameKey:g?gameKey(g):(cloudActivity?'cloud:'+cloudActivity:''),gameName:g?String(g.name).slice(0,80):(cloudActivity?cloudTitles[cloudActivity]:''),sharing:!!stream,shareId}).catch(()=>{});
  }
+ window.aioPartyCloudLaunch=id=>{
+  if(!isLive()||!Object.prototype.hasOwnProperty.call(cloudTitles,id))return false;
+  cloudActivity=id;safeTrack();return true;
+ };
+ window.aioPartyCloudStop=()=>{cloudActivity='';safeTrack()};
  function send(event,payload){if(!channel||!isLive())return;return channel.send({type:'broadcast',event,payload:{...payload,from:participantId}})}
  function closeRecord(map,key){const item=map.get(key);if(!item)return;try{item.pc.close()}catch{}map.delete(key);}
  function removeVideo(key){document.getElementById('party-video-'+key)?.remove()}
@@ -91,14 +99,22 @@
     const row=document.createElement('div');row.className='member-row';
     const info=document.createElement('div');info.className='row-fill';
     const title=document.createElement('strong');title.textContent=String(member.username).slice(0,24)+(member.id===participantId?' (you)':'');
-    const sub=document.createElement('div');sub.className='tiny-status';sub.textContent=(member.guest?'Guest':'Member')+' · '+(member.gameName?'Playing '+String(member.gameName).slice(0,80):'Browsing')+(member.sharing?' · Sharing':'');
+    const sub=document.createElement('div');sub.className='tiny-status';sub.textContent=(member.guest?'Guest':'Member')+' · '+(member.gameName?(String(member.gameKey||'').startsWith('cloud:')?'Opened cloud game: ':'Playing ')+String(member.gameName).slice(0,80):'Browsing')+(member.sharing?' · Sharing':'');
     info.append(title,sub);row.appendChild(info);
     if(member.id!==participantId){const mute=document.createElement('button');mute.className='btn mini';
      mute.textContent=mutedPeers.has(member.id)?'Unmute chat':'Mute chat';
      mute.addEventListener('click',()=>{if(mutedPeers.has(member.id))mutedPeers.delete(member.id);else mutedPeers.add(member.id);renderMembers()});
      row.appendChild(mute);
     }
-    if(member.id!==participantId&&member.gameKey){const index=GAMES.findIndex(game=>gameKey(game)===member.gameKey);if(index>=0){const button=document.createElement('button');button.className='btn mini';button.textContent='Play same';button.addEventListener('click',()=>openGame(index));row.appendChild(button)}}
+    if(member.id!==participantId&&member.gameKey){
+     const cloudId=String(member.gameKey).startsWith('cloud:')?String(member.gameKey).slice(6):'';
+     if(Object.prototype.hasOwnProperty.call(cloudLinks,cloudId)){
+      const a=document.createElement('a');a.className='btn mini';a.textContent='Open cloud';a.href=cloudLinks[cloudId];a.target='_blank';a.rel='noopener noreferrer';row.appendChild(a);
+     }else{
+      const index=GAMES.findIndex(game=>gameKey(game)===member.gameKey);
+      if(index>=0){const button=document.createElement('button');button.className='btn mini';button.textContent='Play same';button.addEventListener('click',()=>openGame(index));row.appendChild(button)}
+     }
+    }
     box.appendChild(row);
    }
   }
@@ -141,14 +157,14 @@
  leaveParty=async function(){
   if(!isLive())return legacyLeave();
   stopShare();for(const key of [...outgoing.keys()])closeRecord(outgoing,key);for(const key of [...incoming.keys()]){closeRecord(incoming,key);removeVideo(key)}earlyCandidates.clear();
-  if(meetingChannel)closeMeeting();const old=channel;channel=null;communityChannels.delete('party');currentParty=null;members={};chatLog.length=0;mutedPeers.clear();lastMessages.clear();sentAt=0;if(old)await supabaseClient.removeChannel(old);chatEnabled(false);$('partyChatMessages')?.replaceChildren();
+  if(meetingChannel)closeMeeting();const old=channel;channel=null;communityChannels.delete('party');currentParty=null;cloudActivity='';members={};chatLog.length=0;mutedPeers.clear();lastMessages.clear();sentAt=0;if(old)await supabaseClient.removeChannel(old);chatEnabled(false);$('partyChatMessages')?.replaceChildren();
   $('partyPanel')?.classList.add('hidden');$('partyLiveControls')?.classList.add('hidden');setText('partyCode','------');setText('partyWorkspaceCode','------');setText('partyWorkspaceStatus','Create or join a party below.');
   for(const id of ['partyMembers','partyWorkspaceMembers']){const el=$(id);if(el)el.textContent='No party joined.'}const grid=$('partyStreams');if(grid)grid.replaceChildren();showToast('Left party');
  };
  renderPartyWorkspaceMembers=async function(){if(isLive()){renderMembers();return}return legacyRenderMembers()};
  loadPartyMembers=async function(){if(isLive()){renderMembers();return}return legacyLoadMembers()};
  const originalOpenGame=openGame,originalCloseGame=closeGame;
- openGame=function(index){const result=originalOpenGame(index);safeTrack();return result};
+ openGame=function(index){cloudActivity='';const result=originalOpenGame(index);safeTrack();return result};
  closeGame=function(){const result=originalCloseGame();safeTrack();return result};
  window.copyPartyCode=async function(){
   if(!isLive())return showToast('Join a party first.');
@@ -231,4 +247,8 @@
  try{const saved=localStorage.getItem('aio-party-name');if(saved&&$('partyGuestName'))$('partyGuestName').value=saved}catch{}
  const invite=new URLSearchParams(location.hash.slice(1)).get('party');if(invite&&codeFormat(invite).length===20){if(input)input.value=codeFormat(invite);if(community)community.value=codeFormat(invite);setTimeout(()=>{scrollToId('party-workspace');showToast('Party invite ready — add a name and join.')},800)}
  addEventListener('pagehide',()=>{if(stream)stream.getTracks().forEach(t=>t.stop());for(const rec of outgoing.values())rec.pc.close();for(const rec of incoming.values())rec.pc.close()});
+ // Cloud gaming enhances the existing two launch cards without changing the catalogue.
+ if(document.getElementById('cloud-gaming')&&document.head){
+  const script=document.createElement('script');script.src='/cloud-gaming.js';script.defer=true;document.head.appendChild(script);
+ }
 })();
