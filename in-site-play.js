@@ -13,10 +13,17 @@
   {id:'golf',title:'Pocket Putt',kind:'Sports',hint:'Drag to aim the ball.'},
   {id:'hop',title:'Skybound Hop',kind:'Platformer',hint:'Use arrows or drag to move.'},
   {id:'hockey',title:'Air Hockey Arena',kind:'Sports',hint:'Drag or use the arrow keys.'},
-  {id:'blocks',title:'Block Drop',kind:'Puzzle',hint:'Use arrows or touch controls.'}
+  {id:'blocks',title:'Block Drop',kind:'Puzzle',hint:'Use arrows or touch controls.'},
+  {id:'snake',title:'Circuit Snake',kind:'Arcade',hint:'Use arrows or swipe to collect nodes and dodge your trail.',bonus:true},
+  {id:'merge',title:'Merge Matrix',kind:'Puzzle',hint:'Combine equal number tiles with arrows or swipes.',bonus:true},
+  {id:'orbit',title:'Orbit Dash',kind:'Survival',hint:'Dodge meteors with left/right arrows or touch.',bonus:true},
+  {id:'catch',title:'Colour Catch',kind:'Skill',hint:'Catch cyan orbs, avoid red; arrows or touch.',bonus:true}
  ]);
  const allowed=id=>originals.find(game=>game.id===id)||null;
- const gameUrl=id=>allowed(id)?'/games/arcade-collection.html?game='+id:null;
+ const gameUrl=id=>{
+  const game=allowed(id);
+  return game?(game.bonus?'/games/bonus-arcade.html?game=':'/games/arcade-collection.html?game=')+id:null;
+ };
  const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
  const key='aio-in-site-last-game-v1';
  const make=(tag,className,text)=>{
@@ -37,7 +44,16 @@
  const intro=make('p','', 'These original browser games play directly on this page. Fortnite and Roblox still require an approved game-streaming provider or a dedicated gaming PC.');
  copy.append(eyebrow,title,intro);
  const last=make('span','aio-in-site-last','Choose a game to start.');
- heading.append(copy,last);
+ const tools=make('div','aio-in-site-discovery');
+ const search=make('input','aio-in-site-search');
+ search.type='search';search.placeholder='Find a game…';search.maxLength=60;
+ search.setAttribute('aria-label','Search instant games');
+ const surprise=makeButton('Surprise me','btn mini');
+ surprise.title='Start a random original browser game';
+ const again=makeButton('Play last','btn mini');
+ again.title='Replay your last instant browser game';
+ tools.append(search,surprise,again);
+ heading.append(copy,last,tools);
 
  const picks=make('div','aio-in-site-picks');
  picks.setAttribute('role','group');
@@ -47,6 +63,7 @@
   button.dataset.aioGame=game.id;
   const category=make('small','',game.kind);
   button.appendChild(category);
+  if(game.bonus)button.appendChild(make('span','aio-in-site-new','NEW'));
   picks.appendChild(button);
  }
  const stage=make('div','aio-in-site-stage');
@@ -162,6 +179,32 @@
   const previous=localStorage.getItem(key),game=allowed(previous);
   if(game)last.textContent='Last played here: '+game.title;
  }catch{}
+ function updateDiscovery(){
+  const term=String(search.value||'').trim().toLocaleLowerCase();
+  let visible=0;
+  for(const pick of picks.querySelectorAll('[data-aio-game]')){
+   const game=allowed(pick.dataset.aioGame);
+   pick.hidden=Boolean(term)&&![game.title,game.kind,game.hint].some(text=>text.toLocaleLowerCase().includes(term));
+   if(!pick.hidden)visible++;
+  }
+  surprise.disabled=visible===0;
+  if(visible===0)last.textContent='No games match that search.';
+  else if(!active&&last.textContent==='No games match that search.')last.textContent='Choose a game to start.';
+ }
+ search.addEventListener('input',updateDiscovery);
+ surprise.addEventListener('click',()=>{
+  const visible=originals.filter(game=>{
+   const pick=Array.from(picks.querySelectorAll('[data-aio-game]')).find(button=>button.dataset.aioGame===game.id);
+   return pick&&!pick.hidden;
+  });
+  if(!visible.length)return;
+  const next=visible[Math.floor(Math.random()*visible.length)];
+  open(next.id);
+ });
+ again.addEventListener('click',()=>{
+  try{const recent=localStorage.getItem(key);if(allowed(recent))open(recent)}
+  catch{}
+ });
  window.addEventListener('pagehide',stopTimer,{once:true});
  window.aioInSitePlay={open,close:stop,isAllowed:id=>!!allowed(id),gameUrl};
 })();

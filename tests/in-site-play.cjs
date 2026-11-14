@@ -37,6 +37,12 @@ vm.runInNewContext(source,ctx);
 assert.ok(grid.insertedBefore,'in-site play section should mount before provider cards');
 assert.equal(grid.insertedBefore.id,'aio-in-site-play');
 assert.equal(ctx.window.aioInSitePlay.isAllowed('golf'),true);
+for(const game of ['snake','merge','orbit','catch']){
+ assert.equal(ctx.window.aioInSitePlay.isAllowed(game),true,'Every original bonus game is allowlisted: '+game);
+ assert.equal(ctx.window.aioInSitePlay.gameUrl(game),'/games/bonus-arcade.html?game='+game);
+}
+assert.equal(grid.insertedBefore.children[1].children.length,10,'Ten original in-site games appear');
+assert.equal(grid.insertedBefore.children[1].children[6].children[1].textContent,'NEW');
 assert.equal(ctx.window.aioInSitePlay.isAllowed('fortnite'),false,'Do not misrepresent Fortnite as an embedded game');
 assert.equal(ctx.window.aioInSitePlay.isAllowed('roblox'),false,'Do not misrepresent Roblox as an embedded game');
 assert.equal(ctx.window.aioInSitePlay.isAllowed('javascript:alert(1)'),false);
@@ -64,6 +70,21 @@ assert.equal(player.hidden,true);
 assert.equal(loading.hidden,true,'Closing game must dismiss loading state');
 assert.equal(viewport.children.length,0);
 assert.equal(ctx.window.aioInSitePlay.gameUrl('../evil'),null);
+const tools=section.children[0].children[2],gameSearch=tools.children[0],random=tools.children[1],replay=tools.children[2];
+gameSearch.value='snake';gameSearch.listeners.input();
+assert.equal(picks.children[6].hidden,false);
+assert.equal(picks.children[0].hidden,true,'Search should filter out non-matching games');
+random.listeners.click();
+assert.equal(viewport.children[0].src,'/games/bonus-arcade.html?game=snake','Surprise Me selects only visible games');
+assert.equal(local.get('aio-in-site-last-game-v1'),'snake');
+ctx.window.aioInSitePlay.close();
+replay.listeners.click();
+assert.equal(viewport.children[0].src,'/games/bonus-arcade.html?game=snake','Replay last should launch the last game');
+ctx.window.aioInSitePlay.close();
+gameSearch.value='no_matching_titles_here';gameSearch.listeners.input();
+assert.equal(random.disabled,true,'Random game must disable on empty results');
+assert.match(style,/\.aio-in-site-pick\[hidden\]\{display:none\}/,'Filtered game buttons should be visually hidden');
+
 assert.doesNotMatch(source,/window\.open|target=['"]_blank|www\.xbox\.com|easyfun\.gg/i);
 assert.match(style,/prefers-reduced-motion:reduce/);
 console.log('In-site play passed: no redirects, allowlisted real local games, controls, close, and no fake Fortnite/Roblox embed.');
