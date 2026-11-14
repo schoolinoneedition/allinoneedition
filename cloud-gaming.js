@@ -180,6 +180,14 @@
   script.src='/cloud-embedded-stream.js';script.async=true;
   document.head.appendChild(script);
  }
+ // Actual publicly advertised GPU-streamed showcase demos, opt-in and in-page.
+ if(document.head&&!document.getElementById('aioFreeCloudDemoScript')){
+  const style=document.createElement('link');style.rel='stylesheet';style.href='/free-cloud-demo.css';
+  document.head.appendChild(style);
+  const script=document.createElement('script');script.id='aioFreeCloudDemoScript';
+  script.src='/free-cloud-demo.js';script.async=true;
+  document.head.appendChild(script);
+ }
  root.addEventListener('click',event=>{
   const target=event.target?.closest?.('a[data-cloud-game]');
   if(target)launched(target.dataset.cloudGame);
