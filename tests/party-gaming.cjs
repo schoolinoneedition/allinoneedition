@@ -55,9 +55,16 @@ function allText(node){return [node.textContent,...node.children.map(allText)].j
  guest.ctx.sendPartyChat();await wait();
  assert.match(allText(host.els.get('partyChatMessages')),/Let us play!/,'Host should receive guest chat messages');
  assert.match(allText(host.els.get('partyWorkspaceMembers')),/Guest/);assert.match(allText(guest.els.get('partyWorkspaceMembers')),/Host/);
- host.ctx.openGame(0);await wait();assert.match(allText(guest.els.get('partyWorkspaceMembers')),/Playing Reel League/);
+ assert.equal(host.ctx.aioPartyCloudLaunch('fortnite'),true,'Party guests can share a cloud launch');
+ await wait();
+ assert.match(allText(guest.els.get('partyWorkspaceMembers')),/Opened cloud game: Fortnite/);
+ assert.match(allText(guest.els.get('partyWorkspaceMembers')),/Open cloud/);
+ assert.equal(host.ctx.aioPartyCloudLaunch('unknown'),false,'Reject arbitrary cloud titles and links');
+ host.ctx.aioPartyCloudStop();await wait();
+ assert.doesNotMatch(allText(guest.els.get('partyWorkspaceMembers')),/Opened cloud game/);
+  host.ctx.openGame(0);await wait();assert.match(allText(guest.els.get('partyWorkspaceMembers')),/Playing Reel League/);
  assert.equal(guest.els.get('partyStreams').children.length,1,'A late guest should receive a screen offer');
  await host.ctx.togglePartyShare();await wait();assert.equal(guest.els.get('partyStreams').children.length,0);assert.equal(host.track.stopped,true);
  await guest.ctx.leaveParty();await wait();assert.equal(guest.els.get('partyChatSend').disabled,true,'Leaving should disable chat');assert.equal(guest.els.get('partyChatMessages').children.length,0,'Leaving should clear ephemeral chat');assert.equal(host.els.get('partyWorkspaceMembers').children.length,1);
- console.log('Party flow passed: invite URL, guest chat, game status, late share, stop and leave clean up.');
+ console.log('Party flow passed: guest chat, cloud gaming presence, invite URL, share and cleanup.');
 })().catch(error=>{console.error(error);process.exitCode=1});
