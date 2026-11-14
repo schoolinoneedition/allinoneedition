@@ -125,10 +125,12 @@
    clearTimeout(frameTimer);
    update('The provider could not open inside this site. Check its embed settings.','frame_error');
   });
+  // Set src before insertion so the initial empty iframe navigation is not
+  // mistaken for the provider loading successfully.
+  frame.src=url;
   viewer.replaceChildren(frame);viewer.hidden=false;
   close.hidden=false;fullscreen.hidden=false;
   update('Opening private stream inside All in One Edition…','opening');
-  frame.src=url;
   frameTimer=setTimeout(()=>{
    if(frame===thisFrame)update('Connection is taking too long. Check the provider or stop viewing.','timeout');
   },18000);
