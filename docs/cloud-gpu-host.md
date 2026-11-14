@@ -72,3 +72,25 @@ Security notes:
 - Only owner access is implemented. Public, multiuser GPU sessions require separate per-user admission, budget enforcement and rate limiting.
 
 An alternative for a GPU machine owned by the user is the open-source browser-gaming project Quasar: https://accreleus.github.io/quasar/ . It requires compatible hardware and is not a free managed Fortnite/Roblox host.
+
+
+## Public Eagle 3D Streaming GPU demos, added 14 November 2026
+
+All in One Edition includes a separate **opt-in public cloud gaming demo** at `#cloud-gaming`. This is a real provider-hosted GPU-streaming experience, not a browser-only/WebGL game or a new rented GPU owned by All in One Edition.
+
+- Unity *Chop Chop* sample game: `https://stream.eagle3dstreaming.com/v5/demo/E3DS_ChopChop_v6/Project_E3DS_ChopChop_v6`. Eagle shared this link publicly on the Unity Discussions forum, 11 November 2026: https://discussions.unity.com/t/beta-eagle-3d-streaming-stream-your-unity-build-to-any-browser-no-webgl-no-download-3-live-demos/1741633
+- Interactive Unreal demo: `https://connector.eagle3dstreaming.com/v5/demo/DemoAppTP/default`, publicly documented by the provider: https://docs.eagle3dstreaming.com/wiki/getting-started
+- Embed and lifecycle interface: https://docs.eagle3dstreaming.com/wiki/embed-stream-using-iframe/ and https://docs.eagle3dstreaming.com/wiki/iframe-stages
+- Eagle 3D Streaming offers a developer-hosted **free trial** with 60 lifetime minutes, one concurrent stream and 5 GB project storage, no credit card: https://www.eagle3dstreaming.com/pricing. That is a different quota from the provider's public demos; no user billing account is configured in AIO.
+- The public samples are shared provider assets. This integration **must not** be relabelled as Roblox, Fortnite, or an independently hosted unlimited gaming PC. Third-party infrastructure may be busy, rate-limited, unavailable or may block framing on some devices.
+
+### Behaviour and safety
+
+1. The provider iframe is inserted **only after** someone clicks a demo; the website does not auto-start a remote GPU session.
+2. A 30-second helper notices a long wait without claiming the game failed. Eagle can queue sessions until capacity is free. The UI uses the provider's `stage1_inqueued`, `stage3_slotOccupied`, `stage4_playBtnShowedUp`, `stage5_playBtnPressed`, `sessionExpired` and other documented signals.
+3. `postMessage` events are processed only from the currently active frame and its exact expected provider origin. Queue messages never become HTML.
+4. The viewer closes at 10 minutes as a courtesy to shared infrastructure and has an explicit **Stop demo** button. Unloading the frame cannot guarantee the backend stopped immediately.
+5. User accounts and game passwords are never requested by AIO. No stream account or shared GPU may be rented or charged automatically.
+6. A game can only be claimed playable after an actual browser gameplay test; syntax checks and a published provider URL alone do not establish live video/controls.
+
+This is a no-cost way to **try remote GPU streaming** inside AIO, with an actual publicly shared sample game. For permanent hosted Fortnite or Roblox availability, a separate approved game-streaming platform and compatible licences/sessions remain necessary.
