@@ -65,6 +65,9 @@
  status.setAttribute('aria-live','polite');
  stage.append(toolbar,viewport,status);
  section.append(heading,picks,stage);
+ const providerNotice=make('p','aio-in-site-provider-note',
+  'Fortnite and Roblox are not playable inside this website yet. Their existing provider links below open other services and may require separate sign-in. This in-page player never sends your game password anywhere.');
+ section.appendChild(providerNotice);
  cloudCards.before(section);
 
  let active='',loadTimer=0,frame=null;
