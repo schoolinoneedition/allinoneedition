@@ -1,0 +1,29 @@
+/* Genuine in-page browser-game player. Not a Fortnite/Roblox cloud-stream replacement. */
+.aio-in-site-play{margin:0 0 18px;padding:18px;border:1px solid var(--line);border-radius:20px;background:var(--panel);box-shadow:0 5px 16px rgba(15,20,40,.05)}
+.aio-in-site-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
+.aio-in-site-copy{max-width:700px}
+.aio-in-site-eyebrow{color:var(--accent);letter-spacing:.1em;font-size:10px;font-weight:900}
+.aio-in-site-heading h3{margin:6px 0 7px;font-size:clamp(17px,3vw,22px)}
+.aio-in-site-heading p{font-size:12px;color:var(--muted);line-height:1.65;margin:0}
+.aio-in-site-last{background:var(--soft);border:1px solid var(--line);padding:8px 10px;border-radius:11px;color:var(--muted);font-size:11px;font-weight:700}
+.aio-in-site-picks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:15px}
+.aio-in-site-pick{display:flex;flex-direction:column;align-items:flex-start;gap:5px;padding:12px 14px;border:1px solid var(--line);border-radius:13px;background:var(--soft);color:var(--text);text-align:left;font-size:13px;font-weight:850;transition:transform .18s ease,background .18s ease,border-color .18s ease}
+.aio-in-site-pick small{font-size:10px;color:var(--muted);font-weight:700}
+.aio-in-site-pick.active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,var(--panel))}
+.aio-in-site-pick:hover{transform:translateY(-2px);border-color:var(--accent)}
+.aio-in-site-pick:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.aio-in-site-stage{margin-top:16px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#0b1020}
+.aio-in-site-stage[hidden]{display:none}
+.aio-in-site-toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:9px;padding:10px 12px;background:#151e32;color:#f4f6fe}
+.aio-in-site-current{font-size:13px}
+.aio-in-site-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.aio-in-site-actions .btn{background:#27344e;color:#fff;border-color:#4a5a75}
+.aio-in-site-viewport{height:min(70vh,650px);min-height:360px;background:#0b1020}
+.aio-in-site-viewport:fullscreen{width:100vw;height:100vh;background:#000}
+.aio-in-site-frame{display:block;width:100%;height:100%;border:0;background:#0b1020}
+.aio-in-site-status{margin:0;padding:8px 12px;background:#151e32;color:#adbdde;font-size:11px;line-height:1.5}
+@media(max-width:720px){.aio-in-site-picks{grid-template-columns:repeat(2,minmax(0,1fr))}.aio-in-site-viewport{min-height:270px;height:min(62vh,510px)}}
+@media(max-width:410px){.aio-in-site-picks{grid-template-columns:1fr 1fr}.aio-in-site-pick{padding:10px}.aio-in-site-actions .btn{height:32px;padding:0 8px;font-size:10px}}
+@media(prefers-reduced-motion:reduce){.aio-in-site-pick{transition:none}.aio-in-site-pick:hover{transform:none}}
+
+.aio-in-site-provider-note{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--line);color:var(--muted);font-size:11px;line-height:1.6}
