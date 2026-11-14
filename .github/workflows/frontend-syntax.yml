@@ -24,6 +24,7 @@ jobs:
           node --check party-gaming.js
           node --check cloud-gaming.js
           node --check free-cloud-demo.js
+          node --check cloud-service-library.js
           node --check cloud-host-ui.js
           node --check api/cloud-host-status.js
           node --check api/cloud-stream-session.js
@@ -44,6 +45,7 @@ jobs:
           node tests/party-gaming.cjs
           node tests/cloud-gaming.cjs
           node tests/free-cloud-demo.cjs
+          node tests/cloud-service-library.cjs
           node tests/cloud-host-status.cjs
           node tests/cloud-host-ui.cjs
           node tests/cloud-stream-session.cjs
