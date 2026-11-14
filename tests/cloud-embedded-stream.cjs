@@ -27,7 +27,7 @@ const ctx={
    {state:'ready',embedUrl:good}:
    {state:'signin_required'}};
  },
- AbortController,setTimeout:()=>1,clearTimeout:()=>{}
+ URL,AbortController,setTimeout:()=>1,clearTimeout:()=>{}
 };
 vm.runInNewContext(src,ctx);
 async function main(){
