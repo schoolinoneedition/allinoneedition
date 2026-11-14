@@ -39,6 +39,7 @@ class Intersection{
  show(el,visible){this.callback([{target:el,isIntersecting:visible}])}
 }
 const context={document:doc,window:{scrollY:0,matchMedia:()=>({matches:false,addEventListener(){}}),addEventListener:(name,cb)=>events[name]=cb},MutationObserver:Observer,IntersectionObserver:Intersection,requestAnimationFrame:cb=>cb(),setTimeout:cb=>{const id=++timer;timers.set(id,cb);return id},clearTimeout:id=>timers.delete(id)};
+context.window.IntersectionObserver=Intersection;
 vm.runInNewContext(js,context);
 assert.equal(links.length,1);
 assert.equal(links[0].href,'/game-motion.css');
