@@ -226,6 +226,7 @@
  openMeeting=async function(){return legacyOpenMeeting()};
  installChat();chatEnabled(false);
  const input=$('partyWorkspaceJoinCode'),community=$('partyJoinCode');
+ if(input)input.maxLength=512;if(community)community.maxLength=512;
  if(input&&community){input.addEventListener('input',()=>{community.value=input.value});community.addEventListener('input',()=>{input.value=community.value});input.addEventListener('keydown',e=>{if(e.key==='Enter')joinPartyByCode()});community.addEventListener('keydown',e=>{if(e.key==='Enter')joinPartyByCode()})}
  try{const saved=localStorage.getItem('aio-party-name');if(saved&&$('partyGuestName'))$('partyGuestName').value=saved}catch{}
  const invite=new URLSearchParams(location.hash.slice(1)).get('party');if(invite&&codeFormat(invite).length===20){if(input)input.value=codeFormat(invite);if(community)community.value=codeFormat(invite);setTimeout(()=>{scrollToId('party-workspace');showToast('Party invite ready — add a name and join.')},800)}
