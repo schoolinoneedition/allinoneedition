@@ -131,3 +131,19 @@ Each provider link opens separately: their web apps do not grant AIO permission 
 ### Regression verification
 
 The updated CI checks the Cloud Gaming entrypoint, new scripts, public demo allowlist, genuine remote queue events, malicious frame-message isolation, safe external links, search/eligibility filters, local favourites, responsive styles, and no hidden stream startup. Runtime provider gameplay and latency **have not been independently verified**. The project must not advertise 24/7 availability for the public GPU demos.
+
+
+## Ten original in-site browser games (additional batch, 14 November 2026)
+
+AIO includes **six previous browser-original games** in `/games/arcade-collection.html` and now **four additional games** in `/games/bonus-arcade.html`. These are **NOT GPU cloud-hosted PC titles**. They play directly inside the existing first-party Cloud Gaming area via a same-origin iframe. Existing browser games and external provider cards remain unchanged.
+
+New original titles:
+
+- **Circuit Snake** (`?game=snake`): collect data nodes on a grid, avoid walls and the snake trail.
+- **Merge Matrix** (`?game=merge`): arrow/swipe-controlled 4×4 merge puzzle.
+- **Orbit Dash** (`?game=orbit`): realtime meteor avoidance, keyboard/touch steering.
+- **Colour Catch** (`?game=catch`): dodge negative energy and collect positive energy before lives run out.
+
+Each game runs entirely in the browser, uses no third-party network endpoints or account access, supports on-screen controls, keyboard and touch, pause/resume, restart, automatic suspension when its tab is hidden and local best-score persistence. The game picker now supports search, a randomly chosen visible game and one-click replay of the last local game. The 7.5-second entry loader, Party, existing catalogue and user preferences remain in place.
+
+Tests include `tests/bonus-arcade.cjs` (the actual game runtime in a Node mocked Canvas environment for all four titles) and extended `tests/in-site-play.cjs` covering all ten game allowlist entries, first-party iframe paths, search, random choice, last-game replay and controls. These run in GitHub Actions along with existing frontend tests. Smoke tests do not replace live hands-on browser gameplay testing.
