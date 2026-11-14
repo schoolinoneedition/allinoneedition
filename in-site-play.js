@@ -63,7 +63,19 @@
  const status=make('p','aio-in-site-status','');
  status.setAttribute('role','status');
  status.setAttribute('aria-live','polite');
- stage.append(toolbar,viewport,status);
+ const loadingView=make('div','aio-in-site-loading');
+ loadingView.hidden=true;
+ loadingView.setAttribute('role','status');
+ loadingView.setAttribute('aria-live','polite');
+ const loadingArt=make('div','aio-in-site-loading-art');
+ loadingArt.setAttribute('aria-hidden','true');
+ for(let i=0;i<4;i++)loadingArt.appendChild(make('span','',''));
+ const loadingTitle=make('strong','','Starting your game');
+ const loadingHint=make('span','aio-in-site-loading-hint','Getting the in-site player ready…');
+ const loadingTrack=make('div','aio-in-site-loading-track');
+ loadingTrack.setAttribute('aria-hidden','true');
+ loadingView.append(loadingArt,loadingTitle,loadingHint,loadingTrack);
+ stage.append(toolbar,viewport,status,loadingView);
  section.append(heading,picks,stage);
  const providerNotice=make('p','aio-in-site-provider-note',
   'Fortnite and Roblox are not playable inside this website yet. Their existing provider links below open other services and may require separate sign-in. This in-page player never sends your game password anywhere.');
@@ -85,6 +97,9 @@
   }
   if(frame){frame.src='about:blank';frame.remove();frame=null}
   stage.hidden=false;
+  loadingView.hidden=false;
+  loadingTitle.textContent='Opening '+game.title;
+  loadingHint.textContent='Loading a real browser game on this site…';
   name.textContent=game.title;
   setStatus('Opening '+game.title+' inside All in One Edition…');
   frame=make('iframe','aio-in-site-frame');
@@ -97,18 +112,22 @@
   currentFrame.addEventListener('load',()=>{
    if(frame!==currentFrame||active!==id)return;
    stopTimer();
+   loadingView.hidden=true;
    setStatus(game.title+' player opened. '+game.hint);
   });
   currentFrame.addEventListener('error',()=>{
    if(frame!==currentFrame||active!==id)return;
    stopTimer();
+   loadingView.hidden=true;
    setStatus('The browser could not open this game. Try Restart.');
   });
   viewport.replaceChildren(frame);
   frame.src=gameUrl(id);
   loadTimer=setTimeout(()=>{
-   if(frame===currentFrame&&active===id)
+   if(frame===currentFrame&&active===id){
+    loadingView.hidden=true;
     setStatus('Still opening the game. Try Restart if it stays blank.');
+   }
   },12000);
   last.textContent='Playing here: '+game.title;
   try{localStorage.setItem(key,id)}catch{}
@@ -121,6 +140,7 @@
   if(frame){frame.src='about:blank';frame.remove();frame=null}
   viewport.replaceChildren();
   stage.hidden=true;
+  loadingView.hidden=true;
   for(const pick of picks.querySelectorAll('[data-aio-game]')){
    pick.classList.remove('active');pick.setAttribute('aria-pressed','false');
   }

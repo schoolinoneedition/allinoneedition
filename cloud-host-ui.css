@@ -1,0 +1,13 @@
+/* AIO private cloud host preflight: status, not a playable cloud session. */
+.aio-cloud-host-panel{display:flex;flex-direction:column;gap:12px;margin:0 0 18px;padding:18px;border-radius:18px;border:1px solid var(--line);background:var(--panel);box-shadow:0 5px 18px rgba(17,31,63,.04)}
+.aio-cloud-host-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.aio-cloud-host-head .btn{flex:none}
+.aio-cloud-host-title{max-width:770px}
+.aio-cloud-host-kicker{color:var(--accent);font-size:10px;font-weight:900;letter-spacing:.13em}
+.aio-cloud-host-title h3{font-size:clamp(17px,3vw,20px);margin:6px 0}
+.aio-cloud-host-explainer{font-size:12px;line-height:1.65;color:var(--muted);margin:0}
+.aio-cloud-host-state{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--soft);font-weight:750;font-size:12px;line-height:1.5}
+.aio-cloud-host-state::before{content:"";width:8px;height:8px;border:2px solid #8d96a7;border-radius:50%;flex:none}
+.aio-cloud-host-state[data-cloud-state="host_online"]::before{border-color:#33a278;background:#33a278}
+.aio-cloud-host-note{margin:0;color:var(--muted);font-size:11px;line-height:1.6}
+@media(max-width:580px){.aio-cloud-host-head{flex-direction:column}.aio-cloud-host-panel{padding:14px}}
