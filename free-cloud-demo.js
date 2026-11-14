@@ -9,13 +9,27 @@
  const DEMOS=Object.freeze({
   chop:{
    name:'Chop Chop',
-   subtitle:'Unity game demo streamed from a remote GPU',
+   subtitle:'Playable Unity game · remote GPU',
+   type:'game',
    url:'https://stream.eagle3dstreaming.com/v5/demo/E3DS_ChopChop_v6/Project_E3DS_ChopChop_v6'
   },
   world:{
    name:'Interactive 3D world',
-   subtitle:'Unreal Engine remote-rendering demo',
+   subtitle:'Unreal Engine exploration demo · remote GPU',
+   type:'showcase',
    url:'https://connector.eagle3dstreaming.com/v5/demo/DemoAppTP/default'
+  },
+  spaceship:{
+   name:'Spaceship VFX demo',
+   subtitle:'Unity graphics showcase · remote GPU',
+   type:'showcase',
+   url:'https://stream.eagle3dstreaming.com/v5/demo/E3DS_SpaceshipDemo_v2/Project_E3DS_SpaceshipDemo_v2'
+  },
+  hdrp:{
+   name:'High-detail 3D demo',
+   subtitle:'Unity HDRP graphics showcase · remote GPU',
+   type:'showcase',
+   url:'https://stream.eagle3dstreaming.com/v5/demo/E3DS_HDRP_Sample/Project_E3DS_HDRP_Sample'
   }
  });
  const make=(tag,cls,text)=>{
@@ -29,10 +43,10 @@
  section.setAttribute('aria-labelledby','aioFreeCloudTitle');
  const head=make('div','aio-free-cloud-head');
  const heading=make('div','aio-free-cloud-title');
- const kicker=make('span','aio-free-cloud-kicker','LIVE GPU-STREAMED DEMOS');
- const title=make('h3','','Try a real cloud-streamed game');
+ const kicker=make('span','aio-free-cloud-kicker','REAL CLOUD GPU DEMOS · SHARED CAPACITY');
+ const title=make('h3','','Play a GPU-streamed game or explore 3D demos');
  title.id='aioFreeCloudTitle';
- const description=make('p','','These official public demos render on Eagle 3D Streaming GPU machines, not your device. Shared demo capacity is limited; a queue or provider outage is possible.');
+ const description=make('p','','Chop Chop is a playable Unity game; the other experiences are interactive 3D technology showcases. All render on shared Eagle GPU machines. A queue or temporary outage is possible.');
  heading.append(kicker,title,description);
  const status=make('p','aio-free-cloud-status','Choose a demo. Nothing starts until you press Play.');
  status.setAttribute('role','status');
@@ -46,8 +60,9 @@
   button.dataset.demoId=id;
   const name=make('strong','',demo.name);
   const detail=make('span','',demo.subtitle);
-  button.append(name,detail);
-  button.setAttribute('aria-label','Play '+demo.name+' inside All in One Edition');
+  const category=make('span','aio-free-cloud-kind',demo.type==='game'?'PLAYABLE GAME':'3D SHOWCASE');
+  button.append(category,name,detail);
+  button.setAttribute('aria-label',(demo.type==='game'?'Play ':'Explore ')+demo.name+' inside All in One Edition');
   buttons[id]=button;
   choices.appendChild(button);
  }
@@ -60,7 +75,10 @@
  fullscreen.type='button';
  const stop=make('button','btn mini','Stop demo');
  stop.type='button';
- controls.append(fullscreen,stop);
+ const providerFallback=make('a','btn mini','Open official demo ↗');
+ providerFallback.target='_blank';providerFallback.rel='noopener noreferrer';
+ providerFallback.setAttribute('aria-label','Open official provider demo if the embedded viewer is blocked');
+ controls.append(fullscreen,providerFallback,stop);
  toolbar.append(playing,controls);
  const stage=make('div','aio-free-cloud-stage');
  const loadState=make('div','aio-free-cloud-wait');
@@ -71,7 +89,7 @@
  stage.appendChild(loadState);
  viewer.append(toolbar,stage);
  const disclaimer=make('p','aio-free-cloud-disclaimer',
-  'Provider: Eagle 3D Streaming. These are public showcase demos, not your own unlimited GPU or a Roblox/Fortnite session. Stop the demo when finished; the provider may take time to release its GPU. Click inside the stream for keyboard controls.');
+  'Provider: Eagle 3D Streaming. These public demos are not unlimited GPU rentals or Roblox/Fortnite sessions. Only Chop Chop is labelled as a playable game; the others showcase 3D streaming. Stop when finished; the provider may take time to release its GPU. If the embedded view stays blank, use Open official demo.');
  section.append(head,choices,viewer,disclaimer);
  grid.before(section);
  let frame=null,active='',serial=0,timers=[];
@@ -95,7 +113,8 @@
   const demo=DEMOS[id],run=++serial;
   active=id;
   for(const [key,b] of Object.entries(buttons)){b.disabled=key===id;b.setAttribute('aria-pressed',String(key===id))}
-  playing.textContent=demo.name+' · cloud GPU demo';
+  playing.textContent=demo.name+' · '+(demo.type==='game'?'playable game':'3D showcase');
+  providerFallback.href=demo.url;
   setStatus('Connecting to '+demo.name+' on a shared GPU…','connecting');
   loadLabel.textContent='Connecting to a real streaming server…';
   loadState.hidden=false;

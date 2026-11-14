@@ -31,3 +31,11 @@
 .aio-free-cloud-disclaimer{border-top:1px solid var(--line);padding-top:10px;color:var(--muted);font-size:11px;line-height:1.6;margin:0}
 @media(max-width:700px){.aio-free-cloud{padding:13px}.aio-free-cloud-choices{grid-template-columns:1fr}.aio-free-cloud-stage{min-height:270px;height:55vh}}
 @media(prefers-reduced-motion:reduce){.aio-free-cloud-choice{transition:none}.aio-free-cloud-choice:hover{transform:none}.aio-free-cloud-track::after{animation:none}}
+
+/* Multiple GPU showcases, with clear distinction from playable games. */
+.aio-free-cloud-kind{display:inline-flex;border:1px solid var(--line);border-radius:7px;padding:3px 6px;font-size:9px!important;font-weight:900;line-height:1.3!important;letter-spacing:.08em;background:var(--panel);color:var(--accent)!important}
+.aio-free-cloud-choices{grid-template-columns:repeat(2,minmax(0,1fr))}
+.aio-free-cloud-controls{flex-wrap:wrap;justify-content:flex-end}
+.aio-free-cloud-controls a.btn{background:#293650;border-color:#3e5373;color:#fff;text-decoration:none}
+.aio-free-cloud-toolbar{flex-wrap:wrap}
+@media(max-width:700px){.aio-free-cloud-choices{grid-template-columns:1fr}.aio-free-cloud-controls{width:100%;justify-content:flex-start}}

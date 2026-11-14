@@ -180,6 +180,14 @@
   script.src='/cloud-embedded-stream.js';script.async=true;
   document.head.appendChild(script);
  }
+ // Searchable guide to external legitimate cloud game libraries; links leave AIO.
+ if(document.head&&!document.getElementById('aioCloudServiceLibraryScript')){
+  const style=document.createElement('link');style.rel='stylesheet';style.href='/cloud-service-library.css';
+  document.head.appendChild(style);
+  const script=document.createElement('script');script.id='aioCloudServiceLibraryScript';
+  script.src='/cloud-service-library.js';script.async=true;
+  document.head.appendChild(script);
+ }
  // Actual publicly advertised GPU-streamed showcase demos, opt-in and in-page.
  if(document.head&&!document.getElementById('aioFreeCloudDemoScript')){
   const style=document.createElement('link');style.rel='stylesheet';style.href='/free-cloud-demo.css';
