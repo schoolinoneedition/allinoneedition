@@ -9,6 +9,7 @@ class Element{
  append(...items){items.forEach(item=>this.appendChild(item))}
  after(node){this.afterNode=node}
  addEventListener(event,listener){this.listeners[event]=listener}
+ setAttribute(name,value){this[name]=value}
  querySelector(){return null}
  querySelectorAll(){return []}
  closest(){return null}
@@ -42,6 +43,7 @@ vm.createContext(context);
 vm.runInContext(source,context);
 assert.equal(root.dataset.cloudReady,'1');
 assert.match(fortniteStatus.textContent,/VERIFIED CLOUD LAUNCH/);
+assert.ok(fortnite.children.some(x=>x.href==='https://play.geforcenow.com/'&&x.rel==='noopener noreferrer'), 'Fortnite should offer the official alternate cloud provider');
 assert.match(robloxStatus.textContent,/THIRD-PARTY CLOUD OPTION/);
 assert.ok(roblox.children.some(c=>c.children.some(x=>x.href==='https://www.easyfun.gg/cloud-games/roblox.html')));
 assert.equal(robloxLink.href,'https://www.roblox.com/','Keep official fallback');

@@ -40,6 +40,16 @@
    if(label)label.textContent='VERIFIED CLOUD LAUNCH';
    const details=create('small','aio-cloud-provider-note','Xbox streams Fortnite. A free Microsoft account and a supported browser or controller may be needed.');
    fortnite.appendChild(details);
+   // Officially supported alternative provider; avoid claiming we can embed its stream.
+   if(!fortnite.querySelector('[data-cloud-provider="geforce-now"]')){
+    const alternative=create('a','btn','Try GeForce NOW ↗');
+    alternative.dataset.cloudProvider='geforce-now';
+    alternative.href='https://play.geforcenow.com/';
+    alternative.target='_blank';alternative.rel='noopener noreferrer';
+    alternative.setAttribute('aria-label','Open Fortnite alternative cloud provider GeForce NOW');
+    fortnite.appendChild(alternative);
+    fortnite.appendChild(create('small','aio-cloud-provider-note','Alternative Fortnite cloud service. NVIDIA handles streaming and its own sign-in; this site does not host the game.'));
+   }
   }
   if(roblox){
    const old=roblox.querySelector('a');

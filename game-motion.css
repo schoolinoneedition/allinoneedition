@@ -1,0 +1,40 @@
+/* Animated game browsing and honest game-loading feedback. */
+#gameGrid .card.aio-reveal-card{
+ opacity:0;transform:translate3d(0,22px,0);
+ transition:opacity .44s ease,transform .52s cubic-bezier(.22,.78,.24,1);
+ transition-delay:var(--aio-stagger,0ms);
+}
+html[data-aio-scroll-direction="up"] #gameGrid .card.aio-reveal-card:not(.aio-in-view){transform:translate3d(0,-20px,0)}
+#gameGrid .card.aio-reveal-card.aio-in-view{opacity:1;transform:translate3d(0,0,0)}
+#gameGrid .card.aio-reveal-card .cover{transition:transform .22s ease,box-shadow .22s ease}
+@media(hover:hover) and (pointer:fine){
+ #gameGrid .card.aio-reveal-card:hover .cover{transform:translateY(-5px);box-shadow:0 13px 28px rgba(20,30,55,.16)}
+}
+#gameLoading.aio-game-loader{padding:26px;text-align:center;background:radial-gradient(circle at 50% 25%,#1b2853,#080c17 67%)!important}
+.aio-game-loading-inner{display:flex;flex-direction:column;align-items:center;gap:12px;width:min(310px,100%);font-size:12px;color:#e2eafd}
+.aio-game-loader-logo{position:relative;width:68px;height:68px;display:grid;grid-template-columns:repeat(2,1fr);gap:7px;animation:aioGameLoaderFloat 1.7s ease-in-out infinite alternate}
+.aio-game-loader-logo i{border-radius:8px;background:#7198ff;animation:aioGameTilePulse 1s ease-in-out infinite alternate}
+.aio-game-loader-logo i:nth-child(2){background:#ecf3ff;animation-delay:.12s}
+.aio-game-loader-logo i:nth-child(3){background:#4d78e9;animation-delay:.24s}
+.aio-game-loader-logo i:nth-child(4){background:#a7bbec;animation-delay:.36s}
+.aio-game-loader-heading{font-size:15px;font-weight:850;color:#fff}
+.aio-game-loader-desc{font-size:11px;line-height:1.5;color:#b6c5e0}
+.aio-game-loader-track{height:4px;width:170px;max-width:90%;border-radius:9px;overflow:hidden;background:#354460}
+.aio-game-loader-track::after{content:"";display:block;height:100%;width:45%;background:#9fb9ff;border-radius:9px;animation:aioGameLoadSweep 1.4s ease-in-out infinite alternate}
+@keyframes aioGameLoadSweep{from{transform:translateX(-100%)}to{transform:translateX(340%)}}
+@keyframes aioGameTilePulse{from{opacity:.6;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+@keyframes aioGameLoaderFloat{from{transform:translateY(2px) rotate(-5deg)}to{transform:translateY(-4px) rotate(5deg)}}
+html.aio-site-ready .hero-card,html.aio-site-ready #continueSection{animation:aioSiteEntrance .52s cubic-bezier(.2,.8,.2,1) both}
+html.aio-site-ready #continueSection{animation-delay:.09s}
+@keyframes aioSiteEntrance{from{opacity:.6;transform:translateY(14px)}to{opacity:1;transform:none}}
+html[data-aio-performance-profile="lite"] #gameGrid .card.aio-reveal-card,
+html[data-aio-performance-profile="lite"] #gameGrid .card.aio-reveal-card:not(.aio-in-view){
+ opacity:1;transform:none;transition:none
+}
+@media(prefers-reduced-motion:reduce){
+ #gameGrid .card.aio-reveal-card,
+ html[data-aio-scroll-direction="up"] #gameGrid .card.aio-reveal-card:not(.aio-in-view){opacity:1;transform:none;transition:none}
+ #gameGrid .card.aio-reveal-card .cover{transition:none}
+ .aio-game-loader-logo,.aio-game-loader-logo i,.aio-game-loader-track::after,
+ html.aio-site-ready .hero-card,html.aio-site-ready #continueSection{animation:none}
+}
