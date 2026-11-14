@@ -71,7 +71,7 @@
  stage.appendChild(loadState);
  viewer.append(toolbar,stage);
  const disclaimer=make('p','aio-free-cloud-disclaimer',
-  'Provider: Eagle 3D Streaming. These are public showcase demos, not your own unlimited GPU or a Roblox/Fortnite session. Close the demo when finished to free capacity. Click inside the stream for keyboard controls.');
+  'Provider: Eagle 3D Streaming. These are public showcase demos, not your own unlimited GPU or a Roblox/Fortnite session. Stop the demo when finished; the provider may take time to release its GPU. Click inside the stream for keyboard controls.');
  section.append(head,choices,viewer,disclaimer);
  grid.before(section);
  let frame=null,active='',serial=0,timers=[];
