@@ -27,7 +27,7 @@ const ids=new Map([['cloud-gaming',root]]);
 for(const id of ['aioCloudConnection','aioCloudController','aioCloudRecent','aioCloudResume','aioCloudPartyShare','aioCloudPartyNote','aioCloudPartyClear']){
  ids.set(id,new Element(id==='aioCloudPartyShare'?'input':'div'));
 }
-const store=new Map(),shared=[];
+const store=new Map(),shared=[];let cleared=0;
 const context={
  document:{getElementById:id=>ids.get(id)||null,createElement:tag=>new Element(tag)},
  navigator:{onLine:true,connection:{effectiveType:'4g'},getGamepads:()=>[{connected:true}]},
@@ -37,6 +37,7 @@ const context={
 };
 context.window=context;
 context.aioPartyCloudLaunch=id=>{shared.push(id);return true};
+context.aioPartyCloudStop=()=>{cleared++};
 vm.createContext(context);
 vm.runInContext(source,context);
 assert.equal(root.dataset.cloudReady,'1');
@@ -55,6 +56,8 @@ assert.equal(store.get('aio-cloud-last-game-v1'),'roblox');
 assert.equal(ids.get('aioCloudResume').href,'https://www.easyfun.gg/cloud-games/roblox.html');
 assert.deepEqual(shared,['roblox'],'Cloud launch shares only an opted-in known game');
 ids.get('aioCloudPartyShare').checked=false;
+ids.get('aioCloudPartyShare').listeners.change({target:{checked:false}});
+assert.equal(cleared,1,'Opting out must clear the current party activity');
 root.listeners.click({target:{closest:()=>({dataset:{cloudGame:'fortnite'}})}});
 assert.deepEqual(shared,['roblox'],'Opting out must stop further game-sharing notifications');
 assert.equal(store.get('aio-cloud-last-game-v1'),'fortnite');
