@@ -94,3 +94,40 @@ All in One Edition includes a separate **opt-in public cloud gaming demo** at `#
 6. A game can only be claimed playable after an actual browser gameplay test; syntax checks and a published provider URL alone do not establish live video/controls.
 
 This is a no-cost way to **try remote GPU streaming** inside AIO, with an actual publicly shared sample game. For permanent hosted Fortnite or Roblox availability, a separate approved game-streaming platform and compatible licences/sessions remain necessary.
+
+
+## Cloud Gaming Library and additional public demos, 14 November 2026
+
+The cloud section intentionally separates **in-site public GPU streaming** from **official cloud gaming service links** and original self-hosted browser games. Nobody must enter a gaming password into AIO. No new GPU VM, rental, payment, or Roblox/Fortnite host is provisioned.
+
+### In-site streams
+
+The existing provider-hosted Eagle 3D streamed Unity game (Chop Chop) and Unreal interactive world are preserved. Two additional officially published Unity *graphics showcases* are also embedded **on explicit user click only**:
+
+- Space VFX demo: `https://stream.eagle3dstreaming.com/v5/demo/E3DS_SpaceshipDemo_v2/Project_E3DS_SpaceshipDemo_v2`
+- HDRP showcase: `https://stream.eagle3dstreaming.com/v5/demo/E3DS_HDRP_Sample/Project_E3DS_HDRP_Sample`
+
+Source: Unity Community post by an Eagle 3D Streaming representative, 11 Nov 2026, https://discussions.unity.com/t/beta-eagle-3d-streaming-stream-your-unity-build-to-any-browser-no-webgl-no-download-3-live-demos/1741633 .
+
+Both new experiences use the same origin/frame-validated stream lifecycle handling, optional fullscreen and Stop controls, limited-duration viewing, and a visible **Open official demo** fallback for embeddability failures. **Only Chop Chop is described as a playable game**, because the other links are not confirmed complete games. Shared demo servers may queue; a stream URL existing or an iframe onload is not proof of successful gameplay. No owner credentials or provider API keys are needed to display the public showcase links.
+
+### Cloud Gaming Library
+
+The cloud provider library has search, local favourites, three transparent eligibility categories, and safe browser links:
+
+| Provider | Official launch | Access claim |
+| --- | --- | --- |
+| GeForce NOW | https://play.geforcenow.com/ | A free tier exists; queues, title support and game licences can still apply. |
+| Xbox Cloud Gaming | https://www.xbox.com/en-GB/play | Fortnite is a selected free cloud title using a free Microsoft account; other games may require eligible Game Pass. |
+| Amazon Luna | https://luna.amazon.com/ | UK availability via eligible Prime membership; not a free subscription. |
+
+Sources:
+- https://www.nvidia.com/en-gb/geforce-now/faq/
+- https://www.xbox.com/en-GB/cloud-gaming
+- https://digprjsurvey.amazon.co.uk/csad/help/node/TXHVI0WFpYnGXsA0Gm
+
+Each provider link opens separately: their web apps do not grant AIO permission to rehost the private streams inside its page. No subscription, account or password is requested by the finder. Favourites are saved only in the browser's local storage. No automatic session or remote machine is started by viewing the cloud service cards.
+
+### Regression verification
+
+The updated CI checks the Cloud Gaming entrypoint, new scripts, public demo allowlist, genuine remote queue events, malicious frame-message isolation, safe external links, search/eligibility filters, local favourites, responsive styles, and no hidden stream startup. Runtime provider gameplay and latency **have not been independently verified**. The project must not advertise 24/7 availability for the public GPU demos.
