@@ -30,7 +30,7 @@ function client(server,display){
   querySelector(tag){return this.children.find(x=>x.tagName===tag)||null}getContext(){return{drawImage(){}}}play(){return Promise.resolve()}
   remove(){if(this.parent)this.parent.children=this.parent.children.filter(x=>x!==this)}
  }
- for(const id of ['partyGuestName','partyJoinCode','partyWorkspaceJoinCode','partyPanel','partyCode','partyWorkspaceCode','partyWorkspaceStatus','partyLiveControls','partyMembers','partyWorkspaceMembers','partyStreams','partyShareStatus','partyShareButton','gameModal'])els.set(id,new Element());
+ for(const id of ['partyGuestName','partyJoinCode','partyWorkspaceJoinCode','partyPanel','partyCode','partyWorkspaceCode','partyWorkspaceStatus','partyLiveControls','partyMembers','partyWorkspaceMembers','partyStreams','partyShareStatus','partyShareButton','partyChatInput','partyChatSend','partyChatStatus','partyChatMessages','gameModal'])els.set(id,new Element());
  els.get('partyGuestName').value=display;
  const document={getElementById:id=>els.get(id)||find(id),createElement:tag=>new Element(tag)};
  function find(id){function walk(node){if(node.id===id)return node;for(const c of node.children){const result=walk(c);if(result)return result}return null}for(const el of els.values()){const item=walk(el);if(item)return item}return null}
@@ -45,11 +45,19 @@ function allText(node){return [node.textContent,...node.children.map(allText)].j
  const server=new RoomServer(),host=client(server,'Host'),guest=client(server,'Guest');
  await host.ctx.createParty();await wait();const code=host.ctx.currentParty.code;assert.equal(code.length,20);
  await host.ctx.togglePartyShare();assert.equal(host.els.get('partyShareButton').textContent,'Stop sharing');
- guest.els.get('partyWorkspaceJoinCode').value=code;await guest.ctx.joinPartyByCode();await wait();await wait();
+ guest.els.get('partyWorkspaceJoinCode').value='https://allinoneedition.vercel.app/#party='+code;await guest.ctx.joinPartyByCode();await wait();await wait();
+ assert.equal(host.els.get('partyChatSend').disabled,false,'Host chat should be available');
+ assert.equal(guest.els.get('partyChatSend').disabled,false,'Guests should be able to chat without signing in');
+ host.els.get('partyChatInput').value='Ready for a game?';
+ host.ctx.sendPartyChat();await wait();
+ assert.match(allText(guest.els.get('partyChatMessages')),/Ready for a game\?/,'Guest should receive live chat messages');
+ guest.els.get('partyChatInput').value='Let us play!';
+ guest.ctx.sendPartyChat();await wait();
+ assert.match(allText(host.els.get('partyChatMessages')),/Let us play!/,'Host should receive guest chat messages');
  assert.match(allText(host.els.get('partyWorkspaceMembers')),/Guest/);assert.match(allText(guest.els.get('partyWorkspaceMembers')),/Host/);
  host.ctx.openGame(0);await wait();assert.match(allText(guest.els.get('partyWorkspaceMembers')),/Playing Reel League/);
  assert.equal(guest.els.get('partyStreams').children.length,1,'A late guest should receive a screen offer');
  await host.ctx.togglePartyShare();await wait();assert.equal(guest.els.get('partyStreams').children.length,0);assert.equal(host.track.stopped,true);
- await guest.ctx.leaveParty();await wait();assert.equal(host.els.get('partyWorkspaceMembers').children.length,1);
- console.log('Party flow passed: guest joins, game status syncs, late guest receives share, stop and leave clean up.');
+ await guest.ctx.leaveParty();await wait();assert.equal(guest.els.get('partyChatSend').disabled,true,'Leaving should disable chat');assert.equal(guest.els.get('partyChatMessages').children.length,0,'Leaving should clear ephemeral chat');assert.equal(host.els.get('partyWorkspaceMembers').children.length,1);
+ console.log('Party flow passed: invite URL, guest chat, game status, late share, stop and leave clean up.');
 })().catch(error=>{console.error(error);process.exitCode=1});
