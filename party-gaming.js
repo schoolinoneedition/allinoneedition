@@ -12,6 +12,13 @@
  const isLive=()=>Boolean(currentParty?.liveParty);
  window.aioPartyIdentity=()=>isLive()?participantId:(currentUser?.id||null);
  const codeFormat=code=>String(code||'').toUpperCase().replace(/[^A-Z2-9]/g,'');
+ function inviteCode(raw){
+  const value=String(raw||'').trim();
+  if(/^https?:\/\//i.test(value)){
+   try{const url=new URL(value),hash=new URLSearchParams(url.hash.slice(1));return codeFormat(hash.get('party')||url.searchParams.get('party')||'')}catch{return ''}
+  }
+  return codeFormat(value);
+ }
  function makeCode(){const bytes=crypto.getRandomValues(new Uint8Array(20));return Array.from(bytes,x=>alphabet[x%alphabet.length]).join('')}
  function niceCode(code){return (code.match(/.{1,5}/g)||[]).join(' ')}
  function name(){return String($('partyGuestName')?.value||currentProfile?.username||'Guest').trim().slice(0,24)||'Guest'}
@@ -21,6 +28,12 @@
   const panel=document.createElement('div');panel.className='panel party-fun-wide aio-party-chat';
   panel.innerHTML='<div class="party-tool-title"><h3>Party chat</h3><span id="partyChatStatus" class="tiny-status">Join a party to chat with guests.</span></div><div id="partyChatMessages" class="aio-party-chat-messages" role="log" aria-live="polite"></div><div class="aio-party-chat-composer"><input id="partyChatInput" class="social-input" maxlength="240" autocomplete="off" aria-label="Party chat message" placeholder="Join a party to chat" disabled><button id="partyChatSend" class="btn primary" type="button" disabled>Send</button></div><div class="tiny-status">Guest-friendly, live-only messages. Share the invite with people you trust.</div>';
   grid.insertBefore(panel,grid.firstChild);
+  const live=$('partyLiveControls'),actions=live?.querySelector('.aio-party-live-actions');
+  if(actions&&!live.querySelector('#partyCopyCode')){
+   const button=document.createElement('button');button.id='partyCopyCode';button.type='button';
+   button.className='btn mini';button.textContent='Copy code';
+   button.addEventListener('click',()=>window.copyPartyCode());actions.insertBefore(button,actions.firstChild);
+  }
   panel.querySelector('#partyChatSend').addEventListener('click',()=>window.sendPartyChat());
   panel.querySelector('#partyChatInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();window.sendPartyChat()}});
  }
@@ -119,7 +132,7 @@
  }
  createParty=async function(){await openRoom(makeCode())};
  joinPartyByCode=async function(){
-  const workspace=codeFormat($('partyWorkspaceJoinCode')?.value),community=codeFormat($('partyJoinCode')?.value);
+  const workspace=inviteCode($('partyWorkspaceJoinCode')?.value),community=inviteCode($('partyJoinCode')?.value);
   const raw=workspace||community;
   if(raw.length===6){if($('partyJoinCode'))$('partyJoinCode').value=raw;return legacyJoin()}
   if(raw.length!==20||Array.from(raw).some(x=>!alphabet.includes(x)))return showToast('Enter a valid party invite code.');
@@ -137,11 +150,22 @@
  const originalOpenGame=openGame,originalCloseGame=closeGame;
  openGame=function(index){const result=originalOpenGame(index);safeTrack();return result};
  closeGame=function(){const result=originalCloseGame();safeTrack();return result};
+ window.copyPartyCode=async function(){
+  if(!isLive())return showToast('Join a party first.');
+  try{await navigator.clipboard.writeText(currentParty.code);showToast('Party code copied')}catch{window.prompt('Copy party code:',currentParty.code)}
+ };
  window.copyPartyInvite=async function(){if(!isLive())return showToast('Create or join a new party first.');const url=new URL(location.href);url.hash='party='+currentParty.code;try{await navigator.clipboard.writeText(url.href);showToast('Party invite copied')}catch{window.prompt('Copy this party invite:',url.href)}};
  function addVideo(key,media,label,local){
   const grid=$('partyStreams');if(!grid)return;let tile=document.getElementById('party-video-'+key);
   if(!tile){tile=document.createElement('div');tile.id='party-video-'+key;tile.className='aio-party-stream';const video=document.createElement('video');video.autoplay=true;video.playsInline=true;video.controls=true;video.muted=true;tile.appendChild(video);const caption=document.createElement('strong');tile.appendChild(caption);grid.appendChild(tile)}
   tile.querySelector('strong').textContent=label+(local?' · You':'');const video=tile.querySelector('video');video.srcObject=media;video.play().catch(()=>{});
+  if(!local&&!tile.querySelector('button')){
+   const button=document.createElement('button');button.type='button';button.className='aio-party-mini';button.textContent='Mini player';
+   button.addEventListener('click',async()=>{
+    if(video.hidden||!video.requestPictureInPicture)return showToast('Mini player is not supported for this view.');
+    try{await video.requestPictureInPicture()}catch{showToast('Mini player could not open.')}
+   });tile.appendChild(button);
+  }
  }
  async function startOutbound(peer){
   if(!stream||outgoing.has(peer)||!channel)return;
