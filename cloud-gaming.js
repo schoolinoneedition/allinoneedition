@@ -119,6 +119,12 @@
     </div>`;
   grid.after(tools);
   $('aioCloudCheck')?.addEventListener('click',refreshDiagnostics);
+  $('aioCloudPartyShare')?.addEventListener('change',event=>{
+   if(event.target.checked)return;
+   if(typeof window.aioPartyCloudStop==='function')window.aioPartyCloudStop();
+   const note=$('aioCloudPartyNote');
+   if(note)note.textContent='Cloud game activity is hidden from your party.';
+  });
   $('aioCloudPartyClear')?.addEventListener('click',()=>{
    if(typeof window.aioPartyCloudStop==='function')window.aioPartyCloudStop();
    if($('aioCloudPartyShare'))$('aioCloudPartyShare').checked=false;
