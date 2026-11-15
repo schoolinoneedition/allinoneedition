@@ -480,9 +480,9 @@ function updateOwnerEditor(s,si,ep){
       const response=await fetch(B2_MEDIA_API+'/uploads/'+encodeURIComponent(uploadId)+'/parts/'+partNumber,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/octet-stream','X-Part-Size':String(chunk.size)},body:chunk});
       const result=await response.json().catch(()=>({}));
       if(response.ok&&result.etag){part=result;break}
-      if(response.status<500&&response.status!==429)throw Error(result.error||'Upload rejected at part '+partNumber+'.');
+      if(response.status<500&&response.status!==429){const failure=Error(result.error||'Upload rejected at part '+partNumber+'.');failure.permanent=true;throw failure;}
       throw Error(result.error||'Temporary upload error.');
-     }catch(error){lastError=error;if(attempt<2)await new Promise(resolve=>setTimeout(resolve,750*(attempt+1)))}
+     }catch(error){lastError=error;if(error.permanent||/Session expired/.test(error.message||''))break;if(attempt<2)await new Promise(resolve=>setTimeout(resolve,750*(attempt+1)))}
     }
     if(!part)throw lastError||Error('Upload failed at part '+partNumber+'.');
     parts.push({partNumber,etag:part.etag});uploaded+=chunk.size;progress.value=uploaded;
