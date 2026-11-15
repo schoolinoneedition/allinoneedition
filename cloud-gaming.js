@@ -42,7 +42,7 @@
    fortnite.appendChild(details);
    // Officially supported alternative provider; avoid claiming we can embed its stream.
    if(!fortnite.querySelector('[data-cloud-provider="geforce-now"]')){
-    const alternative=create('a','btn','Try GeForce NOW ?');
+    const alternative=create('a','btn','Try GeForce NOW ↗');
     alternative.dataset.cloudProvider='geforce-now';
     alternative.href='https://play.geforcenow.com/';
     alternative.target='_blank';alternative.rel='noopener noreferrer';
@@ -58,9 +58,9 @@
    if(status)status.textContent='THIRD-PARTY CLOUD OPTION';
    if(summary)summary.textContent='Try Roblox through EasyFun browser streaming. Service availability and account requirements can change.';
    const actions=create('div','aio-cloud-actions');
-   actions.appendChild(link('Try Roblox cloud ?','roblox','btn primary'));
+   actions.appendChild(link('Try Roblox cloud ↗','roblox','btn primary'));
    if(old){
-    old.textContent='Official Roblox app ?';
+    old.textContent='Official Roblox app ↗';
     old.href='https://www.roblox.com/';
     old.target='_blank';old.rel='noopener noreferrer';
     actions.appendChild(old);
@@ -82,7 +82,7 @@
   recent.textContent=id?'Last opened: '+GAMES[id].name+' via '+GAMES[id].provider:'Nothing launched from this device yet.';
   if(id){
    resume.hidden=false;resume.href=GAMES[id].url;resume.dataset.cloudGame=id;
-   resume.textContent='Open '+GAMES[id].name+' again ?';
+   resume.textContent='Open '+GAMES[id].name+' again ↗';
   }else resume.hidden=true;
  }
  function networkSummary(){
@@ -115,8 +115,8 @@
   tools.innerHTML=`
     <div class="aio-cloud-tool">
       <div class="aio-cloud-tool-heading"><h3>Ready to stream?</h3><button class="btn mini" type="button" id="aioCloudCheck">Recheck</button></div>
-      <p id="aioCloudConnection" role="status">Checking browser connection.</p>
-      <p id="aioCloudController">Checking controller support.</p>
+      <p id="aioCloudConnection" role="status">Checking browser connection…</p>
+      <p id="aioCloudController">Checking controller support…</p>
       <p class="aio-cloud-fine">These are browser hints, not live measurements of Xbox or EasyFun. No game video or remote computer is hosted here.</p>
     </div>
     <div class="aio-cloud-tool">

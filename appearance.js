@@ -99,17 +99,17 @@ function mountCursorGallery(parent,onChoice){
   if(!cards.children.length){const empty=document.createElement('p');empty.textContent='No saved cursors yet. Choose All to save a favourite.';cards.append(empty)}
  }
  const upload=document.createElement('div');upload.className='aio-cursor-upload';
- const message=document.createElement('p');message.setAttribute('role','status');message.textContent='Upload your own PNG or WebP, up to 256 KB and 512 � 512 pixels. Transparent images work best. Files stay on this device.';
+ const message=document.createElement('p');message.setAttribute('role','status');message.textContent='Upload your own PNG or WebP, up to 256 KB and 512 × 512 pixels. Transparent images work best. Files stay on this device.';
  for(const [kind,label] of [['normal','Normal cursor image'],['hand','Clickable pointer image (optional)']]){
   const wrap=document.createElement('label');wrap.textContent=label;const input=document.createElement('input');input.type='file';input.accept='image/png,image/webp';input.setAttribute('aria-label',label);wrap.append(input);upload.append(wrap);
   input.onchange=async()=>{const file=input.files?.[0];if(!file)return;try{
    if(!['image/png','image/webp'].includes(file.type)||file.size>262144)throw Error('Choose a PNG or WebP under 256 KB.');
-   const bitmap=await createImageBitmap(file);if(bitmap.width>512||bitmap.height>512){bitmap.close();throw Error('Use an image no larger than 512 � 512.');}
+   const bitmap=await createImageBitmap(file);if(bitmap.width>512||bitmap.height>512){bitmap.close();throw Error('Use an image no larger than 512 × 512.');}
    const sizes={};try{for(const size of [20,28,36,40,48]){const canvas=document.createElement('canvas');canvas.width=size;canvas.height=size;const ctx=canvas.getContext('2d');const ratio=Math.min(size/bitmap.width,size/bitmap.height);ctx.drawImage(bitmap,0,0,bitmap.width*ratio,bitmap.height*ratio);sizes[size]=canvas.toDataURL('image/png')}}finally{bitmap.close()}
    state.cursorUpload={...state.cursorUpload,[kind]:sizes};choose('upload');message.textContent='Image ready. Adjust the click point below to match the tip.';
   }catch(error){message.textContent=error.message||'This image could not be opened.'}finally{input.value=''}};
  }
- for(const [axis,key] of [['X','cursorHotspotX'],['Y','cursorHotspotY']]){const label=document.createElement('label');label.textContent='Click point '+axis+' (0-47)';const input=document.createElement('input');input.type='number';input.min='0';input.max='47';input.value=state[key]||0;input.setAttribute('aria-label','Cursor click point '+axis);input.onchange=()=>{state[key]=Math.max(0,Math.min(47,Number(input.value)||0));save();applyCursor()};label.append(input);upload.append(label)}
+ for(const [axis,key] of [['X','cursorHotspotX'],['Y','cursorHotspotY']]){const label=document.createElement('label');label.textContent='Click point '+axis+' (0–47)';const input=document.createElement('input');input.type='number';input.min='0';input.max='47';input.value=state[key]||0;input.setAttribute('aria-label','Cursor click point '+axis);input.onchange=()=>{state[key]=Math.max(0,Math.min(47,Number(input.value)||0));save();applyCursor()};label.append(input);upload.append(label)}
  upload.append(message,button('Remove uploaded cursor',()=>{delete state.cursorUpload;delete state.cursorHotspotX;delete state.cursorHotspotY;choose('default');message.textContent='Uploaded images removed from this device.'}));
  filter.onchange=draw;gallery.append(controls,cards,test,upload,note,source);parent.append(gallery);draw();
 }

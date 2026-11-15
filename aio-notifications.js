@@ -89,7 +89,7 @@
   const strong=make('strong','aio-notice-title',String(title||'All in One Edition').slice(0,70));
   const detail=make('span','aio-notice-detail',String(message||'').slice(0,240));
   content.append(strong,detail);
-  const close=make('button','aio-notice-close','�');
+  const close=make('button','aio-notice-close','×');
   close.type='button';close.setAttribute('aria-label','Dismiss notification');
   const bar=make('span','aio-notice-progress');
   bar.setAttribute('aria-hidden','true');
