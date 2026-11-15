@@ -4,39 +4,12 @@
  const grid=document.getElementById('gameGrid');
  const frameLoader=document.getElementById('gameLoading');
  const modal=document.getElementById('gameModal');
- const siteLoader=document.getElementById('siteLoader');
  if(!grid||!frameLoader||!modal)return;
- const bootLine=siteLoader?.querySelector?.('.aio-launch-status');
- function updateBootStatus(){
-  if(!bootLine)return;
-  if(siteLoader?.classList.contains('done')){bootLine.textContent='Game hub ready';return}
-  const hasGames=Boolean(grid.querySelectorAll?.(':scope > .card')?.length);
-  bootLine.textContent=hasGames?'Game catalogue ready · Opening the hub':'Preparing your game catalogue…';
- }
- updateBootStatus();
  const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)');
  const root=document.documentElement;
  const style=document.createElement('link');
  style.rel='stylesheet';style.href='/game-motion.css';
  document.head.appendChild(style);
-
- // Let browser history restoration skip stale, previously completed splash screens.
- const revealSite=()=>{
-  if(siteLoader?.classList.contains('done'))root.classList.add('aio-site-ready');
-  updateBootStatus();
- };
- if(siteLoader){
-  const siteObserver=new MutationObserver(revealSite);
-  siteObserver.observe(siteLoader,{attributes:true,attributeFilter:['class']});
-  revealSite();
-  window.addEventListener('pageshow',event=>{
-   if(event.persisted){
-    siteLoader.classList.add('done');
-    siteLoader.setAttribute('aria-hidden','true');
-    revealSite();
-   }
-  });
- }
 
  // Only animate cards when they enter the viewport; the real game grid remains intact.
  const animationsAllowed=()=>!reduced?.matches&&root.dataset.aioPerformanceProfile!=='lite';
@@ -45,7 +18,7 @@
  const gridObserver=new MutationObserver(()=>{
   if(paintQueued)return;
   paintQueued=true;
-  requestAnimationFrame(()=>{paintQueued=false;observeCards();updateBootStatus()});
+  requestAnimationFrame(()=>{paintQueued=false;observeCards()});
  });
  function disposeObserver(){
   visibleObserver?.disconnect();visibleObserver=null;
