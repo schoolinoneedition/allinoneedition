@@ -895,7 +895,7 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
           if(!entry.isIntersecting)continue;
           const v=entry.target;
           videoWarmObserver.unobserve(v);
-          prepareSocialVideo(v,constrained?'metadata':'auto','low');
+          prepareSocialVideo(v,'metadata','low');
         }
       },{root:feed,rootMargin:warmMargin,threshold:0.01});
       feed.querySelectorAll('[data-social-video]').forEach(v=>videoWarmObserver.observe(v));
