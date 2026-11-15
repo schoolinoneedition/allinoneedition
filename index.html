@@ -965,7 +965,7 @@ function filteredGames(){
  else if(activeCat==='All')list.sort((a,b)=>{const rank=x=>/featured/i.test(x.g.tag)?0:/popular/i.test(x.g.tag)?1:2;return rank(a)-rank(b)||a.i-b.i});
  return list;
 }
-function renderGames(){currentFiltered=filteredGames();if(visibleLimit>currentFiltered.length)visibleLimit=currentFiltered.length;const shown=currentFiltered.slice(0,visibleLimit);$('gameGrid').innerHTML=shown.length?shown.map(x=>cardHTML(x.g,x.i)).join(''):`<div class="panel" style="grid-column:1/-1">No games match that search.</div>`;$('gameCount').textContent=String(GAMES.length);$('librarySummary').textContent=`${GAMES.length} games ready`;const wrap=$('loadMoreWrap'),btn=$('loadMoreBtn');if(wrap&&btn){wrap.style.display=currentFiltered.length>visibleLimit?'flex':'none';btn.textContent=`Load more games (${Math.min(48,currentFiltered.length-visibleLimit)} more)`}hydrateImages();setupGameConnectionWarmup();}
+function renderGames(){currentFiltered=filteredGames();if(visibleLimit>currentFiltered.length)visibleLimit=currentFiltered.length;const shown=currentFiltered.slice(0,visibleLimit);$('gameGrid').innerHTML=shown.length?shown.map(x=>cardHTML(x.g,x.i)).join(''):`<div class="panel" style="grid-column:1/-1">No games match that search.</div>`;$('gameCount').textContent=String(GAMES.length);$('librarySummary').textContent=`${GAMES.length} catalogue entries · game availability may vary`;const wrap=$('loadMoreWrap'),btn=$('loadMoreBtn');if(wrap&&btn){wrap.style.display=currentFiltered.length>visibleLimit?'flex':'none';btn.textContent=`Load more games (${Math.min(48,currentFiltered.length-visibleLimit)} more)`}hydrateImages();setupGameConnectionWarmup();}
 function loadMoreGames(){visibleLimit+=48;renderGames();window.scrollBy({top:140,behavior:'smooth'})}
 function setCat(c){activeCat=c;visibleLimit=48;renderFilters();renderGames()}
 function toggleFavourite(event,index){if(event){event.preventDefault();event.stopPropagation()}const game=GAMES[index];if(!game)return;const key=gameKey(game);if(favouriteGames.has(key)){favouriteGames.delete(key);showToast('Removed from favourites')}else{favouriteGames.add(key);showToast('Added to favourites')}storage.setItem(FAVOURITES_KEY,JSON.stringify([...favouriteGames]));renderFilters();renderGames()}
@@ -1567,10 +1567,47 @@ const AIO_TOPVAZ_EXTRA=[
 ];
 function addTopVazExtras(){const seen=new Set(GAMES.map(g=>String(g.url||'')));for(const [slug,name] of AIO_TOPVAZ_EXTRA){const url=`https://topvaz.github.io/play/${slug}.html`;if(seen.has(url)||GAMES.some(g=>normalizeText(g.name)===normalizeText(name)))continue;GAMES.push({name,cat:'Arcade',url,source:'TopVaz',img:`https://raw.githubusercontent.com/DP321827/topvaz.github.io/main/images/${slug}.webp`,tag:'New'});seen.add(url);}CATEGORIES=['All',...new Set(GAMES.map(g=>g.cat))];}
 addTopVazExtras();
+// New first-party 3×3 games only. Preserve existing 3×3 links and their original settings.
+const AIO_3X3_ORIGINALS=[
+ {name:'3×3 Tile Slide',cat:'Puzzle',url:'games/3x3-originals.html?game=slide',source:'All in One Originals',tag:'New',desc:'Slide the eight numbered tiles into place in a solvable 3×3 puzzle.'},
+ {name:'3×3 Tic Tac Toe',cat:'Board',url:'games/3x3-originals.html?game=xo',source:'All in One Originals',tag:'New',desc:'Play a classic three-in-a-row board game against a computer.'},
+ {name:'3×3 Pattern Recall',cat:'Memory',url:'games/3x3-originals.html?game=memory',source:'All in One Originals',tag:'New',desc:'Remember and repeat longer patterns across a 3×3 board.'}
+];
+GAMES.push(...AIO_3X3_ORIGINALS);
+CATEGORIES=['All',...new Set(GAMES.map(g=>g.cat))];
 
 /* Keep every startup feature isolated: one optional error must not stop the rest of the hub. */
 function safeBoot(fn){try{return fn()}catch(e){console.error('All in One boot:',e);return null}}
 safeBoot(renderFilters);safeBoot(initSettings);if($('previewTitle'))$('previewTitle').textContent='No preview playing';safeBoot(initExtraTools);safeBoot(renderNotes);safeBoot(renderTodos);safeBoot(renderCalc);safeBoot(renderChatBoot);safeBoot(updateStudyProgress);safeBoot(updateWorldClock);safeBoot(initSpotifyBridge);setTimeout(()=>safeBoot(initSpotifyBridge),1200);safeBoot(renderGames);
+// Keep the first view responsive; append a separately cacheable curated catalogue after first paint.
+let aioCommunityPackLoaded=false;
+async function loadAioCommunityPack(){
+ if(aioCommunityPackLoaded||!$('gameGrid'))return;
+ const response=await fetch('/games/catalogue-community.json',{cache:'force-cache',credentials:'omit'});
+ if(!response.ok)throw Error('Community catalogue could not be fetched');
+ const records=await response.json();
+ if(!Array.isArray(records)||records.length>600)throw Error('Community catalogue format unavailable');
+ const existingUrls=new Set(GAMES.map(g=>String(g.url||'').toLowerCase()));
+ const clean=s=>String(s||'').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'');
+ const existingNames=new Set(GAMES.map(g=>clean(g.name)));
+ const allowedCategories=new Set(['Arcade','Puzzle','Platformer','Racing','Sports','Simulation','Board','Memory','Word']);
+ let added=0;
+ for(const rec of records){
+  const name=String(rec?.name||'').trim(),url=String(rec?.url||''),cat=String(rec?.cat||'');
+  if(name.length<4||name.length>80||!allowedCategories.has(cat)||RESTRICTED_GAME_PATTERN.test(name+' '+cat))continue;
+  // Only the publisher's declared HTML paths, never client-supplied URLs.
+  if(!/^https:\/\/cdn\.jsdelivr\.net\/gh\/GoatTech-42\/NEBULACDN@main\/games\/[a-z0-9-]+\.html$/.test(url))continue;
+  const key=clean(name);
+  if(existingNames.has(key)||existingUrls.has(url.toLowerCase()))continue;
+  GAMES.push({name,cat,url,source:'NEBULA CDN (third-party)',img:'',tag:'New',desc:'External HTML5 catalogue entry. Availability and embedded controls depend on the publisher.',credit:'NEBULA CDN catalogue by GoatTech Industries. Game rights belong to each respective creator.',verified:'catalogue-link-only'});
+  existingUrls.add(url.toLowerCase());existingNames.add(key);added++;
+ }
+ aioCommunityPackLoaded=true;
+ if(!added)return;
+ CATEGORIES=['All',...new Set(GAMES.map(g=>g.cat))];
+ renderFilters();renderGames();
+}
+setTimeout(()=>{loadAioCommunityPack().catch(error=>console.warn('Additional catalogue unavailable:',error?.message||error))},550);
 // Load the provider's public game catalogue after the initial UI is responsive.
 
 
