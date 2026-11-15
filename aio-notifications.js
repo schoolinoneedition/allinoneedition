@@ -119,6 +119,12 @@
   const field=kind=>parts.find(p=>p.type===kind)?.value||'';
   return {weekday:field('weekday'),date:field('year')+'-'+field('month')+'-'+field('day'),minutes:Number(field('hour'))*60+Number(field('minute'))};
  };
+ function nextHometime(now=new Date()){
+  const wallTime=date=>{const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(date);const value=k=>Number(parts.find(p=>p.type===k).value);return Date.UTC(value('year'),value('month')-1,value('day'),value('hour'),value('minute'),value('second'))};
+  const wall=wallTime(now),target=new Date(wall);target.setUTCHours(15,30,0,0);
+  while(target.getUTCDay()===0||target.getUTCDay()===6||target.getTime()<=wall)target.setUTCDate(target.getUTCDate()+1);
+  let utc=target.getTime();for(let i=0;i<3;i++)utc+=target.getTime()-wallTime(new Date(utc));return new Date(utc);
+ }
  function timeCheck(now=new Date()){
   if(document.hidden||!config.enabled||!config.hometime)return;
   const london=londonNow(now);
@@ -196,7 +202,7 @@
   document.addEventListener('aio-setup-closed',greeting);
   document.addEventListener('click',event=>{if(event.target?.closest?.('#settingsBtn'))setTimeout(section,0)});
  }
- window.AIONotifications={notify,preview,setSettings,getSettings:()=>({...config}),timeCheck,londonNow,getHistory:()=>history.map(n=>({...n}))};
+ window.AIONotifications={notify,preview,setSettings,getSettings:()=>({...config}),timeCheck,londonNow,nextHometime,getHistory:()=>history.map(n=>({...n}))};
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 

@@ -97,6 +97,8 @@ document.hidden=true;assert.equal(api.notify('Background','History only'),true);
 assert.ok(api.getHistory().some(n=>n.title==='Background'));
 api.setSettings({enabled:false});assert.equal(root.children.length,0,'Disabling notices removes visible cards');
 assert.equal(api.londonNow(new Date('2026-07-01T14:00:00Z')).minutes,900,'UK daylight saving time is respected');
+assert.equal(api.nextHometime(new Date('2026-03-27T16:00:00Z')).toISOString(),'2026-03-30T14:30:00.000Z','Countdown crosses start of BST correctly');
+assert.equal(api.nextHometime(new Date('2026-10-23T16:00:00Z')).toISOString(),'2026-10-26T15:30:00.000Z','Countdown crosses end of BST correctly');
 assert.match(css,/@keyframes aioNoticeFloat/);
 assert.match(css,/translate3d\(0,46px,0\)/,'Notices rise up from the bottom');
 for(const t of ['ocean','pumpkins','midnight'])assert.ok(css.includes('data-theme="'+t+'"'));

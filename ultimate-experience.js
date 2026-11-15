@@ -9,15 +9,11 @@ function startAioDashboardClock(){
   if(!dateEl&&!clockEl&&!homeEl)return;
   const tick=()=>{
     const now=new Date();
-    if(clockEl)clockEl.textContent=now.toLocaleTimeString('en-GB');
-    if(dateEl)dateEl.textContent=now.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+    if(clockEl)clockEl.textContent=now.toLocaleTimeString('en-GB',{timeZone:'Europe/London'});
+    if(dateEl)dateEl.textContent=now.toLocaleDateString('en-GB',{timeZone:'Europe/London',weekday:'short',day:'numeric',month:'short'});
     if(homeEl){
-      const target=new Date(now);
-      target.setHours(15,30,0,0);
-      if(now.getDay()===0||now.getDay()===6||now>=target){
-        do{target.setDate(target.getDate()+1)}while(target.getDay()===0||target.getDay()===6);
-        target.setHours(15,30,0,0);
-      }
+      const target=window.AIONotifications?.nextHometime?.(now);
+      if(!target)return;
       const ms=Math.max(0,target.getTime()-now.getTime());
       const h=Math.floor(ms/3600000),m=Math.floor(ms%3600000/60000),s=Math.floor(ms%60000/1000);
       homeEl.textContent=[h,m,s].map(n=>String(n).padStart(2,'0')).join(':');
