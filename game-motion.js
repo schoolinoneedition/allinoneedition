@@ -49,7 +49,6 @@
  }
  gridObserver.observe(grid,{childList:true});
  observeCards();
- updateBootStatus();
  reduced?.addEventListener?.('change',observeCards);
  let lastScroll=window.scrollY,scrollDirection='';
  window.addEventListener('scroll',()=>{
