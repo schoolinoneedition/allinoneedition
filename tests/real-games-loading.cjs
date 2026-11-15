@@ -17,11 +17,14 @@ for(const expected of selected){
  assert.ok(entry.credit&&entry.credit.length>12,'Creator credits must be kept in the player');
 }
 assert.equal(new Set(games.map(g=>g.url)).size,games.length,'No duplicate game URLs');
-assert.ok(html.includes('if(!force){')&&html.includes('if(elapsed<MIN_VISIBLE_MS)'),'Normal splash still animates for 7.5 seconds');
-assert.ok(html.includes('if(reduced){finish(true);return;}'),'Reduced-motion skips splash animation');
-assert.ok(html.includes('if(!completed)finish(true)'), 'Emergency recovery should force dismissal');
+
+
+
+assert.ok(!html.includes('id="siteLoader"')&&!html.includes('MIN_VISIBLE_MS=7500'),'No forced startup loading screen');
+assert.ok(html.includes('safeBoot(renderGames);'),'Draw game cards during startup without a fake wait');
+assert.ok(html.includes('id="gameLoading"'),'Keep genuine game loading state');
 assert.ok(html.includes("if(frame.getAttribute('src')==='about:blank'"), 'Ignore about:blank frame loads');
 assert.ok(html.includes("Game frame opened · Check player"), 'Do not label third-party iframe onload as confirmed gameplay');
 assert.ok(html.includes('650-(performance.now()-gameLoadStartedAt)'), 'Show a perceptible in-game loading phase');
 assert.ok(html.includes('gamepad; pointer-lock;'), '3D games can request pointer lock and gamepad input');
-console.log('Real game catalogue and loading regression checks passed.');
+console.log('Real game catalogue and immediate startup / honest game-load regression checks passed.');
