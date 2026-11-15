@@ -23,6 +23,7 @@
   if(root&&root.isConnected)return root;
   root=$('aioNotices')||make('div','aio-notices');
   root.id='aioNotices';
+  root.setAttribute('role','status');
   root.setAttribute('aria-label','Site notifications');
   root.setAttribute('aria-live','polite');
   root.setAttribute('aria-relevant','additions');

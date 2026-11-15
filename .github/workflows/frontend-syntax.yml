@@ -74,6 +74,8 @@ jobs:
               for index, (attrs, body) in enumerate(scripts):
                   if re.search(r"\bsrc\s*=", attrs, flags=re.I):
                       continue
+                  if any(t in attrs.lower() for t in ('application/ld+json', 'application/json', 'importmap')):
+                      continue
                   path = pathlib.Path(f"/tmp/aio-{pathlib.Path(html_path).stem}-inline-{index}.js")
                   path.write_text(body, encoding="utf-8")
                   result = subprocess.run(["node", "--check", str(path)], text=True, capture_output=True)
@@ -81,5 +83,5 @@ jobs:
                       print(f"{html_path}: inline script {index} failed syntax check:\n{result.stderr}")
                       sys.exit(result.returncode)
                   checked += 1
-          print(f"Syntax OK: {checked} inline scripts across all eight HTML files and 3 external scripts.")
+          print(f"Syntax OK: {checked} executable inline scripts across 10 HTML files.")
           PY

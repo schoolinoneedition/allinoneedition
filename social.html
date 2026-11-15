@@ -4,9 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#f7f8fc">
-<meta name="description" content="All in One Edition Social: watch videos, share images and join the conversation.">
+<meta name="description" content="Explore community videos and images, and connect through All in One Edition Social.">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<title>Social · All in One Edition</title>
+<title>Social | Videos & Community | All in One Edition</title>
+<link rel="canonical" href="https://allinoneedition.vercel.app/social">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="All in One Edition">
+<meta property="og:title" content="Social | Videos & Community | All in One Edition">
+<meta property="og:description" content="Explore community videos and images, and connect through All in One Edition Social.">
+<meta property="og:url" content="https://allinoneedition.vercel.app/social">
+<meta name="twitter:card" content="summary">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png"><link rel="shortcut icon" href="/favicon.ico"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://btnbuchsrfllpzlypjtn.supabase.co" crossorigin>
 <link rel="dns-prefetch" href="https://btnbuchsrfllpzlypjtn.supabase.co">
@@ -888,7 +895,7 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
           if(!entry.isIntersecting)continue;
           const v=entry.target;
           videoWarmObserver.unobserve(v);
-          prepareSocialVideo(v,constrained?'metadata':'auto','low');
+          prepareSocialVideo(v,'metadata','low');
         }
       },{root:feed,rootMargin:warmMargin,threshold:0.01});
       feed.querySelectorAll('[data-social-video]').forEach(v=>videoWarmObserver.observe(v));
