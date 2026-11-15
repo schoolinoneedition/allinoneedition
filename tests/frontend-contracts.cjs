@@ -202,7 +202,7 @@ const elementorMainScriptStart=elementor.indexOf("<script>",elementor.indexOf("<
 const elementorMarkup=elementor.slice(elementorBodyStart,elementorMainScriptStart);
 const elementorStyles=elementor.slice(elementor.indexOf("<style>"),elementor.indexOf("</style>"));
 assert.ok(!elementorMarkup.includes('id="themeToggle"')&&!elementorStyles.includes(':root.dark')&&elementor.includes('/appearance.css')&&elementor.includes('/appearance.js'), 'Elementor must share the homepage wallpaper and stay in its clean light theme.');
-assert.ok(elementor.includes('async function callAI()')&&elementor.includes('function renderMessages()')&&elementor.includes('common.min.js\"></script>'), 'The complete chat script must survive embedded code examples.');
+assert.ok(/async function callAI\(/.test(elementor)&&elementor.includes('function renderMessages()')&&elementor.includes('common.min.js\"></script>'), 'The complete chat script must survive embedded code examples.');
 assert.ok(elementorWorker.includes('@cf/zai-org/glm-4.7-flash')&&elementorWorker.includes('stream:true'), 'Worker must use a real reasoning model in Think mode and stream model output.');
 
 
