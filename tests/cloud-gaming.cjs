@@ -42,7 +42,7 @@ context.aioPartyCloudStop=()=>{cleared++};
 vm.createContext(context);
 vm.runInContext(source,context);
 assert.equal(root.dataset.cloudReady,'1');
-assert.match(fortniteStatus.textContent,/VERIFIED CLOUD LAUNCH/);
+assert.match(fortniteStatus.textContent,/EXTERNAL CLOUD PROVIDER/);
 assert.ok(fortnite.children.some(x=>x.href==='https://play.geforcenow.com/'&&x.rel==='noopener noreferrer'), 'Fortnite should offer the official alternate cloud provider');
 assert.match(robloxStatus.textContent,/THIRD-PARTY CLOUD OPTION/);
 assert.ok(roblox.children.some(c=>c.children.some(x=>x.href==='https://www.easyfun.gg/cloud-games/roblox.html')));
@@ -65,3 +65,4 @@ assert.deepEqual(shared,['roblox'],'Opting out must stop further game-sharing no
 assert.equal(store.get('aio-cloud-last-game-v1'),'fortnite');
 assert.doesNotMatch(source,/<iframe|document\.cookie|localStorage\.setItem\([^)]*password/i);
 console.log('Cloud gaming launcher passed: verified provider routes, official fallback, device hints, quick resume, and opt-in party status.');
+

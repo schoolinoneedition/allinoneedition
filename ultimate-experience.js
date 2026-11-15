@@ -1,5 +1,7 @@
 (()=>{'use strict';
 const $=id=>document.getElementById(id),KEY='aio-ultimate-onboarding-v1';
+function setupSaved(){try{const record=JSON.parse(localStorage.getItem(KEY)||'null');if(record)return !!(record.completed||record.dismissed);const prior=JSON.parse(localStorage.getItem('aio-appearance-v1')||'null');if(prior&&typeof prior==='object'){localStorage.setItem(KEY,JSON.stringify({completed:true,migrated:true}));return true}return false;}catch{return true}}
+function saveSetup(extra={}){try{localStorage.setItem(KEY,JSON.stringify({completed:true,font,wallpaper:wall,cursor,at:Date.now(),...extra}));window.dispatchEvent(new Event('aio-preferences-changed'));}catch{toast('Settings work for this visit, but browser storage is unavailable.')}}
 let step=0,font='inter',wall='default',cursor='chatgpt',fontChosen=false,wallChosen=false,cursorChosen=false,menuIndex=0;
 const rpc=async(n,a)=>{if(typeof supabaseClient==='undefined'||!supabaseClient)throw Error('Supabase is not ready.');const r=await supabaseClient.rpc(n,a||{});if(r.error)throw r.error;return r.data};
 function startAioDashboardClock(){
@@ -7,15 +9,11 @@ function startAioDashboardClock(){
   if(!dateEl&&!clockEl&&!homeEl)return;
   const tick=()=>{
     const now=new Date();
-    if(clockEl)clockEl.textContent=now.toLocaleTimeString('en-GB');
-    if(dateEl)dateEl.textContent=now.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+    if(clockEl)clockEl.textContent=now.toLocaleTimeString('en-GB',{timeZone:'Europe/London'});
+    if(dateEl)dateEl.textContent=now.toLocaleDateString('en-GB',{timeZone:'Europe/London',weekday:'short',day:'numeric',month:'short'});
     if(homeEl){
-      const target=new Date(now);
-      target.setHours(15,30,0,0);
-      if(now.getDay()===0||now.getDay()===6||now>=target){
-        do{target.setDate(target.getDate()+1)}while(target.getDay()===0||target.getDay()===6);
-        target.setHours(15,30,0,0);
-      }
+      const target=window.AIONotifications?.nextHometime?.(now);
+      if(!target)return;
       const ms=Math.max(0,target.getTime()-now.getTime());
       const h=Math.floor(ms/3600000),m=Math.floor(ms%3600000/60000),s=Math.floor(ms%60000/1000);
       homeEl.textContent=[h,m,s].map(n=>String(n).padStart(2,'0')).join(':');
@@ -42,9 +40,9 @@ const appearance=()=>window.AIOAppearance?.getState?.()||{};
 const setChoice=o=>window.AIOAppearance?.setChoice?.(o);
 const signed=()=>{try{return typeof currentUser!=='undefined'&&!!currentUser}catch{return false}};
 const walls=()=>window.AIOAppearance?.getWallpapers?.()||[{id:'default',name:'Default',bg:'linear-gradient(135deg,#f7f7f8,#e8edf7)'},{id:'midnight',name:'Midnight',bg:'linear-gradient(135deg,#05070f,#28334d)'},{id:'aurora',name:'Aurora',bg:'linear-gradient(135deg,#10152d,#42e8c5)'},{id:'arcade',name:'Arcade neon',bg:'linear-gradient(135deg,#11112b,#ff4dd2)'}];
-function ensureOnboard(){if($('aioOnboarding'))return;const m=document.createElement('div');m.id='aioOnboarding';m.className='aio-ultimate-modal';m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');m.innerHTML='<div class="aio-onboard-card"><div class="aio-onboard-top"><div class="aio-onboard-mark">A</div><span id="aioOnboardStep">WELCOME · SETUP + WALKTHROUGH</span><button class="aio-icon-button" id="aioOnboardClose" aria-label="Close setup">×</button></div><div class="aio-onboard-progress" role="progressbar" aria-label="Setup progress" aria-valuemin="0" aria-valuemax="100"><span id="aioOnboardProgress"></span></div><div id="aioOnboardContent"></div><div class="aio-onboard-footer"><span>Your choices apply immediately.</span><div id="aioOnboardActions"></div></div></div>';document.body.append(m);$('aioOnboardClose').onclick=()=>{if(step===0){toast('Choose Start setup or Use current settings.');return}closeOnboard()}}
-function openOnboard(reset){ensureOnboard();if(reset)localStorage.removeItem(KEY);const a=appearance();font=a.font||'inter';wall=a.wallpaper||'default';cursor=a.cursorStyle||'chatgpt';fontChosen=false;wallChosen=false;cursorChosen=false;step=0;renderOnboard();$('aioOnboarding').classList.add('open');document.body.classList.add('aio-onboarding-open')}
-function closeOnboard(){ $('aioOnboarding')?.classList.remove('open');document.body.classList.remove('aio-onboarding-open')}
+function ensureOnboard(){if($('aioOnboarding'))return;const m=document.createElement('div');m.id='aioOnboarding';m.className='aio-ultimate-modal';m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');m.innerHTML='<div class="aio-onboard-card"><div class="aio-onboard-top"><div class="aio-onboard-mark">A</div><span id="aioOnboardStep">WELCOME · SETUP + WALKTHROUGH</span><button class="aio-icon-button" id="aioOnboardClose" aria-label="Close setup">×</button></div><div class="aio-onboard-progress" role="progressbar" aria-label="Setup progress" aria-valuemin="0" aria-valuemax="100"><span id="aioOnboardProgress"></span></div><div id="aioOnboardContent"></div><div class="aio-onboard-footer"><span>Your choices apply immediately.</span><div id="aioOnboardActions"></div></div></div>';document.body.append(m);$('aioOnboardClose').onclick=()=>{saveSetup({dismissed:true});closeOnboard()}}
+function openOnboard(reset){ensureOnboard();if(reset){try{localStorage.removeItem(KEY)}catch{}}const a=appearance();font=a.font||'inter';wall=a.wallpaper||'default';cursor=a.cursorStyle||'chatgpt';fontChosen=true;wallChosen=true;cursorChosen=true;step=0;renderOnboard();$('aioOnboarding').classList.add('open');document.body.classList.add('aio-onboarding-open')}
+function closeOnboard(){ $('aioOnboarding')?.classList.remove('open');document.body.classList.remove('aio-onboarding-open');document.dispatchEvent(new Event('aio-setup-closed'))}
 function renderOnboard(){
 const content=$('aioOnboardContent'),actions=$('aioOnboardActions'),total=6;
 const set=(label,title,copy)=>{$('aioOnboardStep').textContent=label;content.innerHTML='<h2>'+title+'</h2><p class="aio-onboard-copy">'+copy+'</p>'};
@@ -53,7 +51,7 @@ if(step===0){
   set('WELCOME · SETUP + WALKTHROUGH','Your hub, set up your way','A quick guided start: personalise the look, then learn where everything lives. You can replay the full setup from Settings whenever you need it.');
   content.innerHTML+='<div class="aio-setup-intro-grid"><div><span>01</span><strong>Personalise</strong><small>Pick your font, wallpaper and cursor.</small></div><div><span>02</span><strong>Explore</strong><small>See how games, tools, school and Social fit together.</small></div></div><div class="aio-setup-tip">Your choices apply immediately. Nothing is posted or shared during setup.</div>';
   actions.innerHTML='<button class="aio-secondary-button" id="aioUseDefaults">Use current settings</button><button class="aio-primary-button" id="aioStartSetup">Start setup →</button>';
-  $('aioUseDefaults').onclick=()=>{localStorage.setItem(KEY,JSON.stringify({completed:true,font,wallpaper:wall,cursor,at:Date.now(),skippedPersonalisation:true}));closeOnboard();toast('Current settings kept. Enjoy the hub!')};
+  $('aioUseDefaults').onclick=()=>{saveSetup({skippedPersonalisation:true});closeOnboard();toast('Current settings kept. Enjoy the hub!')};
   $('aioStartSetup').onclick=()=>{step=1;renderOnboard()};
 }
 else if(step===1){
@@ -72,19 +70,20 @@ else if(step===2){
 }
 else if(step===3){
   set('STEP 4 OF 6 · POINTER','Choose your cursor','Choose a lightweight pointer style. Text fields keep their normal text-selection cursor.');
-  content.innerHTML+='<div class="aio-cursor-choices">'+[['default','Default','Use the browser cursor.'],['minimal','Minimal','A clean, lightweight pointer.'],['chatgpt','ChatGPT-inspired','A small, sharp custom pointer.']].map(x=>'<button class="aio-cursor-choice '+(cursor===x[0]?'selected':'')+'" data-cursor="'+x[0]+'"><span class="aio-cursor-preview '+x[0]+'">↖</span><strong>'+x[1]+'</strong><small>'+x[2]+'</small></button>').join('')+'</div>';
-  content.querySelectorAll('[data-cursor]').forEach(b=>b.onclick=()=>{cursor=b.dataset.cursor;cursorChosen=true;setChoice({cursorStyle:cursor});renderOnboard()});
+  const gallery=document.createElement('div');content.append(gallery);
+  window.AIOAppearance?.mountCursorGallery?.(gallery,id=>{cursor=id;cursorChosen=true;});
   actions.innerHTML='<button class="aio-secondary-button" id="aioBack">Back</button><button class="aio-primary-button" id="aioNext" '+(cursorChosen?'':'disabled')+'>Continue →</button>';
   $('aioBack').onclick=()=>{step=2;renderOnboard()};$('aioNext').onclick=()=>{if(!cursorChosen){toast('Choose a cursor first.');return}step=4;renderOnboard()};
 }
 else if(step===4){
   set('STEP 5 OF 6 · QUICK TOUR','Here’s where everything lives','The walkthrough is part of this setup now. These are the main areas you will use around the hub.');
   content.innerHTML+='<div class="aio-setup-tour-grid"><article class="aio-setup-tour-card"><span>⌕</span><div><strong>Search + Games</strong><p>Search the catalogue from the top bar. Browse categories, favourites and recently played. Games load only when opened.</p></div></article><article class="aio-setup-tour-card"><span>▦</span><div><strong>School + Tools</strong><p>School apps, calculators, timers, notes and other everyday utilities are grouped in their own sections.</p></div></article><article class="aio-setup-tour-card"><span>◉</span><div><strong>Social + Community</strong><p>Open Social to view posts and videos. Your account controls sign-in and community features.</p></div></article><article class="aio-setup-tour-card"><span>⚙</span><div><strong>Settings + Personalisation</strong><p>Change appearance and preferences later. Replay this complete setup and walkthrough whenever you need a reminder.</p></div></article></div><div class="aio-setup-tip">Tip: use the navigation row to jump between sections. You can always return to Home from the top of the page.</div>';
+  const nav=document.createElement('label');nav.className='aio-setup-alert-choice';nav.textContent='Navigation position';const position=document.createElement('select');position.setAttribute('aria-label','Navigation position');for(const [value,name] of [['top','Top'],['bottom','Bottom'],['left','Left'],['right','Right']]){const option=document.createElement('option');option.value=value;option.textContent=name;position.append(option)}position.value=appearance().navPosition||'top';position.onchange=()=>setChoice({navPosition:position.value});nav.append(position);
   // A useful preference, not an extra blocking tutorial screen.
   const noticePrefs=window.AIONotifications?.getSettings?.()||{enabled:true,theme:'glass',position:'bottom-right',greetings:true,hometime:true};
-  const options='<option value="glass">Clean glass</option><option value="ocean">Ocean waves</option><option value="pumpkins">Pumpkin season</option><option value="midnight">Night sky</option>';
+  const options='<option value="glass">Clean glass</option><option value="ocean">Ocean waves</option><option value="pumpkins">Pumpkin season</option><option value="midnight">Night sky</option><option value="minimal">Minimal</option><option value="classic">Classic</option>';
   content.innerHTML+='<section class="aio-setup-alert-choice" aria-label="Notification preferences"><h3>Choose your floating notifications</h3><p>Keep useful hometime alerts and choose a cover. Change these later in Settings.</p><label><span>Show notifications</span><input id="aioSetupNoticeEnabled" type="checkbox" '+(noticePrefs.enabled?'checked':'')+'></label><label><span>Cover theme</span><select id="aioSetupNoticeTheme">'+options+'</select></label><label><span>Placement</span><select id="aioSetupNoticePosition"><option value="bottom-right">Bottom right</option><option value="bottom-left">Bottom left</option></select></label><label><span>Hometime alerts</span><input id="aioSetupNoticeHometime" type="checkbox" '+(noticePrefs.hometime?'checked':'')+'></label><button type="button" class="aio-secondary-button" id="aioSetupNoticePreview">Preview floating alert</button></section>';
-  $('aioSetupNoticeTheme').value=noticePrefs.theme;
+  content.append(nav);$('aioSetupNoticeTheme').value=noticePrefs.theme;
   $('aioSetupNoticePosition').value=noticePrefs.position;
   [['aioSetupNoticeEnabled','enabled',true],['aioSetupNoticeHometime','hometime',true],['aioSetupNoticeTheme','theme',false],['aioSetupNoticePosition','position',false]].forEach(([id,key,checkbox])=>{
     $(id).addEventListener('change',event=>window.AIONotifications?.setSettings?.({[key]:checkbox?event.target.checked:event.target.value}));
@@ -98,7 +97,7 @@ else{
   content.innerHTML+='<div class="aio-ready-mark">✓</div><div class="aio-summary-list"><div><span>Font</span><strong>'+esc(({system:'Default / System',inter:'Inter',nunito:'Nunito',cherry:'Cherry Bomb One',sakura:'Sakura (fallback)'})[font]||font)+'</strong></div><div><span>Wallpaper</span><strong>'+esc(walls().find(w=>w.id===wall)?.name||wall)+'</strong></div><div><span>Cursor</span><strong>'+esc(({default:'Default',minimal:'Minimal',chatgpt:'ChatGPT-inspired'})[cursor]||cursor)+'</strong></div><div><span>Walkthrough</span><strong>Included ✓</strong></div></div>';
   actions.innerHTML='<button class="aio-secondary-button" id="aioBack">Back to tour</button><button class="aio-primary-button" id="aioEnter">Enter All in One Edition →</button>';
   $('aioBack').onclick=()=>{step=4;renderOnboard()};
-  $('aioEnter').onclick=()=>{localStorage.setItem(KEY,JSON.stringify({completed:true,font,wallpaper:wall,cursor,at:Date.now()}));closeOnboard();toast('Setup complete. Enjoy the hub!')};
+  $('aioEnter').onclick=()=>{saveSetup();closeOnboard();toast('Setup complete. Enjoy the hub!')};
 }
 }
 // Restore simple catalogue filters without purchase gates.
@@ -153,7 +152,7 @@ function init(){
  startAioDashboardClock();addSlime();addOpenSourceGames();
  patchDiscoveryFilter();enhanceSmartAI();ensureOnboard();
  addDiscoveryToolbar();startAioLiveClock();ensureContext();addSubmissionPanel();
- if(!localStorage.getItem(KEY))setTimeout(()=>{if(!document.hidden)openOnboard(false)},800);
+ if(!setupSaved())setTimeout(()=>{if(!document.hidden&&!setupSaved())openOnboard(false)},800);
 }
 window.openAioOnboarding=()=>openOnboard(false);
 window.resetAioOnboarding=()=>{try{localStorage.removeItem(KEY)}catch{}openOnboard(false)};
@@ -168,13 +167,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     #aioGreeting .aio-greeting-dot{width:7px;height:7px;flex:none;border-radius:50%;background:#38b889;box-shadow:0 0 0 3px color-mix(in srgb,#38b889 15%,transparent)}
     @keyframes aioGreetingIn{to{opacity:1;transform:translateY(0)}}
     @media(max-width:900px){#aioGreeting{display:none}}
-    @media(pointer:fine){html.aio-custom-cursor,html.aio-custom-cursor body{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='28' viewBox='0 0 24 28'%3E%3Cpath d='M3 2 L3 22 L8.5 16.5 L12.5 25 L16 23.5 L12 15.5 L20 15 Z' fill='%231b5cff' stroke='white' stroke-width='1.7' stroke-linejoin='round'/%3E%3C/svg%3E") 3 2,auto}
-      html.aio-custom-cursor button,html.aio-custom-cursor a,html.aio-custom-cursor [role=button],html.aio-custom-cursor select{cursor:pointer}
-      html.aio-custom-cursor input,html.aio-custom-cursor textarea,[contenteditable=true]{cursor:text}
-    }
   `;
   document.head.append(style);
-  document.documentElement.classList.add('aio-custom-cursor');
+  document.documentElement.classList.remove('aio-custom-cursor');
   function refresh(){
     try{
       const user=typeof currentUser!=='undefined'?currentUser:null;
@@ -185,7 +180,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       const hour=new Date().getHours();
       const salutation=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';
       if(!el){el=document.createElement('div');el.id='aioGreeting';el.setAttribute('role','status');const top=document.querySelector('#topbar .top');const brand=top?.querySelector('.brand');if(top&&brand)brand.after(el);else top?.prepend(el)}
-      if(el)el.innerHTML='<span class="aio-greeting-dot" aria-hidden="true"></span><span>'+salutation+', '+name+'</span>';
+      if(el){el.replaceChildren();const dot=document.createElement('span');dot.className='aio-greeting-dot';dot.setAttribute('aria-hidden','true');const label=document.createElement('span');label.textContent=salutation+', '+name;el.append(dot,label);}
     }catch(error){console.debug('Greeting unavailable',error)}
   }
   window.aioRefreshGreeting=refresh;
@@ -205,3 +200,4 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  const script=document.createElement('script');script.id='aioGameMotionScript';
  script.src='/game-motion.js';script.async=true;document.head.appendChild(script);
 })();
+

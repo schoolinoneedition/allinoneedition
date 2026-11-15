@@ -544,7 +544,7 @@ html.game-fullscreen #gameModal.open .game-stage{height:100dvh!important;width:1
  <div class="quick"><div class="qcard"><div class="k">Hometime</div><div class="v" id="homeCountdown">--:--:--</div></div><div class="qcard"><div class="k">Current time</div><div class="v" id="clock">--:--:--</div></div><div class="qcard"><div class="k">Today</div><div class="v" id="date">Loading…</div></div><div class="qcard"><div class="k">Game count</div><div class="v" id="gameCount">—</div></div></div>
 </section>
 <section class="section" id="continueSection"><div class="section-head"><h2>Continue playing</h2><small>Your recent game progress stays on this device.</small></div><div id="resumePanel" class="resume-panel panel"><div><strong>No game started yet.</strong><span>Open a game and your last-played progress will appear here.</span></div><button class="btn mini" onclick="continueLastGame()">Continue</button></div></section>
-<section id="games" class="section"><div class="section-head"><h2>Games</h2><small>Fast games, quick search, saved progress</small></div><div class="panel catalog-info" style="margin-bottom:12px"><strong>Huge game library</strong><span><b id="librarySummary">Your games are rendered in fast batches while the browser warms images and game pages in the background</b> <span id="catalogueGoal" class="muted" style="font-size:11px;white-space:nowrap">Goal: 2,000 catalogue entries</span> · fast-loading cards, saved progress and a full-screen game view.</span></div><div class="panel catalog-info" style="margin-bottom:12px"><strong>Quick picks</strong> <button class="btn mini" type="button" onclick="setCat('All');document.getElementById('search').value='multiplayer';document.getElementById('search').dispatchEvent(new Event('input'));scrollToId('games')">Play together</button><span>Use New for the latest additions, the star on a card to save Favourites, or search and categories to find something to play.</span></div><div class="filters" id="filters"></div><div class="games" id="gameGrid"></div><div id="loadMoreWrap" style="display:none;justify-content:center;margin-top:18px"><button class="btn mini" id="loadMoreBtn" onclick="loadMoreGames()">Load more games</button></div></section>
+<section id="games" class="section"><div class="section-head"><h2>Games</h2><small>Fast games, quick search, saved progress</small></div><div class="panel catalog-info" style="margin-bottom:12px"><strong>Huge game library</strong><span><b id="librarySummary">Your games are rendered in fast batches while the browser warms images and game pages in the background</b> <span id="catalogueGoal" class="muted" style="font-size:11px;white-space:nowrap">Goal: 2,000 verified playable games</span> · fast-loading cards, saved progress and a full-screen game view.</span></div><div class="panel catalog-info" style="margin-bottom:12px"><strong>Quick picks</strong> <button class="btn mini" type="button" onclick="setCat('All');document.getElementById('search').value='multiplayer';document.getElementById('search').dispatchEvent(new Event('input'));scrollToId('games')">Play together</button><span>Use New for the latest additions, the star on a card to save Favourites, or search and categories to find something to play.</span></div><div class="filters" id="filters"></div><div class="games" id="gameGrid"></div><div id="loadMoreWrap" style="display:none;justify-content:center;margin-top:18px"><button class="btn mini" id="loadMoreBtn" onclick="loadMoreGames()">Load more games</button></div></section>
 <section id="cloud-gaming" class="section">
  <div class="section-head"><h2>Cloud gaming</h2><small>Big games on compatible devices</small></div>
  <p class="aio-cloud-intro">Jump into supported games through your browser. Cloud play needs a steady internet connection.</p>
@@ -966,7 +966,7 @@ function filteredGames(){
  return list;
 }
 function renderGames(){currentFiltered=filteredGames();if(visibleLimit>currentFiltered.length)visibleLimit=currentFiltered.length;const shown=currentFiltered.slice(0,visibleLimit);$('gameGrid').innerHTML=shown.length?shown.map(x=>cardHTML(x.g,x.i)).join(''):`<div class="panel" style="grid-column:1/-1">No games match that search.</div>`;$('gameCount').textContent=String(GAMES.length);$('librarySummary').textContent=`${GAMES.length} catalogue entries · game availability may vary`;
- const goal=$('catalogueGoal');if(goal)goal.textContent=GAMES.length.toLocaleString('en-GB')+' / 2,000 catalogue-entry goal';const wrap=$('loadMoreWrap'),btn=$('loadMoreBtn');if(wrap&&btn){wrap.style.display=currentFiltered.length>visibleLimit?'flex':'none';btn.textContent=`Load more games (${Math.min(48,currentFiltered.length-visibleLimit)} more)`}hydrateImages();setupGameConnectionWarmup();}
+ const goal=$('catalogueGoal');if(goal)goal.textContent='Target: 2,000 verified games · catalogue links are not play-tested totals';const wrap=$('loadMoreWrap'),btn=$('loadMoreBtn');if(wrap&&btn){wrap.style.display=currentFiltered.length>visibleLimit?'flex':'none';btn.textContent=`Load more games (${Math.min(48,currentFiltered.length-visibleLimit)} more)`}hydrateImages();setupGameConnectionWarmup();}
 function loadMoreGames(){visibleLimit+=48;renderGames();window.scrollBy({top:140,behavior:'smooth'})}
 function setCat(c){activeCat=c;visibleLimit=48;renderFilters();renderGames()}
 function toggleFavourite(event,index){if(event){event.preventDefault();event.stopPropagation()}const game=GAMES[index];if(!game)return;const key=gameKey(game);if(favouriteGames.has(key)){favouriteGames.delete(key);showToast('Removed from favourites')}else{favouriteGames.add(key);showToast('Added to favourites')}storage.setItem(FAVOURITES_KEY,JSON.stringify([...favouriteGames]));renderFilters();renderGames()}
@@ -1159,7 +1159,7 @@ $('gameFrame').addEventListener('load',()=>{
   $('gameLoadStatus').textContent=isUploadedHtmlGame(currentGame)?'Local game opened':'Game frame opened · Check player';
   applyGameMute();
  };
- setTimeout(reveal,Math.max(0,650-(performance.now()-gameLoadStartedAt)));
+ reveal();
 });
 $('gameFrame').addEventListener('error',()=>{if(currentGame){$('gameLoading').style.display='none';$('gameError').classList.add('show');$('gameLoadStatus').textContent='Could not load'}})
 let afkActive=false;let afkWasFullscreen=false;function shuffleCopy(a){return [...a].sort(()=>Math.random()-.5)}
@@ -1335,6 +1335,7 @@ function base64Tool(mode){const el=$('base64Input');if(!el)return;try{if(mode===
 function urlTool(mode){const el=$('urlInput');if(!el)return;try{el.value=mode==='encode'?encodeURIComponent(el.value):decodeURIComponent(el.value);}catch{showToast('That encoded URL is not valid')}}
 
 function showToast(message){
+  if(window.AIONotifications){window.AIONotifications.notify('All in One Edition',message);return;}
   const t=$('toast'); if(!t)return;
   t.textContent=String(message||''); t.classList.add('show');
   clearTimeout(window.__aioToastTimer); window.__aioToastTimer=setTimeout(()=>t.classList.remove('show'),2200);
@@ -2050,6 +2051,7 @@ async function initCommunity(){
 }
 async function handleAuthSession(session){
   currentUser=session?.user||null;
+  window.dispatchEvent(new CustomEvent('aio-auth-ready',{detail:{user:currentUser}}));
   if(currentUser) await ensureProfile();
   refreshAccountUI();
   if(typeof refreshAioStaffPanel==='function'){try{await refreshAioStaffPanel()}catch(e){console.warn('Staff role refresh failed:',e)}}
@@ -3382,6 +3384,8 @@ socialBind=function(){__oldSocialBind();socialBindPostManagement();setTimeout(()
 <script src="./aio-notifications.js" defer></script>
 <script src="./backend-features.js" defer></script>
 <script src="./appearance.js" defer></script>
+<script src="./preferences-sync.js" defer></script>
+<script src="./site-updates.js" defer></script>
 <script src="./ultimate-experience.js" defer></script>
 
 <script>
@@ -3398,3 +3402,4 @@ window.addEventListener('load',()=>setTimeout(async()=>{
 </script>
 </body>
 </html>
+

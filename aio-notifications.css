@@ -1,4 +1,13 @@
 /* Floating notices: lift from the bottom instead of covering the centre of the screen. */
+.aio-notice-history{max-height:260px;overflow:auto;list-style:none;padding:0;display:grid;gap:8px}
+.aio-notice-history-item{display:grid;gap:4px;padding:10px;border:1px solid var(--line,#ddd);border-radius:9px;font-size:12px;overflow-wrap:anywhere}
+.aio-notice-history-item small{color:var(--muted,#596677)}
+.aio-notice[data-theme="minimal"],.aio-notice[data-theme="classic"]{background:#fff;color:#172033;backdrop-filter:none;-webkit-backdrop-filter:none;border-color:#cbd5e1}
+.aio-notice[data-theme="minimal"] .aio-notice-detail,.aio-notice[data-theme="classic"] .aio-notice-detail{color:#475569}
+.aio-notice[data-theme="minimal"] .aio-notice-close,.aio-notice[data-theme="classic"] .aio-notice-close{color:#172033}
+.aio-notice[data-theme="classic"]{border-radius:9px;border-left:4px solid #2563eb}
+.reduced-motion .aio-notice,.reduced-motion .aio-notice-progress{animation:none!important;transform:none!important;filter:none!important}
+html[data-aio-performance-profile="lite"] .aio-notice{backdrop-filter:none;-webkit-backdrop-filter:none}
 #aioNotices{position:fixed;z-index:2147482000;display:flex;flex-direction:column;gap:11px;bottom:max(18px,env(safe-area-inset-bottom));right:max(18px,env(safe-area-inset-right));width:min(365px,calc(100vw - 28px));max-height:min(85dvh,640px);overflow:visible;pointer-events:none;align-items:stretch}
 #aioNotices[data-position="bottom-left"]{right:auto;left:max(18px,env(safe-area-inset-left))}
 .aio-notice{--notice-accent:#86a9fa;isolation:isolate;position:relative;min-height:94px;padding:16px 39px 22px 72px;color:#edf4ff;border:1px solid #cbd5e156;border-radius:19px;display:flex;align-items:center;gap:11px;background:linear-gradient(135deg,#1c2844ed,#11182aef);box-shadow:0 19px 42px #02071a51,0 2px 8px #0002;overflow:hidden;backdrop-filter:blur(16px) saturate(1.25);-webkit-backdrop-filter:blur(16px) saturate(1.25);pointer-events:auto;animation:aioNoticeFloat .55s cubic-bezier(.17,.88,.3,1.12) both}
@@ -40,3 +49,4 @@
 .aio-notice-settings button{justify-self:start}
 @media(max-width:600px){#aioNotices{right:12px;left:auto!important;bottom:max(12px,env(safe-area-inset-bottom));width:min(365px,calc(100vw - 24px))}.aio-notice{min-height:88px;padding:14px 35px 19px 65px}.aio-notice-art{left:12px;width:39px;height:39px}}
 @media(prefers-reduced-motion:reduce){.aio-notice,.aio-notice.aio-notice-leaving,.aio-notice-progress{animation:none!important;filter:none!important;transform:none!important}}
+

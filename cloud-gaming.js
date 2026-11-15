@@ -37,7 +37,7 @@
     target.target='_blank';target.rel='noopener noreferrer';
    }
    const label=fortnite.querySelector('.cloud-status');
-   if(label)label.textContent='VERIFIED CLOUD LAUNCH';
+   if(label)label.textContent='EXTERNAL CLOUD PROVIDER';
    const details=create('small','aio-cloud-provider-note','Xbox streams Fortnite. A free Microsoft account and a supported browser or controller may be needed.');
    fortnite.appendChild(details);
    // Officially supported alternative provider; avoid claiming we can embed its stream.
@@ -147,6 +147,7 @@
   const game=get(id);if(!game)return;
   try{localStorage.setItem(rememberKey,id)}catch{}
   updateResume();
+  window.AIONotifications?.notify?.('Cloud provider opened',game.name+' opens with '+game.provider+'. Sign in on the provider website.');
   const share=$('aioCloudPartyShare');
   if(!share?.checked)return;
   const shown=typeof window.aioPartyCloudLaunch==='function'&&window.aioPartyCloudLaunch(id);
@@ -198,7 +199,7 @@
  }
  root.addEventListener('click',event=>{
   const target=event.target?.closest?.('a[data-cloud-game]');
-  if(target)launched(target.dataset.cloudGame);
+  if(target){if(navigator.onLine===false){event.preventDefault();window.AIONotifications?.notify?.('You are offline','Reconnect before opening a cloud provider.');return;}launched(target.dataset.cloudGame);}
  });
  window.addEventListener('online',refreshDiagnostics);
  window.addEventListener('offline',refreshDiagnostics);
