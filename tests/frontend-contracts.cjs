@@ -270,13 +270,11 @@ assert.ok(glassCss.includes('data-aio-performance-profile="lite"') && glassCss.i
  assert.ok(html.includes('visibleLimit=48')&&html.includes('visibleLimit+=48'),'The initial game grid and load-more batches should stay bounded');
  assert.ok(html.includes('let gameSearchTimer=0;')&&(html.includes('renderGames()},80)')||html.includes('gameSearchTimer=setTimeout(()=>')&&html.includes('},100)')),'Game search should debounce rapid keystrokes');
  assert.ok(html.includes('Render the local game catalogue immediately'),'The game catalogue must render on first page load.');
- assert.ok(html.includes('id="siteLoader"')&&html.includes('class="aio-launch-symbol"')&&html.includes('@keyframes aioLaunchAssemble')&&html.includes('aio-launch-track'),'The launch screen should use the new tiled emblem and progress sweep without external images.');
-assert.ok(!html.includes('class="aio-boot-mark"')&&!html.includes('@keyframes aioBootPulse'),'The retired dot loader must not reappear.');
-assert.ok(html.includes('animation:aioLaunchProgress 7.2s'), 'The progress sweep should last almost the full 7.5-second intro.');
-assert.ok(html.includes('@keyframes aioLaunchRollIn')&&html.includes('@keyframes aioLaunchIdle')&&html.includes('aioLaunchRollIn 1.35s'), 'The opening logo must roll into position and gently animate afterwards.');
-assert.ok(!html.includes('id="introRailA"')&&!html.includes('id="introRailB"')&&!html.includes('id="introRailC"'),'The startup animation must never fetch or animate a carousel of game thumbnails.');
-assert.ok(html.includes('MIN_VISIBLE_MS=7500')&&html.includes('if(elapsed<MIN_VISIBLE_MS)')&&html.includes("window.aioFinishIntro=finish"),'The launch screen must remain visible long enough to animate rather than disappearing immediately.');
-assert.ok(html.includes('requestAnimationFrame(()=>requestAnimationFrame')&&html.includes('setTimeout(()=>{if(!completed)finish(true)},11000)')&&html.includes("classList.add('done')"),'The loader must paint before timing its dismissal and retain a bounded fail-safe.');
+ assert.ok(!html.includes('id="siteLoader"')&&!html.includes('MIN_VISIBLE_MS=7500'),'Startup splash must be absent; render the hub immediately.');
+ assert.ok(!html.includes('class="aio-launch-symbol"')&&!html.includes('aioLaunchProgress'),'Remove dormant intro art and forced splash animations.');
+ assert.ok(html.includes('safeBoot(renderGames);'),'First game cards should render during initial boot.');
+ assert.ok(html.includes('id="gameLoading"'),'Keep truthful loading feedback when opening individual games.');
+ assert.ok(!html.includes('id="introRailA"')&&!html.includes('id="introRailB"')&&!html.includes('id="introRailC"'),'Retired introduction thumbnails must stay removed.');
  assert.ok(ux.includes('function startAioDashboardClock()')&&ux.includes('window.aioDashboardClockTimer=setInterval(tick,1000)')&&ux.includes("document.addEventListener('visibilitychange',sync)"),'Dashboard date, time and hometime should share one visible-tab clock');
 assert.ok(ux.includes('WELCOME · SETUP + WALKTHROUGH')&&ux.includes('STEP 5 OF 6 · QUICK TOUR')&&ux.includes('aio-setup-tour-card'),'The first-run setup must include the guided hub walkthrough');
 assert.ok(html.includes('Personalisation · Setup tutorial')&&html.includes('window.openAioOnboarding?.()')&&html.includes('window.resetAioOnboarding?.()')&&ux.includes('aioOnboardProgress'),'Settings should replay or reset the integrated setup and show progress');
@@ -299,12 +297,12 @@ assert.ok(html.includes('function initSpotifyBridge()')&&html.includes('function
 
 const oldStableHero = '<h1>One site. Games, school, tools and live info.</h1>';
 assert.ok(html.includes(oldStableHero),'Restore the original hero from before the catalogue redesign.');
-assert.ok(html.includes('class="aio-launch-symbol"')&&html.includes('MIN_VISIBLE_MS=7500'),'Keep the requested rolling-logo intro.');
+assert.ok(!html.includes('id="siteLoader"')&&html.includes('safeBoot(renderGames);'),'Retire the splash and render the game catalogue on boot.');
 assert.ok(html.indexOf('id="search"')<html.indexOf('<main id="app">'),'Keep the original topbar search.');
 assert.ok(html.includes('async function loadGameIntoFrame(g)')&&html.includes('AioHtmlGameSandbox.loadIntoFrame'),'Keep safe uploaded HTML gameplay even after rollback.');
 assert.ok(html.includes('loadPublishedOwnerGames()')&&html.includes('loadPublishedHtmlGames()'),'Keep the existing owner-published games after rollback.');
 
-console.log('Frontend contract checks passed: restored search, fast loader, appearance persistence, and currency removal.');
+console.log('Frontend contract checks passed: restored search, immediate entry, appearance persistence, and currency removal.');
 
 assert.ok(ux.includes("['sakura','Sakura (fallback)'"), 'First-run setup should expose the Sakura fallback font.');
 assert.ok(html.includes('Personalisation · Setup tutorial') && html.includes('Reset tutorial') && html.includes('window.resetAioOnboarding?.()'), 'Settings should offer both replay and reset for the integrated tutorial.');
