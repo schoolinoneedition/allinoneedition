@@ -32,7 +32,7 @@ for(const name of ['index.html','owner.html','video.html','anime.html']){
  const html=read(name);
  let scripts=0;
  for(const m of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)){
-  if(/\bsrc\s*=/.test(m[1]))continue;
+  if(/\bsrc\s*=/.test(m[1]) || /\btype\s*=\s*["']application\/ld\+json["']/i.test(m[1]))continue;
   new vm.Script(m[2],{filename:name+' inline script '+scripts++});
  }
  assert.ok(scripts>0,name+' needs at least one valid inline script');
