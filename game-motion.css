@@ -24,9 +24,6 @@ html[data-aio-scroll-direction="up"] #gameGrid .card.aio-reveal-card:not(.aio-in
 @keyframes aioGameLoadSweep{from{transform:translateX(-100%)}to{transform:translateX(340%)}}
 @keyframes aioGameTilePulse{from{opacity:.6;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
 @keyframes aioGameLoaderFloat{from{transform:translateY(2px) rotate(-5deg)}to{transform:translateY(-4px) rotate(5deg)}}
-html.aio-site-ready .hero-card,html.aio-site-ready #continueSection{animation:aioSiteEntrance .52s cubic-bezier(.2,.8,.2,1) both}
-html.aio-site-ready #continueSection{animation-delay:.09s}
-@keyframes aioSiteEntrance{from{opacity:.6;transform:translateY(14px)}to{opacity:1;transform:none}}
 html[data-aio-performance-profile="lite"] #gameGrid .card.aio-reveal-card,
 html[data-aio-performance-profile="lite"] #gameGrid .card.aio-reveal-card:not(.aio-in-view){
  opacity:1;transform:none;transition:none
@@ -35,15 +32,6 @@ html[data-aio-performance-profile="lite"] #gameGrid .card.aio-reveal-card:not(.a
  #gameGrid .card.aio-reveal-card,
  html[data-aio-scroll-direction="up"] #gameGrid .card.aio-reveal-card:not(.aio-in-view){opacity:1;transform:none;transition:none}
  #gameGrid .card.aio-reveal-card .cover{transition:none}
- .aio-game-loader-logo,.aio-game-loader-logo i,.aio-game-loader-track::after,
- html.aio-site-ready .hero-card,html.aio-site-ready #continueSection{animation:none}
+ .aio-game-loader-logo,.aio-game-loader-logo i,.aio-game-loader-track::after{animation:none}
 }
 
-/* Site intro polish. The text follows real catalogue state, not fake loading percentages. */
-#siteLoader .aio-launch{isolation:isolate}
-#siteLoader .aio-launch::before{content:"";position:absolute;z-index:-1;left:50%;top:46%;width:min(390px,88vw);height:280px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(81,129,255,.18),rgba(81,129,255,.05) 45%,transparent 68%);pointer-events:none;animation:aioBootAmbient 3s ease-in-out infinite alternate}
-#siteLoader .aio-launch-symbol{filter:drop-shadow(0 12px 24px rgba(42,102,253,.24))}
-#siteLoader .aio-launch-status{min-height:22px;font-size:11px;letter-spacing:.035em;line-height:1.6;color:#b4c6ea}
-#siteLoader .aio-launch-track{width:min(220px,66%)}
-@keyframes aioBootAmbient{from{opacity:.6;scale:.95}to{opacity:1;scale:1.08}}
-@media(prefers-reduced-motion:reduce){#siteLoader .aio-launch::before{animation:none}}
