@@ -32,6 +32,12 @@ for (const [page, route] of [[html, '/'], [anime, '/anime'], [social, '/social']
   assert.ok(page.includes('rel="canonical" href="https://allinoneedition.vercel.app' + route + '"'), 'Public pages should expose canonical URLs.');
 }
 assert.ok(elementor.includes('src="/appearance.js"'), 'Elementor must load shared appearance.');
+for (const [href, label] of [['/social', 'Social'], ['/anime', 'Watch'], ['/study', 'Study Hub'], ['/elementor', 'Elementor AI']]) {
+  assert.ok(html.includes('<a href="' + href + '">' + label + '</a>'), 'Primary navigation must provide crawlable links to ' + label);
+}
+assert.equal((elementor.match(/<\/body><\/html>/g)||[]).length, 1, 'Elementor must not include a duplicated trailing HTML document.');
+assert.ok(elementor.trimEnd().endsWith('</body></html>'), 'Elementor must not render orphaned JavaScript after the document.');
+
 
 
 // The party wheel is a no-stakes choice picker with fair selection, sound opt-in, and a spin lock.
@@ -55,7 +61,7 @@ assert.match(html, /role="status" aria-live="polite"/);
  assert.ok(social.includes('./appearance.css')&&social.includes('./appearance.js')&&anime.includes('./appearance.css')&&anime.includes('./appearance.js')&&elementor.includes('/appearance.css')&&elementor.includes('/appearance.js'), 'Social, Watch and Elementor must load the shared appearance system.');
  assert.ok(appearance.includes("root.dataset.aioWallpaperActive=active?'1':'0'")&&glassCss.includes('data-aio-wallpaper-active="1"'), 'Saved wallpapers must be applied consistently on standalone pages.');
  assert.ok(css.includes('aioOnboardSlideIn')&&css.includes('aio-ultimate-modal.open .aio-onboard-card'), 'Setup should use a smooth slide-in transition.');
- assert.ok(html.includes(`location.href='anime.html'">Watch`)&&/<title>Watch\b/.test(anime), 'The main navigation should call the separate anime page Watch.');
+ assert.ok(html.includes('<a href="/anime">Watch</a>')&&/<title>Watch\b/.test(anime), 'The main navigation should call the separate anime page Watch.');
  assert.ok(anime.includes("id:'bluey',kind:'cartoon'")&&anime.includes("id:'pocoyo',kind:'cartoon'")&&anime.includes("id:'bing',kind:'cartoon'"), 'Watch should keep anime and include family cartoon collections.');
  assert.ok(anime.includes('youtube-nocookie.com/embed/')&&anime.includes('aP-qKaig84M')&&anime.includes('dDP-jzPV5fo'), 'Family cartoon episodes should use official publisher embeds.');
  assert.ok(anime.includes('uk.bingbunny.com/spis-odcinkow')&&anime.includes('data-watch-filter="cartoons"'), 'Cartoon browsing should include an official Bing episode guide and a dedicated filter.');
