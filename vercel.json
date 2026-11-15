@@ -137,6 +137,22 @@
           "value": "noindex, nofollow"
         }
       ]
+    },
+    {
+      "source": "/community",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/index.html",
+      "destination": "/",
+      "permanent": true
     }
   ]
 }
