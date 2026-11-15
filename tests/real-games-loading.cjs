@@ -24,7 +24,8 @@ assert.ok(!html.includes('id="siteLoader"')&&!html.includes('MIN_VISIBLE_MS=7500
 assert.ok(html.includes('safeBoot(renderGames);'),'Draw game cards during startup without a fake wait');
 assert.ok(html.includes('id="gameLoading"'),'Keep genuine game loading state');
 assert.ok(html.includes("if(frame.getAttribute('src')==='about:blank'"), 'Ignore about:blank frame loads');
-assert.ok(html.includes("Game frame opened · Check player"), 'Do not label third-party iframe onload as confirmed gameplay');
-assert.ok(html.includes('650-(performance.now()-gameLoadStartedAt)'), 'Show a perceptible in-game loading phase');
+assert.ok(html.includes("Game frame opened � Check player"), 'Do not label third-party iframe onload as confirmed gameplay');
+assert.ok(!html.includes('650-(performance.now()-gameLoadStartedAt)'), 'Reveal frames immediately without an artificial minimum delay');
 assert.ok(html.includes('gamepad; pointer-lock;'), '3D games can request pointer lock and gamepad input');
 console.log('Real game catalogue and immediate startup / honest game-load regression checks passed.');
+

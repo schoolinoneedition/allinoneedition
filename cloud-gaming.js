@@ -37,12 +37,12 @@
     target.target='_blank';target.rel='noopener noreferrer';
    }
    const label=fortnite.querySelector('.cloud-status');
-   if(label)label.textContent='VERIFIED CLOUD LAUNCH';
+   if(label)label.textContent='EXTERNAL CLOUD PROVIDER';
    const details=create('small','aio-cloud-provider-note','Xbox streams Fortnite. A free Microsoft account and a supported browser or controller may be needed.');
    fortnite.appendChild(details);
    // Officially supported alternative provider; avoid claiming we can embed its stream.
    if(!fortnite.querySelector('[data-cloud-provider="geforce-now"]')){
-    const alternative=create('a','btn','Try GeForce NOW ↗');
+    const alternative=create('a','btn','Try GeForce NOW ?');
     alternative.dataset.cloudProvider='geforce-now';
     alternative.href='https://play.geforcenow.com/';
     alternative.target='_blank';alternative.rel='noopener noreferrer';
@@ -58,9 +58,9 @@
    if(status)status.textContent='THIRD-PARTY CLOUD OPTION';
    if(summary)summary.textContent='Try Roblox through EasyFun browser streaming. Service availability and account requirements can change.';
    const actions=create('div','aio-cloud-actions');
-   actions.appendChild(link('Try Roblox cloud ↗','roblox','btn primary'));
+   actions.appendChild(link('Try Roblox cloud ?','roblox','btn primary'));
    if(old){
-    old.textContent='Official Roblox app ↗';
+    old.textContent='Official Roblox app ?';
     old.href='https://www.roblox.com/';
     old.target='_blank';old.rel='noopener noreferrer';
     actions.appendChild(old);
@@ -82,7 +82,7 @@
   recent.textContent=id?'Last opened: '+GAMES[id].name+' via '+GAMES[id].provider:'Nothing launched from this device yet.';
   if(id){
    resume.hidden=false;resume.href=GAMES[id].url;resume.dataset.cloudGame=id;
-   resume.textContent='Open '+GAMES[id].name+' again ↗';
+   resume.textContent='Open '+GAMES[id].name+' again ?';
   }else resume.hidden=true;
  }
  function networkSummary(){
@@ -115,8 +115,8 @@
   tools.innerHTML=`
     <div class="aio-cloud-tool">
       <div class="aio-cloud-tool-heading"><h3>Ready to stream?</h3><button class="btn mini" type="button" id="aioCloudCheck">Recheck</button></div>
-      <p id="aioCloudConnection" role="status">Checking browser connection…</p>
-      <p id="aioCloudController">Checking controller support…</p>
+      <p id="aioCloudConnection" role="status">Checking browser connection.</p>
+      <p id="aioCloudController">Checking controller support.</p>
       <p class="aio-cloud-fine">These are browser hints, not live measurements of Xbox or EasyFun. No game video or remote computer is hosted here.</p>
     </div>
     <div class="aio-cloud-tool">
@@ -147,6 +147,7 @@
   const game=get(id);if(!game)return;
   try{localStorage.setItem(rememberKey,id)}catch{}
   updateResume();
+  window.AIONotifications?.notify?.('Cloud provider opened',game.name+' opens with '+game.provider+'. Sign in on the provider website.');
   const share=$('aioCloudPartyShare');
   if(!share?.checked)return;
   const shown=typeof window.aioPartyCloudLaunch==='function'&&window.aioPartyCloudLaunch(id);
@@ -198,7 +199,7 @@
  }
  root.addEventListener('click',event=>{
   const target=event.target?.closest?.('a[data-cloud-game]');
-  if(target)launched(target.dataset.cloudGame);
+  if(target){if(navigator.onLine===false){event.preventDefault();window.AIONotifications?.notify?.('You are offline','Reconnect before opening a cloud provider.');return;}launched(target.dataset.cloudGame);}
  });
  window.addEventListener('online',refreshDiagnostics);
  window.addEventListener('offline',refreshDiagnostics);

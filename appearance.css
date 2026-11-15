@@ -1,4 +1,34 @@
 /* Appearance system: lightweight, shared variables, no cursor overlay. */
+.aio-cursor-gallery{display:grid;gap:12px;margin-top:12px}
+.aio-cursor-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.aio-cursor-controls select{max-width:100%;padding:8px;border:1px solid var(--line,#ddd);border-radius:9px;background:var(--panel,#fff);color:var(--text,#172033)}
+.aio-cursor-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.aio-cursor-pack{min-width:0;display:grid;gap:5px}
+.aio-cursor-pack>button:first-child{display:grid;justify-items:center;gap:5px;padding:10px;border:1px solid var(--line,#ddd);border-radius:12px;background:var(--panel,#fff);color:var(--text,#172033)}
+.aio-cursor-pack button[aria-pressed=true]{outline:2px solid var(--accent,#2563eb);outline-offset:1px}
+.aio-cursor-images{display:flex;align-items:center;justify-content:center;gap:12px;min-height:55px;width:100%;border-radius:8px;background:repeating-conic-gradient(#dae0e9 0% 25%,#f4f6fa 0% 50%) 50%/14px 14px}
+.aio-cursor-images img{object-fit:contain;width:40px;height:40px}
+.aio-cursor-pack small{font-size:11px;color:var(--muted,#596677)}
+.aio-cursor-test{padding:15px;border:1px dashed var(--line,#888);border-radius:12px;font-size:13px}
+html[data-aio-nav-position="bottom"] #topbar .nav{position:fixed;inset:auto 0 0;z-index:9000;background:var(--panel,#fff);padding:10px 14px max(10px,env(safe-area-inset-bottom));border-top:1px solid var(--line,#ddd);overflow-x:auto;flex-wrap:nowrap}
+html[data-aio-nav-position="bottom"] body{padding-bottom:70px}
+html[data-aio-nav-position="bottom"] #aioNotices{bottom:85px}
+@media(min-width:1000px){
+ html:is([data-aio-nav-position="left"],[data-aio-nav-position="right"]) #topbar .nav{position:fixed;top:85px;bottom:16px;width:155px;display:flex;flex-direction:column;align-items:stretch;overflow-y:auto;background:var(--panel,#fff);padding:10px;border:1px solid var(--line,#ddd);border-radius:14px;z-index:9000}
+ html[data-aio-nav-position="left"] #topbar .nav{left:12px}
+ html[data-aio-nav-position="left"] body{padding-left:180px}
+ html[data-aio-nav-position="right"] #topbar .nav{right:12px}
+ html[data-aio-nav-position="right"] body{padding-right:180px}
+}
+.aio-cursor-upload{display:grid;gap:8px;font-size:12px;border-top:1px solid var(--line,#ddd);padding-top:12px}
+.aio-cursor-upload input{max-width:100%}
+@media(pointer:fine){
+ html[data-aio-cursor-style]:not([data-aio-cursor-style="default"]) body,html[data-aio-cursor-style]:not([data-aio-cursor-style="default"]) body *{cursor:var(--aio-pointer)!important}
+ html[data-aio-cursor-style]:not([data-aio-cursor-style="default"]) body :is(a,button,[role="button"],summary,label,select,input[type="checkbox"],input[type="radio"],input[type="range"]){cursor:var(--aio-hand)!important}
+ html[data-aio-cursor-style]:not([data-aio-cursor-style="default"]) body :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),textarea,[contenteditable="true"]){cursor:text!important}
+ html[data-aio-cursor-style]:not([data-aio-cursor-style="default"]) body :is(.resize-handle,[data-resize]){cursor:ew-resize!important}
+ html[data-aio-cursor-style]:not([data-aio-cursor-style="default"]) body :disabled{cursor:not-allowed!important}
+}
 :root{--aio-wallpaper-layer:none;--aio-wallpaper-dim:0;--aio-glass-alpha:.68;--aio-glass-blur:18px}
 body{position:relative;isolation:isolate}
 body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(rgba(0,0,0,var(--aio-wallpaper-dim)),rgba(0,0,0,var(--aio-wallpaper-dim))),var(--aio-wallpaper-layer);background-size:cover;background-position:var(--aio-wallpaper-position,center);background-repeat:no-repeat;opacity:var(--aio-wallpaper-opacity,1)}
@@ -139,3 +169,4 @@ html[data-aio-performance-profile="lite"][data-aio-theme="glass"] :is(.social-ap
 @media(prefers-reduced-motion:reduce){html[data-aio-theme="glass"] :is(.series-card,.social-app .post-card,.social-app .btn){transition:none!important}}
 
 html:not(.light)[data-aio-theme="glass"] :is(.series-card,.episode-panel,.side-panel,.watch-player,.spotlight-banner,.hero-stat){background-color:rgba(20,26,38,.62);border-color:rgba(255,255,255,.14);box-shadow:0 1px 0 rgba(255,255,255,.08) inset,0 16px 42px rgba(0,0,0,.22)}
+

@@ -20,6 +20,8 @@ jobs:
         run: |
           node --check backend-features.js
           node --check appearance.js
+          node --check preferences-sync.js
+          node --check site-updates.js
           node --check ultimate-experience.js
           node --check aio-notifications.js
           node --check party-gaming.js
@@ -61,6 +63,18 @@ jobs:
           node tests/real-games-loading.cjs
           node tests/curated-github-pack.cjs
           node tests/notification-ux.cjs
+          node tests/personalisation.cjs
+          node tests/preferences-sync.cjs
+      - name: Install browser regression runner
+        run: npm install --no-save --ignore-scripts playwright@1.58.2 && npx playwright install --with-deps chromium
+      - name: Check personalisation in Chromium
+        run: node tests/personalisation-browser.cjs
+      - name: Retain browser test screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-regression
+          path: browser-*.png
       - name: Audit game catalogue duplicates and required fields
         run: node scripts/audit-games.cjs
       - name: Check inline JavaScript in app and original games
@@ -83,3 +97,4 @@ jobs:
                   checked += 1
           print(f"Syntax OK: {checked} inline scripts across all eight HTML files and 3 external scripts.")
           PY
+
