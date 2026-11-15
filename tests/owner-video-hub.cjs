@@ -10,7 +10,7 @@ const routes=JSON.parse(read('vercel.json')).rewrites;
 assert.ok(!fs.existsSync(path.join(root,'game-catalogue.css')),'Broken catalogue override must remain removed.');
 assert.ok(index.includes('id="gameGrid"')&&index.includes('id="filters"')&&index.includes('<strong>Quick picks</strong>'),'Restore the original catalogue, including its original Quick picks section.');
 assert.ok(index.includes('id="unifiedGameSearch"')&&index.indexOf('id="unifiedGameSearch"')<index.indexOf('<main id="app">'),'Search must be in the original topbar.');
-assert.ok(index.includes('class="aio-launch-symbol"')&&index.includes('MIN_VISIBLE_MS=7500'),'The requested rolling-logo loading screen must stay in place.');
+assert.ok(!index.includes('id="siteLoader"')&&!index.includes('MIN_VISIBLE_MS=7500')&&index.includes('safeBoot(renderGames);'),'Startup splash is removed; the existing game catalogue must render immediately.');
 const start=index.indexOf('const GAMES=')+'const GAMES='.length,end=index.indexOf(';const EXTRA_',start);
 assert.ok(start>12&&end>start,'The original GAMES list must remain valid.');
 const games=JSON.parse(index.slice(start,end));

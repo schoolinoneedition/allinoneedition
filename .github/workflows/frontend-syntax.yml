@@ -32,6 +32,7 @@ jobs:
           node --check cloud-embedded-stream.js
           node --check in-site-play.js
           node --check games/bonus-arcade.js
+          node --check games/3x3-originals.js
           node --check game-motion.js
       - name: Install Backblaze B2 Worker dependencies
         run: npm install --prefix cloudflare/media-worker --ignore-scripts --no-audit --no-fund
@@ -54,6 +55,8 @@ jobs:
           node tests/cloud-embedded-stream.cjs
           node tests/in-site-play.cjs
           node tests/bonus-arcade.cjs
+          node tests/3x3-originals.cjs
+          node tests/community-catalogue.cjs
           node tests/game-motion.cjs
           node tests/real-games-loading.cjs
           node tests/curated-github-pack.cjs

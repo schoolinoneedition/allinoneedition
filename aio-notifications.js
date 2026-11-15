@@ -158,7 +158,7 @@
  }
  function start(){
   ensureRoot();section();
-  setTimeout(()=>{greeting();timeCheck()},7800);
+  setTimeout(()=>{if(!document.getElementById('aioOnboarding')?.classList.contains('open'))greeting();timeCheck()},900);
   setInterval(timeCheck,30000);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)timeCheck()});
   document.addEventListener('click',event=>{if(event.target?.closest?.('#settingsBtn'))setTimeout(section,0)});

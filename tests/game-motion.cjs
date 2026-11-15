@@ -18,11 +18,11 @@ class Element{
 }
 const a=new Element('article'),b=new Element('article'),grid=new Element('div');
 grid.cards=[a,b];grid.querySelectorAll=()=>grid.cards;grid.contains=el=>grid.cards.includes(el);
-const loader=new Element('div'),modal=new Element('div'),siteLoader=new Element('div');
+const loader=new Element('div'),modal=new Element('div');
 const links=[],events={},instances=[],intersections=[],timers=new Map();
 const root={classList:new Classes(),dataset:{}};
 const doc={documentElement:root,head:{appendChild:el=>links.push(el)},getElementById(id){
- return ({gameGrid:grid,gameLoading:loader,gameModal:modal,siteLoader})[id]||null;
+ return ({gameGrid:grid,gameLoading:loader,gameModal:modal})[id]||null;
 },createElement:tag=>new Element(tag)};
 let timer=0;
 class Observer{
@@ -56,10 +56,9 @@ assert.equal(loader.children.length,1);
 assert.equal(timers.size,2);
 loader.style.display='none';instances.find(x=>x.targets.includes(loader)).trigger();
 assert.equal(timers.size,0,'closing the game should cancel loading-message timers');
-siteLoader.classList.add('done');instances.find(x=>x.targets.includes(siteLoader)).trigger();
-assert.ok(root.classList.contains('aio-site-ready'));
+assert.ok(!js.includes('siteLoader')&&!css.includes('#siteLoader'),'Retired startup splash references must not return');
 assert.match(css,/prefers-reduced-motion:reduce/);
 assert.match(css,/data-aio-performance-profile="lite"/);
 assert.match(css,/data-aio-scroll-direction="up"/);
 assert.doesNotMatch(js,/\.innerHTML\s*=/,'Loader uses DOM elements instead of injected game markup');
-console.log('Game motion passed: cards reveal and move with scroll, loader toggles, timers clean up and reduced-motion CSS exists.');
+console.log('Game motion passed: cards reveal and move with scroll, in-game loader toggles, timers clean up and retired splash remains absent.');

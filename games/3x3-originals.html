@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>3×3 Original Puzzle Lab · All in One Edition</title>
+<style>
+:root{font-family:Inter,ui-sans-serif,system-ui,sans-serif;color-scheme:dark;color:#f4f7ff;background:#0c1425}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:clamp(12px,3vw,24px);display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 15%,#2e4b73,#101729 54%,#0c1425)}
+main{width:min(100%,480px);padding:clamp(16px,3vw,24px);border:1px solid #4b6284;border-radius:22px;background:#121f35;box-shadow:0 16px 52px #0006}
+header{display:flex;align-items:start;justify-content:space-between;gap:12px}
+h1{margin:3px 0 8px;font-size:clamp(19px,4vw,24px);letter-spacing:-.03em}
+.eyebrow{font-size:10px;color:#a5c7ff;font-weight:850;letter-spacing:.1em}
+.info{margin:0 0 17px;font-size:12px;color:#bdd0e8;line-height:1.6}
+.stat{border:1px solid #4b6084;border-radius:12px;padding:8px 11px;background:#202f4c;min-width:87px;text-align:center}
+.stat span{display:block;font-size:10px;color:#b8c9dd}
+.stat strong{font-size:20px}
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;width:min(100%,390px);margin:0 auto;aspect-ratio:1;padding:9px;border:1px solid #506b94;border-radius:19px;background:linear-gradient(135deg,#304c74,#182b49)}
+.cell{font:inherit;font-weight:900;font-size:clamp(25px,8vw,48px);border:1px solid #7387ac;border-radius:13px;color:#eff7ff;background:#47659a;box-shadow:inset 0 2px 2px #fff1,0 4px 8px #0002;min-width:0;cursor:pointer;transition:background .13s ease,transform .13s ease}
+.cell:hover:enabled{background:#567cb9;transform:translateY(-1px)}
+.cell:disabled{opacity:.65;cursor:default}
+.cell:focus-visible,.btn:focus-visible{outline:3px solid #9bcdff;outline-offset:2px}
+.cell.empty{background:#132743a8;border:1px dashed #57739a;box-shadow:none;cursor:default}
+.cell[data-mark="X"]{color:#a7fff2}.cell[data-mark="O"]{color:#ffd39c}
+.cell[data-lit="true"]{background:#b2f6df;box-shadow:0 0 24px #86f3d8;color:#123a4c}
+.actions{display:flex;justify-content:space-between;align-items:center;gap:9px;flex-wrap:wrap;margin:16px 0 10px}
+.btn{font:inherit;font-size:12px;font-weight:850;border-radius:11px;border:1px solid #607fa6;padding:10px 14px;background:#3c5f9a;color:#fff;cursor:pointer}
+.btn.secondary{background:#1b304e}
+#status{min-height:39px;padding:10px 12px;border-radius:12px;background:#1d2c46;color:#d2e2f8;font-size:12px;line-height:1.5}
+.foot{margin-top:11px;font-size:10px;color:#9db1cc;line-height:1.5}
+@media(max-width:410px){.board{gap:7px;padding:7px}.cell{border-radius:10px}.actions{justify-content:stretch}.actions .btn{flex:1}}
+@media(prefers-reduced-motion:reduce){.cell{transition:none!important}.cell:hover{transform:none!important}}
+</style>
+</head>
+<body><main>
+<header><div><div class="eyebrow">ALL IN ONE EDITION · ORIGINAL 3×3</div><h1 id="title">3×3 Puzzle Lab</h1></div><div class="stat"><span id="scoreLabel">Moves</span><strong id="score">0</strong></div></header>
+<p id="instructions" class="info"></p>
+<div id="grid" class="board" role="group" aria-label="Three by three puzzle board"></div>
+<div class="actions"><button type="button" class="btn" id="restart">New round</button><button type="button" class="btn secondary" id="hint">How to play</button></div>
+<div id="status" role="status" aria-live="polite"></div>
+<p class="foot">Keyboard and touch-friendly · Progress stays in this tab · No accounts or external game assets</p>
+</main><script src="/games/3x3-originals.js" defer></script></body>
+</html>

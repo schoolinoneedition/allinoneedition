@@ -12,42 +12,7 @@
 
 
 <script>
-/* Keep the launch screen visible for an actual animation, even when page load is instant. */
-(()=>{
- const MIN_VISIBLE_MS=7500;
- let completed=false,startedAt=0,finishTimer=0;
- const finish=(force=false)=>{
-  if(completed)return;
-  const loader=document.getElementById('siteLoader');
-  if(!loader)return;
-  if(!startedAt){startedAt=performance.now();}
-  const elapsed=performance.now()-startedAt;
-  if(!force){
-   if(elapsed<MIN_VISIBLE_MS){
-    clearTimeout(finishTimer);
-    finishTimer=setTimeout(()=>finish(false),MIN_VISIBLE_MS-elapsed);
-    return;
-   }
-  }
-  clearTimeout(finishTimer);
-  completed=true;
-  loader.classList.add('done');
-  loader.setAttribute('aria-hidden','true');
- };
- window.aioFinishIntro=finish;
- const start=()=>{
-  const loader=document.getElementById('siteLoader');
-  if(!loader||startedAt)return;
-  startedAt=performance.now();
-  const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  if(reduced){finish(true);return;}
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{finishTimer=setTimeout(finish,MIN_VISIBLE_MS)}));
- };
- if(document.readyState==='loading')addEventListener('DOMContentLoaded',start,{once:true});
- else start();
- // Recovery only: always dismiss if animations or script execution fail.
- setTimeout(()=>{if(!completed)finish(true)},11000);
-})();
+/* Immediate page entry: the hub displays on first paint without a timed splash. */
 window.aioSpotifyAPI=null;
 window.onSpotifyIframeApiReady=api=>{window.aioSpotifyAPI=api;};
 </script>
@@ -100,28 +65,7 @@ html.game-fullscreen #gameFrame{width:100vw!important;height:100vh!important;min
 .assistant-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.assistant-actions .chip{cursor:pointer}.settings-box{width:min(760px,100%);height:min(690px,92vh)}.settings-body{padding:16px;overflow:auto}.setting-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px 0;border-bottom:1px solid var(--line)}.setting-row strong{display:block;font-size:13px}.setting-row span{display:block;color:var(--muted);font-size:11px;line-height:1.45;margin-top:3px}.switch{position:relative;width:44px;height:26px;flex:0 0 auto}.switch input{opacity:0;width:0;height:0}.switch span{position:absolute;inset:0;background:var(--soft);border:1px solid var(--line);border-radius:999px;transition:.18s}.switch span:before{content:"";position:absolute;width:18px;height:18px;left:3px;top:3px;border-radius:50%;background:var(--muted);transition:.18s}.switch input:checked+span{background:var(--accent);border-color:var(--accent)}.switch input:checked+span:before{transform:translateX(18px);background:#fff}.settings-help{margin-top:14px;padding:13px;border:1px solid var(--line);border-radius:14px;background:var(--soft)}.settings-help p{margin:5px 0 0;color:var(--muted);font-size:11px;line-height:1.55}.music-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:12px}.music-main{min-width:0}.music-now{display:flex;align-items:center;gap:12px;margin-bottom:10px}.music-art{width:58px;height:58px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:27px;font-weight:950;overflow:hidden;flex:0 0 auto}.music-art img{width:100%;height:100%;object-fit:cover}.music-now strong{display:block;font-size:14px}.music-now span{display:block;color:var(--muted);font-size:11px;margin-top:3px}.spotify-embed{min-height:175px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#0d0d0e}.spotify-embed iframe{width:100%;height:175px;border:0;display:block}.music-placeholder{min-height:175px;display:grid;place-items:center;text-align:center;color:#fff;padding:22px}.music-placeholder strong{font-size:16px}.music-placeholder span{display:block;color:#b9bdc7;font-size:11px;margin-top:5px}.music-url-row,.music-search-row{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}.music-url-row input,.music-search-row input{flex:1;min-width:180px;height:36px;border:1px solid var(--line);border-radius:9px;padding:0 9px;background:var(--soft);color:var(--text)}.music-note{margin:9px 0 0;color:var(--muted);font-size:10px;line-height:1.45}.audio-list{display:grid;gap:9px;margin-top:12px}.audio-item{display:grid;grid-template-columns:42px 1fr auto;gap:9px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:8px}.audio-art{width:42px;height:42px;border-radius:10px;overflow:hidden;background:var(--soft);display:grid;place-items:center;font-weight:950}.audio-art img{width:100%;height:100%;object-fit:cover}.audio-item strong{display:block;font-size:12px}.audio-item audio{width:100%;height:32px;margin-top:4px}.audio-delete{border:0;background:transparent;color:var(--muted);font-weight:950}.loop-toggle{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);white-space:nowrap}.calc-display{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:9px 10px;margin-top:8px;text-align:right;font-size:20px;font-weight:900;min-height:40px;overflow:auto}.calc-keys{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}.calc-keys button{height:34px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--text);font-weight:850}.calc-keys button:hover{background:var(--soft)}.calc-eq{grid-column:span 2;background:var(--accent)!important;color:#fff!important;border-color:var(--accent)!important}.tool-result{margin-top:8px;font-size:11px;color:var(--muted);line-height:1.4;min-height:16px}.world-clock{font-size:11px;line-height:1.7;margin-top:8px} .music-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}.music-result{display:grid;grid-template-columns:46px 1fr;gap:8px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:11px;background:var(--soft)}.music-result img{width:46px;height:46px;border-radius:9px;object-fit:cover}.music-result strong{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.music-result span{display:block;font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.music-result audio{width:100%;height:28px;margin-top:5px}.music-search-status{font-size:10px;color:var(--muted);margin-top:8px}@media(max-width:700px){.music-results{grid-template-columns:1fr}}
 .progressbarbox{display:none}.progressbarbox.progress-visible{display:block}.reduced-motion *, .reduced-motion *::before, .reduced-motion *::after{animation-duration:0.001ms!important;animation-iteration-count:1!important;transition-duration:0.001ms!important;scroll-behavior:auto!important}@media(max-width:900px){.music-grid{grid-template-columns:1fr}}
 
-/* Launch sequence v2: lightweight, original typographic design. */
-#siteLoader{position:fixed;inset:0;z-index:2000000;display:grid;place-items:center;overflow:hidden;background:#0f1727;color:#fff;opacity:1;visibility:visible;transition:opacity .3s ease,visibility .3s ease}
-#siteLoader.done{opacity:0;visibility:hidden;pointer-events:none}
-.aio-launch{position:relative;isolation:isolate;width:min(420px,calc(100vw - 42px));text-align:center;padding:30px 10px}
-.aio-launch-symbol{display:grid;grid-template-columns:repeat(2,24px);grid-template-rows:repeat(2,24px);gap:5px;width:max-content;margin:0 auto 25px;transform-origin:center;animation:aioLaunchRollIn 1.35s cubic-bezier(.17,.8,.22,1) both,aioLaunchIdle 2.1s ease-in-out 1.35s infinite alternate}
-.aio-launch-symbol span{display:block;border-radius:6px;background:#80a7ff;animation:aioLaunchAssemble .65s cubic-bezier(.16,.8,.22,1) both}
-.aio-launch-symbol span:nth-child(2){background:#fff;animation-delay:.09s}
-.aio-launch-symbol span:nth-child(3){background:#4d76f5;animation-delay:.16s}
-.aio-launch-symbol span:nth-child(4){background:#a6bbec;animation-delay:.23s}
-.aio-launch-eyebrow{font-size:10px;font-weight:850;letter-spacing:.28em;color:#90a9d5}
-.aio-launch-name{margin:11px 0 0;font-size:clamp(27px,6vw,38px);font-weight:900;line-height:1.1;letter-spacing:-.065em;animation:aioLaunchWord .65s .15s both}
-.aio-launch-name span{color:#94b3ff}
-.aio-launch-caption{font-size:12px;margin:11px 0 0;color:#b9c5da;letter-spacing:.01em}
-.aio-launch-track{height:3px;width:min(190px,64%);margin:30px auto 0;background:#34445f;border-radius:99px;overflow:hidden}
-.aio-launch-track::after{content:"";display:block;width:100%;height:100%;background:#9bb7ff;transform:translateX(-100%);animation:aioLaunchProgress 7.2s cubic-bezier(.17,.77,.3,1) forwards}
-.aio-launch-foot{position:absolute;left:0;right:0;bottom:clamp(20px,5vh,48px);color:#8194b3;text-align:center;font-size:10px;letter-spacing:.19em;font-weight:750}
-@keyframes aioLaunchAssemble{from{opacity:0;transform:scale(.3) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
-@keyframes aioLaunchRollIn{0%{opacity:0;transform:translateX(-65px) rotate(-260deg) scale(.48)}58%{opacity:1;transform:translateX(12px) rotate(26deg) scale(1.1)}78%{transform:translateX(-3px) rotate(-11deg) scale(.98)}100%{opacity:1;transform:translateX(0) rotate(0deg) scale(1)}}
-@keyframes aioLaunchIdle{from{transform:translateY(0) rotate(-4deg)}to{transform:translateY(-5px) rotate(4deg)}}
-@keyframes aioLaunchWord{from{opacity:0;transform:translateY(11px)}to{opacity:1;transform:translateY(0)}}
-@keyframes aioLaunchProgress{to{transform:translateX(0)}}
-@media(prefers-reduced-motion:reduce){#siteLoader{transition:none}.aio-launch-symbol,.aio-launch-symbol span,.aio-launch-name,.aio-launch-track::after{animation:none}.aio-launch-track::after{transform:none}}
+/* Startup splash intentionally removed. In-game network waits retain progress/error feedback. */
 .game-error{position:absolute;inset:0;display:none;place-items:center;padding:20px;background:rgba(0,0,0,.86);color:#fff;text-align:center;z-index:3}.game-error.show{display:grid}.game-error-card{max-width:520px}.game-error-card h3{margin:0 0 7px;font-size:18px}.game-error-card p{margin:0;color:#c9cdd6;font-size:12px;line-height:1.5}.game-error-actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:13px}
 
 
@@ -565,18 +509,6 @@ html.game-fullscreen #gameModal.open .game-stage{height:100dvh!important;width:1
 <script src="/html-game-sandbox.js" defer></script>
 </head>
 <body>
-<div id="siteLoader" role="status" aria-label="Opening All in One Edition">
- <div class="aio-launch">
-  <div class="aio-launch-symbol" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
-  <div class="aio-launch-eyebrow">YOUR HUB IS STARTING</div>
-  <div class="aio-launch-name">ALL IN ONE <span>EDITION</span></div>
-  <p class="aio-launch-caption">Your games, friends and ideas in one place.</p>
-  <p class="aio-launch-status">Getting things ready <span>·</span><span>·</span><span>·</span></p>
-  <div class="aio-launch-track" aria-hidden="true"></div>
- </div>
- <div class="aio-launch-foot" aria-hidden="true">ALL IN ONE EDITION</div>
-</div>
-
 <div class="afk-overlay" id="afkOverlay" role="dialog" aria-modal="true" aria-label="AFK mode">
   <div class="afk-corner">AFK mode · click Resume when you're back</div>
   <div class="afk-content" id="afkContent">
@@ -612,7 +544,7 @@ html.game-fullscreen #gameModal.open .game-stage{height:100dvh!important;width:1
  <div class="quick"><div class="qcard"><div class="k">Hometime</div><div class="v" id="homeCountdown">--:--:--</div></div><div class="qcard"><div class="k">Current time</div><div class="v" id="clock">--:--:--</div></div><div class="qcard"><div class="k">Today</div><div class="v" id="date">Loading…</div></div><div class="qcard"><div class="k">Game count</div><div class="v" id="gameCount">—</div></div></div>
 </section>
 <section class="section" id="continueSection"><div class="section-head"><h2>Continue playing</h2><small>Your recent game progress stays on this device.</small></div><div id="resumePanel" class="resume-panel panel"><div><strong>No game started yet.</strong><span>Open a game and your last-played progress will appear here.</span></div><button class="btn mini" onclick="continueLastGame()">Continue</button></div></section>
-<section id="games" class="section"><div class="section-head"><h2>Games</h2><small>Fast games, quick search, saved progress</small></div><div class="panel catalog-info" style="margin-bottom:12px"><strong>Huge game library</strong><span><b id="librarySummary">Your games are rendered in fast batches while the browser warms images and game pages in the background</b> · fast-loading cards, saved progress and a full-screen game view.</span></div><div class="panel catalog-info" style="margin-bottom:12px"><strong>Quick picks</strong> <button class="btn mini" type="button" onclick="setCat('All');document.getElementById('search').value='multiplayer';document.getElementById('search').dispatchEvent(new Event('input'));scrollToId('games')">Play together</button><span>Use New for the latest additions, the star on a card to save Favourites, or search and categories to find something to play.</span></div><div class="filters" id="filters"></div><div class="games" id="gameGrid"></div><div id="loadMoreWrap" style="display:none;justify-content:center;margin-top:18px"><button class="btn mini" id="loadMoreBtn" onclick="loadMoreGames()">Load more games</button></div></section>
+<section id="games" class="section"><div class="section-head"><h2>Games</h2><small>Fast games, quick search, saved progress</small></div><div class="panel catalog-info" style="margin-bottom:12px"><strong>Huge game library</strong><span><b id="librarySummary">Your games are rendered in fast batches while the browser warms images and game pages in the background</b> <span id="catalogueGoal" class="muted" style="font-size:11px;white-space:nowrap">Goal: 2,000 catalogue entries</span> · fast-loading cards, saved progress and a full-screen game view.</span></div><div class="panel catalog-info" style="margin-bottom:12px"><strong>Quick picks</strong> <button class="btn mini" type="button" onclick="setCat('All');document.getElementById('search').value='multiplayer';document.getElementById('search').dispatchEvent(new Event('input'));scrollToId('games')">Play together</button><span>Use New for the latest additions, the star on a card to save Favourites, or search and categories to find something to play.</span></div><div class="filters" id="filters"></div><div class="games" id="gameGrid"></div><div id="loadMoreWrap" style="display:none;justify-content:center;margin-top:18px"><button class="btn mini" id="loadMoreBtn" onclick="loadMoreGames()">Load more games</button></div></section>
 <section id="cloud-gaming" class="section">
  <div class="section-head"><h2>Cloud gaming</h2><small>Big games on compatible devices</small></div>
  <p class="aio-cloud-intro">Jump into supported games through your browser. Cloud play needs a steady internet connection.</p>
@@ -1033,7 +965,8 @@ function filteredGames(){
  else if(activeCat==='All')list.sort((a,b)=>{const rank=x=>/featured/i.test(x.g.tag)?0:/popular/i.test(x.g.tag)?1:2;return rank(a)-rank(b)||a.i-b.i});
  return list;
 }
-function renderGames(){currentFiltered=filteredGames();if(visibleLimit>currentFiltered.length)visibleLimit=currentFiltered.length;const shown=currentFiltered.slice(0,visibleLimit);$('gameGrid').innerHTML=shown.length?shown.map(x=>cardHTML(x.g,x.i)).join(''):`<div class="panel" style="grid-column:1/-1">No games match that search.</div>`;$('gameCount').textContent=String(GAMES.length);$('librarySummary').textContent=`${GAMES.length} games ready`;const wrap=$('loadMoreWrap'),btn=$('loadMoreBtn');if(wrap&&btn){wrap.style.display=currentFiltered.length>visibleLimit?'flex':'none';btn.textContent=`Load more games (${Math.min(48,currentFiltered.length-visibleLimit)} more)`}hydrateImages();setupGameConnectionWarmup();}
+function renderGames(){currentFiltered=filteredGames();if(visibleLimit>currentFiltered.length)visibleLimit=currentFiltered.length;const shown=currentFiltered.slice(0,visibleLimit);$('gameGrid').innerHTML=shown.length?shown.map(x=>cardHTML(x.g,x.i)).join(''):`<div class="panel" style="grid-column:1/-1">No games match that search.</div>`;$('gameCount').textContent=String(GAMES.length);$('librarySummary').textContent=`${GAMES.length} catalogue entries · game availability may vary`;
+ const goal=$('catalogueGoal');if(goal)goal.textContent=GAMES.length.toLocaleString('en-GB')+' / 2,000 catalogue-entry goal';const wrap=$('loadMoreWrap'),btn=$('loadMoreBtn');if(wrap&&btn){wrap.style.display=currentFiltered.length>visibleLimit?'flex':'none';btn.textContent=`Load more games (${Math.min(48,currentFiltered.length-visibleLimit)} more)`}hydrateImages();setupGameConnectionWarmup();}
 function loadMoreGames(){visibleLimit+=48;renderGames();window.scrollBy({top:140,behavior:'smooth'})}
 function setCat(c){activeCat=c;visibleLimit=48;renderFilters();renderGames()}
 function toggleFavourite(event,index){if(event){event.preventDefault();event.stopPropagation()}const game=GAMES[index];if(!game)return;const key=gameKey(game);if(favouriteGames.has(key)){favouriteGames.delete(key);showToast('Removed from favourites')}else{favouriteGames.add(key);showToast('Added to favourites')}storage.setItem(FAVOURITES_KEY,JSON.stringify([...favouriteGames]));renderFilters();renderGames()}
@@ -1635,10 +1568,47 @@ const AIO_TOPVAZ_EXTRA=[
 ];
 function addTopVazExtras(){const seen=new Set(GAMES.map(g=>String(g.url||'')));for(const [slug,name] of AIO_TOPVAZ_EXTRA){const url=`https://topvaz.github.io/play/${slug}.html`;if(seen.has(url)||GAMES.some(g=>normalizeText(g.name)===normalizeText(name)))continue;GAMES.push({name,cat:'Arcade',url,source:'TopVaz',img:`https://raw.githubusercontent.com/DP321827/topvaz.github.io/main/images/${slug}.webp`,tag:'New'});seen.add(url);}CATEGORIES=['All',...new Set(GAMES.map(g=>g.cat))];}
 addTopVazExtras();
+// New first-party 3×3 games only. Preserve existing 3×3 links and their original settings.
+const AIO_3X3_ORIGINALS=[
+ {name:'3×3 Tile Slide',cat:'Puzzle',url:'games/3x3-originals.html?game=slide',source:'All in One Originals',tag:'New',desc:'Slide the eight numbered tiles into place in a solvable 3×3 puzzle.'},
+ {name:'3×3 Tic Tac Toe',cat:'Board',url:'games/3x3-originals.html?game=xo',source:'All in One Originals',tag:'New',desc:'Play a classic three-in-a-row board game against a computer.'},
+ {name:'3×3 Pattern Recall',cat:'Memory',url:'games/3x3-originals.html?game=memory',source:'All in One Originals',tag:'New',desc:'Remember and repeat longer patterns across a 3×3 board.'}
+];
+GAMES.push(...AIO_3X3_ORIGINALS);
+CATEGORIES=['All',...new Set(GAMES.map(g=>g.cat))];
 
 /* Keep every startup feature isolated: one optional error must not stop the rest of the hub. */
 function safeBoot(fn){try{return fn()}catch(e){console.error('All in One boot:',e);return null}}
-safeBoot(renderFilters);safeBoot(initSettings);if($('previewTitle'))$('previewTitle').textContent='No preview playing';safeBoot(initExtraTools);safeBoot(renderNotes);safeBoot(renderTodos);safeBoot(renderCalc);safeBoot(renderChatBoot);safeBoot(updateStudyProgress);safeBoot(updateWorldClock);safeBoot(initSpotifyBridge);setTimeout(()=>safeBoot(initSpotifyBridge),1200);setTimeout(()=>{safeBoot(renderIntroCutscene);safeBoot(renderGames)},80);
+safeBoot(renderFilters);safeBoot(initSettings);if($('previewTitle'))$('previewTitle').textContent='No preview playing';safeBoot(initExtraTools);safeBoot(renderNotes);safeBoot(renderTodos);safeBoot(renderCalc);safeBoot(renderChatBoot);safeBoot(updateStudyProgress);safeBoot(updateWorldClock);safeBoot(initSpotifyBridge);setTimeout(()=>safeBoot(initSpotifyBridge),1200);safeBoot(renderGames);
+// Keep the first view responsive; append a separately cacheable curated catalogue after first paint.
+let aioCommunityPackLoaded=false;
+async function loadAioCommunityPack(){
+ if(aioCommunityPackLoaded||!$('gameGrid'))return;
+ const response=await fetch('/games/catalogue-community.json',{cache:'force-cache',credentials:'omit'});
+ if(!response.ok)throw Error('Community catalogue could not be fetched');
+ const records=await response.json();
+ if(!Array.isArray(records)||records.length>600)throw Error('Community catalogue format unavailable');
+ const existingUrls=new Set(GAMES.map(g=>String(g.url||'').toLowerCase()));
+ const clean=s=>String(s||'').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'');
+ const existingNames=new Set(GAMES.map(g=>clean(g.name)));
+ const allowedCategories=new Set(['Arcade','Puzzle','Platformer','Racing','Sports','Simulation','Board','Memory','Word']);
+ let added=0;
+ for(const rec of records){
+  const name=String(rec?.name||'').trim(),url=String(rec?.url||''),cat=String(rec?.cat||'');
+  if(name.length<4||name.length>80||!allowedCategories.has(cat)||RESTRICTED_GAME_PATTERN.test(name+' '+cat))continue;
+  // Only the publisher's declared HTML paths, never client-supplied URLs.
+  if(!/^https:\/\/cdn\.jsdelivr\.net\/gh\/GoatTech-42\/NEBULACDN@main\/games\/[a-z0-9-]+\.html$/.test(url))continue;
+  const key=clean(name);
+  if(existingNames.has(key)||existingUrls.has(url.toLowerCase()))continue;
+  GAMES.push({name,cat,url,source:'NEBULA CDN (third-party)',img:'',tag:'New',desc:'External HTML5 catalogue entry. Availability and embedded controls depend on the publisher.',credit:'NEBULA CDN catalogue by GoatTech Industries. Game rights belong to each respective creator.',verified:'catalogue-link-only'});
+  existingUrls.add(url.toLowerCase());existingNames.add(key);added++;
+ }
+ aioCommunityPackLoaded=true;
+ if(!added)return;
+ CATEGORIES=['All',...new Set(GAMES.map(g=>g.cat))];
+ renderFilters();renderGames();
+}
+setTimeout(()=>{loadAioCommunityPack().catch(error=>console.warn('Additional catalogue unavailable:',error?.message||error))},550);
 // Load the provider's public game catalogue after the initial UI is responsive.
 
 
@@ -1718,8 +1688,7 @@ function initLiveUpdates(){
     else if(liveSectionVisible)refreshLive();
   });
 }
-function skipIntro(){window.aioFinishIntro?.()}
-function renderIntroCutscene(){/* Retired thumbnail intro: head guard controls the small CSS loader. */}
+function skipIntro(){/* No startup intro: navigate directly to the hub. */}
 safeBoot(updateResumeCard);safeBoot(renderChatHistory);safeBoot(renderAudioTracks);safeBoot(initLanguage);safeBoot(initSpotify);safeBoot(initMusicSearch);safeBoot(runCode);safeBoot(updateCacheStatus);safeBoot(renderAfkShuffle);safeBoot(initLiveUpdates);
 setTimeout(()=>safeBoot(loadOnlineGamesCatalog),650);
 
