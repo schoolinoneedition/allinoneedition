@@ -24,6 +24,7 @@ const eventIndex = read('supabase/migrations/20261028103427_index_tiktok_sticker
 const staffRls = read('supabase/migrations/20261028103528_optimize_tiktok_sticker_staff_rls_policies.sql');
 const animeStorage = read('supabase/migrations/20261030125800_anime_episode_storage_manager.sql');
 const vercel = read('vercel.json');
+const threeByThreeLanding = read('3x3-games.html');
 const seoRobots = read('robots.txt');
 const seoSitemap = read('sitemap.xml');
 const browserGames = read("browser-games.html");
@@ -409,3 +410,15 @@ assert.ok(elementor.includes("MEDIA_API+'/uploads/initiate'") && elementor.inclu
 assert.ok(elementor.includes("from('staff_roles')") && elementor.includes("data?.role==='owner'") && elementorSchema.includes("s.role = 'owner'"), 'Elementor site controls must be restricted to the verified owner role.');
 assert.ok(elementorWorker.includes('authenticatedUser') && elementorWorker.includes('llama-3.3-70b-instruct-fp8-fast') && elementorWorker.includes('flux-1-schnell'), 'Elementor Worker must authenticate chat and image requests.');
 assert.ok(elementorSchema.includes('enable row level security') && elementorSchema.includes('Users manage their Elementor conversations') && elementorSchema.includes('Public can read Elementor announcements'), 'Elementor chat data must be protected by RLS while public announcement text remains readable.');
+
+const seoRoutes = JSON.parse(vercel).rewrites;
+assert.ok(seoRoutes.some(r => r.source === '/3x3-games' && r.destination === '/3x3-games.html'), '3x3 discovery page must have a clean route.');
+assert.ok(read('sitemap.xml').includes('https://allinoneedition.vercel.app/3x3-games'), '3x3 page must appear in the sitemap.');
+assert.ok(threeByThreeLanding.includes('rel="canonical" href="https://allinoneedition.vercel.app/3x3-games"'), '3x3 page needs the correct canonical.');
+assert.ok(html.includes('href="/3x3-games"') && read('browser-games.html').includes('href="/3x3-games"'), 'Search discovery pages must be reachable from the game hub.');
+assert.ok(html.includes("get('play')") && html.includes('GAMES.findIndex(game=>game.name===requested)'), 'Game links can only open exact named catalogue titles.');
+for (const game of ['3x3 Steal an Egg', '3x3 +1 Keyboard Escape', '3×3 Tile Slide', '3×3 Tic Tac Toe', '3×3 Pattern Recall']) {
+ assert.ok(threeByThreeLanding.includes('<h3>'+game+'</h3>'), '3x3 page missing existing game: '+game);
+}
+const threeByThreeSchema=JSON.parse(threeByThreeLanding.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
+assert.equal(threeByThreeSchema.mainEntity.itemListElement.length,5,'SEO item list must represent the five real game links.');
