@@ -27,6 +27,13 @@ const vercel = read('vercel.json');
 const seoRobots = read('robots.txt');
 const seoSitemap = read('sitemap.xml');
 const browserGames = read("browser-games.html");
+const originalPuzzlePage = read("games/3x3-originals.html");
+const originalArcadePage = read("games/bonus-arcade.html");
+for (const gamePage of [originalPuzzlePage, originalArcadePage]) {
+  assert.ok(gamePage.includes('name="robots" content="noindex, follow"'), 'Variant-only game shells should not compete with their shared discovery page.');
+}
+assert.ok(!browserGames.includes('name="robots" content="noindex'), 'Search discovery page must remain indexable.');
+
 assert.match(browserGames, /<link rel="canonical" href="https:\/\/allinoneedition\.vercel\.app\/browser-games">/);
 assert.match(browserGames, /3×3 Tile Slide/);
 assert.match(browserGames, /\/games\/bonus-arcade\.html\?game=snake/);
