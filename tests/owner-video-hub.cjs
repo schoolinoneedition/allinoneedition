@@ -114,4 +114,5 @@ assert.ok(watch.includes('const abortSession=await ownerClient.auth.getSession()
 assert.ok(watch.includes('id="showSearch"')&&watch.includes("addEventListener('input',renderSeries)"),'Watch must support searching show titles without changing the existing filters.');
 assert.ok(watch.includes('watchCoverObserver')&&watch.includes("image.dataset.watchCover=s.banner"),'Watch show posters should lazy-load near their viewport instead of downloading the whole set eagerly.');
 assert.ok(watch.includes('"@type":"CollectionPage"')&&watch.includes('href="/browser-games"'), 'Watch must carry crawlable SEO metadata and a real games link.');
+assert.ok(watch.includes('Anime Episode Tracker & Cartoon Guides')&&watch.includes('id="watchGuideTitle"')&&watch.includes('Where do Watch videos come from?'), 'Watch search intent and helpful visible episode tracking answers must be preserved.');
 console.log('Owner Studio, AI Video Studio, Watch and game-library preservation contracts passed.');
