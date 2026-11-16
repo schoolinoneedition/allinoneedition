@@ -100,8 +100,8 @@ for(const asset of [eggLogo,keyboardLogo]){
 
 assert.ok(index.includes('id="gameModal"')&&index.includes('id="gameModalBox"')&&index.includes('id="fsBtn"'),'Keep the original game modal and Fullscreen control.');
 assert.ok(!index.includes('game3x3Corner')&&!index.includes('game-3x3-corner')&&!index.includes('id="game3x3Identity"'),'Do not reintroduce the custom overlay player UI.');
-assert.ok(index.includes("classList.toggle('aio-3x3-direct',isThreeByThree)")&&index.includes("classList.remove('aio-3x3-direct')"),'Only apply the 3x3 host-toolbar crop while a direct 3x3 game is open.');
-assert.ok(index.includes('#gameModal.open.aio-3x3-direct #gameFrame')&&index.includes('clip-path:polygon('),'Keep the hidden third-party toolbar without changing the original player interface.');
+assert.ok(!index.includes('aio-3x3-direct')&&!index.includes('clip-path:polygon('),'3x3 games must not have a black cut-out or legacy host-toolbar crop.');
+assert.ok(index.includes("#gameModal #gameFrame{clip-path:none}")&&index.includes("$('gameFrame').allowFullscreen=true;"),'3x3 game frames must remain rectangular and support fullscreen.');
 assert.ok(index.includes('async function loadGameIntoFrame(g)')&&index.includes("select('html_content')"),'Uploaded HTML game playback must survive the UI rollback.');
 assert.ok(!index.includes('id="aio-feature-hub"'),'The new video-first homepage redesign must stay reverted.');
 
@@ -111,4 +111,8 @@ assert.ok(watch.includes('Number(init.partSizeBytes)||8*1024*1024,8*1024*1024'),
 assert.ok(watch.includes('failure.permanent=true')&&watch.includes('if(error.permanent||/Session expired/'), 'Stop retrying permanent upload failures and expired login sessions.');
 assert.ok(watch.includes('const abortSession=await ownerClient.auth.getSession()'), 'Watch must refresh auth when aborting failed uploads.');
 
+assert.ok(watch.includes('id="showSearch"')&&watch.includes("addEventListener('input',renderSeries)"),'Watch must support searching show titles without changing the existing filters.');
+assert.ok(watch.includes('watchCoverObserver')&&watch.includes("image.dataset.watchCover=s.banner"),'Watch show posters should lazy-load near their viewport instead of downloading the whole set eagerly.');
+assert.ok(watch.includes('"@type":"CollectionPage"')&&watch.includes('href="/browser-games"'), 'Watch must carry crawlable SEO metadata and a real games link.');
+assert.ok(watch.includes('Anime Episode Tracker & Cartoon Guides')&&watch.includes('id="watchGuideTitle"')&&watch.includes('Where do Watch videos come from?'), 'Watch search intent and helpful visible episode tracking answers must be preserved.');
 console.log('Owner Studio, AI Video Studio, Watch and game-library preservation contracts passed.');

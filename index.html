@@ -469,15 +469,8 @@ html.game-fullscreen #gameModal.open .game-stage{height:100dvh!important;width:1
 @keyframes aio-release-spark{0%,100%{transform:scale(1);opacity:.75}50%{transform:scale(1.14);opacity:1}}
 @media(prefers-reduced-motion:reduce){.aio-release-overlay,.aio-release-card,.aio-release-stars{animation:none!important}}
 
-/* Only the two 3x3 game frames need their third-party toolbar hidden. */
-#gameModal.open.aio-3x3-direct #gameFrame{
- --three-toolbar-width:min(330px,78%);
- --three-toolbar-height:90px;
- clip-path:polygon(0 0,
- calc(100% - var(--three-toolbar-width)) 0,
- calc(100% - var(--three-toolbar-width)) var(--three-toolbar-height),
- 100% var(--three-toolbar-height),100% 100%,0 100%);
-}
+/* Keep embedded games rectangular. A polygon crop exposed a black corner on 3x3 games. */
+#gameModal #gameFrame{clip-path:none}
 </style>
 <link rel="stylesheet" href="./appearance.css">
 <link rel="stylesheet" href="./ultimate-experience.css">
@@ -1153,7 +1146,7 @@ async function startGamePresence(game){
       });
   }catch{if(label)label.textContent='Live players · unavailable';}
 }
-function openGame(i){const g=GAMES[i];if(!g)return;const isThreeByThree=/\/gf\/3x3-(?:steal-egg|speed)\//.test(g.url||'');$('gameModal').classList.toggle('aio-3x3-direct',isThreeByThree);$('gameFrame').allowFullscreen=!isThreeByThree;currentGame=g;startGamePresence(g);warmGameConnection(g.url);gameMuted=false;updateGameMuteButton();const k=gameKey(g),st=gameProgress[k]||{progress:0,plays:0};st.plays=(st.plays||0)+1;st.lastPlayed=Date.now();gameProgress[k]=st;storage.setItem(GAME_PROGRESS_KEY,JSON.stringify(gameProgress));$('modalTitle').textContent=g.name;if($('progressRange'))$('progressRange').value=st.progress||0;if($('progressLabel'))$('progressLabel').textContent=(st.progress||0)+'%';if($('playCountLabel'))$('playCountLabel').textContent=(st.plays||0)+' play'+(st.plays===1?'':'s');if($('modalNote'))$('modalNote').textContent=g.credit?g.credit+' Game progress is stored locally when supported.':'Hub progress is saved locally on this device.';document.querySelectorAll('.progressbarbox').forEach(e=>e.classList.remove('progress-visible'));$('gameLoading').style.display='grid';$('gameError').classList.remove('show');$('gameModal').classList.add('open');updateResumeCard();loadGameIntoFrame(g)}
+function openGame(i){const g=GAMES[i];if(!g)return;$('gameFrame').allowFullscreen=true;currentGame=g;startGamePresence(g);warmGameConnection(g.url);gameMuted=false;updateGameMuteButton();const k=gameKey(g),st=gameProgress[k]||{progress:0,plays:0};st.plays=(st.plays||0)+1;st.lastPlayed=Date.now();gameProgress[k]=st;storage.setItem(GAME_PROGRESS_KEY,JSON.stringify(gameProgress));$('modalTitle').textContent=g.name;if($('progressRange'))$('progressRange').value=st.progress||0;if($('progressLabel'))$('progressLabel').textContent=(st.progress||0)+'%';if($('playCountLabel'))$('playCountLabel').textContent=(st.plays||0)+' play'+(st.plays===1?'':'s');if($('modalNote'))$('modalNote').textContent=g.credit?g.credit+' Game progress is stored locally when supported.':'Hub progress is saved locally on this device.';document.querySelectorAll('.progressbarbox').forEach(e=>e.classList.remove('progress-visible'));$('gameLoading').style.display='grid';$('gameError').classList.remove('show');$('gameModal').classList.add('open');updateResumeCard();loadGameIntoFrame(g)}
 function reloadGame(){if(!currentGame)return;$('gameError').classList.remove('show');loadGameIntoFrame(currentGame)}function openCurrentGameNewTab(){if(!currentGame)return;if(isUploadedHtmlGame(currentGame)){showToast('Uploaded HTML games play in the protected game player.');return;}window.open(currentGame.url,'_blank','noopener,noreferrer')}
 $('gameFrame').addEventListener('load',()=>{
  if(!currentGame||!$('gameModal').classList.contains('open'))return;
@@ -1187,7 +1180,7 @@ async function enterAFK(){
   showToast('AFK mode on');
 }
 function exitAFK(resume){if(!afkActive)return;const overlay=$('afkOverlay');afkActive=false;if(resume)resumeCurrentGame();overlay?.classList.add('returning');setTimeout(()=>{overlay?.classList.remove('open','returning');overlay?.setAttribute('aria-hidden','true');document.body.classList.remove('afk-mode');renderAfkShuffle();showToast(resume?(currentGame?'Welcome back — resuming your game':'Welcome back'):'Back to the site')},520)}
-function closeGame(){++htmlGameLoadSerial;clearTimeout(gameLoadTimer);stopGamePresence();$('gameModal').classList.remove('aio-3x3-direct');$('gameFrame').allowFullscreen=true;window.AioHtmlGameSandbox?.clearFrame($('gameFrame'));if(document.fullscreenElement){document.exitFullscreen?.().catch?.(()=>{})}pseudoGameFullscreen=false;document.documentElement.classList.remove('game-fullscreen');$('gameModal').classList.remove('open');$('gameFrame').src='about:blank';$('gameLoading').style.display='grid';$('gameError').classList.remove('show');currentGame=null;renderGames()}
+function closeGame(){++htmlGameLoadSerial;clearTimeout(gameLoadTimer);stopGamePresence();$('gameFrame').allowFullscreen=true;window.AioHtmlGameSandbox?.clearFrame($('gameFrame'));if(document.fullscreenElement){document.exitFullscreen?.().catch?.(()=>{})}pseudoGameFullscreen=false;document.documentElement.classList.remove('game-fullscreen');$('gameModal').classList.remove('open');$('gameFrame').src='about:blank';$('gameLoading').style.display='grid';$('gameError').classList.remove('show');currentGame=null;renderGames()}
 let pseudoGameFullscreen=false;async function fullscreenGame(){const stage=$('gameStage');if(!stage)return;if(pseudoGameFullscreen&&!document.fullscreenElement){pseudoGameFullscreen=false;syncGameFullscreen();return}if(document.fullscreenElement){try{await document.exitFullscreen()}catch{}return}try{pseudoGameFullscreen=false;if(stage.requestFullscreen)await stage.requestFullscreen({navigationUI:'hide'});else throw Error('no fullscreen api')}catch{pseudoGameFullscreen=true;document.documentElement.classList.add('game-fullscreen');showToast('Game-only view enabled. Browser fullscreen was blocked.')}}function syncGameFullscreen(){document.documentElement.classList.toggle('game-fullscreen',!!document.fullscreenElement||pseudoGameFullscreen);const b=$('fsBtn');if(b)b.textContent=(document.fullscreenElement||pseudoGameFullscreen)?'Exit fullscreen':'Fullscreen'}document.addEventListener('fullscreenchange',syncGameFullscreen);document.addEventListener('keydown',e=>{if(e.key==='Escape'&&pseudoGameFullscreen){pseudoGameFullscreen=false;syncGameFullscreen()}});
 $('gameModal').addEventListener('click',e=>{if(e.target.id==='gameModal')closeGame()});
 let schoolUrl='';function openSchool(n,u){schoolUrl=u;$('schoolTitle').textContent=n;$('schoolFrame').src=u;$('schoolModal').classList.add('open')}function closeSchool(){$('schoolModal').classList.remove('open');$('schoolFrame').src='about:blank'}function schoolExternal(){if(schoolUrl)window.open(schoolUrl,'_blank','noopener,noreferrer')}$('schoolModal').addEventListener('click',e=>{if(e.target.id==='schoolModal')closeSchool()});

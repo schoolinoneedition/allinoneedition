@@ -4,13 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#101522">
-<meta name="description" content="Discover anime episode guides, family cartoon picks, a watch tracker and owner-hosted videos on All in One Edition.">
-<title>Watch | Anime Guides & Cartoons | All in One Edition</title>
+<meta name="description" content="Track watched anime episodes, search show guides and explore family cartoons. Free browser episode tracker with local progress and official video sources.">
+<title>Anime Episode Tracker & Cartoon Guides | All in One Edition</title>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Anime Episode Tracker and Cartoon Guides","url":"https://allinoneedition.vercel.app/anime","description":"Browse anime and family cartoon episode guides, track watched episodes locally and follow official publisher sources.","isPartOf":{"@type":"WebSite","name":"All in One Edition","url":"https://allinoneedition.vercel.app/"}}</script>
 <link rel="canonical" href="https://allinoneedition.vercel.app/anime">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="All in One Edition">
-<meta property="og:title" content="Watch | Anime Guides & Cartoons | All in One Edition">
-<meta property="og:description" content="Discover anime episode guides, family cartoon picks, a watch tracker and owner-hosted videos on All in One Edition.">
+<meta property="og:title" content="Anime Episode Tracker & Cartoon Guides | All in One Edition">
+<meta property="og:description" content="Track watched anime episodes, search show guides and explore family cartoons. Free browser episode tracker with local progress and official video sources.">
 <meta property="og:url" content="https://allinoneedition.vercel.app/anime">
 <meta name="twitter:card" content="summary">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png"><link rel="shortcut icon" href="/favicon.ico"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -57,6 +58,9 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
 @media(max-width:520px){.topbar{height:60px;gap:6px}.brand{font-size:11px}.mark{width:33px;height:33px}.toplink{height:33px;padding:0 8px;font-size:9px}.theme{width:33px;height:33px}main{padding:22px 12px 40px}.series-grid{gap:8px}.series-card{min-height:196px;border-radius:15px}.series-art{height:94px;padding:11px}.series-symbol{width:39px;height:39px;font-size:18px}.series-info{padding:10px}.series-info h3{font-size:11px}.catalog{margin-top:18px}.episode-panel{padding:12px}.side-stack{grid-template-columns:1fr}.toolbar{grid-template-columns:1fr}.episode-row{grid-template-columns:37px minmax(0,1fr) auto;gap:7px;padding:8px}.ep-num{width:35px;height:34px;font-size:9px}.ep-check{font-size:7px}.ep-copy strong{font-size:9px}.hero h1{letter-spacing:-1.3px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 
+.watch-guide{border:1px solid var(--line);border-radius:17px;padding:clamp(16px,3vw,24px);margin:22px 0 14px;background:var(--panel)}
+.watch-guide h2{font-size:clamp(17px,2.8vw,23px);margin:0 0 12px}.watch-guide p{font-size:11px;line-height:1.75;color:var(--muted);margin:0 0 12px}
+.watch-guide details{border-top:1px solid var(--line);padding:12px 0}.watch-guide details:last-child{padding-bottom:0}.watch-guide summary{font-size:12px;font-weight:850;cursor:pointer}.watch-guide details p{margin:9px 0 0}
 /* Wide anime spotlight banners and episode viewing stage */
 .spotlight-banner{--spotlight:#365dff;position:relative;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(180px,.8fr);align-items:center;gap:18px;min-height:190px;overflow:hidden;padding:clamp(18px,3vw,30px);margin:14px 0 24px;border:1px solid color-mix(in srgb,var(--spotlight) 40%,var(--line));border-radius:23px;background:radial-gradient(circle at 78% 38%,color-mix(in srgb,var(--spotlight) 55%,transparent),transparent 28%),linear-gradient(115deg,color-mix(in srgb,var(--spotlight) 35%,var(--panel)),var(--panel) 72%);box-shadow:var(--shadow)}
 .spotlight-banner:after{content:attr(data-kanji);position:absolute;right:5%;top:-35%;font-size:clamp(150px,24vw,280px);line-height:1;font-weight:1000;letter-spacing:-.15em;color:rgba(255,255,255,.11);pointer-events:none}
@@ -144,7 +148,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
 .watch-video-stage:fullscreen{height:100vh;padding:0}
 .watch-video-stage:fullscreen .watch-video{width:100%;height:100%;max-height:100vh;aspect-ratio:auto}
 
-.watch-filters{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}.watch-filter{border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:9px 14px;border-radius:999px;font-family:inherit;font-size:11px;font-weight:800;cursor:pointer;transition:background .18s,border-color .18s,color .18s}.watch-filter.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 6px 18px color-mix(in srgb,var(--accent) 24%,transparent)}.watch-content-note{margin:0 0 18px;padding:11px 13px;border:1px solid var(--line);border-radius:12px;background:var(--soft);color:var(--muted);font-size:10px;line-height:1.6}.watch-episode-embed{display:block;width:100%;height:100%;min-height:180px;aspect-ratio:16/9;border:0;background:#05080f}.watch-player-stage:has(.watch-episode-embed){display:block;aspect-ratio:auto;min-height:0;max-height:none;padding:0}.watch-embed-controls{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:10px;background:var(--panel);border-top:1px solid var(--line)}.watch-embed-controls button{min-height:34px;padding:7px 12px;border:1px solid var(--line);border-radius:9px;background:var(--soft);color:var(--text);font:inherit;font-size:10px;font-weight:850;cursor:pointer}.watch-embed-controls button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}.watch-embed-wrap{display:flex;flex-direction:column;width:100%;height:100%;background:#05080f}.watch-embed-wrap .watch-episode-embed{width:100%;height:auto;aspect-ratio:16/9;min-height:180px;max-height:560px;flex:none}.mark{object-fit:contain;flex:none}@media(max-width:600px){.watch-filter{padding:8px 11px}.watch-content-note{font-size:9px}}
+.watch-discovery{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:7px}.watch-filters{display:flex;gap:8px;flex-wrap:wrap;margin:0}.watch-search-label{display:flex;align-items:center;gap:9px;font-size:11px;font-weight:800;color:var(--muted)}.watch-search-label input{width:min(350px,70vw);min-height:38px}.watch-search-status{font-size:10px;color:var(--muted);margin:0 0 12px}@media(max-width:620px){.watch-discovery{align-items:stretch}.watch-search-label{width:100%;justify-content:space-between}.watch-search-label input{width:min(100%,320px);flex:1}}.watch-filter{border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:9px 14px;border-radius:999px;font-family:inherit;font-size:11px;font-weight:800;cursor:pointer;transition:background .18s,border-color .18s,color .18s}.watch-filter.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 6px 18px color-mix(in srgb,var(--accent) 24%,transparent)}.watch-content-note{margin:0 0 18px;padding:11px 13px;border:1px solid var(--line);border-radius:12px;background:var(--soft);color:var(--muted);font-size:10px;line-height:1.6}.watch-episode-embed{display:block;width:100%;height:100%;min-height:180px;aspect-ratio:16/9;border:0;background:#05080f}.watch-player-stage:has(.watch-episode-embed){display:block;aspect-ratio:auto;min-height:0;max-height:none;padding:0}.watch-embed-controls{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:10px;background:var(--panel);border-top:1px solid var(--line)}.watch-embed-controls button{min-height:34px;padding:7px 12px;border:1px solid var(--line);border-radius:9px;background:var(--soft);color:var(--text);font:inherit;font-size:10px;font-weight:850;cursor:pointer}.watch-embed-controls button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}.watch-embed-wrap{display:flex;flex-direction:column;width:100%;height:100%;background:#05080f}.watch-embed-wrap .watch-episode-embed{width:100%;height:auto;aspect-ratio:16/9;min-height:180px;max-height:560px;flex:none}.mark{object-fit:contain;flex:none}@media(max-width:600px){.watch-filter{padding:8px 11px}.watch-content-note{font-size:9px}}
 </style>
 <link rel="stylesheet" href="./appearance.css">
 <script src="./appearance.js" defer></script>
@@ -153,7 +157,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
 <header class="topbar">
  <a class="brand" href="./index.html"><img class="mark" src="/favicon.png" alt="" width="38" height="38"><span>All in One Edition<small>Watch · anime and family cartoons</small></span></a>
  <span class="spacer"></span>
- <a class="toplink" href="/video">AI Video</a>
+ <a class="toplink" href="/browser-games">Games</a><a class="toplink" href="/video">AI Video</a>
  <a class="toplink" href="./study.html">Study Hub</a>
  <a class="toplink primary" href="./index.html">← Hub</a>
  <button class="theme" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">◐</button>
@@ -165,10 +169,10 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
  </section>
  <section class="spotlight-banner" id="spotlightBanner" data-kanji="ア" style="--spotlight:#e8a52d" aria-live="polite">
   <div class="spotlight-copy"><span class="spotlight-kicker" id="spotlightKicker">FEATURED SERIES · ANIME ZONE</span><h2 id="spotlightTitle">Pokémon</h2><p id="spotlightDescription">Pick a series, choose an episode and track your watch progress.</p><div class="spotlight-meta"><span class="pill rating" id="spotlightRating">UK U</span><span class="pill" id="spotlightMeta">Episode guide and watch tracker</span></div><div class="spotlight-actions"><button class="action primary" id="spotlightBrowse" type="button">Browse episodes ↓</button><button class="action" id="spotlightWatch" type="button">Watch available episode ▶</button></div></div>
-  <div class="spotlight-art" aria-hidden="true"><img id="spotlightImage" alt="" loading="lazy" decoding="async"><span class="spotlight-symbol" id="spotlightSymbol">◉</span></div>
+  <div class="spotlight-art" aria-hidden="true"><img id="spotlightImage" alt="" width="800" height="450" loading="eager" fetchpriority="high" decoding="async"><span class="spotlight-symbol" id="spotlightSymbol">◉</span></div>
  </section>
  <div class="section-title"><div><h2>Explore Watch</h2><p>Keep anime and family cartoons in one place, with clear categories and official episode sources.</p></div></div>
- <div class="watch-filters" role="group" aria-label="Filter shows"><button type="button" class="watch-filter active" data-watch-filter="all" aria-pressed="true">Everything</button><button type="button" class="watch-filter" data-watch-filter="anime" aria-pressed="false">Anime</button><button type="button" class="watch-filter" data-watch-filter="cartoons" aria-pressed="false">Family cartoons</button></div>
+ <div class="watch-discovery"><div class="watch-filters" role="group" aria-label="Filter shows"><button type="button" class="watch-filter active" data-watch-filter="all" aria-pressed="true">Everything</button><button type="button" class="watch-filter" data-watch-filter="anime" aria-pressed="false">Anime</button><button type="button" class="watch-filter" data-watch-filter="cartoons" aria-pressed="false">Family cartoons</button></div><label class="watch-search-label" for="showSearch">Find a show <input class="field" id="showSearch" type="search" autocomplete="off" placeholder="Search titles, genres or descriptions" aria-describedby="showSearchStatus"></label></div><p id="showSearchStatus" class="watch-search-status" role="status" aria-live="polite"></p>
  <p class="watch-content-note">Family cartoon picks link to official publisher videos or episode guides. Anime titles keep their published age labels; some are aimed at older audiences. Always check the programme rating before watching.</p>
  <section class="series-grid" id="seriesGrid" aria-label="Anime series"></section>
  <section class="catalog" id="episodeCatalog" aria-label="Episode catalogue">
@@ -215,7 +219,14 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
    <section class="side-panel"><h3>Progress controls</h3><p>Watched ticks are stored only in this browser. You can export a backup or clear the watch history at any time.</p><div class="watch-links"><button class="watch-link" id="exportProgress" type="button">Export watch progress <span>↓</span></button><button class="watch-link" id="clearProgress" type="button">Clear watch progress <span>↺</span></button></div><p id="saveStatus" class="stat-caption" aria-live="polite" style="margin-top:9px">Progress saves automatically.</p></section>
   </aside>
  </section>
- <footer class="footer"><span>Anime Zone · All in One Edition</span><span>Episode information checked October 2026 · availability can change</span></footer>
+ <section class="watch-guide" aria-labelledby="watchGuideTitle">
+<h2 id="watchGuideTitle">How to use your anime episode tracker</h2>
+<p>Search for a show by its title or genre, choose a season, then tick the episodes you've watched. Your checklist is saved on this device, so you can return to it later without creating a separate tracker account.</p>
+<details><summary>Can I track episodes and back up my progress?</summary><p>Yes. Mark episodes as watched in the episode catalogue. Use Export watch progress to save a JSON backup of your local checklist. Clearing browser data may erase progress unless you kept a backup.</p></details>
+<details><summary>Where do Watch videos come from?</summary><p>Watch provides episode information and links to official publisher sources. The verified site owner can also attach authorised self-hosted videos through Backblaze B2. Not every listed episode has a playable video.</p></details>
+<details><summary>How do I find family cartoons or anime?</summary><p>Use the Anime and Family cartoons filters above, or type a show name, genre or description into Find a show. Select a result to browse its episode guide.</p></details>
+</section>
+<footer class="footer"><span>Anime Zone · All in One Edition</span><span>Episode information checked October 2026 · availability can change</span></footer>
 </main>
 <link rel="preconnect" href="https://btnbuchsrfllpzlypjtn.supabase.co" crossorigin>
 <link rel="dns-prefetch" href="https://btnbuchsrfllpzlypjtn.supabase.co">
@@ -232,6 +243,15 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
  let watched=readStore(),activeId='pokemon',activeSeason=0,activeWatchFilter='all',cartoonAutoPlay=true;
  let currentSession=null,siteOwner=false,episodeLinks=new Map(),selectedEpisode=null,episodeUploadActive=false;
  let youtubePlayer=null,youtubeApiPromise=null,youtubeRender=0;
+ // Large remote posters are requested only as their cards approach the viewport.
+ const watchCoverObserver='IntersectionObserver' in window?new IntersectionObserver(entries=>{
+  for(const entry of entries){
+   if(!entry.isIntersecting)continue;
+   watchCoverObserver.unobserve(entry.target);
+   const url=entry.target.dataset.watchCover;
+   if(url){entry.target.src=url;delete entry.target.dataset.watchCover}
+  }
+ },{rootMargin:'160px 0px',threshold:0.01}):null;
  function loadYouTubeApi(){
   if(window.YT?.Player)return Promise.resolve(window.YT);
   if(youtubeApiPromise)return youtubeApiPromise;
@@ -642,11 +662,15 @@ function updateOwnerEditor(s,si,ep){
  function seriesProgress(s){let all=0,done=0;s.seasons.forEach((season,si)=>season.episodes.forEach(ep=>{all++;if(watched[key(s.id,si,ep.number)])done++}));return {all,done,pct:all?Math.round(done/all*100):0}}
  function renderStats(){let all=0,done=0;series.forEach(s=>{const p=seriesProgress(s);all+=p.all;done+=p.done});$('watchedCount').textContent=done.toLocaleString('en-GB');$('watchedCaption').textContent='of '+all.toLocaleString('en-GB')+' listed episodes marked watched';$('progressPct').textContent=(all?Math.round(done/all*100):0)+'%';$('overallBar').style.width=(all?done/all*100:0)+'%'}
  function renderSeries(){
-  const grid=$('seriesGrid');grid.replaceChildren();
-  series.filter(s=>activeWatchFilter==='all'||(activeWatchFilter==='cartoons'?s.kind==='cartoon':s.kind!=='cartoon')).forEach(s=>{
+  const grid=$('seriesGrid');watchCoverObserver?.disconnect();grid.replaceChildren();
+  const search=$('showSearch').value.trim().toLocaleLowerCase('en-GB');
+  const filtered=series.filter(s=>(activeWatchFilter==='all'||(activeWatchFilter==='cartoons'?s.kind==='cartoon':s.kind!=='cartoon'))&&(!search||[s.title,s.type,s.description,s.meta].join(' ').toLocaleLowerCase('en-GB').includes(search)));
+  $('showSearchStatus').textContent=filtered.length+' '+(filtered.length===1?'show':'shows')+' found'+(search?' for your search':'')+'.';
+  if(!filtered.length){const note=document.createElement('p');note.className='empty-episode';note.textContent='No matching shows. Try another title or choose Everything.';grid.append(note);return}
+  filtered.forEach(s=>{
    const p=seriesProgress(s),button=document.createElement('button');button.type='button';button.className='series-card';button.style.setProperty('--tone',s.tone);button.setAttribute('aria-pressed',String(s.id===activeId));
    const art=document.createElement('div');art.className='series-art';art.dataset.jp=s.jp;
-   if(s.banner){const image=document.createElement('img');image.src=s.banner;image.alt=s.title+' key visual';image.loading='lazy';image.decoding='async';image.addEventListener('error',()=>image.remove(),{once:true});art.append(image)}
+   if(s.banner){const image=document.createElement('img');image.dataset.watchCover=s.banner;image.alt=s.title+' key visual';image.width=440;image.height=260;image.loading='lazy';image.decoding='async';image.fetchPriority='low';image.addEventListener('error',()=>image.remove(),{once:true});art.append(image);if(watchCoverObserver)watchCoverObserver.observe(image);else{image.src=s.banner;delete image.dataset.watchCover}}
    const symbol=document.createElement('span');symbol.className='series-symbol';symbol.textContent=s.symbol;
    const type=document.createElement('span');type.className='series-type';type.textContent=s.type;art.append(type,symbol);
    const info=document.createElement('div');info.className='series-info';
@@ -659,6 +683,7 @@ function updateOwnerEditor(s,si,ep){
   });
  }
  function selectSeries(id,scroll){activeId=id;activeSeason=0;$('episodeSearch').value='';$('progressFilter').value='all';updateSpotlight();renderCatalog();renderSeries();if(scroll)$('episodeCatalog').scrollIntoView({behavior:'smooth',block:'start'})}
+ $('showSearch').addEventListener('input',renderSeries);
  document.querySelectorAll('[data-watch-filter]').forEach(button=>button.addEventListener('click',()=>{activeWatchFilter=button.dataset.watchFilter;document.querySelectorAll('[data-watch-filter]').forEach(item=>{const active=item===button;item.classList.toggle('active',active);item.setAttribute('aria-pressed',String(active))});const first=series.find(item=>activeWatchFilter==='all'||(activeWatchFilter==='cartoons'?item.kind==='cartoon':item.kind!=='cartoon'));if(first&&!(activeWatchFilter==='all'||(activeWatchFilter==='cartoons'?current().kind==='cartoon':current().kind!=='cartoon')))selectSeries(first.id,false);else renderSeries()}));
  function renderCatalog(){
   const s=current(),p=seriesProgress(s);$('catalogTitle').textContent=s.title;$('catalogDescription').textContent=s.description+' · '+p.done+'/'+p.all+' tracked.';$('catalogRating').textContent='UK '+s.rating;
