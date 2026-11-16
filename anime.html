@@ -377,7 +377,7 @@ function updateOwnerEditor(s,si,ep){
   if($('episodeUploadMeta'))$('episodeUploadMeta').textContent='No file selected';
   if($('uploadEpisodeVideo'))$('uploadEpisodeVideo').disabled=true;
   if($('hostedVideoResult'))$('hostedVideoResult').hidden=!saved;
-  if(saved){$('hostedVideoUrl').value=saved.watch_url;$('openHostedVideoUrl').href=saved.watch_url}
+  if(saved){$('hostedVideoUrl').value=saved.watch_url;refreshHostedOpenLink(saved.watch_url)}
   if($('removeEpisodeLink'))$('removeEpisodeLink').disabled=!saved;
   if($('ownerLinkStatus'))$('ownerLinkStatus').textContent=saved?'Hosted video URL is saved for this episode.':'No video saved for this episode yet.';
  }
@@ -451,6 +451,17 @@ function updateOwnerEditor(s,si,ep){
   }catch(error){$('ownerLinkStatus').textContent='Could not save: '+(error?.message||'Database error.')}
   finally{button.disabled=false}
  }
+ function refreshHostedOpenLink(mediaUrl){
+  const link=$('openHostedVideoUrl');
+  if(!mediaUrl){link.removeAttribute('href');link.setAttribute('aria-disabled','true');return}
+  if(!String(mediaUrl).startsWith(B2_MEDIA_API+'/media/')){link.href=mediaUrl;link.removeAttribute('aria-disabled');return}
+  link.removeAttribute('href');link.setAttribute('aria-disabled','true');
+  getB2PlaybackUrl(mediaUrl).then(url=>{
+   if($('hostedVideoUrl').value===mediaUrl){link.href=url;link.removeAttribute('aria-disabled')}
+  }).catch(()=>{
+   if($('hostedVideoUrl').value===mediaUrl)$('ownerLinkStatus').textContent='The B2 reference is saved, but the temporary playback link is unavailable. Try reopening the episode.';
+  });
+ }
  async function uploadOwnerEpisodeVideo(){
   if(episodeUploadActive){$('ownerLinkStatus').textContent='An upload is already in progress.';return}
   if(!siteOwner||!currentSession?.user||!selectedEpisode){$('ownerLinkStatus').textContent='Only the verified site owner can upload a video. Select an episode first.';return}
@@ -471,11 +482,14 @@ function updateOwnerEditor(s,si,ep){
   let uploadId=null,completed=false,saved=false;
   const headers={'Authorization':'Bearer '+currentSession.access_token,'Content-Type':'application/json'};
   try{
+   const startSession=await ownerClient.auth.getSession();
+   if(!startSession.data?.session?.access_token)throw Error('Session expired. Sign in again.');
+   headers.Authorization='Bearer '+startSession.data.session.access_token;
    const initRes=await fetch(B2_MEDIA_API+'/uploads/initiate',{method:'POST',headers,body:JSON.stringify({filename:safeName,contentType,sizeBytes:file.size,visibility:'public'})});
    const init=await initRes.json().catch(()=>({}));
    if(!initRes.ok||!init.uploadId)throw new Error(init.error||'B2 could not start the upload.');
    uploadId=init.uploadId;
-   const partSize=Math.max(5*1024*1024,Math.min(Number(init.partSizeBytes)||32*1024*1024,32*1024*1024));
+   const partSize=Math.max(5*1024*1024,Math.min(Number(init.partSizeBytes)||8*1024*1024,8*1024*1024));
    const parts=[];let uploaded=0,partNumber=1;
    for(let offset=0;offset<file.size;offset+=partSize,partNumber++){
     const chunk=file.slice(offset,Math.min(file.size,offset+partSize));
@@ -487,9 +501,9 @@ function updateOwnerEditor(s,si,ep){
       const response=await fetch(B2_MEDIA_API+'/uploads/'+encodeURIComponent(uploadId)+'/parts/'+partNumber,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/octet-stream','X-Part-Size':String(chunk.size)},body:chunk});
       const result=await response.json().catch(()=>({}));
       if(response.ok&&result.etag){part=result;break}
-      if(response.status<500&&response.status!==429)throw Error(result.error||'Upload rejected at part '+partNumber+'.');
+      if(response.status<500&&response.status!==429&&response.status!==408){const failure=Error(result.error||'Upload rejected at part '+partNumber+'.');failure.permanent=true;throw failure;}
       throw Error(result.error||'Temporary upload error.');
-     }catch(error){lastError=error;if(attempt<2)await new Promise(resolve=>setTimeout(resolve,750*(attempt+1)))}
+     }catch(error){lastError=error;if(error.permanent||/Session expired/.test(error.message||''))break;if(attempt<2)await new Promise(resolve=>setTimeout(resolve,750*(attempt+1)))}
     }
     if(!part)throw lastError||Error('Upload failed at part '+partNumber+'.');
     parts.push({partNumber,etag:part.etag});uploaded+=chunk.size;progress.value=uploaded;
@@ -503,15 +517,15 @@ function updateOwnerEditor(s,si,ep){
    const mediaUrl=B2_MEDIA_API+'/media/'+encodeURIComponent(uploadId);
    await saveEpisodeVideoRow('B2 Storage',mediaUrl,target);saved=true;
    if(selectedEpisode&&watchLinkKey(selectedEpisode.seriesId,selectedEpisode.seasonIndex,selectedEpisode.episodeNumber)===watchLinkKey(target.seriesId,target.seasonIndex,target.episodeNumber)){
-    $('episodeWatchUrl').value=mediaUrl;$('hostedVideoUrl').value=mediaUrl;$('openHostedVideoUrl').href=mediaUrl;$('hostedVideoResult').hidden=false;
+    $('episodeWatchUrl').value=mediaUrl;$('hostedVideoUrl').value=mediaUrl;refreshHostedOpenLink(mediaUrl);$('hostedVideoResult').hidden=false;
    }
    $('ownerLinkStatus').textContent='Uploaded to B2. The episode is now saved and ready to stream.';
    $('episodeVideoFile').value='';$('episodeUploadMeta').textContent='B2 upload complete · '+file.name;button.disabled=true;
   }catch(error){
-   if(uploadId&&!completed){try{await fetch(B2_MEDIA_API+'/uploads/'+encodeURIComponent(uploadId)+'/abort',{method:'POST',headers:{'Authorization':'Bearer '+currentSession.access_token}})}catch{}}
+   if(uploadId&&!completed){try{const abortSession=await ownerClient.auth.getSession();const abortToken=abortSession.data?.session?.access_token||currentSession?.access_token;if(abortToken)await fetch(B2_MEDIA_API+'/uploads/'+encodeURIComponent(uploadId)+'/abort',{method:'POST',headers:{'Authorization':'Bearer '+abortToken}})}catch{}}
    if(uploadId&&completed&&!saved){
     const mediaUrl=B2_MEDIA_API+'/media/'+encodeURIComponent(uploadId);
-    $('hostedVideoUrl').value=mediaUrl;$('openHostedVideoUrl').href=mediaUrl;$('hostedVideoResult').hidden=false;
+    $('hostedVideoUrl').value=mediaUrl;refreshHostedOpenLink(mediaUrl);$('hostedVideoResult').hidden=false;
     $('ownerLinkStatus').textContent='The upload finished, but the episode could not be saved. Copy the hosted URL above and attach it to the episode again. '+(error?.message||'');
    }else $('ownerLinkStatus').textContent='B2 upload failed: '+(error?.message||'Storage error.');
   }finally{episodeUploadActive=false;progress.hidden=true;button.disabled=!$('episodeVideoFile').files?.[0]}
