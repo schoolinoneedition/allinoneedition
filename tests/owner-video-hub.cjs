@@ -115,4 +115,7 @@ assert.ok(watch.includes('id="showSearch"')&&watch.includes("addEventListener('i
 assert.ok(watch.includes('watchCoverObserver')&&watch.includes("image.dataset.watchCover=s.banner"),'Watch show posters should lazy-load near their viewport instead of downloading the whole set eagerly.');
 assert.ok(watch.includes('"@type":"CollectionPage"')&&watch.includes('href="/browser-games"'), 'Watch must carry crawlable SEO metadata and a real games link.');
 assert.ok(watch.includes('Anime Episode Tracker & Cartoon Guides')&&watch.includes('id="watchGuideTitle"')&&watch.includes('Where do Watch videos come from?'), 'Watch search intent and helpful visible episode tracking answers must be preserved.');
+assert.equal((watch.match(/class="series-card series-placeholder"/g)||[]).length, 13, 'Watch reserves initial space for all 13 shows before the script is ready.');
+assert.ok(watch.includes('aria-busy="true"')&&watch.includes("grid.removeAttribute('aria-busy')"), 'The Watch loading grid must become accessible after rendering.');
+
 console.log('Owner Studio, AI Video Studio, Watch and game-library preservation contracts passed.');
