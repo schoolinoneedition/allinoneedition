@@ -548,7 +548,7 @@ html.game-fullscreen #gameModal.open .game-stage{height:100dvh!important;width:1
 <div id="aioReleaseOverlay" class="aio-release-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="aioReleaseTitle"><div class="aio-release-card"><div class="aio-release-stars" aria-hidden="true">✦ · ✧ · ✦</div><div class="aio-release-kicker">ALL IN ONE EDITION UPDATE</div><div class="aio-release-version" id="aioReleaseVersion">v1</div><h2 id="aioReleaseTitle">Fresh update is here</h2><p id="aioReleaseMessage">New improvements are ready.</p><button class="btn primary" id="aioReleaseDismiss" type="button">Continue</button></div></div>
 <main id="app">
 <section id="home" class="hero">
- <div class="hero-card"><h1>One site. Games, school, tools and live info.</h1><p>A fast single-file hub. Game covers use lazy loading and a game iframe only starts after you click a card.</p><div class="chips"><button class="chip" onclick="scrollToId('games')">Browse games</button><button class="chip" onclick="scrollToId('school')">School apps</button><button class="chip" onclick="scrollToId('community')">Community</button><button class="chip" onclick="scrollToId('live')">Live info</button><button class="chip" onclick="scrollToId('tools')">Useful tools</button><button class="chip" onclick="location.href='study.html'">Open Study Hub</button><button class="chip" onclick="location.href='anime.html'">Anime Zone</button><button class="chip" onclick="openAssistant()">Ask Elementor</button></div></div>
+ <div class="hero-card"><h1>One site. Games, school, tools and live info.</h1><p>A fast single-file hub. Game covers use lazy loading and a game iframe only starts after you click a card.</p><div class="chips"><button class="chip" onclick="scrollToId('games')">Browse games</button><a class="chip" href="/3x3-games" style="display:inline-flex;align-items:center;text-decoration:none">3x3 games</a><button class="chip" onclick="scrollToId('school')">School apps</button><button class="chip" onclick="scrollToId('community')">Community</button><button class="chip" onclick="scrollToId('live')">Live info</button><button class="chip" onclick="scrollToId('tools')">Useful tools</button><button class="chip" onclick="location.href='study.html'">Open Study Hub</button><button class="chip" onclick="location.href='anime.html'">Anime Zone</button><button class="chip" onclick="openAssistant()">Ask Elementor</button></div></div>
  <div class="quick"><div class="qcard"><div class="k">Hometime</div><div class="v" id="homeCountdown">--:--:--</div></div><div class="qcard"><div class="k">Current time</div><div class="v" id="clock">--:--:--</div></div><div class="qcard"><div class="k">Today</div><div class="v" id="date">Loading…</div></div><div class="qcard"><div class="k">Game count</div><div class="v" id="gameCount">—</div></div></div>
 </section>
 <section class="section" id="continueSection"><div class="section-head"><h2>Continue playing</h2><small>Your recent game progress stays on this device.</small></div><div id="resumePanel" class="resume-panel panel"><div><strong>No game started yet.</strong><span>Open a game and your last-played progress will appear here.</span></div><button class="btn mini" onclick="continueLastGame()">Continue</button></div></section>
@@ -1589,6 +1589,12 @@ CATEGORIES=['All',...new Set(GAMES.map(g=>g.cat))];
 /* Keep every startup feature isolated: one optional error must not stop the rest of the hub. */
 function safeBoot(fn){try{return fn()}catch(e){console.error('All in One boot:',e);return null}}
 safeBoot(renderFilters);safeBoot(initSettings);if($('previewTitle'))$('previewTitle').textContent='No preview playing';safeBoot(initExtraTools);safeBoot(renderNotes);safeBoot(renderTodos);safeBoot(renderCalc);safeBoot(renderChatBoot);safeBoot(updateStudyProgress);safeBoot(updateWorldClock);safeBoot(initSpotifyBridge);setTimeout(()=>safeBoot(initSpotifyBridge),1200);safeBoot(renderGames);
+safeBoot(()=>{
+ const requested=new URLSearchParams(location.search).get('play');
+ if(!requested||requested.length>100)return;
+ const index=GAMES.findIndex(game=>game.name===requested);
+ if(index>=0)openGame(index);
+});
 // Keep the first view responsive; append a separately cacheable curated catalogue after first paint.
 let aioCommunityPackLoaded=false;
 async function loadAioCommunityPack(){
