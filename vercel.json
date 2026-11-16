@@ -67,6 +67,10 @@
     {
       "source": "/browser-games",
       "destination": "/browser-games.html"
+    },
+    {
+      "source": "/3x3-games",
+      "destination": "/3x3-games.html"
     }
   ],
   "headers": [
