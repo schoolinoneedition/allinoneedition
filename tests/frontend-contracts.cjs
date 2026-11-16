@@ -26,6 +26,13 @@ const animeStorage = read('supabase/migrations/20261030125800_anime_episode_stor
 const vercel = read('vercel.json');
 const seoRobots = read('robots.txt');
 const seoSitemap = read('sitemap.xml');
+const browserGames = read("browser-games.html");
+assert.match(browserGames, /<link rel="canonical" href="https:\/\/allinoneedition\.vercel\.app\/browser-games">/);
+assert.match(browserGames, /3×3 Tile Slide/);
+assert.match(browserGames, /\/games\/bonus-arcade\.html\?game=snake/);
+assert.ok(html.includes('href="/browser-games"'), "Homepage should link to games discovery.");
+assert.ok(seoSitemap.includes("https://allinoneedition.vercel.app/browser-games"), "Sitemap should list game discovery.");
+
 assert.match(seoRobots, /Sitemap: https:\/\/allinoneedition\.vercel\.app\/sitemap\.xml/);
 assert.match(seoSitemap, /<urlset\b/);
 for (const [page, route] of [[html, '/'], [anime, '/anime'], [social, '/social'], [study, '/study'], [elementor, '/elementor']]) {
