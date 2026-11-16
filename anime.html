@@ -501,7 +501,7 @@ function updateOwnerEditor(s,si,ep){
       const response=await fetch(B2_MEDIA_API+'/uploads/'+encodeURIComponent(uploadId)+'/parts/'+partNumber,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/octet-stream','X-Part-Size':String(chunk.size)},body:chunk});
       const result=await response.json().catch(()=>({}));
       if(response.ok&&result.etag){part=result;break}
-      if(response.status<500&&response.status!==429&&response.status!==408){const failure=Error(result.error||'Upload rejected at part '+partNumber+'.');failure.permanent=true;throw failure;}
+      if(response.status<500&&response.status!==429&&response.status!==408){const failure=Error(response.status===401||response.status===403?'Owner login expired or upload access denied. Sign in as the site owner and retry.':result.error||'Upload rejected at part '+partNumber+'.');failure.permanent=true;throw failure;}
       throw Error(result.error||'Temporary upload error.');
      }catch(error){lastError=error;if(error.permanent||/Session expired/.test(error.message||''))break;if(attempt<2)await new Promise(resolve=>setTimeout(resolve,750*(attempt+1)))}
     }
@@ -514,7 +514,15 @@ function updateOwnerEditor(s,si,ep){
    const complete=await completeRes.json().catch(()=>({}));
    if(!completeRes.ok)throw new Error(complete.error||'B2 could not finish the upload.');
    completed=true;
+   if(complete.status!=='ready'||complete.id!==uploadId)throw new Error('B2 did not confirm completion. Use the hosted URL below to recover this upload.');
    const mediaUrl=B2_MEDIA_API+'/media/'+encodeURIComponent(uploadId);
+   $('ownerLinkStatus').textContent='Upload complete · checking video availability…';
+   let playbackError=null,playbackReady=false;
+   for(let verification=0;verification<3;verification++){
+    try{await getB2PlaybackUrl(mediaUrl);playbackReady=true;break}
+    catch(error){playbackError=error;if(verification<2)await new Promise(resolve=>setTimeout(resolve,650*(verification+1)))}
+   }
+   if(!playbackReady)throw new Error('The video is uploaded, but playback verification failed: '+(playbackError?.message||'media service unavailable'));
    await saveEpisodeVideoRow('B2 Storage',mediaUrl,target);saved=true;
    if(selectedEpisode&&watchLinkKey(selectedEpisode.seriesId,selectedEpisode.seasonIndex,selectedEpisode.episodeNumber)===watchLinkKey(target.seriesId,target.seasonIndex,target.episodeNumber)){
     $('episodeWatchUrl').value=mediaUrl;$('hostedVideoUrl').value=mediaUrl;refreshHostedOpenLink(mediaUrl);$('hostedVideoResult').hidden=false;
