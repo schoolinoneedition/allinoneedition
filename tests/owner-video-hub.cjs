@@ -105,4 +105,10 @@ assert.ok(index.includes('#gameModal.open.aio-3x3-direct #gameFrame')&&index.inc
 assert.ok(index.includes('async function loadGameIntoFrame(g)')&&index.includes("select('html_content')"),'Uploaded HTML game playback must survive the UI rollback.');
 assert.ok(!index.includes('id="aio-feature-hub"'),'The new video-first homepage redesign must stay reverted.');
 
+assert.ok(watch.includes('function refreshHostedOpenLink(mediaUrl)')&&watch.includes('refreshHostedOpenLink(saved.watch_url)'), 'B2 Open links must be signed for browser playback.');
+assert.ok(watch.includes('const startSession=await ownerClient.auth.getSession()'), 'Watch must refresh owner authentication before initiating an upload.');
+assert.ok(watch.includes('Number(init.partSizeBytes)||8*1024*1024,8*1024*1024'), 'Watch should use mobile-friendly 8 MiB multipart chunks.');
+assert.ok(watch.includes('failure.permanent=true')&&watch.includes('if(error.permanent||/Session expired/'), 'Stop retrying permanent upload failures and expired login sessions.');
+assert.ok(watch.includes('const abortSession=await ownerClient.auth.getSession()'), 'Watch must refresh auth when aborting failed uploads.');
+
 console.log('Owner Studio, AI Video Studio, Watch and game-library preservation contracts passed.');
