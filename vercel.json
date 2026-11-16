@@ -63,6 +63,10 @@
     {
       "source": "/anime",
       "destination": "/anime.html"
+    },
+    {
+      "source": "/browser-games",
+      "destination": "/browser-games.html"
     }
   ],
   "headers": [
