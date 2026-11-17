@@ -156,60 +156,52 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
 
 .watch-discovery{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:7px}.watch-filters{display:flex;gap:8px;flex-wrap:wrap;margin:0}.watch-search-label{display:flex;align-items:center;gap:9px;font-size:11px;font-weight:800;color:var(--muted)}.watch-search-label input{width:min(350px,70vw);min-height:38px}.watch-search-status{font-size:10px;color:var(--muted);margin:0 0 12px}@media(max-width:620px){.watch-discovery{align-items:stretch}.watch-search-label{width:100%;justify-content:space-between}.watch-search-label input{width:min(100%,320px);flex:1}}.watch-filter{border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:9px 14px;border-radius:999px;font-family:inherit;font-size:11px;font-weight:800;cursor:pointer;transition:background .18s,border-color .18s,color .18s}.watch-filter.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 6px 18px color-mix(in srgb,var(--accent) 24%,transparent)}.watch-content-note{margin:0 0 18px;padding:11px 13px;border:1px solid var(--line);border-radius:12px;background:var(--soft);color:var(--muted);font-size:10px;line-height:1.6}.watch-episode-embed{display:block;width:100%;height:100%;min-height:180px;aspect-ratio:16/9;border:0;background:#05080f}.watch-player-stage:has(.watch-episode-embed){display:block;aspect-ratio:auto;min-height:0;max-height:none;padding:0}.watch-embed-controls{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:10px;background:var(--panel);border-top:1px solid var(--line)}.watch-embed-controls button{min-height:34px;padding:7px 12px;border:1px solid var(--line);border-radius:9px;background:var(--soft);color:var(--text);font:inherit;font-size:10px;font-weight:850;cursor:pointer}.watch-embed-controls button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}.watch-embed-wrap{display:flex;flex-direction:column;width:100%;height:100%;background:#05080f}.watch-embed-wrap .watch-episode-embed{width:100%;height:auto;aspect-ratio:16/9;min-height:180px;max-height:560px;flex:none}.mark{object-fit:contain;flex:none}@media(max-width:600px){.watch-filter{padding:8px 11px}.watch-content-note{font-size:9px}}
 
-/* Watch Theatre 2.0: improve readability while keeping the existing Watch layout. */
-.watch-player{margin:20px 0 23px;border-radius:21px;border:1px solid #334562;background:#080d17;box-shadow:0 22px 50px rgba(0,0,0,.24)}
-.watch-player-head{padding:15px clamp(14px,2.6vw,22px);gap:16px;background:linear-gradient(120deg,#1d2942,#111a2b);border-bottom:1px solid #314261}
-.watch-player-ident{min-width:0}.watch-player-kicker{display:block;margin-bottom:5px;font-size:10px;letter-spacing:.15em;font-weight:900;color:#a9c3ff}
-.watch-player-head strong{display:block;font-size:clamp(14px,1.8vw,19px);line-height:1.35;color:#f8faff}
-.watch-player-head small{font-size:11px;line-height:1.4;margin-top:4px;color:#b3c3de}
-.watch-player-pill{display:inline-flex;white-space:nowrap;align-items:center;border:1px solid #50668d;border-radius:999px;padding:8px 11px;background:#253552;font-size:10px;font-weight:900;letter-spacing:.06em;color:#d4e4ff}
-.watch-player-stage{padding:0!important;min-height:0!important;height:auto!important;max-height:none!important;display:block!important;aspect-ratio:auto!important;background:#060a12}
-.watch-video-stage{display:flex;flex-direction:column;width:100%;background:#060a12}
-.watch-video-surface{position:relative;display:grid;place-items:center;width:100%;aspect-ratio:16/9;background:#05080f;overflow:hidden;outline-offset:-3px}
-.watch-video-surface:focus-visible{outline:3px solid #9dbaff}
-.watch-video{display:block;width:100%;height:100%;max-height:68vh;aspect-ratio:auto;object-fit:contain;background:#05080f;cursor:pointer}
-.watch-video-overlay{position:absolute;inset:0;display:grid;place-items:center;border:0;background:linear-gradient(180deg,transparent 60%,rgba(3,6,13,.35));color:#fff;cursor:pointer}
-.watch-video-overlay[hidden]{display:none}
-.watch-video-overlay span{width:clamp(58px,10vw,80px);height:clamp(58px,10vw,80px);border-radius:50%;display:grid;place-items:center;background:rgba(20,31,52,.8);border:1px solid #b5c8ef;font-size:27px;box-shadow:0 12px 35px rgba(0,0,0,.35);backdrop-filter:blur(8px);transition:transform .2s,background .2s}
-.watch-video-overlay:hover span{transform:scale(1.07);background:rgba(49,76,129,.9)}
-.watch-video-controls{display:grid;gap:11px;padding:13px clamp(11px,2vw,18px);background:#111b2e;border-top:1px solid #334563;color:#f3f6ff}
-.watch-scrub-row{display:flex;align-items:center;gap:13px;min-width:0}
-.watch-scrub-row input[type=range]{--played:0%;--buffered:0%;flex:1;min-width:30px;height:9px;margin:0;cursor:pointer;appearance:none;-webkit-appearance:none;border-radius:99px;background:linear-gradient(to right,#96b4ff 0 var(--played),#607494 var(--played) var(--buffered),#34445e var(--buffered) 100%)}
-.watch-scrub-row input[type=range]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:#fff;border:3px solid #86aaff;box-shadow:0 0 0 3px rgba(92,141,250,.12)}
-.watch-scrub-row input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#fff;border:3px solid #86aaff}
-.watch-scrub-row output{font-size:12px;font-weight:800;min-width:104px;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;color:#d8e2f6}
-.watch-controls-main,.watch-controls-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:11px}
-.watch-controls-bottom{padding-top:11px;border-top:1px solid #2d3c57}
-.watch-control-cluster{display:flex;align-items:center;flex-wrap:wrap;gap:7px;min-width:0}
-.watch-video-controls button,.watch-rate-label select{border:1px solid #506381;border-radius:10px;background:#24334f;color:#f5f8ff;min-height:40px;padding:8px 11px;font:inherit;font-size:12px;font-weight:750;transition:background .18s,border-color .18s}
-.watch-video-controls button:hover:not(:disabled),.watch-rate-label select:hover{background:#354c75;border-color:#a1b8df}
-.watch-video-controls button:focus-visible,.watch-video-controls select:focus-visible,.watch-video-controls input:focus-visible{outline:3px solid #b4caff;outline-offset:2px}
-.watch-video-controls button:disabled{opacity:.38;cursor:not-allowed}
-.watch-video-controls .watch-control-primary{background:#8eb4ff;color:#0d1c3a;border-color:#8eb4ff;min-width:91px;font-weight:950}
-.watch-video-controls .watch-control-primary:hover:not(:disabled){background:#b2ccff;color:#091326}
-.watch-video-controls input[data-control=volume]{width:88px;min-width:56px;accent-color:#92b5ff}
-.watch-rate-label{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:800;color:#cfddf5}
-.watch-rate-label select{min-height:40px;padding:7px;max-width:91px}
-.watch-video-controls button[aria-pressed=true]{background:#465f95;border-color:#a4c0ff}
-.watch-player-note{padding:13px 16px;font-size:11px;line-height:1.55;color:#bdcce6;background:#121c2e;min-height:42px}
-.watch-player-note.player-error{color:#ffe1c7;background:#422b27}
-.watch-video-stage:fullscreen{height:100dvh;max-height:100dvh;width:100vw;overflow:auto}
-.watch-video-stage:fullscreen .watch-video-surface{flex:1;min-height:0;aspect-ratio:auto}
-.watch-video-stage:fullscreen .watch-video{max-height:none;height:100%;width:100%}
-.watch-video-stage:fullscreen .watch-video-controls{flex:none;padding-bottom:max(12px,env(safe-area-inset-bottom))}
-.watch-embed-controls{gap:9px;padding:12px;background:#162238}
-.watch-embed-controls button,.watch-embed-controls a{min-height:40px;font-size:11px;padding:9px 13px;border-radius:10px}
-.ep-copy strong{font-size:12px;line-height:1.45}.ep-copy small{font-size:10px}
-.ep-play{min-height:39px;font-size:11px;padding:8px 13px}.ep-check{font-size:10px}.episode-row{gap:10px;padding:13px}
-.side-panel h3{font-size:13px}.side-panel p{font-size:11px}.owner-link-panel label{font-size:11px}
+
+/* Watch uses the same video-first, tap-to-pause language as the Social feed. */
+.watch-player{margin:18px 0 20px;border:1px solid rgba(133,154,193,.28);border-radius:17px;overflow:hidden;background:#080c14;box-shadow:0 18px 38px rgba(0,0,0,.2)}
+.watch-player-head{padding:12px clamp(12px,2vw,19px);background:#121b2c;border-bottom:1px solid #263750;gap:12px}
+.watch-player-ident{min-width:0}.watch-player-kicker{display:block;margin-bottom:3px;font-size:9px;letter-spacing:.12em;font-weight:800;color:#b4c7e8}
+.watch-player-head strong{display:block;color:#f4f6fc;font-size:clamp(13px,1.6vw,17px);line-height:1.35}
+.watch-player-head small{font-size:10px;color:#c1cde2}
+.watch-player-pill{border:1px solid #465878;border-radius:999px;padding:5px 8px;color:#d9e5fa;background:#1a2942;font-size:9px;font-weight:850;white-space:nowrap}
+.watch-player-stage{padding:0!important;min-height:0!important;height:auto!important;max-height:none!important;display:block!important;aspect-ratio:auto!important;background:#05070c}
+.watch-video-stage.watch-social-player{position:relative;display:block;width:100%;background:#05070c}
+.watch-social-player .watch-video-surface{position:relative;display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:16/9;background:#05070c;overflow:hidden;outline-offset:-3px}
+.watch-social-player .watch-video-surface:focus-visible{outline:3px solid #b3caff}
+.watch-social-player .watch-video{display:block;width:100%;height:100%;max-height:none;aspect-ratio:auto;object-fit:contain;background:#05070c;cursor:pointer}
+.watch-social-player .watch-video-overlay{position:absolute;z-index:3;inset:0;display:grid;place-items:center;background:transparent;border:0;cursor:pointer;color:#fff}
+.watch-social-player .watch-video-overlay[hidden]{display:none}
+.watch-social-player .watch-video-overlay span{width:clamp(52px,8vw,72px);height:clamp(52px,8vw,72px);display:grid;place-items:center;padding-left:3px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:rgba(12,16,26,.68);font-size:22px;box-shadow:0 9px 27px #0007;backdrop-filter:blur(12px);transition:transform .18s,background .18s}
+.watch-social-player .watch-video-overlay:hover span{transform:scale(1.05);background:rgba(31,42,67,.88)}
+.watch-social-player .watch-slim-controls{position:absolute;z-index:5;bottom:clamp(10px,2vw,18px);left:clamp(9px,2vw,17px);right:clamp(9px,2vw,17px);display:flex;align-items:center;gap:8px;min-height:44px;padding:7px 9px;border:1px solid rgba(255,255,255,.16);border-radius:13px;background:rgba(9,13,22,.63);color:#fff;backdrop-filter:blur(14px);box-shadow:0 7px 25px rgba(0,0,0,.22)}
+.watch-social-player .watch-slim-controls button{height:32px;min-width:32px;padding:5px 7px;flex:0 0 auto;display:grid;place-items:center;border:0;border-radius:9px;background:transparent;color:#fff;font:800 14px/1 inherit;cursor:pointer}
+.watch-social-player .watch-slim-controls button:hover,.watch-social-player .watch-slim-controls button:focus-visible{background:rgba(255,255,255,.17)}
+.watch-social-player .watch-slim-controls button[aria-pressed=true]{background:rgba(255,255,255,.2)}
+.watch-social-player .watch-slim-controls input[type=range]{--played:0%;flex:1;min-width:30px;height:5px;padding:0;margin:0;border-radius:10px;cursor:pointer;appearance:none;-webkit-appearance:none;background:linear-gradient(90deg,#f7f9ff var(--played),rgba(255,255,255,.26) var(--played))}
+.watch-social-player .watch-slim-controls input[type=range]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;background:#fff;border:1px solid #dbe8ff;border-radius:50%;width:12px;height:12px}
+.watch-social-player .watch-slim-controls input[type=range]::-moz-range-thumb{background:#fff;border:1px solid #dbe8ff;border-radius:50%;width:12px;height:12px}
+.watch-social-player .watch-slim-controls output{flex:0 0 auto;color:#fff;font:700 10px/1.4 inherit;font-variant-numeric:tabular-nums;white-space:nowrap;min-width:84px;text-align:right}
+.watch-social-player .watch-video-error{position:absolute;z-index:6;inset:0;display:grid;align-content:center;justify-items:center;gap:12px;text-align:center;padding:24px;background:rgba(9,12,20,.9);color:#fff}
+.watch-social-player .watch-video-error[hidden]{display:none!important}
+.watch-social-player .watch-video-error p{max-width:400px;margin:0;color:#e4e9f5;font-size:13px;line-height:1.5}
+.watch-social-player .watch-video-error button{padding:10px 17px;border-radius:10px;border:1px solid #afc7f3;background:rgba(78,102,152,.47);color:#fff;font:800 12px/1 inherit;cursor:pointer}
+.watch-player-note{padding:0 1px;height:1px;min-height:0;overflow:hidden;color:#ced9eb;font-size:1px}
+.watch-player-note.player-error{height:auto;min-height:40px;padding:12px 15px;font-size:12px;background:#382824;color:#ffe0cb}
+.watch-social-player:fullscreen{height:100dvh;width:100vw;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.watch-social-player:fullscreen .watch-video-surface{height:100%;width:100%;aspect-ratio:auto}
+.watch-social-player:fullscreen .watch-video{width:100%;height:100%;max-height:none}
+.watch-social-player:fullscreen .watch-slim-controls{bottom:max(14px,env(safe-area-inset-bottom));left:16px;right:16px}
+.ep-copy strong{font-size:12px;line-height:1.45}.ep-copy small{font-size:10px}.ep-play{min-height:39px;font-size:11px;padding:8px 13px}
+.episode-row{gap:10px;padding:13px}.side-panel h3{font-size:13px}.side-panel p{font-size:11px}
 @media(max-width:640px){
- .watch-player-head{align-items:flex-start;gap:9px;flex-wrap:wrap}.watch-player-pill{font-size:9px;padding:6px 9px}
- .watch-video-controls{padding:12px 10px;gap:11px}.watch-controls-main,.watch-controls-bottom{align-items:flex-start;flex-direction:column;gap:10px}.watch-controls-main>.watch-control-cluster,.watch-controls-bottom>.watch-control-cluster{width:100%;justify-content:space-between}
- .watch-video-controls button{font-size:11px;padding:8px 9px;min-height:42px}.watch-video-controls input[data-control=volume]{width:80px}
- .watch-scrub-row output{min-width:90px;font-size:10px}.episode-row{padding:10px;gap:8px}.ep-copy strong{font-size:11px}.ep-play{font-size:10px}
+ .watch-player-head{align-items:flex-start;flex-wrap:wrap;padding:10px 12px}
+ .watch-social-player .watch-slim-controls{bottom:9px;left:8px;right:8px;gap:5px;min-height:41px;padding:5px}
+ .watch-social-player .watch-slim-controls button{height:32px;min-width:29px;padding:4px}
+ .watch-social-player .watch-slim-controls output{min-width:73px;font-size:9px}
+ .watch-social-player .watch-video-overlay span{width:55px;height:55px}
 }
-@media(max-width:375px){.watch-video-controls input[data-control=volume]{width:66px}.watch-control-cluster{gap:5px}.watch-rate-label{font-size:10px}.watch-player-head strong{font-size:13px}}
-@media(prefers-reduced-motion:reduce){.watch-video-overlay span,.watch-video-controls button{transition:none!important}}
+@media(max-width:360px){.watch-social-player .watch-slim-controls output{min-width:63px;font-size:9px}.watch-social-player .watch-slim-controls{gap:3px}}
+@media(prefers-reduced-motion:reduce){.watch-social-player .watch-video-overlay span{transition:none!important}}
 
 </style>
 <link rel="stylesheet" href="./appearance.css">
@@ -783,97 +775,176 @@ async function deleteB2Media(mediaUrl){
   else{image.removeAttribute('src');image.alt='';image.hidden=true}
  }
 
+
  function renderHostedPlayer(show,si,ep,saved,stage,renderId){
-  const frame=document.createElement('div');frame.className='watch-video-stage';
-  const surface=document.createElement('div');surface.className='watch-video-surface';surface.tabIndex=0;surface.setAttribute('aria-label','Player keyboard shortcuts: Space or K to play, left/right arrows to seek, F fullscreen, M mute');
-  const video=document.createElement('video');video.className='watch-video';video.preload='none';video.playsInline=true;video.controls=false;video.width=1280;video.height=720;video.setAttribute('aria-label',show.title+' '+ep.title);
-  const overlay=document.createElement('button');overlay.type='button';overlay.className='watch-video-overlay';overlay.setAttribute('aria-label','Play episode');overlay.innerHTML='<span aria-hidden="true">▶</span>';surface.append(video,overlay);
-  const controls=document.createElement('div');controls.className='watch-video-controls';
-  controls.innerHTML='<div class="watch-scrub-row"><input data-control="seek" type="range" min="0" max="1000" step="1" value="0" aria-label="Video timeline" disabled><output data-control="time" aria-live="off">0:00 / --:--</output></div>'+
-   '<div class="watch-controls-main"><div class="watch-control-cluster"><button data-control="back" type="button" title="Back 10 seconds" aria-label="Back 10 seconds" disabled>↶ 10</button><button data-control="play" class="watch-control-primary" type="button" aria-label="Play video">▶ Play</button><button data-control="forward" type="button" title="Forward 10 seconds" aria-label="Forward 10 seconds" disabled>10 ↷</button><button data-control="mute" type="button" aria-label="Mute audio" aria-pressed="false">♫</button><input data-control="volume" type="range" min="0" max="1" step="0.05" value="1" aria-label="Volume"></div>'+
-   '<div class="watch-control-cluster watch-control-options"><label class="watch-rate-label">Speed <select data-control="rate" aria-label="Playback speed"><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></label><button data-control="pip" type="button" title="Picture in picture" aria-label="Picture in picture">▣ PiP</button><button data-control="fullscreen" type="button" aria-label="Fullscreen">⛶ Fullscreen</button></div></div>'+
-   '<div class="watch-controls-bottom"><div class="watch-control-cluster"><button data-control="previous" type="button">← Previous episode</button><button data-control="next" type="button">Next episode →</button></div><div class="watch-control-cluster"><button data-control="retry" type="button">↻ Reload video</button><button data-control="native" type="button" aria-pressed="false">Browser controls</button></div></div>';
-  const get=name=>controls.querySelector('[data-control="'+name+'"]'),seek=get('seek'),clock=get('time'),play=get('play'),mute=get('mute'),volume=get('volume'),back=get('back'),forward=get('forward'),fullscreen=get('fullscreen'),pip=get('pip');
-  frame.append(surface,controls);stage.append(frame);
-  let attached=false,attaching=null,starting=false;
+  // Match the Social feed's simple tap-to-play video, without the old control dashboard.
+  // Video bytes remain lazy, while the small signed-URL request starts when selected
+  // so the first user gesture can start unmuted playback on Safari.
+  const frame=document.createElement('div');frame.className='watch-video-stage watch-social-player';
+  const surface=document.createElement('div');surface.className='watch-video-surface';
+  surface.tabIndex=0;surface.setAttribute('role','group');
+  surface.setAttribute('aria-label','Episode video. Tap or press Space to play or pause; left and right arrows skip 10 seconds.');
+  const video=document.createElement('video');video.className='watch-video';
+  video.preload='none';video.playsInline=true;video.setAttribute('playsinline','');video.setAttribute('webkit-playsinline','');
+  video.controls=false;video.muted=false;video.defaultMuted=false;video.volume=1;video.width=1280;video.height=720;
+  video.setAttribute('aria-label',show.title+' · '+ep.title+'. Tap to pause or play.');
+  const overlay=document.createElement('button');overlay.type='button';overlay.className='watch-video-overlay';
+  overlay.setAttribute('aria-label','Play episode with sound');overlay.innerHTML='<span aria-hidden="true">▶</span>';
+  const errorPanel=document.createElement('div');errorPanel.className='watch-video-error';errorPanel.hidden=true;
+  const errorText=document.createElement('p');errorText.textContent='Video could not be loaded.';
+  const retry=document.createElement('button');retry.type='button';retry.textContent='↻ Retry video';
+  errorPanel.append(errorText,retry);
+  const controls=document.createElement('div');controls.className='watch-slim-controls';
+  controls.innerHTML='<button type="button" data-control="play" class="watch-slim-play" aria-label="Play video">▶</button>'+
+   '<input type="range" data-control="seek" min="0" max="1000" step="1" value="0" aria-label="Video timeline" disabled>'+
+   '<output data-control="time" aria-live="off">0:00 / --:--</output>'+
+   '<button type="button" data-control="sound" title="Mute or unmute" aria-label="Mute video" aria-pressed="false">♫</button>'+
+   '<button type="button" data-control="fullscreen" title="Fullscreen" aria-label="Fullscreen video">⛶</button>';
+  const get=name=>controls.querySelector('[data-control="'+name+'"]');
+  const play=get('play'),seek=get('seek'),clock=get('time'),sound=get('sound'),fullscreen=get('fullscreen');
+  surface.append(video,overlay,errorPanel,controls);frame.append(surface);stage.append(frame);
+  let attached=false,attaching=null,playingRequest=false,signedUrl=null,signedAt=0,signing=null;
   const alive=()=>renderId===youtubeRender&&frame.isConnected;
-  const status=(message,error=false)=>{if(!alive())return;$('playerNote').textContent=message;$('playerNote').classList.toggle('player-error',error)};
-  const format=seconds=>{if(!Number.isFinite(seconds)||seconds<0)return '--:--';const n=Math.floor(seconds);return (n>=3600?Math.floor(n/3600)+':':'')+String(Math.floor(n/60)%60).padStart(n>=3600?2:1,'0')+':'+String(n%60).padStart(2,'0')};
-  const timeline=()=>{
+  const status=(message,error=false)=>{
+   if(!alive())return;
+   $('playerNote').textContent=message;$('playerNote').classList.toggle('player-error',error);
+  };
+  const format=seconds=>{
+   if(!Number.isFinite(seconds)||seconds<0)return '--:--';
+   const n=Math.floor(seconds);return (n>=3600?Math.floor(n/3600)+':':'')+
+    String(Math.floor(n/60)%60).padStart(n>=3600?2:1,'0')+':'+String(n%60).padStart(2,'0');
+  };
+  const updateTimeline=()=>{
    const duration=video.duration,valid=Number.isFinite(duration)&&duration>0;
-   seek.disabled=!valid;back.disabled=!valid;forward.disabled=!valid;
-   const ratio=valid?Math.min(1,video.currentTime/duration):0;seek.value=String(Math.round(ratio*1000));seek.style.setProperty('--played',Math.round(ratio*100)+'%');
-   let buffered=0;if(valid&&video.buffered.length){try{buffered=video.buffered.end(video.buffered.length-1)/duration}catch{}}
-   seek.style.setProperty('--buffered',Math.round(Math.min(1,Math.max(0,buffered))*100)+'%');
+   seek.disabled=!valid;
+   const ratio=valid?Math.min(1,video.currentTime/duration):0;
+   seek.value=String(Math.round(ratio*1000));
+   seek.style.setProperty('--played',Math.round(ratio*100)+'%');
    clock.textContent=format(video.currentTime)+' / '+format(duration);
   };
-  const syncPlay=()=>{
-   const playing=!video.paused&&!video.ended;play.textContent=playing?'Ⅱ Pause':'▶ Play';play.setAttribute('aria-label',playing?'Pause video':'Play video');
-   overlay.hidden=playing;overlay.setAttribute('aria-label',playing?'Pause episode':'Play episode');overlay.firstElementChild.textContent=playing?'Ⅱ':'▶';
+  const syncPlayback=()=>{
+   const isPlaying=!video.paused&&!video.ended;
+   frame.classList.toggle('is-playing',isPlaying);
+   play.textContent=isPlaying?'Ⅱ':'▶';
+   play.setAttribute('aria-label',isPlaying?'Pause video':'Play video');
+   overlay.hidden=isPlaying||!errorPanel.hidden;
+   overlay.setAttribute('aria-label',video.ended?'Replay episode with sound':'Play episode with sound');
+   surface.setAttribute('aria-label',isPlaying?'Episode playing. Tap or press Space to pause.':'Episode paused. Tap or press Space to play.');
   };
-  const syncAudio=()=>{mute.textContent=video.muted||video.volume===0?'♩':'♫';mute.setAttribute('aria-label',video.muted||video.volume===0?'Unmute audio':'Mute audio');mute.setAttribute('aria-pressed',String(video.muted));volume.value=String(video.muted?0:video.volume)};
+  const syncSound=()=>{
+   const muted=video.muted||video.volume===0;
+   sound.textContent=muted?'♩':'♫';
+   sound.setAttribute('aria-label',muted?'Unmute video':'Mute video');
+   sound.setAttribute('aria-pressed',String(video.muted));
+  };
+  const fetchSource=async(force=false)=>{
+   if(saved.provider!=='B2 Storage')return saved.watch_url;
+   if(!force&&signedUrl&&Date.now()-signedAt<45*60*1000)return signedUrl;
+   if(signing)return signing;
+   signing=getB2PlaybackUrl(saved.watch_url).then(url=>{
+    if(alive()){signedUrl=url;signedAt=Date.now()}
+    return url;
+   }).finally(()=>{signing=null});
+   return signing;
+  };
+  // Fetch only the short B2 authorization link here, not the media file.
+  if(saved.provider==='B2 Storage')fetchSource().catch(()=>{});
+  const attach=src=>{
+   if(!alive())return;
+   video.src=src;video.preload='metadata';attached=true;video.load();
+  };
   const ensureSource=async()=>{
-   if(attached)return;if(attaching)return attaching;
-   attaching=(async()=>{status(saved.provider==='B2 Storage'?'Getting a secure video link…':'Preparing the video…');
-    const url=saved.provider==='B2 Storage'?await getB2PlaybackUrl(saved.watch_url):saved.watch_url;
-    if(!alive())return;video.src=url;video.preload='metadata';attached=true;video.load()})();
+   if(attached)return;
+   if(attaching)return attaching;
+   attaching=(async()=>{status('Getting the video ready…');const src=await fetchSource();if(alive())attach(src)})();
    try{await attaching}finally{attaching=null}
   };
+  const playUnmuted=()=>video.play(); // Called synchronously on a user's tap when link is prefetched.
   const toggle=async()=>{
-   if(starting||!alive())return;
-   if(!video.paused){video.pause();return}
-   starting=true;play.disabled=true;
-   try{await ensureSource();if(!alive())return;await video.play();status('Now playing. Space/K: play or pause · ←/→: 10 seconds · F: fullscreen · M: mute.')}
-   catch(error){status('Could not play this video. '+(error?.message||'Check the file format or connection.')+' Try Reload video or Browser controls.',true)}
-   finally{starting=false;if(alive())play.disabled=false}
+   if(!alive()||playingRequest)return;
+   if(!video.paused&&!video.ended){video.pause();return}
+   playingRequest=true;
+   play.disabled=true;overlay.disabled=true;
+   errorPanel.hidden=true;syncPlayback();
+   try{
+    // Avoid an async boundary on the normal first tap, preserving iOS user activation.
+    if(!attached&&saved.provider!=='B2 Storage')attach(saved.watch_url);
+    else if(!attached&&signedUrl&&Date.now()-signedAt<45*60*1000)attach(signedUrl);
+    if(attached)await playUnmuted();
+    else{await ensureSource();if(!alive())return;await playUnmuted()}
+    status('Playing with sound. Tap the video to pause or resume.');
+   }catch(error){
+    if(!alive())return;
+    const detail=error?.name==='NotAllowedError'
+     ?'Your browser needs a tap on Play to start sound.'
+     :(error?.message||'Try again or use a supported MP4/WebM video.');
+    errorText.textContent='Could not start the episode. '+detail;
+    errorPanel.hidden=false;
+    status(errorText.textContent,true);
+   }finally{playingRequest=false;if(alive()){play.disabled=false;overlay.disabled=false;syncPlayback()}}
   };
-  const jump=amount=>{if(Number.isFinite(video.duration)&&video.duration>0)video.currentTime=Math.max(0,Math.min(video.duration,video.currentTime+amount))};
-  const sibling=direction=>{
-   let seasonIndex=si,index=show.seasons[si].episodes.findIndex(item=>item.number===ep.number)+direction;
-   if(index<0){seasonIndex--;if(seasonIndex<0)return null;index=show.seasons[seasonIndex].episodes.length-1}
-   if(index>=show.seasons[seasonIndex].episodes.length){seasonIndex++;if(seasonIndex>=show.seasons.length)return null;index=0}
-   return {seasonIndex,episode:show.seasons[seasonIndex].episodes[index]};
+  const seekBy=seconds=>{
+   if(Number.isFinite(video.duration)&&video.duration>0){
+    video.currentTime=Math.max(0,Math.min(video.duration,video.currentTime+seconds));
+   }
   };
-  const navigate=direction=>{
-   const target=sibling(direction);if(!target)return;
-   activeId=show.id;activeSeason=target.seasonIndex;$('episodeSearch').value='';$('progressFilter').value='all';
-   renderCatalog();renderPlayer(show,target.seasonIndex,target.episode);
-   $('playerTitle').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'nearest'});
+  const retryPlayback=async()=>{
+   if(!alive())return;
+   video.pause();video.removeAttribute('src');video.load();
+   attached=false;attaching=null;signedUrl=null;signedAt=0;
+   errorPanel.hidden=true;
+   await toggle();
   };
-  get('previous').disabled=!sibling(-1);get('next').disabled=!sibling(1);
-  get('previous').addEventListener('click',()=>navigate(-1));get('next').addEventListener('click',()=>navigate(1));
-  overlay.addEventListener('click',toggle);play.addEventListener('click',toggle);video.addEventListener('click',toggle);
-  back.addEventListener('click',()=>jump(-10));forward.addEventListener('click',()=>jump(10));
-  seek.addEventListener('input',()=>{if(Number.isFinite(video.duration)&&video.duration>0){video.currentTime=Number(seek.value)/1000*video.duration;timeline()}});
-  mute.addEventListener('click',()=>{video.muted=!video.muted;syncAudio()});
-  volume.addEventListener('input',()=>{video.volume=Number(volume.value);video.muted=video.volume===0;syncAudio()});
-  get('rate').addEventListener('change',event=>{video.playbackRate=Number(event.target.value)});
-  fullscreen.addEventListener('click',async()=>{try{if(document.fullscreenElement===frame)await document.exitFullscreen();else if(frame.requestFullscreen)await frame.requestFullscreen();else if(video.webkitEnterFullscreen)video.webkitEnterFullscreen();else throw Error('Unsupported')}catch{status('Fullscreen is unavailable in this browser.',true)}});
-  const syncFullscreen=()=>{fullscreen.textContent=document.fullscreenElement===frame?'⛶ Exit fullscreen':'⛶ Fullscreen'};
-  document.addEventListener('fullscreenchange',syncFullscreen);
-  pip.hidden=!(document.pictureInPictureEnabled&&typeof video.requestPictureInPicture==='function');
-  pip.addEventListener('click',async()=>{try{if(document.pictureInPictureElement===video)await document.exitPictureInPicture();else{await ensureSource();if(alive())await video.requestPictureInPicture()}}catch{status('Picture in picture is unavailable for this video.',true)}});
-  get('native').addEventListener('click',()=>{video.controls=!video.controls;get('native').setAttribute('aria-pressed',String(video.controls));get('native').textContent=video.controls?'Browser controls: On':'Browser controls'});
-  get('retry').addEventListener('click',async()=>{video.pause();video.removeAttribute('src');video.load();attached=false;attaching=null;timeline();status('Requesting a fresh playback link…');await toggle()});
+  const fullscreenToggle=async()=>{
+   try{
+    if(document.fullscreenElement===frame)await document.exitFullscreen();
+    else if(frame.requestFullscreen)await frame.requestFullscreen();
+    else if(typeof video.webkitEnterFullscreen==='function')video.webkitEnterFullscreen();
+    else throw Error('Fullscreen unavailable');
+   }catch{status('Fullscreen is unavailable on this device.',true)}
+  };
+  const onFullscreen=()=>fullscreen.setAttribute('aria-label',document.fullscreenElement===frame?'Exit fullscreen':'Fullscreen video');
+  document.addEventListener('fullscreenchange',onFullscreen);
+  overlay.addEventListener('click',toggle);
+  play.addEventListener('click',toggle);
+  video.addEventListener('click',toggle);
+  retry.addEventListener('click',retryPlayback);
+  seek.addEventListener('input',()=>{
+   if(Number.isFinite(video.duration)&&video.duration>0){
+    video.currentTime=Number(seek.value)/1000*video.duration;updateTimeline();
+   }
+  });
+  sound.addEventListener('click',()=>{
+   video.muted=!video.muted;
+   if(!video.muted&&video.volume===0)video.volume=1;
+   syncSound();
+  });
+  fullscreen.addEventListener('click',fullscreenToggle);
   surface.addEventListener('keydown',event=>{
    if(event.altKey||event.ctrlKey||event.metaKey||event.target.closest('button,input,select,textarea,a'))return;
    const key=event.key.toLowerCase();
-   if(key===' '||key==='k'){event.preventDefault();toggle()}
-   else if(key==='arrowleft'||key==='j'){event.preventDefault();jump(-10)}
-   else if(key==='arrowright'||key==='l'){event.preventDefault();jump(10)}
-   else if(key==='m'){event.preventDefault();mute.click()}
+   if(key===' '||key==='k'||key==='enter'){event.preventDefault();toggle()}
+   else if(key==='arrowleft'||key==='j'){event.preventDefault();seekBy(-10)}
+   else if(key==='arrowright'||key==='l'){event.preventDefault();seekBy(10)}
+   else if(key==='m'){event.preventDefault();sound.click()}
    else if(key==='f'){event.preventDefault();fullscreen.click()}
   });
-  video.addEventListener('play',syncPlay);video.addEventListener('pause',syncPlay);
-  video.addEventListener('ended',()=>{syncPlay();status('Episode finished. Choose Next episode to continue.')});
-  for(const event of ['timeupdate','loadedmetadata','durationchange','progress'])video.addEventListener(event,timeline);
-  video.addEventListener('waiting',()=>status('Buffering video…'));
-  video.addEventListener('playing',()=>status('Playing '+ep.title));
-  video.addEventListener('error',()=>status('Video could not load. Check MP4/WebM encoding or select Reload video for a fresh secure link.',true));
-  video.addEventListener('volumechange',syncAudio);
-  syncPlay();timeline();syncAudio();
-  videoControlsCleanup=()=>{document.removeEventListener('fullscreenchange',syncFullscreen);try{video.pause();video.removeAttribute('src');video.load()}catch{}};
-  status('Ready. Play to load the episode. Keyboard: Space/K to play, arrows to seek, F fullscreen.');
+  for(const event of ['timeupdate','loadedmetadata','durationchange','progress'])video.addEventListener(event,updateTimeline);
+  for(const event of ['play','pause','ended'])video.addEventListener(event,syncPlayback);
+  video.addEventListener('playing',()=>status('Now playing with sound. Tap to pause.'));
+  video.addEventListener('waiting',()=>status('Buffering episode…'));
+  video.addEventListener('error',()=>{
+   if(!alive()||!attached)return;
+   errorText.textContent='The video could not be loaded. Retry to request a fresh playback link.';
+   errorPanel.hidden=false;syncPlayback();status(errorText.textContent,true);
+  });
+  video.addEventListener('volumechange',syncSound);
+  videoControlsCleanup=()=>{
+   document.removeEventListener('fullscreenchange',onFullscreen);
+   try{video.pause();video.removeAttribute('src');video.load()}catch{}
+  };
+  updateTimeline();syncPlayback();syncSound();
+  status('Ready. Tap the video to play with sound. Tap again to pause.');
  }
 
  function renderPlayer(s,si,ep){
