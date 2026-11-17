@@ -20,6 +20,7 @@ interface StoredPart { part_number: number; etag: string; size_bytes: number }
 
 const MAX_PARTS = 10_000;
 const MAX_PART_BYTES = 32 * 1024 * 1024;
+const MAX_WATCH_VIDEO_BYTES = 1024 * 1024 * 1024;
 const MIN_PART_BYTES = 5 * 1024 * 1024;
 const MAX_OBJECT_BYTES = MAX_PARTS * MAX_PART_BYTES;
 const ALLOWED_TYPES = new Set([
@@ -38,6 +39,17 @@ function cors(request: Request, env: Env) {
   const headers = new Headers({ "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS", "Access-Control-Allow-Headers": "Authorization, Content-Type, Content-Length, Range, X-Part-Size", "Access-Control-Expose-Headers": "ETag, Accept-Ranges, Content-Range, Content-Length", "Access-Control-Max-Age": "86400", Vary: "Origin" });
   if (origin && origin === env.APP_ORIGIN) headers.set("Access-Control-Allow-Origin", origin);
   return headers;
+}
+async function isSiteOwner(env: Env, userId: string): Promise<boolean> {
+  const url = new URL(env.SUPABASE_URL + "/rest/v1/staff_roles");
+  url.searchParams.set("select", "user_id");
+  url.searchParams.set("user_id", "eq." + userId);
+  url.searchParams.set("role", "eq.owner");
+  url.searchParams.set("limit", "1");
+  const result = await fetch(url, { headers: serviceHeaders(env) });
+  if (!result.ok) throw new Error("Could not verify Watch owner permissions");
+  const rows = await result.json() as Array<{ user_id: string }>;
+  return rows.length === 1;
 }
 async function authenticate(request: Request, env: Env) {
   const authorization = request.headers.get("Authorization");
@@ -104,7 +116,7 @@ async function dbUpdate(env: Env, row: MediaRow, patch: Record<string, unknown>)
 }
 async function dbUpsertPart(env: Env, uploadId: string, partNumber: number, etag: string, sizeBytes: number) {
   const response = await fetch(`${env.SUPABASE_URL}/rest/v1/aio_media_upload_parts?on_conflict=upload_id,part_number`, { method: "POST", headers: serviceHeaders(env, "resolution=merge-duplicates,return=minimal"), body: JSON.stringify({ upload_id: uploadId, part_number: partNumber, etag, size_bytes: sizeBytes }) });
-  if (!response.ok) throw new Error("Could not save multipart progress");
+  if (!response.ok) throw new Error(`Could not save multipart progress (database ${response.status})`);
 }
 async function dbGetParts(env: Env, uploadId: string) {
   const query = new URLSearchParams({ upload_id: `eq.${uploadId}`, select: "part_number,etag,size_bytes", order: "part_number.asc" });
@@ -137,12 +149,20 @@ async function b2Request(env: Env, key: string, method: string, query: Record<st
     region: env.B2_REGION,
     retries: 0,
   });
+  // Cloudflare sets Content-Length for Uint8Array request bodies, not reliably for ArrayBuffer.
+  // Backblaze S3 multipart UploadPart requires a fixed-length binary body.
+  const fixedBody = body instanceof ArrayBuffer ? new Uint8Array(body) : body;
   const response = await client.fetch(url, {
     method,
     headers: extraHeaders,
-    body: body as BodyInit | null | undefined,
+    body: fixedBody as BodyInit | null | undefined,
   });
-  if (!response.ok) throw new Error(`Backblaze storage request failed (${response.status}): ${(await response.text()).slice(0, 400)}`);
+  if (!response.ok) {
+    const providerXml = (await response.text()).slice(0, 1024);
+    const rawCode = xmlValue(providerXml, "Code");
+    const providerCode = /^[A-Za-z0-9_-]{1,64}$/.test(rawCode) ? rawCode : "StorageError";
+    throw new Error(`Backblaze storage request failed (${response.status}): ${providerCode}`);
+  }
   return response;
 }
 function hasExpectedMagic(contentType: string, bytes: ArrayBuffer) {
@@ -213,6 +233,11 @@ export default {
         if (!ALLOWED_TYPES.has(contentType)) return json({ error: "File type is not supported" }, 415, headers);
         if (!Number.isSafeInteger(sizeBytes) || sizeBytes <= 0 || sizeBytes > MAX_OBJECT_BYTES) return json({ error: "Invalid file size" }, 400, headers);
         const visibility = input.visibility === "public" ? "public" : "private";
+        if (visibility === "public" && contentType.startsWith("video/")) {
+          if (!await isSiteOwner(env, user.id)) return json({ error: "Only the site owner can host Watch episodes." }, 403, headers);
+          if (!["video/mp4", "video/webm"].includes(contentType)) return json({ error: "Watch hosting accepts MP4 or WebM videos only." }, 415, headers);
+          if (sizeBytes > MAX_WATCH_VIDEO_BYTES) return json({ error: "Watch video must be 1 GiB or smaller." }, 413, headers);
+        }
         const id = crypto.randomUUID(); const key = `${user.id}/${id}`;
         const init = await b2Request(env, key, "POST", { uploads: "" }, "");
         const uploadId = xmlValue(await init.text(), "UploadId");
@@ -312,7 +337,13 @@ export default {
       return json({ error: "Not found" }, 404, headers);
     } catch (error) {
       console.error("Media worker request failed", error);
-      return json({ error: error instanceof Error ? error.message : "Media request failed" }, 500, headers);
+      const detail = error instanceof Error ? error.message : "Media request failed";
+      const storageError = /Backblaze storage request failed \((\d{3})\): ([A-Za-z0-9_-]+)/.exec(detail);
+      if (storageError) {
+        const status = Number(storageError[1]);
+        return json({ error: "B2 storage rejected the transfer (" + storageError[2] + "). Please try again or check storage permissions.", code: "b2_transfer_failed", providerCode: storageError[2] }, status === 429 ? 429 : status >= 500 ? 503 : 422, headers);
+      }
+      return json({ error: detail, code: "media_request_failed" }, 500, headers);
     }
   }
 } satisfies ExportedHandler<Env>;
