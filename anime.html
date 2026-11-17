@@ -989,6 +989,7 @@ async function deleteB2Media(mediaUrl){
   const image=$('spotlightImage');
   if(s.banner){image.hidden=false;image.onload=()=>{image.hidden=false};image.onerror=()=>{image.hidden=true};image.src=s.banner;image.alt=s.title+' series key visual'}
   else{image.removeAttribute('src');image.alt='';image.hidden=true}
+  refreshWatchActions();
  }
 
 
@@ -1223,14 +1224,65 @@ async function deleteB2Media(mediaUrl){
 
  }
  function seriesProgress(s){let all=0,done=0;s.seasons.forEach((season,si)=>season.episodes.forEach(ep=>{all++;if(watched[key(s.id,si,ep.number)])done++}));return {all,done,pct:all?Math.round(done/all*100):0}}
- function renderStats(){let all=0,done=0;series.forEach(s=>{const p=seriesProgress(s);all+=p.all;done+=p.done});$('watchedCount').textContent=done.toLocaleString('en-GB');$('watchedCaption').textContent='of '+all.toLocaleString('en-GB')+' listed episodes marked watched';$('progressPct').textContent=(all?Math.round(done/all*100):0)+'%';$('overallBar').style.width=(all?done/all*100:0)+'%'}
+
+ const WATCH_MY_LIST='aio.anime.my-list.v1';
+ function readWatchMyList(){
+  try{const value=JSON.parse(localStorage.getItem(WATCH_MY_LIST)||'[]');return new Set(Array.isArray(value)?value.filter(id=>typeof id==='string'&&series.some(s=>s.id===id)):[])}
+  catch{return new Set()}
+ }
+ let watchMyList=readWatchMyList();
+ function nextUnwatchedEpisode(show){
+  for(let seasonIndex=0;seasonIndex<show.seasons.length;seasonIndex++){
+   for(const episode of show.seasons[seasonIndex].episodes){
+    if(!watched[key(show.id,seasonIndex,episode.number)])return {seasonIndex,episode};
+   }
+  }
+  return null;
+ }
+ function matchesWatchFilter(show){
+  if(activeWatchFilter==='all')return true;
+  if(activeWatchFilter==='anime')return show.kind!=='cartoon';
+  if(activeWatchFilter==='cartoons')return show.kind==='cartoon';
+  if(activeWatchFilter==='my-list')return watchMyList.has(show.id);
+  return false;
+ }
+ function refreshWatchActions(){
+  const show=current(),saved=watchMyList.has(show.id),saveButton=$('spotlightSave');
+  saveButton.textContent=saved?'✓ In My List':'+ My List';
+  saveButton.setAttribute('aria-pressed',String(saved));
+  saveButton.setAttribute('aria-label',(saved?'Remove ':'Add ')+show.title+(saved?' from':' to')+' My List');
+  $('watchMyListFilter').textContent='My List ('+watchMyList.size+')';
+  const next=nextUnwatchedEpisode(show),button=$('watchNextEpisode');
+  if(!next){button.disabled=true;button.textContent='All episodes marked watched';$('watchNextStatus').textContent='You have marked every listed episode of '+show.title+' as watched.';return}
+  button.disabled=false;
+  button.textContent='Next unwatched · EP '+next.episode.number;
+  const available=episodeLinks.has(watchLinkKey(show.id,next.seasonIndex,next.episode.number));
+  $('watchNextStatus').textContent=show.seasons[next.seasonIndex].name+' · '+next.episode.title+(available?' · Hosted video available':' · Episode guide (video may not be available)');
+ }
+ function toggleWatchMyList(){
+  const show=current();
+  if(watchMyList.has(show.id))watchMyList.delete(show.id);else watchMyList.add(show.id);
+  try{localStorage.setItem(WATCH_MY_LIST,JSON.stringify([...watchMyList]));$('saveStatus').textContent='My List saved on this device.'}
+  catch{$('saveStatus').textContent='My List could not be saved in this browser.'}
+  refreshWatchActions();renderSeries();
+ }
+ function goToNextUnwatched(){
+  const show=current(),next=nextUnwatchedEpisode(show);
+  if(!next){refreshWatchActions();return}
+  activeSeason=next.seasonIndex;
+  $('episodeSearch').value='';$('progressFilter').value='all';
+  renderCatalog();renderPlayer(show,next.seasonIndex,next.episode);
+  $('playerTitle').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'nearest'});
+ }
+
+ function renderStats(){let all=0,done=0;series.forEach(s=>{const p=seriesProgress(s);all+=p.all;done+=p.done});$('watchedCount').textContent=done.toLocaleString('en-GB');$('watchedCaption').textContent='of '+all.toLocaleString('en-GB')+' listed episodes marked watched';$('progressPct').textContent=(all?Math.round(done/all*100):0)+'%';$('overallBar').style.width=(all?done/all*100:0)+'%';refreshWatchActions()}
 
  function renderSeries(){
   const grid=$('seriesGrid');
   watchCoverObserver?.disconnect();
   grid.replaceChildren();grid.removeAttribute('aria-busy');
   const search=$('showSearch').value.trim().toLocaleLowerCase('en-GB');
-  const filtered=series.filter(s=>(activeWatchFilter==='all'||(activeWatchFilter==='cartoons'?s.kind==='cartoon':s.kind!=='cartoon'))&&(!search||[s.title,s.type,s.description,s.meta].join(' ').toLocaleLowerCase('en-GB').includes(search)));
+  const filtered=series.filter(s=>matchesWatchFilter(s)&&(!search||[s.title,s.type,s.description,s.meta].join(' ').toLocaleLowerCase('en-GB').includes(search)));
   $('showSearchStatus').textContent=filtered.length+' '+(filtered.length===1?'show':'shows')+' found'+(search?' for your search':'')+'.';
   if(!filtered.length){
    const note=document.createElement('p');note.className='empty-episode';
@@ -1238,15 +1290,17 @@ async function deleteB2Media(mediaUrl){
    grid.append(note);return;
   }
   const tracked=filtered.filter(s=>seriesProgress(s).done>0).sort((a,b)=>seriesProgress(b).done-seriesProgress(a).done);
-  const anime=filtered.filter(s=>s.kind!=='cartoon'),cartoons=filtered.filter(s=>s.kind==='cartoon');
+  const anime=filtered.filter(s=>s.kind!=='cartoon'),cartoons=filtered.filter(s=>s.kind==='cartoon'),savedSeries=filtered.filter(s=>watchMyList.has(s.id));
   let groups;
   if(search)groups=[{title:'Search results',subtitle:'Matching titles and episode guides',items:filtered}];
+  else if(activeWatchFilter==='my-list')groups=[{title:'My List',subtitle:'The series you saved to watch or track later',items:filtered}];
   else if(activeWatchFilter==='cartoons')groups=[{title:'Family cartoons',subtitle:'Animated shows, guides and official videos',items:cartoons}];
   else if(activeWatchFilter==='anime')groups=[
    ...(tracked.length?[{title:'Continue tracking',subtitle:'Pick up a series you have started',items:tracked}]:[]),
    {title:'Anime series',subtitle:'Find your next story',items:anime}
   ];
   else groups=[
+   ...(savedSeries.length?[{title:'My List',subtitle:'Shows you saved for later',items:savedSeries}]:[]),
    ...(tracked.length?[{title:'Continue tracking',subtitle:'Your partially watched series',items:tracked}]:[]),
    {title:'Anime to explore',subtitle:'Browse seasons and episode guides',items:anime},
    ...(cartoons.length?[{title:'Family cartoons',subtitle:'Shows and official publisher resources',items:cartoons}]:[])
@@ -1305,7 +1359,7 @@ async function deleteB2Media(mediaUrl){
 
  function selectSeries(id,scroll){activeId=id;activeSeason=0;$('episodeSearch').value='';$('progressFilter').value='all';updateSpotlight();renderCatalog();renderSeries();if(scroll)$('episodeCatalog').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'})}
  $('showSearch').addEventListener('input',renderSeries);
- document.querySelectorAll('[data-watch-filter]').forEach(button=>button.addEventListener('click',()=>{activeWatchFilter=button.dataset.watchFilter;document.querySelectorAll('[data-watch-filter]').forEach(item=>{const active=item===button;item.classList.toggle('active',active);item.setAttribute('aria-pressed',String(active))});const first=series.find(item=>activeWatchFilter==='all'||(activeWatchFilter==='cartoons'?item.kind==='cartoon':item.kind!=='cartoon'));if(first&&!(activeWatchFilter==='all'||(activeWatchFilter==='cartoons'?current().kind==='cartoon':current().kind!=='cartoon')))selectSeries(first.id,false);else renderSeries()}));
+ document.querySelectorAll('[data-watch-filter]').forEach(button=>button.addEventListener('click',()=>{activeWatchFilter=button.dataset.watchFilter;document.querySelectorAll('[data-watch-filter]').forEach(item=>{const active=item===button;item.classList.toggle('active',active);item.setAttribute('aria-pressed',String(active))});const first=series.find(matchesWatchFilter);if(first&&!matchesWatchFilter(current()))selectSeries(first.id,false);else renderSeries()}));
  function renderCatalog(){
   const s=current(),p=seriesProgress(s);$('catalogTitle').textContent=s.title;$('catalogDescription').textContent=s.description+' · '+p.done+'/'+p.all+' tracked.';$('catalogRating').textContent='UK '+s.rating;
   const tabs=$('seasonTabs');tabs.replaceChildren();
@@ -1324,8 +1378,11 @@ async function deleteB2Media(mediaUrl){
    const checkWrap=document.createElement('span');checkWrap.className='ep-check';const check=document.createElement('input');check.type='checkbox';check.checked=done;check.setAttribute('aria-label','Mark '+ep.title+' watched');check.addEventListener('change',()=>{if(check.checked)watched[epKey]=true;else delete watched[epKey];save();renderEpisodesOnly()});checkWrap.append(check,document.createTextNode('Watched'));row.append(num,copy,play,checkWrap);list.append(row);shown++;
   });
   if(!shown){const empty=document.createElement('div');empty.className='no-results';empty.textContent='No episodes match those filters.';list.append(empty)}
+  refreshWatchActions();
  }
  function renderEpisodesOnly(){renderCatalog();renderStats()}
+ $('spotlightSave').addEventListener('click',toggleWatchMyList);
+ $('watchNextEpisode').addEventListener('click',goToNextUnwatched);
  $('episodeSearch').addEventListener('input',renderCatalog);$('progressFilter').addEventListener('change',renderCatalog);
  $('saveEpisodeLink').addEventListener('click',saveOwnerEpisodeLink);
  $('saveHostedEpisode').addEventListener('click',saveHostedVideoToEpisode);
