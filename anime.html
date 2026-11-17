@@ -462,6 +462,9 @@ body{background:#101014;color:#f5f5f7}
     <div class="owner-link-editor" id="ownerLinkEditor" hidden><a class="owner-access-link" href="/owner">Open Owner Studio to manage games and quick links</a>
      <div class="watch-host-health"><button id="checkWatchHosting" type="button">Check B2 hosting</button><span id="watchHostingStatus" role="status" aria-live="polite">Not checked</span></div>
      <div class="owner-target" id="ownerEpisodeTarget">Choose a series and episode first.</div>
+     <label for="watchStorageProvider">Video storage provider</label>
+     <select id="watchStorageProvider" class="field" aria-describedby="watchStorageNote"><option value="b2">Backblaze B2 (default)</option><option value="blob">Vercel Blob (direct browser upload)</option></select>
+     <small id="watchStorageNote">Choose one provider per upload. Videos are not duplicated automatically. Both accept MP4/WebM up to 1 GiB; Vercel Blob may charge for large-video streaming.</small>
      <div class="episode-drop-zone" id="episodeDropZone">
       <div class="drop-icon">↑</div>
       <strong>Drop your video file here</strong>
@@ -617,13 +620,22 @@ body{background:#101014;color:#f5f5f7}
  });
  const key=(sid,season,ep)=>sid+':'+season+':'+ep;
  const watchLinkKey=(sid,season,ep)=>sid+':'+season+':'+ep;
+ function isVercelWatchBlobUrl(raw){
+  try{
+   const url=new URL(raw);
+   return url.protocol==='https:'&&!url.username&&!url.password&&!url.port&&
+    /^[a-z0-9-]+\.public\.blob\.vercel-storage\.com$/i.test(url.hostname)&&
+    /^\/watch\/[a-z0-9-]+\/\d{1,2}\/\d{1,4}\/[a-z0-9-]+\.(mp4|webm)$/i.test(url.pathname);
+  }catch{return false}
+ }
  function validateSelfHostedVideoUrl(raw){
   let url;try{url=new URL(String(raw||'').trim())}catch{throw new Error('Enter a valid direct video URL.')}
   if(url.protocol!=='https:'||url.username||url.password||url.port)throw new Error('Use a secure https:// video URL without login details or a custom port.');
   const host=url.hostname.toLowerCase(),path=url.pathname.toLowerCase();
   const onVercel=host==='allinoneedition.vercel.app'&&path.startsWith('/videos/');
   const onB2=host==='all-in-one-edition-media.plsgivemediscord981.workers.dev'&&/^\/media\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(url.pathname);
-  if(!onVercel&&!onB2)throw new Error('Use an All in One Edition /videos/ URL or a public B2 media URL.');
+  const onBlob=isVercelWatchBlobUrl(url.href);
+  if(!onVercel&&!onB2&&!onBlob)throw new Error('Use an AIO /videos/ URL, a public B2 media URL or a verified Vercel Blob Watch URL.');
   if(onVercel&&!/\.(mp4|webm)$/i.test(url.pathname))throw new Error('The hosted video URL must end in .mp4 or .webm.');
   if(onB2){url.pathname=url.pathname.toLowerCase();url.search='';url.hash=''}
   return url.href;
@@ -681,6 +693,76 @@ async function deleteB2Media(mediaUrl){
   button.disabled=!siteOwner||!selectedEpisode||!url||isSaved||episodeUploadActive;
   button.textContent=isSaved?'Saved to this episode':'Save video to this episode';
  }
+ async function saveVercelBlobEpisode(mediaUrl,target=selectedEpisode){
+  if(!siteOwner||!currentSession?.user||!target)throw Error('Only the verified site owner can publish episodes.');
+  const url=validateSelfHostedVideoUrl(mediaUrl);
+  if(!isVercelWatchBlobUrl(url))throw Error('This is not a public Vercel Blob Watch URL.');
+  const result=await ownerClient.from('aio_watch_blob_episodes').upsert({
+   series_id:target.seriesId,season_index:target.seasonIndex,episode_number:target.episodeNumber,
+   blob_url:url,updated_by:currentSession.user.id,updated_at:new Date().toISOString()
+  },{onConflict:'series_id,season_index,episode_number'});
+  if(result.error)throw result.error;
+  const ref=watchLinkKey(target.seriesId,target.seasonIndex,target.episodeNumber);
+  episodeLinks.set(ref,{provider:'Vercel Blob',watch_url:url});
+  renderCatalog();updateSpotlight();renderSeries();
+  if(selectedEpisode&&watchLinkKey(selectedEpisode.seriesId,selectedEpisode.seasonIndex,selectedEpisode.episodeNumber)===ref){
+   const show=series.find(item=>item.id===target.seriesId),ep=show?.seasons[target.seasonIndex]?.episodes.find(item=>item.number===target.episodeNumber);
+   if(show&&ep)renderPlayer(show,target.seasonIndex,ep);
+  }
+}
+async function uploadOwnerVercelBlobVideo(){
+  if(episodeUploadActive){$('ownerLinkStatus').textContent='An upload is already in progress.';return}
+  if(!siteOwner||!selectedEpisode||!currentSession?.user){$('ownerLinkStatus').textContent='Sign in with the verified owner account and select an episode.';return}
+  const file=$('episodeVideoFile').files?.[0];
+  if(!file){$('ownerLinkStatus').textContent='Choose an MP4 or WebM video first.';return}
+  const extension=(file.name.split('.').pop()||'').toLowerCase(),type=extension==='mp4'?'video/mp4':extension==='webm'?'video/webm':null;
+  if(!type||file.size<1||file.size>1024*1024*1024){$('ownerLinkStatus').textContent='Choose an MP4 or WebM file up to 1 GiB.';return}
+  if(file.type&&file.type!==type){$('ownerLinkStatus').textContent='The file format does not match its extension.';return}
+  if(!file.type){$('ownerLinkStatus').textContent='This browser did not report the video format. Use the B2 upload option for this file.';return}
+  const button=$('uploadEpisodeVideo'),progress=$('episodeUploadProgress'),target={...selectedEpisode};
+  episodeUploadActive=true;button.disabled=true;progress.hidden=false;progress.max=100;progress.value=0;
+  let uploadedUrl=null;
+  try{
+   const magic=new Uint8Array(await file.slice(0,16).arrayBuffer());
+   const mp4=magic.length>=8&&magic[4]===102&&magic[5]===116&&magic[6]===121&&magic[7]===112;
+   const webm=magic.length>=4&&magic[0]===26&&magic[1]===69&&magic[2]===223&&magic[3]===163;
+   if(!(type==='video/mp4'?mp4:webm))throw Error('The file does not have a valid MP4/WebM header.');
+   const sessionResult=await ownerClient.auth.getSession();
+   const token=sessionResult.data?.session?.access_token;
+   if(!token)throw Error('Your owner session expired. Sign in again.');
+   $('ownerLinkStatus').textContent='Connecting to Vercel Blob…';
+   const {upload}=await import('https://esm.sh/@vercel/blob@2.9.0/client');
+   const filename=Date.now()+'-'+Math.random().toString(36).slice(2,13)+'.'+extension;
+   const pathname='watch/'+target.seriesId+'/'+target.seasonIndex+'/'+target.episodeNumber+'/'+filename;
+   const result=await upload(pathname,file,{
+    access:'public',
+    multipart:true,
+    handleUploadUrl:'/api/watch-blob-upload',
+    clientPayload:JSON.stringify({...target,sizeBytes:file.size,accessToken:token}),
+    onUploadProgress:event=>{
+     const percent=Math.round(Number(event.percentage)||0);
+     progress.value=Math.max(0,Math.min(100,percent));
+     $('ownerLinkStatus').textContent='Uploading to Vercel Blob · '+percent+'%';
+    }
+   });
+   uploadedUrl=result?.url;
+   if(!isVercelWatchBlobUrl(uploadedUrl))throw Error('The Blob service returned an invalid video URL.');
+   $('hostedVideoUrl').value=uploadedUrl;$('episodeWatchUrl').value=uploadedUrl;
+   $('hostedVideoResult').hidden=false;refreshHostedOpenLink(uploadedUrl);updateHostedSaveButton();
+   $('ownerLinkStatus').textContent='Video uploaded. Publishing to Watch…';
+   await saveVercelBlobEpisode(uploadedUrl,target);
+   if(selectedEpisode&&watchLinkKey(selectedEpisode.seriesId,selectedEpisode.seasonIndex,selectedEpisode.episodeNumber)===watchLinkKey(target.seriesId,target.seasonIndex,target.episodeNumber)){
+    $('hostedVideoUrl').value=uploadedUrl;$('episodeWatchUrl').value=uploadedUrl;
+    $('hostedVideoResult').hidden=false;refreshHostedOpenLink(uploadedUrl);
+   }
+   $('ownerLinkStatus').textContent='Vercel Blob video uploaded and published to this Watch episode.';
+   $('episodeVideoFile').value='';$('episodeUploadMeta').textContent='Vercel upload complete · '+file.name;
+   button.disabled=true;
+  }catch(error){
+   const suffix=uploadedUrl?' The video was uploaded, but publishing failed. Use Save video to this episode to retry.':' Your file remains selected for retry or B2 upload.';
+   $('ownerLinkStatus').textContent='Vercel Blob: '+(error?.message||'Upload failed.')+suffix;
+  }finally{episodeUploadActive=false;progress.hidden=true;button.disabled=!$('episodeVideoFile').files?.[0];updateHostedSaveButton()}
+ }
  async function saveHostedVideoToEpisode(){
   if(!siteOwner||!selectedEpisode||!currentSession?.user){$('ownerLinkStatus').textContent='Sign in as the owner and select an episode before saving.';return}
   const target={...selectedEpisode};
@@ -691,8 +773,8 @@ async function deleteB2Media(mediaUrl){
   button.disabled=true;
   $('ownerLinkStatus').textContent='Saving hosted video to this episode…';
   try{
-   const provider=url.startsWith(B2_MEDIA_API+'/media/')?'B2 Storage':'Self-hosted video';
-   await saveEpisodeVideoRow(provider,url,target);
+   if(isVercelWatchBlobUrl(url))await saveVercelBlobEpisode(url,target);
+   else{const provider=url.startsWith(B2_MEDIA_API+'/media/')?'B2 Storage':'Self-hosted video';await saveEpisodeVideoRow(provider,url,target)}
    clearPendingHostedVideo(target,url);
    $('ownerLinkStatus').textContent='Video saved to this episode. It is ready to play.';
   }catch(error){$('ownerLinkStatus').textContent='Video is hosted, but saving the episode failed: '+(error?.message||'Database error.')+' You can retry Save video.'}
@@ -706,7 +788,7 @@ async function deleteB2Media(mediaUrl){
   $('ownerEpisodeTarget').textContent=s.title+' · '+s.seasons[si].name+' · Episode '+ep.number+' — '+ep.title;
   const pending=(!saved&&pendingHostedVideo(selectedEpisode))||null;
   const hostedUrl=saved?.watch_url||pending||'';
-  if($('episodeWatchUrl'))$('episodeWatchUrl').value=['Self-hosted video','B2 Storage'].includes(saved?.provider)?saved.watch_url:(pending||'');
+  if($('episodeWatchUrl'))$('episodeWatchUrl').value=['Self-hosted video','B2 Storage','Vercel Blob'].includes(saved?.provider)?saved.watch_url:(pending||'');
   if($('episodeVideoFile'))$('episodeVideoFile').value='';
   if($('episodeUploadMeta'))$('episodeUploadMeta').textContent='No file selected';
   if($('uploadEpisodeVideo'))$('uploadEpisodeVideo').disabled=true;
@@ -733,6 +815,15 @@ async function deleteB2Media(mediaUrl){
     const item=siteOwner?row:{...row,provider:'B2 Storage',watch_url:B2_MEDIA_API+'/media/'+encodeURIComponent(row.media_id)};
     return [watchLinkKey(item.series_id,item.season_index,item.episode_number),item];
    }));
+   // Blob is an optional second public index. Its absence must never break B2 playback.
+   try{
+    const blobRows=await ownerClient.from('aio_watch_blob_episodes').select('series_id,season_index,episode_number,blob_url').limit(5000);
+    if(blobRows.error)throw blobRows.error;
+    for(const item of blobRows.data||[]){
+     const ref=watchLinkKey(item.series_id,item.season_index,item.episode_number);
+     if(isVercelWatchBlobUrl(item.blob_url))episodeLinks.set(ref,{provider:'Vercel Blob',watch_url:item.blob_url});
+    }
+   }catch(error){console.warn('Optional Vercel Blob Watch index unavailable:',error?.message||error)}
    updateSpotlight();renderSeries();renderCatalog();
    if(selectedEpisode){
     const seriesItem=series.find(item=>item.id===selectedEpisode.seriesId),ep=seriesItem?.seasons[selectedEpisode.seasonIndex]?.episodes.find(item=>item.number===selectedEpisode.episodeNumber);
@@ -785,8 +876,8 @@ async function deleteB2Media(mediaUrl){
   try{watchUrl=validateSelfHostedVideoUrl($('episodeWatchUrl').value)}catch(error){$('ownerLinkStatus').textContent=error.message;return}
   const button=$('saveEpisodeLink');button.disabled=true;
   try{
-   const provider=new URL(watchUrl).hostname==='all-in-one-edition-media.plsgivemediscord981.workers.dev'?'B2 Storage':'Self-hosted video';
-   await saveEpisodeVideoRow(provider,watchUrl);
+   if(isVercelWatchBlobUrl(watchUrl))await saveVercelBlobEpisode(watchUrl);
+   else{const provider=new URL(watchUrl).hostname==='all-in-one-edition-media.plsgivemediscord981.workers.dev'?'B2 Storage':'Self-hosted video';await saveEpisodeVideoRow(provider,watchUrl)}
    clearPendingHostedVideo(selectedEpisode,watchUrl);
    updateHostedSaveButton();
    $('ownerLinkStatus').textContent='Video link saved to this episode. It is ready to play in Watch.';
@@ -953,6 +1044,13 @@ async function deleteB2Media(mediaUrl){
   try{
    const mapKey=watchLinkKey(selectedEpisode.seriesId,selectedEpisode.seasonIndex,selectedEpisode.episodeNumber);
    const existing=episodeLinks.get(mapKey);
+   if(existing?.provider==='Vercel Blob'){
+    const removed=await ownerClient.from('aio_watch_blob_episodes').delete().eq('series_id',selectedEpisode.seriesId).eq('season_index',selectedEpisode.seasonIndex).eq('episode_number',selectedEpisode.episodeNumber);
+    if(removed.error)throw removed.error;
+    episodeLinks.delete(mapKey);
+    $('ownerLinkStatus').textContent='Vercel episode unpublished. The stored file remains in Vercel Blob until removed from Storage.';
+    await loadEpisodeLinks();return;
+   }
    const result=await ownerClient.from('anime_episode_watch_links').delete().eq('series_id',selectedEpisode.seriesId).eq('season_index',selectedEpisode.seasonIndex).eq('episode_number',selectedEpisode.episodeNumber);
    if(result.error)throw result.error;
    episodeLinks.delete(mapKey);
@@ -1180,8 +1278,8 @@ async function deleteB2Media(mediaUrl){
   if(youtubePlayer){try{youtubePlayer.destroy()}catch{}youtubePlayer=null}
   stage.replaceChildren();
   const saved=episodeLinks.get(watchLinkKey(s.id,si,ep.number));
-  const isVideo=saved&&(saved.provider==='XBT Storage'||saved.provider==='Self-hosted video'||saved.provider==='B2 Storage');
-  $('playerSourceBadge').textContent=isVideo?(saved.provider==='B2 Storage'?'B2 HOSTED':'HOSTED VIDEO'):(s.embedVideoId?'OFFICIAL VIDEO':s.episodeGuideUrl?'OFFICIAL GUIDE':'EPISODE GUIDE');
+  const isVideo=saved&&(saved.provider==='XBT Storage'||saved.provider==='Self-hosted video'||saved.provider==='B2 Storage'||saved.provider==='Vercel Blob');
+  $('playerSourceBadge').textContent=isVideo?(saved.provider==='B2 Storage'?'B2 HOSTED':saved.provider==='Vercel Blob'?'VERCEL HOSTED':'HOSTED VIDEO'):(s.embedVideoId?'OFFICIAL VIDEO':s.episodeGuideUrl?'OFFICIAL GUIDE':'EPISODE GUIDE');
   $('playerNote').classList.remove('player-error');
   if(s.embedVideoId&&!isVideo){
    const wrap=document.createElement('div');wrap.className='watch-embed-wrap';
@@ -1393,7 +1491,7 @@ async function deleteB2Media(mediaUrl){
  $('episodeSearch').addEventListener('input',renderCatalog);$('progressFilter').addEventListener('change',renderCatalog);
  $('saveEpisodeLink').addEventListener('click',saveOwnerEpisodeLink);
  $('saveHostedEpisode').addEventListener('click',saveHostedVideoToEpisode);
- $('uploadEpisodeVideo').addEventListener('click',uploadOwnerEpisodeVideo);
+ $('uploadEpisodeVideo').addEventListener('click',()=>$('watchStorageProvider').value==='blob'?uploadOwnerVercelBlobVideo():uploadOwnerEpisodeVideo());
  $('checkWatchHosting').addEventListener('click',checkWatchHosting);
  $('recoverHostedUpload').addEventListener('click',recoverHostedUpload);
  $('removeEpisodeLink').addEventListener('click',removeOwnerEpisodeLink);
