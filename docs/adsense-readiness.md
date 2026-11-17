@@ -1,6 +1,6 @@
 # AdSense verification code installed, site review pending
 
-All in One Edition currently has a public /privacy page and privacy links. The requested exact AdSense script for publisher `ca-pub-4571610192955651` is installed on public pages for site verification. The `ads.txt` file, custom ad slots and manually configured ad units have **not** been added. Auto Ads are controlled by the eligible AdSense account owner in Google settings. No custom cookie popup has been installed.
+All in One Edition currently has a public /privacy page and privacy links. The requested exact AdSense script for publisher `ca-pub-4571610192955651` is installed on public pages for site verification. The `/ads.txt` publisher record has been added using the user-supplied publisher ID. Custom ad slots and manually configured ad units have **not** been added. Auto Ads are controlled by the eligible AdSense account owner in Google settings. No custom cookie popup has been installed.
 
 ## Eligibility and publisher ownership
 
@@ -16,7 +16,7 @@ References: https://support.google.com/adsense/answer/13554116?hl=en-GB and http
 
 ## Ownership and review
 
-The user-provided AdSense script is present for site ownership verification only. An eligible adult account owner must manage the corresponding AdSense account and any identity/payment verification. The dashboard must verify and review the site. HTTP 200 or a deployed script does not prove review success. Serving ads requires the AdSense site to show Ready.
+The user-provided AdSense script and seller record are present for site ownership verification and authorized-seller configuration only. Adding them does not demonstrate Google approval. An eligible adult account owner must manage the corresponding AdSense account and any identity/payment verification. The dashboard must verify and review the site. HTTP 200 or a deployed script does not prove review success. Serving ads requires the AdSense site to show Ready.
 
 Reference: https://support.google.com/adsense/answer/12131223?hl=en-GB
 

@@ -36,6 +36,21 @@ section{margin-top:42px}h2{font-size:clamp(22px,3vw,29px);margin:0 0 10px;letter
 .faq{border-top:1px solid #364a65;padding:18px 0}.faq h3{margin:0 0 9px;font-size:17px}.faq p{color:#c5d1e5;line-height:1.6;margin:0}
 footer{border-top:1px solid #35425a;padding:24px 18px;color:#c5d1e5;text-align:center;font-size:13px}
 @media(max-width:650px){.grid{grid-template-columns:1fr}nav{align-items:flex-start}.game{min-height:0}main{padding-top:24px}}
+
+/* Shareable original daily pick. No prizes or gambling mechanics. */
+.aio-daily{margin:24px 0 30px;padding:18px 20px;border:1px solid #3d5278;border-radius:17px;background:linear-gradient(115deg,#1c2a42,#151d2c);color:#f3f6ff}
+.aio-daily small{font-size:11px;font-weight:850;letter-spacing:.1em;text-transform:uppercase;color:#accaff}
+.aio-daily h2{font-size:clamp(19px,3vw,27px);margin:8px 0 4px}
+.aio-daily p{font-size:13px;line-height:1.6;color:#c6d3ea}
+.aio-daily-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:14px}
+.aio-daily-actions button{border:1px solid #6e8aba;border-radius:11px;background:#253754;color:#fff;min-height:42px;padding:9px 13px;font:inherit;font-weight:750;cursor:pointer}
+.aio-daily-actions a{display:inline-flex;align-items:center;min-height:42px;border-radius:11px;padding:9px 13px;background:#96b2ff;color:#101526;text-decoration:none;font-size:13px;font-weight:850}
+.aio-daily-actions button:focus-visible,.aio-daily-actions a:focus-visible{outline:3px solid #b0d0ff;outline-offset:3px}
+#aioDailyGameLink{margin-top:10px;width:100%;border:1px solid #8296b6;border-radius:8px;padding:10px;background:#0f1828;color:#fff}
+#aioDailyGameLink[hidden]{display:none}
+#aioDailyGameStatus{font-size:12px;min-height:1.2em}
+@media(prefers-reduced-motion:reduce){.aio-daily *{animation:none!important;transition:none!important}}
+
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://allinoneedition.vercel.app/"},{"@type":"ListItem","position":2,"name":"Browser games","item":"https://allinoneedition.vercel.app/browser-games"}]}</script>
 
@@ -54,6 +69,14 @@ footer{border-top:1px solid #35425a;padding:24px 18px;color:#c5d1e5;text-align:c
 <h1>Free browser games you can play right now</h1>
 <p class="lede">Looking for a quick game on your laptop, tablet or phone? These seven original AIO games open in your browser. Start with a 3×3 puzzle or choose an arcade challenge. No software download is needed.</p>
 <div class="buttons"><a class="secondary" href="/3x3-games">3x3 minigames and maths</a><a class="primary" href="#puzzles">Try 3×3 puzzles</a><a class="secondary" href="#arcade">Browse arcade games</a><a class="secondary" href="/#games">See the full library</a></div>
+<section id="daily-original" class="aio-daily" aria-label="Today's original game">
+<small>A fresh original pick each day</small>
+<h2 id="aioDailyGameName">3×3 Tile Slide</h2>
+<p id="aioDailyGameDesc">Put the tiles back in order in a quick logic puzzle.</p>
+<div class="aio-daily-actions"><a id="aioDailyGameOpen" href="/games/3x3-originals.html?game=slide">Play 3×3 Tile Slide</a><button type="button" id="aioDailyGameShare">Share today's game</button></div>
+<p id="aioDailyGameStatus" role="status" aria-live="polite">One of our seven original games, rotating daily. No sign-up or prize.</p>
+<input id="aioDailyGameLink" aria-label="Link to today's game" type="text" readonly hidden>
+</section>
 <section id="puzzles"><h2>Original 3×3 puzzle games</h2><p class="section-copy">Looking for <a href="/3x3-games">3x3 Steal an Egg or Keyboard Escape</a>? The dedicated 3x3 page includes those publisher-hosted minigames alongside our original board puzzles.</p><p class="section-copy">Prefer short rounds and logic challenges? Try a sliding-tile puzzle, Tic Tac Toe or pattern memory. Each one uses a 3-by-3 grid, but they play differently.</p>
 <div class="grid"><article class="game"><h3>3×3 Tile Slide</h3><p>Slide numbered tiles into order by moving a tile next to the empty space. A short logic challenge you can play by tapping.</p><a class="play" href="/games/3x3-originals.html?game=slide" aria-label="Play 3×3 Tile Slide">Play 3×3 Tile Slide <span aria-hidden="true">↗</span></a></article>
 <article class="game"><h3>3×3 Tic Tac Toe</h3><p>Make three in a row against the computer. Simple turns, a small grid and quick rounds.</p><a class="play" href="/games/3x3-originals.html?game=xo" aria-label="Play 3×3 Tic Tac Toe">Play 3×3 Tic Tac Toe <span aria-hidden="true">↗</span></a></article>
@@ -70,4 +93,5 @@ footer{border-top:1px solid #35425a;padding:24px 18px;color:#c5d1e5;text-align:c
 </section>
 </main>
 <footer>All in One Edition · <a href="/">Home</a> · <a href="/study">Study Hub</a> · <a href="/privacy">Privacy & cookies</a></footer>
+<script src="/aio-daily-original.js" defer></script>
 </body></html>
