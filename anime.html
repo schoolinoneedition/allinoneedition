@@ -630,7 +630,7 @@ async function deleteB2Media(mediaUrl){
     const message=error instanceof TypeError?'Could not reach the B2 upload service. Check your connection and try again.':(error?.message||'Storage error.');
     $('ownerLinkStatus').textContent='B2 upload failed while '+phase+': '+message+' The selected file is still here so you can retry.';
    }
-  }finally{episodeUploadActive=false;progress.hidden=true;button.disabled=!$('episodeVideoFile').files?.[0]}
+  }finally{episodeUploadActive=false;progress.hidden=true;button.disabled=!$('episodeVideoFile').files?.[0];updateHostedSaveButton()}
  }
  async function removeOwnerEpisodeLink(){
   if(!siteOwner||!currentSession?.user||!selectedEpisode)return;
