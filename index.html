@@ -475,6 +475,7 @@ html.game-fullscreen #gameModal.open .game-stage{height:100dvh!important;width:1
 <link rel="stylesheet" href="./appearance.css">
 <link rel="stylesheet" href="./ultimate-experience.css">
 <link rel="stylesheet" href="./aio-notifications.css">
+<link rel="stylesheet" href="/aio-game-picker.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 /* Unified games search + compact responsive header */
@@ -546,7 +547,31 @@ html.game-fullscreen #gameModal.open .game-stage{height:100dvh!important;width:1
 </section>
 <section class="section" id="continueSection"><div class="section-head"><h2>Continue playing</h2><small>Your recent game progress stays on this device.</small></div><div id="resumePanel" class="resume-panel panel"><div><strong>No game started yet.</strong><span>Open a game and your last-played progress will appear here.</span></div><button class="btn mini" onclick="continueLastGame()">Continue</button></div></section>
 <section id="games" class="section"><div class="section-head"><h2>Games</h2><small>Fast games, quick search, saved progress</small></div>
-<p class="muted" style="margin:8px 0 14px">New here? <a href="/browser-games">Play original free browser games and 3×3 puzzles</a>, or browse the full library below.</p><div class="panel catalog-info" style="margin-bottom:12px"><strong>Huge game library</strong><span><b id="librarySummary">Your games are rendered in fast batches while the browser warms images and game pages in the background</b> <span id="catalogueGoal" class="muted" style="font-size:11px;white-space:nowrap">Goal: 2,000 catalogue entries</span> · fast-loading cards, saved progress and a full-screen game view.</span></div><div class="panel catalog-info" style="margin-bottom:12px"><strong>Quick picks</strong> <button class="btn mini" type="button" onclick="setCat('All');document.getElementById('search').value='multiplayer';document.getElementById('search').dispatchEvent(new Event('input'));scrollToId('games')">Play together</button><span>Use New for the latest additions, the star on a card to save Favourites, or search and categories to find something to play.</span></div><div class="filters" id="filters"></div><div class="games" id="gameGrid"></div><div id="loadMoreWrap" style="display:none;justify-content:center;margin-top:18px"><button class="btn mini" id="loadMoreBtn" onclick="loadMoreGames()">Load more games</button></div></section>
+<p class="muted" style="margin:8px 0 14px">New here? <a href="/browser-games">Play original free browser games and 3×3 puzzles</a>, or browse the full library below.</p><div class="panel catalog-info" style="margin-bottom:12px"><strong>Huge game library</strong><span><b id="librarySummary">Your games are rendered in fast batches while the browser warms images and game pages in the background</b> <span id="catalogueGoal" class="muted" style="font-size:11px;white-space:nowrap">Goal: 2,000 catalogue entries</span> · fast-loading cards, saved progress and a full-screen game view.</span></div><div class="panel catalog-info" style="margin-bottom:12px"><strong>Quick picks</strong> <button class="btn mini" type="button" onclick="setCat('All');document.getElementById('search').value='multiplayer';document.getElementById('search').dispatchEvent(new Event('input'));scrollToId('games')">Play together</button><span>Use New for the latest additions, the star on a card to save Favourites, or search and categories to find something to play.</span></div><div class="aio-game-picker" id="aioGamePicker" aria-label="Game Mixer">
+  <div class="aio-picker-controls">
+    <span class="aio-picker-eyebrow">Discover something different</span>
+    <h3>Game Mixer</h3>
+    <p>Choose a vibe. We'll pick from the actual game library, prioritising games you haven't opened and avoiding recent picks.</p>
+    <div class="aio-picker-modes" role="group" aria-label="Game type">
+      <button type="button" class="aio-picker-mode" data-aio-picker-mode="quick" aria-pressed="true">Quick play</button>
+      <button type="button" class="aio-picker-mode" data-aio-picker-mode="puzzle" aria-pressed="false">Puzzles</button>
+      <button type="button" class="aio-picker-mode" data-aio-picker-mode="racing" aria-pressed="false">Racing</button>
+      <button type="button" class="aio-picker-mode" data-aio-picker-mode="together" aria-pressed="false">Play together</button>
+      <button type="button" class="aio-picker-mode" data-aio-picker-mode="anything" aria-pressed="false">Anything</button>
+    </div>
+    <p style="margin-top:9px">Quick play picks site-hosted games. Other picks may use external hosts, and multiplayer support depends on each game.</p>
+  </div>
+  <div class="aio-picker-result" id="aioPickerResult" aria-live="polite" aria-atomic="true">
+    <span class="aio-picker-meta" id="aioPickerMeta">Finding a pick</span>
+    <h3 id="aioPickerTitle">A game for you</h3>
+    <p id="aioPickerDescription">Pick a type to discover something from the catalogue.</p>
+    <div class="aio-picker-actions">
+      <button type="button" class="btn mini primary" id="aioPickerPlay" disabled>Play this game</button>
+      <button type="button" class="btn mini" id="aioPickerNext" disabled>Another pick</button>
+    </div>
+  </div>
+</div>
+<div class="filters" id="filters"></div><div class="games" id="gameGrid"></div><div id="loadMoreWrap" style="display:none;justify-content:center;margin-top:18px"><button class="btn mini" id="loadMoreBtn" onclick="loadMoreGames()">Load more games</button></div></section>
 <section id="cloud-gaming" class="section">
  <div class="section-head"><h2>Cloud gaming</h2><small>Big games on compatible devices</small></div>
  <p class="aio-cloud-intro">Jump into supported games through your browser. Cloud play needs a steady internet connection.</p>
@@ -3390,6 +3415,7 @@ socialBind=function(){__oldSocialBind();socialBindPostManagement();setTimeout(()
 <script src="./aio-notifications.js" defer></script>
 <script src="./backend-features.js" defer></script>
 <script src="./appearance.js" defer></script>
+<script src="/aio-game-picker.js" defer></script>
 <script src="./ultimate-experience.js" defer></script>
 
 <script>

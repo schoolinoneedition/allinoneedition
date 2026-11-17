@@ -1,0 +1,94 @@
+/* Compact game discovery panel. Inherits the existing AIO theme tokens. */
+#aioGamePicker{
+  display:grid;
+  grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);
+  gap:16px;
+  padding:17px 19px;
+  margin:0 0 16px;
+  border:1px solid var(--line,#e5e6ea);
+  border-radius:16px;
+  background:var(--panel,#fff);
+  color:var(--text,#1d1d20);
+}
+#aioGamePicker .aio-picker-eyebrow{
+  display:block;
+  font-size:10px;
+  font-weight:850;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted,#59616d);
+  margin-bottom:5px;
+}
+#aioGamePicker h3{
+  font-size:18px;
+  line-height:1.3;
+  font-weight:800;
+  margin:0 0 6px;
+}
+#aioGamePicker p{
+  color:var(--muted,#59616d);
+  font-size:12px;
+  line-height:1.55;
+  margin:0;
+}
+#aioGamePicker .aio-picker-modes{
+  display:flex;
+  gap:7px;
+  margin-top:13px;
+  flex-wrap:wrap;
+}
+#aioGamePicker .aio-picker-mode{
+  border:1px solid var(--line,#e5e6ea);
+  border-radius:999px;
+  padding:8px 12px;
+  font:inherit;
+  font-size:12px;
+  font-weight:750;
+  background:var(--soft,#f1f3f7);
+  color:var(--text,#1d1d20);
+  cursor:pointer;
+}
+#aioGamePicker .aio-picker-mode[aria-pressed="true"]{
+  border-color:var(--accent,#4778ee);
+  background:var(--accent,#4778ee);
+  color:#fff;
+}
+#aioGamePicker button:focus-visible{
+  outline:3px solid var(--accent,#4778ee);
+  outline-offset:3px;
+}
+#aioGamePicker .aio-picker-result{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  border-radius:12px;
+  padding:14px 16px;
+  background:var(--soft,#f1f3f7);
+  border:1px solid var(--line,#e5e6ea);
+}
+#aioGamePicker .aio-picker-result h3{
+  overflow-wrap:anywhere;
+  font-size:17px;
+  margin:5px 0;
+}
+#aioGamePicker .aio-picker-meta{
+  font-size:11px;
+  font-weight:750;
+  color:var(--muted,#59616d);
+}
+#aioGamePicker .aio-picker-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:12px;
+}
+#aioGamePicker .aio-picker-actions button{min-height:36px}
+#aioGamePicker .aio-picker-actions button:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:750px){
+  #aioGamePicker{grid-template-columns:1fr;padding:15px;gap:11px}
+  #aioGamePicker .aio-picker-result{padding:13px}
+}
+@media(prefers-reduced-motion:reduce){
+  #aioGamePicker *{scroll-behavior:auto!important;transition:none!important;animation:none!important}
+}
