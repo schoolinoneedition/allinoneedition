@@ -159,19 +159,27 @@ assert.ok(helperStart>=0&&helperEnd>helperStart,'Watch save helpers must be pres
  ctx.clear(episode,mediaUrl);
  assert.equal(ctx.pending(episode),null,'Successful saving should clear the local recovery record.');
 }
-// Watch Theatre uses real media APIs, not decorative controls or third-party autoplay hacks.
-assert.ok(watch.includes('function renderHostedPlayer(show,si,ep,saved,stage,renderId)'), 'Watch must have an isolated hosted-video player.');
-for(const control of ['seek','play','back','forward','mute','volume','rate','pip','fullscreen','previous','next','native','retry']){
-  assert.ok(watch.includes('data-control="'+control+'"'), 'Watch player is missing working '+control+' control.');
+// Watch matches Social's video-first tap-to-pause design: no bulky control dashboard.
+assert.ok(watch.includes('function renderHostedPlayer(show,si,ep,saved,stage,renderId)'), 'Watch must keep its dedicated hosted-video player.');
+assert.ok(watch.includes('className=\\'watch-video-stage watch-social-player\\''), 'Watch hosted videos must use the clean Social-style player surface.');
+assert.ok(watch.includes("className='watch-slim-controls'"), 'Watch must use one lightweight floating control bar.');
+for (const control of ['play','seek','time','sound','fullscreen']){
+ assert.ok(watch.includes('data-control="'+control+'"'), 'Simple player is missing the '+control+' control.');
 }
-assert.ok(watch.includes("video.currentTime=Number(seek.value)/1000*video.duration")&&watch.includes("video.playbackRate=Number(event.target.value)"), 'Watch seeking and playback speed must use HTML5 video APIs.');
-assert.ok(watch.includes('video.volume=Number(volume.value)')&&watch.includes('video.muted=!video.muted'), 'Watch must restore usable volume and mute.');
-assert.ok(watch.includes('video.requestPictureInPicture()')&&watch.includes('frame.requestFullscreen()'), 'Watch must support PiP and fullscreen where available.');
-assert.ok(watch.includes('videoControlsCleanup()')&&watch.includes("video.removeAttribute('src')"), 'Changing episodes must stop and release the previous video.');
-assert.ok(watch.includes('renderId===youtubeRender&&frame.isConnected'), 'Old secure playback responses must not restart a detached player.');
-assert.ok(watch.includes('controls=1&disablekb=0'), 'Publisher-hosted YouTube videos must retain native controls.');
-assert.ok(watch.includes('id="playerSourceBadge"')&&watch.includes('EPISODE THEATRE'), 'Watch player must expose source and episode context.');
-assert.ok(!watch.includes('Sound controls are hidden.'), 'Do not hide all sound controls from the owner-hosted player.');
+for (const retired of ['watch-video-controls','data-control="rate"','data-control="pip"','data-control="back"','data-control="forward"','data-control="native"']){
+ assert.ok(!watch.includes(retired), 'Old bulky playback control was not removed: '+retired);
+}
+assert.ok(watch.includes("video.controls=false;video.muted=false;video.defaultMuted=false;video.volume=1"), 'Watch must start with the audio unmuted and full volume like Social.');
+assert.ok(watch.includes("video.addEventListener('click',toggle)")&&watch.includes("overlay.addEventListener('click',toggle)"), 'Tapping the video must pause/play instead of showing a second toolbar.');
+assert.ok(watch.includes("if(!video.paused&&!video.ended){video.pause();return}"), 'Tapping while playing must pause immediately.');
+assert.ok(watch.includes("video.currentTime=Number(seek.value)/1000*video.duration"), 'Seek timeline must control the actual media playback position.');
+assert.ok(watch.includes('frame.requestFullscreen()'), 'Fullscreen control must remain functional.');
+assert.ok(watch.includes('retry.addEventListener(\\'click\\',retryPlayback)'), 'Failed secure video loads must offer an actual retry action.');
+assert.ok(watch.includes("video.removeAttribute('src')")&&watch.includes("if(videoControlsCleanup){videoControlsCleanup()"), 'Changing an episode must stop and release the previous media stream.');
+assert.ok(watch.includes('renderId===youtubeRender&&frame.isConnected'), 'Old secure playback responses must not restart removed players.');
+assert.ok(watch.includes("getB2PlaybackUrl(saved.watch_url)"), 'B2 media URLs must remain securely signed.');
+assert.ok(watch.includes("if(saved.provider==='B2 Storage')fetchSource().catch(()=>{});"), 'Watch must prefetch only a signed URL, not video bytes, to improve unmuted iPad playback gestures.');
+assert.ok(watch.includes('controls=1&disablekb=0'), 'Official publisher YouTube embeds must preserve native controls.');
 assert.ok(mediaWorker.includes('async function reconcileReadyObject(env: Env, row: MediaRow)') && mediaWorker.includes('async function markUploadReady(env: Env, row: MediaRow)'), 'Media Worker must recover completed B2 uploads and treat part cleanup as nonfatal.');
 assert.ok(mediaWorker.includes('parts[2] === "status"') && mediaWorker.includes('id: row.id, status: recovered ? "ready" : row.status'), 'Owner must be able to check and recover the state of their own upload.');
 assert.ok(mediaWorker.includes('if (await reconcileReadyObject(env, row))'), 'Replaying completion must be idempotent for already stored videos.');
