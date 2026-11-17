@@ -105,7 +105,7 @@ assert.ok(index.includes("#gameModal #gameFrame{clip-path:none}")&&index.include
 assert.ok(index.includes('async function loadGameIntoFrame(g)')&&index.includes("select('html_content')"),'Uploaded HTML game playback must survive the UI rollback.');
 assert.ok(!index.includes('id="aio-feature-hub"'),'The new video-first homepage redesign must stay reverted.');
 
-assert.ok(watch.includes('function refreshHostedOpenLink(mediaUrl)')&&watch.includes('refreshHostedOpenLink(saved.watch_url)'), 'B2 Open links must be signed for browser playback.');
+assert.ok(watch.includes('function refreshHostedOpenLink(mediaUrl)')&&watch.includes('refreshHostedOpenLink(hostedUrl)'), 'B2 Open links must be signed for browser playback.');
 assert.ok(watch.includes('const startSession=await ownerClient.auth.getSession()'), 'Watch must refresh owner authentication before initiating an upload.');
 assert.ok(watch.includes('Number(init.partSizeBytes)||8*1024*1024,8*1024*1024'), 'Watch should use mobile-friendly 8 MiB multipart chunks.');
 assert.ok(watch.includes('failure.permanent=true')&&watch.includes('if(error.permanent||/Session expired/'), 'Stop retrying permanent upload failures and expired login sessions.');
@@ -124,4 +124,39 @@ assert.ok(mediaWorker.includes('providerCode')&&mediaWorker.includes('b2_transfe
 assert.ok(watch.includes("const magic=new Uint8Array(await file.slice(0,16).arrayBuffer())"), 'Watch should validate file bytes before initiating an upload.');
 assert.ok(watch.includes("await getB2PlaybackUrl(watchUrl)"), 'Watch must not claim unpublished or unfinished media is ready for playback.');
 assert.ok(watch.includes("phase='sending part '")&&watch.includes('B2 upload failed while '), 'Watch should report the failed upload stage for troubleshooting.');
+assert.ok(watch.includes('id="saveHostedEpisode"')&&watch.includes("addEventListener('click',saveHostedVideoToEpisode)"), 'Watch must expose a real Save video to episode button.');
+assert.ok(watch.includes("rememberPendingHostedVideo(target,mediaUrl)")&&watch.includes("clearPendingHostedVideo(target,mediaUrl)"), 'Completed video uploads must be recoverable until episode publishing succeeds.');
+assert.ok(watch.includes("phase='publishing the episode'")&&watch.includes("updateHostedSaveButton()"), 'Watch should let owners retry a failed save after B2 upload completes.');
+assert.ok(watch.includes("const pending=(!saved&&pendingHostedVideo(selectedEpisode))||null"), 'Reopening the same episode should restore a pending hosted video in the current browser tab.');
+const helperStart=watch.indexOf('const PENDING_WATCH_UPLOAD=');
+const helperEnd=watch.indexOf('function updateOwnerEditor(',helperStart);
+assert.ok(helperStart>=0&&helperEnd>helperStart,'Watch save helpers must be present.');
+{
+ const items=new Map(),storage=new Map();
+ const episode={seriesId:'pokemon',seasonIndex:0,episodeNumber:1};
+ const mediaUrl='https://all-in-one-edition-media.plsgivemediscord981.workers.dev/media/11111111-1111-4111-8111-111111111111';
+ const ctx={
+  siteOwner:true,episodeUploadActive:false,selectedEpisode:episode,currentSession:{user:{id:'owner-test'}},
+  B2_MEDIA_API:'https://all-in-one-edition-media.plsgivemediscord981.workers.dev',
+  episodeLinks:new Map(),watchLinkKey:(a,b,c)=>a+':'+b+':'+c,
+  validateSelfHostedVideoUrl:x=>x,
+  sessionStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},
+  $:id=>items.get(id),
+  saveEpisodeVideoRow:async()=>{}
+ };
+ items.set('saveHostedEpisode',{disabled:false,textContent:''});
+ items.set('hostedVideoUrl',{value:mediaUrl});
+ items.set('ownerLinkStatus',{textContent:''});
+ vm.runInNewContext(watch.slice(helperStart,helperEnd)+';globalThis.pending=pendingHostedVideo;globalThis.remember=rememberPendingHostedVideo;globalThis.clear=clearPendingHostedVideo;globalThis.syncSave=updateHostedSaveButton;',ctx);
+ ctx.remember(episode,mediaUrl);
+ assert.equal(ctx.pending(episode),mediaUrl,'A finished upload should be recoverable for its original episode.');
+ assert.equal(ctx.pending({seriesId:'pokemon',seasonIndex:0,episodeNumber:2}),null,'A pending upload must not move to a different episode.');
+ ctx.syncSave();
+ assert.equal(items.get('saveHostedEpisode').disabled,false,'A pending upload should enable Save video.');
+ ctx.episodeLinks.set('pokemon:0:1',{watch_url:mediaUrl});
+ ctx.syncSave();
+ assert.equal(items.get('saveHostedEpisode').disabled,true,'A saved video should not allow redundant publishing.');
+ ctx.clear(episode,mediaUrl);
+ assert.equal(ctx.pending(episode),null,'Successful saving should clear the local recovery record.');
+}
 console.log('Owner Studio, AI Video Studio, Watch and game-library preservation contracts passed.');
