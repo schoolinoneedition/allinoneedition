@@ -446,7 +446,7 @@ body{background:#101014;color:#f5f5f7}
    <section class="watch-player" aria-label="Anime episode player">
     <div class="watch-player-head"><div class="watch-player-ident"><span class="watch-player-kicker">EPISODE THEATRE</span><strong id="playerTitle">Select an episode to watch</strong><small id="playerSubtitle">Official viewing options for this episode</small></div><span class="watch-player-pill" id="playerSourceBadge">PLAYER</span></div>
     <div class="watch-player-stage" id="playerStage"><div class="watch-player-placeholder"><span class="player-mark">▶</span><strong>Choose an episode</strong><p>Pick an episode below. The owner can add a rights-cleared MP4/WebM video for in-page playback.</p></div></div>
-    <div class="watch-player-note" id="playerNote" role="status" aria-live="polite">Choose an episode below. Uploaded videos offer seeking, volume, speed, fullscreen and keyboard controls.</div>
+    <div class="watch-player-note" id="playerNote" role="status" aria-live="polite">Choose an episode below. Hosted videos offer play/pause, seeking, sound, fullscreen and keyboard controls.</div>
    </section>
    <div class="episode-list" id="episodeList"></div>
   </div>
@@ -876,7 +876,7 @@ async function deleteB2Media(mediaUrl){
    const init=await initRes.json().catch(()=>({}));
    if(!initRes.ok||!init.uploadId)throw new Error(init.error||'B2 could not start the upload.');
    uploadId=init.uploadId;rememberPendingTransfer(target,uploadId);updateTransferRecovery();
-   const partSize=Math.max(5*1024*1024,Math.min(Number(init.partSizeBytes)||8*1024*1024,8*1024*1024));
+   const partSize=Math.max(5*1024*1024,Math.min(Number(init.partSizeBytes)||8*1024*1024,32*1024*1024));
    const parts=[];let uploaded=0,partNumber=1;
    for(let offset=0;offset<file.size;offset+=partSize,partNumber++){
     phase='sending part '+partNumber+' of '+Math.ceil(file.size/partSize);
