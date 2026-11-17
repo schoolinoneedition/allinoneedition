@@ -213,10 +213,12 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
      <div class="owner-hosted-result" id="hostedVideoResult" hidden>
       <label for="hostedVideoUrl">Your hosted All in One Edition video URL</label>
       <div class="hosted-url-row"><input id="hostedVideoUrl" type="url" readonly><button id="copyHostedVideoUrl" type="button">Copy URL</button><a id="openHostedVideoUrl" href="#" target="_blank" rel="noopener noreferrer">Open</a></div>
+      <div class="owner-form-actions"><button class="primary" id="saveHostedEpisode" type="button" disabled>Save video to this episode</button></div>
+      <p class="owner-terms">A finished upload is normally saved automatically. Use Save video if publishing fails or you need to retry attaching it to the selected episode.</p>
      </div>
      <label for="episodeWatchUrl">Or attach an existing video already hosted on All in One Edition</label>
      <input id="episodeWatchUrl" type="url" inputmode="url" maxlength="2048" placeholder="https://allinoneedition.vercel.app/videos/episode.mp4">
-     <div class="owner-form-actions"><button class="primary" id="saveEpisodeLink" type="button">Save hosted video URL</button><button id="removeEpisodeLink" type="button" disabled>Remove video</button></div>
+     <div class="owner-form-actions"><button class="primary" id="saveEpisodeLink" type="button">Save video link to episode</button><button id="removeEpisodeLink" type="button" disabled>Remove video</button></div>
      <div class="owner-link-status" id="ownerLinkStatus" role="status" aria-live="polite"></div>
      <p class="owner-terms">Uploaded videos are stored in Backblaze B2 and streamed through the media service. Maximum upload: 1 GiB. For reliable playback, use MP4 with H.264 video and AAC audio, or a browser-compatible WebM. No conversion is performed. Only upload videos you own or are authorised to distribute.</p>
     </div>
@@ -392,19 +394,66 @@ async function deleteB2Media(mediaUrl){
    if(!response.ok&&response.status!==404)throw new Error('Could not remove the old B2 video.');
   }catch(error){console.warn('B2 cleanup:',error);}
 }
-function updateOwnerEditor(s,si,ep){
+
+ const PENDING_WATCH_UPLOAD='aio_pending_watch_video_v1';
+ function pendingHostedVideo(target){
+  if(!target||!currentSession?.user)return null;
+  try{
+   const stored=JSON.parse(sessionStorage.getItem(PENDING_WATCH_UPLOAD)||'null');
+   if(!stored||stored.userId!==currentSession.user.id||stored.key!==watchLinkKey(target.seriesId,target.seasonIndex,target.episodeNumber))return null;
+   const url=validateSelfHostedVideoUrl(stored.url);
+   return url.startsWith(B2_MEDIA_API+'/media/')?url:null;
+  }catch{return null}
+ }
+ function rememberPendingHostedVideo(target,url){
+  try{sessionStorage.setItem(PENDING_WATCH_UPLOAD,JSON.stringify({userId:currentSession.user.id,key:watchLinkKey(target.seriesId,target.seasonIndex,target.episodeNumber),url}))}catch{}
+ }
+ function clearPendingHostedVideo(target,url){
+  if(!target||pendingHostedVideo(target)!==url)return;
+  try{sessionStorage.removeItem(PENDING_WATCH_UPLOAD)}catch{}
+ }
+ function updateHostedSaveButton(){
+  const button=$('saveHostedEpisode');if(!button)return;
+  const url=$('hostedVideoUrl').value;
+  const isSaved=!!(selectedEpisode&&episodeLinks.get(watchLinkKey(selectedEpisode.seriesId,selectedEpisode.seasonIndex,selectedEpisode.episodeNumber))?.watch_url===url);
+  button.disabled=!siteOwner||!selectedEpisode||!url||isSaved||episodeUploadActive;
+  button.textContent=isSaved?'Saved to this episode':'Save video to this episode';
+ }
+ async function saveHostedVideoToEpisode(){
+  if(!siteOwner||!selectedEpisode||!currentSession?.user){$('ownerLinkStatus').textContent='Sign in as the owner and select an episode before saving.';return}
+  const target={...selectedEpisode};
+  const button=$('saveHostedEpisode');
+  let url;
+  try{url=validateSelfHostedVideoUrl($('hostedVideoUrl').value)}
+  catch(error){$('ownerLinkStatus').textContent='Cannot save video: '+error.message;return}
+  button.disabled=true;
+  $('ownerLinkStatus').textContent='Saving hosted video to this episode…';
+  try{
+   const provider=url.startsWith(B2_MEDIA_API+'/media/')?'B2 Storage':'Self-hosted video';
+   await saveEpisodeVideoRow(provider,url,target);
+   clearPendingHostedVideo(target,url);
+   $('ownerLinkStatus').textContent='Video saved to this episode. It is ready to play.';
+  }catch(error){$('ownerLinkStatus').textContent='Video is hosted, but saving the episode failed: '+(error?.message||'Database error.')+' You can retry Save video.'}
+  finally{updateHostedSaveButton()}
+ }
+ 
+ function updateOwnerEditor(s,si,ep){
   $('ownerLinkPanel').hidden=false;
   selectedEpisode={seriesId:s.id,seasonIndex:si,episodeNumber:ep.number};
   const saved=episodeLinks.get(watchLinkKey(s.id,si,ep.number));
   $('ownerEpisodeTarget').textContent=s.title+' · '+s.seasons[si].name+' · Episode '+ep.number+' — '+ep.title;
-  if($('episodeWatchUrl'))$('episodeWatchUrl').value=['Self-hosted video','B2 Storage'].includes(saved?.provider)?saved.watch_url:'';
+  const pending=(!saved&&pendingHostedVideo(selectedEpisode))||null;
+  const hostedUrl=saved?.watch_url||pending||'';
+  if($('episodeWatchUrl'))$('episodeWatchUrl').value=['Self-hosted video','B2 Storage'].includes(saved?.provider)?saved.watch_url:(pending||'');
   if($('episodeVideoFile'))$('episodeVideoFile').value='';
   if($('episodeUploadMeta'))$('episodeUploadMeta').textContent='No file selected';
   if($('uploadEpisodeVideo'))$('uploadEpisodeVideo').disabled=true;
-  if($('hostedVideoResult'))$('hostedVideoResult').hidden=!saved;
-  if(saved){$('hostedVideoUrl').value=saved.watch_url;refreshHostedOpenLink(saved.watch_url)}
+  $('hostedVideoUrl').value=hostedUrl;
+  $('hostedVideoResult').hidden=!hostedUrl;
+  if(hostedUrl)refreshHostedOpenLink(hostedUrl);
   if($('removeEpisodeLink'))$('removeEpisodeLink').disabled=!saved;
-  if($('ownerLinkStatus'))$('ownerLinkStatus').textContent=saved?'Hosted video URL is saved for this episode.':'No video saved for this episode yet.';
+  if($('ownerLinkStatus'))$('ownerLinkStatus').textContent=saved?'Video saved to this episode.':pending?'An upload finished, but this episode is not yet saved. Click Save video to this episode.':'No video saved for this episode yet.';
+  updateHostedSaveButton();
  }
  async function loadEpisodeLinks(){
   if(!ownerClient)return;
@@ -476,7 +525,9 @@ function updateOwnerEditor(s,si,ep){
   try{
    const provider=new URL(watchUrl).hostname==='all-in-one-edition-media.plsgivemediscord981.workers.dev'?'B2 Storage':'Self-hosted video';
    await saveEpisodeVideoRow(provider,watchUrl);
-   $('ownerLinkStatus').textContent='Direct video URL saved. The episode is ready to play in Anime Zone.';
+   clearPendingHostedVideo(selectedEpisode,watchUrl);
+   updateHostedSaveButton();
+   $('ownerLinkStatus').textContent='Video link saved to this episode. It is ready to play in Watch.';
   }catch(error){$('ownerLinkStatus').textContent='Could not save: '+(error?.message||'Database error.')}
   finally{button.disabled=false}
  }
@@ -552,9 +603,18 @@ function updateOwnerEditor(s,si,ep){
    if(!completeRes.ok)throw new Error(complete.error||'B2 could not finish the upload.');
    completed=true;phase='publishing the episode';
    const mediaUrl=B2_MEDIA_API+'/media/'+encodeURIComponent(uploadId);
-   await saveEpisodeVideoRow('B2 Storage',mediaUrl,target);saved=true;
+   rememberPendingHostedVideo(target,mediaUrl);
    if(selectedEpisode&&watchLinkKey(selectedEpisode.seriesId,selectedEpisode.seasonIndex,selectedEpisode.episodeNumber)===watchLinkKey(target.seriesId,target.seasonIndex,target.episodeNumber)){
-    $('episodeWatchUrl').value=mediaUrl;$('hostedVideoUrl').value=mediaUrl;refreshHostedOpenLink(mediaUrl);$('hostedVideoResult').hidden=false;
+    $('hostedVideoUrl').value=mediaUrl;
+    $('episodeWatchUrl').value=mediaUrl;
+    $('hostedVideoResult').hidden=false;
+    refreshHostedOpenLink(mediaUrl);
+    updateHostedSaveButton();
+   }
+   await saveEpisodeVideoRow('B2 Storage',mediaUrl,target);saved=true;
+   clearPendingHostedVideo(target,mediaUrl);
+   if(selectedEpisode&&watchLinkKey(selectedEpisode.seriesId,selectedEpisode.seasonIndex,selectedEpisode.episodeNumber)===watchLinkKey(target.seriesId,target.seasonIndex,target.episodeNumber)){
+    $('episodeWatchUrl').value=mediaUrl;$('hostedVideoUrl').value=mediaUrl;refreshHostedOpenLink(mediaUrl);$('hostedVideoResult').hidden=false;updateHostedSaveButton();
    }
    $('ownerLinkStatus').textContent='Uploaded to B2. The episode is now saved and ready to stream.';
    $('episodeVideoFile').value='';$('episodeUploadMeta').textContent='B2 upload complete · '+file.name;button.disabled=true;
@@ -562,8 +622,10 @@ function updateOwnerEditor(s,si,ep){
    if(uploadId&&!completed){try{const abortSession=await ownerClient.auth.getSession();const abortToken=abortSession.data?.session?.access_token||currentSession?.access_token;if(abortToken)await fetch(B2_MEDIA_API+'/uploads/'+encodeURIComponent(uploadId)+'/abort',{method:'POST',headers:{'Authorization':'Bearer '+abortToken}})}catch{}}
    if(uploadId&&completed&&!saved){
     const mediaUrl=B2_MEDIA_API+'/media/'+encodeURIComponent(uploadId);
-    $('hostedVideoUrl').value=mediaUrl;refreshHostedOpenLink(mediaUrl);$('hostedVideoResult').hidden=false;
-    $('ownerLinkStatus').textContent='The upload finished, but the episode could not be saved. Copy the hosted URL above and attach it to the episode again. '+(error?.message||'');
+    if(selectedEpisode&&watchLinkKey(selectedEpisode.seriesId,selectedEpisode.seasonIndex,selectedEpisode.episodeNumber)===watchLinkKey(target.seriesId,target.seasonIndex,target.episodeNumber)){
+     $('hostedVideoUrl').value=mediaUrl;$('episodeWatchUrl').value=mediaUrl;refreshHostedOpenLink(mediaUrl);$('hostedVideoResult').hidden=false;updateHostedSaveButton();
+    }
+    $('ownerLinkStatus').textContent='Upload completed, but saving this episode failed. Return to the same episode and choose Save video to this episode to retry. '+(error?.message||'');
    }else{
     const message=error instanceof TypeError?'Could not reach the B2 upload service. Check your connection and try again.':(error?.message||'Storage error.');
     $('ownerLinkStatus').textContent='B2 upload failed while '+phase+': '+message+' The selected file is still here so you can retry.';
@@ -727,6 +789,7 @@ function updateOwnerEditor(s,si,ep){
  function renderEpisodesOnly(){renderCatalog();renderStats()}
  $('episodeSearch').addEventListener('input',renderCatalog);$('progressFilter').addEventListener('change',renderCatalog);
  $('saveEpisodeLink').addEventListener('click',saveOwnerEpisodeLink);
+ $('saveHostedEpisode').addEventListener('click',saveHostedVideoToEpisode);
  $('uploadEpisodeVideo').addEventListener('click',uploadOwnerEpisodeVideo);
  $('removeEpisodeLink').addEventListener('click',removeOwnerEpisodeLink);
  $('chooseEpisodeVideo').addEventListener('click',()=>$('episodeVideoFile').click());
