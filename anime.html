@@ -449,6 +449,10 @@ function updateOwnerEditor(s,si,ep){
  }
  async function saveEpisodeVideoRow(provider,watchUrl,target=selectedEpisode){
   if(!target||!currentSession?.user)throw Error('Select an episode and sign in again.');
+  if(provider==='B2 Storage'){
+   try{await getB2PlaybackUrl(watchUrl)}
+   catch{throw Error('This B2 upload is not finished or available for playback. Upload a complete MP4/WebM file first.')}
+  }
   const mapKey=watchLinkKey(target.seriesId,target.seasonIndex,target.episodeNumber);
   const previous=episodeLinks.get(mapKey);
   const row={series_id:target.seriesId,season_index:target.seasonIndex,episode_number:target.episodeNumber,provider,watch_url:watchUrl,updated_by:currentSession.user.id,updated_at:new Date().toISOString()};
@@ -498,18 +502,23 @@ function updateOwnerEditor(s,si,ep){
   if(!mimeOk){$('ownerLinkStatus').textContent='Choose a valid MP4 or WebM video file.';return}
   const MAX_VIDEO_BYTES=1024*1024*1024;
   if(file.size<=0||file.size>MAX_VIDEO_BYTES){$('ownerLinkStatus').textContent='Choose a video between 1 byte and 1 GB.';return}
-  if(!currentSession.access_token){$('ownerLinkStatus').textContent='Your owner session needs refreshing. Sign in again, then retry.';return}
   const button=$('uploadEpisodeVideo'),progress=$('episodeUploadProgress');
   episodeUploadActive=true;button.disabled=true;progress.hidden=false;progress.max=file.size;progress.value=0;
   $('ownerLinkStatus').textContent='Preparing secure B2 upload…';
   const target={...selectedEpisode};
   const safeName=target.seriesId+'/'+(target.seasonIndex+1)+'/'+String(target.episodeNumber).padStart(3,'0')+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+extension;
-  let uploadId=null,completed=false,saved=false;
-  const headers={'Authorization':'Bearer '+currentSession.access_token,'Content-Type':'application/json'};
+  let uploadId=null,completed=false,saved=false,phase='checking the file';
+  const headers={'Authorization':'Bearer '+(currentSession.access_token||''),'Content-Type':'application/json'};
   try{
+   const magic=new Uint8Array(await file.slice(0,16).arrayBuffer());
+   const isMp4=magic.length>=8&&magic[4]===0x66&&magic[5]===0x74&&magic[6]===0x79&&magic[7]===0x70;
+   const isWebm=magic.length>=4&&magic[0]===0x1a&&magic[1]===0x45&&magic[2]===0xdf&&magic[3]===0xa3;
+   if(!(contentType==='video/mp4'?isMp4:isWebm))throw Error('The selected file does not contain valid '+(contentType==='video/mp4'?'MP4':'WebM')+' video data. Export it in a browser-compatible format and try again.');
+   phase='authorising the upload';
    const startSession=await ownerClient.auth.getSession();
    if(!startSession.data?.session?.access_token)throw Error('Session expired. Sign in again.');
    headers.Authorization='Bearer '+startSession.data.session.access_token;
+   phase='starting B2 storage';
    const initRes=await fetch(B2_MEDIA_API+'/uploads/initiate',{method:'POST',headers,body:JSON.stringify({filename:safeName,contentType,sizeBytes:file.size,visibility:'public'})});
    const init=await initRes.json().catch(()=>({}));
    if(!initRes.ok||!init.uploadId)throw new Error(init.error||'B2 could not start the upload.');
@@ -517,6 +526,7 @@ function updateOwnerEditor(s,si,ep){
    const partSize=Math.max(5*1024*1024,Math.min(Number(init.partSizeBytes)||8*1024*1024,8*1024*1024));
    const parts=[];let uploaded=0,partNumber=1;
    for(let offset=0;offset<file.size;offset+=partSize,partNumber++){
+    phase='sending part '+partNumber+' of '+Math.ceil(file.size/partSize);
     const chunk=file.slice(offset,Math.min(file.size,offset+partSize));
     let part=null,lastError=null;
     for(let attempt=0;attempt<3;attempt++){
@@ -534,11 +544,12 @@ function updateOwnerEditor(s,si,ep){
     parts.push({partNumber,etag:part.etag});uploaded+=chunk.size;progress.value=uploaded;
     $('ownerLinkStatus').textContent='Uploading to B2 · '+Math.round(uploaded/file.size*100)+'%';
    }
+   phase='finishing the B2 upload';
    const finalSession=await ownerClient.auth.getSession();if(!finalSession.data?.session?.access_token)throw Error('Session expired. Sign in again.');headers.Authorization='Bearer '+finalSession.data.session.access_token;
    const completeRes=await fetch(B2_MEDIA_API+'/uploads/'+encodeURIComponent(uploadId)+'/complete',{method:'POST',headers,body:JSON.stringify({parts})});
    const complete=await completeRes.json().catch(()=>({}));
    if(!completeRes.ok)throw new Error(complete.error||'B2 could not finish the upload.');
-   completed=true;
+   completed=true;phase='publishing the episode';
    const mediaUrl=B2_MEDIA_API+'/media/'+encodeURIComponent(uploadId);
    await saveEpisodeVideoRow('B2 Storage',mediaUrl,target);saved=true;
    if(selectedEpisode&&watchLinkKey(selectedEpisode.seriesId,selectedEpisode.seasonIndex,selectedEpisode.episodeNumber)===watchLinkKey(target.seriesId,target.seasonIndex,target.episodeNumber)){
@@ -552,7 +563,10 @@ function updateOwnerEditor(s,si,ep){
     const mediaUrl=B2_MEDIA_API+'/media/'+encodeURIComponent(uploadId);
     $('hostedVideoUrl').value=mediaUrl;refreshHostedOpenLink(mediaUrl);$('hostedVideoResult').hidden=false;
     $('ownerLinkStatus').textContent='The upload finished, but the episode could not be saved. Copy the hosted URL above and attach it to the episode again. '+(error?.message||'');
-   }else $('ownerLinkStatus').textContent='B2 upload failed: '+(error?.message||'Storage error.');
+   }else{
+    const message=error instanceof TypeError?'Could not reach the B2 upload service. Check your connection and try again.':(error?.message||'Storage error.');
+    $('ownerLinkStatus').textContent='B2 upload failed while '+phase+': '+message+' The selected file is still here so you can retry.';
+   }
   }finally{episodeUploadActive=false;progress.hidden=true;button.disabled=!$('episodeVideoFile').files?.[0]}
  }
  async function removeOwnerEpisodeLink(){
