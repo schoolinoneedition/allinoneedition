@@ -449,3 +449,8 @@ assert.ok(elementor.includes('function storedJSON(store,key,fallback)')&&element
 assert.ok(elementor.includes("code.length>1800")&&elementor.includes("details.className='code-collapse'"), 'Long Elementor code answers should collapse rather than fill the whole page.');
 assert.ok(elementor.includes('const refreshLive=()=>')&&elementor.includes('refreshLive();'), 'Elementor should avoid rebuilding the conversation on every network text fragment.');
 assert.ok(elementor.includes('url.username||url.password')&&elementor.includes('node.referrerPolicy=\'no-referrer\''), 'Elementor markdown links should be validated and avoid leaking referrers.');
+
+// Keep search snippet titles readable while describing only real Elementor features.
+const aboutSnipTitle=aboutPage.match(/<title>([^<]+)<\/title>/)?.[1]||'';
+assert.ok(aboutSnipTitle.length>25&&aboutSnipTitle.length<=60,'About SEO title should be readable and avoid truncation.');
+assert.ok(elementor.includes('Chat with Elementor AI, organise conversations and explore image creation and optional video tools in All in One Edition. Some features require sign-in.'),'Elementor meta and sharing descriptions should explain its real creative features.');
