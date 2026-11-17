@@ -128,6 +128,29 @@ async function dbDeleteParts(env: Env, uploadId: string) {
   const response = await fetch(`${env.SUPABASE_URL}/rest/v1/aio_media_upload_parts?upload_id=eq.${encodeURIComponent(uploadId)}`, { method: "DELETE", headers: serviceHeaders(env, "return=minimal") });
   if (!response.ok) throw new Error("Could not clear multipart progress");
 }
+// A dropped completion response must not leave an already-finished B2 object unusable.
+async function markUploadReady(env: Env, row: MediaRow) {
+  await dbUpdate(env, row, { status: "ready", multipart_upload_id: null, completed_at: new Date().toISOString() });
+  try { await dbDeleteParts(env, row.id); }
+  catch (error) { console.warn("Completed media has stale part metadata", { id: row.id, error: String(error).slice(0, 100) }); }
+}
+async function reconcileReadyObject(env: Env, row: MediaRow): Promise<boolean> {
+  if (row.status === "ready") return true;
+  if (row.status !== "uploading") return false;
+  try {
+    const head = await b2Request(env, row.object_key, "HEAD");
+    const actualSize = Number(head.headers.get("content-length"));
+    if (Number.isSafeInteger(actualSize) && actualSize === row.size_bytes) {
+      await markUploadReady(env, row);
+      return true;
+    }
+    throw new Error("Stored video length differs from the uploaded file");
+  } catch (error) {
+    // Multipart parts are invisible as an S3 object until completion.
+    if (/Backblaze storage request failed \(404\)/.test(String(error))) return false;
+    throw error;
+  }
+}
 function hex(bytes: ArrayBuffer) { return [...new Uint8Array(bytes)].map(x => x.toString(16).padStart(2, "0")).join(""); }
 async function sha256(value: string | ArrayBuffer) { return hex(await crypto.subtle.digest("SHA-256", typeof value === "string" ? new TextEncoder().encode(value) : value)); }
 async function hmac(key: ArrayBuffer | Uint8Array, value: string) {
@@ -224,6 +247,15 @@ export default {
         signedUrl.searchParams.set("signature", signature);
         return json({ url: signedUrl.href, expiresAt: new Date(Number(expires) * 1000).toISOString() }, 200, headers);
       }
+      if (request.method === "GET" && parts.length === 3 && parts[0] === "uploads" && parts[2] === "status") {
+        if (!user) return json({ error: "Authentication required" }, 401, headers);
+        const id = parts[1];
+        if (!safeId(id)) return json({ error: "Invalid upload ID" }, 400, headers);
+        const row = await dbGet(env, id, user.id);
+        if (!row) return json({ error: "Upload not found" }, 404, headers);
+        const recovered = await reconcileReadyObject(env, row);
+        return json({ id: row.id, status: recovered ? "ready" : row.status, sizeBytes: row.size_bytes, visibility: row.visibility }, 200, headers);
+      }
       if (request.method === "POST" && url.pathname === "/uploads/initiate") {
         if (!user) return json({ error: "Authentication required" }, 401, headers);
         const input = await request.json() as { filename?: unknown; contentType?: unknown; sizeBytes?: unknown; visibility?: unknown };
@@ -267,7 +299,9 @@ export default {
         if (!user) return json({ error: "Authentication required" }, 401, headers);
         const id = parts[1]; if (!safeId(id)) return json({ error: "Invalid upload ID" }, 400, headers);
         const row = await dbGet(env, id, user.id);
-        if (!row || row.status !== "uploading" || !row.multipart_upload_id) return json({ error: "Upload not found" }, 404, headers);
+        if (!row) return json({ error: "Upload not found" }, 404, headers);
+        if (await reconcileReadyObject(env, row)) return json({ id: row.id, status: "ready", sizeBytes: row.size_bytes }, 200, headers);
+        if (row.status !== "uploading" || !row.multipart_upload_id) return json({ error: "Upload is not active" }, 409, headers);
         const input = await request.json() as { parts?: Array<{ partNumber: number; etag: string }> };
         const submitted = input.parts;
         if (!Array.isArray(submitted) || submitted.length < 1 || submitted.length > MAX_PARTS) return json({ error: "Invalid multipart completion list" }, 400, headers);
@@ -282,9 +316,14 @@ export default {
             verified.slice(0, -1).some(p => p.size_bytes < MIN_PART_BYTES) ||
             verified.reduce((sum, p) => sum + Number(p.size_bytes), 0) !== row.size_bytes) return json({ error: "Multipart sizes do not match the declared file size or Backblaze part requirements" }, 400, headers);
         const body = `<CompleteMultipartUpload>${verified.map(p => `<Part><PartNumber>${p.part_number}</PartNumber><ETag>"${xmlEscape(p.etag)}"</ETag></Part>`).join("")}</CompleteMultipartUpload>`;
-        await b2Request(env, row.object_key, "POST", { uploadId: row.multipart_upload_id }, body, { "content-type": "application/xml" });
-        await dbUpdate(env, row, { status: "ready", multipart_upload_id: null, completed_at: new Date().toISOString() });
-        await dbDeleteParts(env, id);
+        try {
+          await b2Request(env, row.object_key, "POST", { uploadId: row.multipart_upload_id }, body, { "content-type": "application/xml" });
+        } catch (error) {
+          // If B2 completed but the response was lost, HEAD can still confirm the uploaded object.
+          if (!await reconcileReadyObject(env, row)) throw error;
+          return json({ id: row.id, status: "ready", sizeBytes: row.size_bytes, recovered: true }, 200, headers);
+        }
+        await markUploadReady(env, row);
         return json({ id: row.id, status: "ready", sizeBytes: row.size_bytes }, 200, headers);
       }
       if (request.method === "POST" && parts.length === 3 && parts[0] === "uploads" && parts[2] === "abort") {

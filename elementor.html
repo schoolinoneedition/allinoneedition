@@ -43,6 +43,19 @@ html[data-aio-wallpaper-active="1"] .top{background:rgba(255,255,255,.78)}
 #videoPreview{display:block;width:100%;max-height:360px;margin-top:14px;border-radius:12px;background:#10131a}
 #videoPreview[hidden]{display:none}
 .video-open-link{display:inline-block;margin-top:10px;color:var(--accent);font-weight:800;font-size:12px}
+
+
+/* Stable chat rendering: long code stays inside collapsible scrollable panels. */
+.code-collapse{max-width:100%;min-width:0;margin:12px 0;border:1px solid var(--line);border-radius:12px;background:var(--panel);overflow:hidden}
+.code-collapse summary{display:block;cursor:pointer;padding:11px 14px;font-size:12px;font-weight:850;color:var(--ink);background:var(--soft);list-style:none}
+.code-collapse summary:before{content:"▸";margin-right:8px}.code-collapse[open] summary:before{content:"▾"}
+.code-collapse .code-wrap{margin:0;min-width:0}
+.code-collapse pre,.bubble pre{max-width:100%;overflow-x:auto;overflow-y:auto;max-height:60vh;overscroll-behavior:contain;white-space:pre;tab-size:2}
+.code-collapse .copy-code{position:sticky;float:right;right:8px;top:8px;z-index:1;margin:8px 8px 0 0}
+.message-actions button,.icon-btn,.tool-btn,.send,.side-action,.chat-link{transition:background .15s,border-color .15s,box-shadow .15s}
+:where(button,a,input,textarea,select,summary):focus-visible{outline:3px solid #6688e5;outline-offset:2px}
+@media(max-width:700px){.code-collapse pre,.bubble pre{font-size:11px;max-height:42vh}.code-collapse summary{font-size:11px;padding:10px}.composer{border-radius:15px}.message-actions button{min-height:38px}}
+@media(prefers-reduced-motion:reduce){.message-actions button,.icon-btn,.tool-btn,.send,.side-action,.chat-link{transition:none}}
 </style>
 <style>
 /* Elementor workspace refinement: stable viewport, readable chat, and touch-first layouts */
@@ -197,6 +210,7 @@ body{min-height:100dvh}
   <button class="side-action" id="videoStudioOpen">▣ Video Studio</button>
   <button class="side-action" id="controlsOpen">⌘ Website controls</button>
 
+  <a class="back" href="/about">About the website</a>
   <a class="back" href="/">← Back to All in One Edition</a>
   <div class="account"><div class="avatar" id="accountAvatar">✦</div><div><strong id="accountName">Not signed in</strong><small id="accountState">Sign in to use Elementor</small></div></div>
  </div>
@@ -208,7 +222,7 @@ body{min-height:100dvh}
    <div class="suggestions"><button class="suggestion" data-prompt="Help me improve the All in One Edition homepage."><strong>Improve my website</strong>Review ideas and suggest practical upgrades</button><button class="suggestion" data-prompt="Create an image of a cosy futuristic gaming room with soft blue lighting."> <strong>Create an image</strong>Turn an idea into an original image</button><button class="suggestion" data-prompt="Explain how to organise my games catalogue better."><strong>Organise my games</strong>Plan a cleaner games catalogue</button><button class="suggestion" data-prompt="Give me a quick overview of what Elementor can do."><strong>Explore Elementor</strong>See what your AI workspace can do</button></div>
   </div>
   <div class="messages" id="messages"></div><button class="tool-btn scroll-bottom hidden" id="scrollBottom" type="button">↓ Latest</button>
-  <div class="composer-wrap"><div class="composer"><textarea id="prompt" placeholder="Message Elementor…" rows="2"></textarea><div class="composer-bottom"><div class="tools"><button class="tool-btn" id="thinkMode" aria-pressed="false" title="Use a reasoning-capable model">✧ Think</button><button class="tool-btn" id="voiceInput" title="Dictate a message">🎙 Dictate</button><button class="tool-btn" id="voiceChat" title="Hands-free voice conversation">◉ Voice chat</button><button class="tool-btn" id="voiceOutput" title="Read replies aloud">🔊 Read replies</button><span class="voice-status" id="voiceStatus" aria-live="polite"></span></div><button class="tool-btn hidden" id="stop" type="button">Stop ■</button><button class="send" id="send">Send ↑</button></div></div><p class="fine">Elementor can make mistakes. Check important changes before applying them.</p></div>
+  <div class="composer-wrap"><div class="composer"><textarea id="prompt" placeholder="Message Elementor…" rows="2" aria-label="Message Elementor" maxlength="16000"></textarea><div class="composer-bottom"><div class="tools"><button class="tool-btn" id="thinkMode" aria-pressed="false" title="Use a reasoning-capable model">✧ Think</button><button class="tool-btn" id="voiceInput" title="Dictate a message">🎙 Dictate</button><button class="tool-btn" id="voiceChat" title="Hands-free voice conversation">◉ Voice chat</button><button class="tool-btn" id="voiceOutput" title="Read replies aloud">🔊 Read replies</button><span class="voice-status" id="voiceStatus" aria-live="polite"></span></div><button class="tool-btn hidden" id="stop" type="button">Stop ■</button><button class="send" id="send">Send ↑</button></div></div><p class="fine">Elementor can make mistakes. Check important changes before applying them.</p></div>
  </div>
 </section>
 </div>
@@ -232,6 +246,9 @@ body{min-height:100dvh}
 <script>
 (()=>{
 'use strict';
+function storedText(store,key){try{return store.getItem(key)}catch{return null}}
+function storeText(store,key,value){try{store.setItem(key,value);return true}catch{return false}}
+function storedJSON(store,key,fallback){try{const value=JSON.parse(storedText(store,key)||'null');return value&&typeof value==='object'&&!Array.isArray(value)?value:fallback}catch{return fallback}}
 const SUPABASE_URL='https://btnbuchsrfllpzlypjtn.supabase.co';
 const SUPABASE_KEY='sb_publishable_a1gdNTiQdF9587p5K-Sw-Q_nFbvWRmp';
 const AI_API='https://aio-elementor-ai.plsgivemediscord981.workers.dev';
@@ -239,9 +256,9 @@ const MEDIA_API='https://all-in-one-edition-media.plsgivemediscord981.workers.de
 const AVATARS=['✦','✧','◈','✺','⚡','🌙','🪐','🎮','🦊','🐼','🐸','🤖','🌸','☀️','💎','🦋'];
 const $=id=>document.getElementById(id);
 const db=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-let voiceOutput=false,voiceChatMode=false,voiceTimer=null,voiceTranscript='',recognition=null,session=null,user=null,profile={display_name:'Elementor',avatar:'✦',instructions:'',response_style:'balanced'},currentId=null,messages=[],isSending=false,isOwner=false,activeController=null,thinkMode=localStorage.getItem('elementor_think_mode')==='1',objectUrls=[],guestId=sessionStorage.getItem('elementor_guest_id')||crypto.randomUUID(),guestChats=JSON.parse(sessionStorage.getItem('elementor_guest_chats')||'{}');
-sessionStorage.setItem('elementor_guest_id',guestId);
-function saveGuestChats(){const safe={};for(const [id,chat] of Object.entries(guestChats)){safe[id]={...chat,messages:(chat.messages||[]).map(({image_url,...message})=>message)};}sessionStorage.setItem('elementor_guest_chats',JSON.stringify(safe));}
+let voiceOutput=false,voiceChatMode=false,voiceTimer=null,voiceTranscript='',recognition=null,session=null,user=null,profile={display_name:'Elementor',avatar:'✦',instructions:'',response_style:'balanced'},currentId=null,messages=[],isSending=false,isOwner=false,activeController=null,thinkMode=storedText(localStorage,'elementor_think_mode')==='1',objectUrls=[],guestId=storedText(sessionStorage,'elementor_guest_id')||crypto.randomUUID(),guestChats=storedJSON(sessionStorage,'elementor_guest_chats',{});
+storeText(sessionStorage,'elementor_guest_id',guestId);
+function saveGuestChats(){const safe={};for(const [id,chat] of Object.entries(guestChats)){if(!chat||typeof chat!=='object')continue;safe[id]={...chat,messages:(Array.isArray(chat.messages)?chat.messages:[]).filter(m=>m&&typeof m==='object').map(({image_url,...message})=>message)};}return storeText(sessionStorage,'elementor_guest_chats',JSON.stringify(safe));}
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const ELEMENTOR_PLUGIN_KEY='elementor_plugin_permissions_v1';
 const DEFAULT_PLUGIN_PERMISSIONS={videoStudio:false};
@@ -256,13 +273,13 @@ function sanitizeElementorOutput(value){
  return text;
 }
 function toast(s){$('profileStatus').textContent=s;}function applyElementorPreferences(){
- const prefs=JSON.parse(localStorage.getItem('elementor_preferences')||'{}');
+ const prefs=storedJSON(localStorage,'elementor_preferences',{});
  document.documentElement.dataset.accent=prefs.accent||'blue';document.documentElement.dataset.font=prefs.font||'system';document.documentElement.classList.toggle('reduce-motion',!!prefs.reducedMotion);
  $('elementorAccent').value=prefs.accent||'blue';$('elementorFont').value=prefs.font||'system';$('elementorReducedMotion').checked=!!prefs.reducedMotion;$('elementorGreetingEnabled').checked=prefs.greeting!==false;
 }
 function saveElementorPreferences(){
  const prefs={accent:$('elementorAccent').value,font:$('elementorFont').value,reducedMotion:$('elementorReducedMotion').checked,greeting:$('elementorGreetingEnabled').checked};
- localStorage.setItem('elementor_preferences',JSON.stringify(prefs));applyElementorPreferences();
+ storeText(localStorage,'elementor_preferences',JSON.stringify(prefs));applyElementorPreferences();
 }
 function showElementorNotice(title,detail,delay=6500){
  title=sanitizeElementorOutput(title);detail=sanitizeElementorOutput(detail);
@@ -270,8 +287,8 @@ function showElementorNotice(title,detail,delay=6500){
  strong.textContent=title;small.textContent=detail;close.type='button';close.setAttribute('aria-label','Dismiss notification');close.textContent='?';close.onclick=()=>item.remove();copy.append(strong,small);item.append(copy,close);root.append(item);if(delay)window.setTimeout(()=>item.remove(),delay);
 }
 function showElementorGreeting(){
- const prefs=JSON.parse(localStorage.getItem('elementor_preferences')||'{}');if(prefs.greeting===false||sessionStorage.getItem('elementor_greeted'))return;
- sessionStorage.setItem('elementor_greeted','1');
+ const prefs=storedJSON(localStorage,'elementor_preferences',{});if(prefs.greeting===false||storedText(sessionStorage,'elementor_greeted'))return;
+ storeText(sessionStorage,'elementor_greeted','1');
  const hour=new Date().getHours(),period=hour<12?'Good morning':hour<18?'Good afternoon':'Good evening';
  const name=profile.display_name||user?.email?.split('@')[0]||'there';
  const root=$('elementorNotices'),item=document.createElement('div');item.className='elementor-notice elementor-greeting';
@@ -341,7 +358,7 @@ function appendInline(parent,raw){
   else if(match[2]){node=document.createElement('del');node.textContent=match[2];}
   else if(match[3]){node=document.createElement('em');node.textContent=match[3];}
   else if(match[4]){node=document.createElement('code');node.className='inline-code';node.textContent=match[4];}
-  else{node=document.createElement('a');node.href=match[6];node.target='_blank';node.rel='noopener noreferrer';node.textContent=match[5];}
+  else{let url=null;try{url=new URL(match[6])}catch{}if(!url||!/^https?:$/.test(url.protocol)||url.username||url.password||url.href.length>2048){node=document.createTextNode(match[5]);}else{node=document.createElement('a');node.href=url.href;node.target='_blank';node.rel='noopener noreferrer nofollow';node.referrerPolicy='no-referrer';node.textContent=match[5];}}
   parent.append(node);cursor=pattern.lastIndex;
  }
  parent.append(document.createTextNode(text.slice(cursor)));
@@ -362,7 +379,10 @@ function renderRichText(container,text){
  text=sanitizeElementorOutput(text);
  const chunks=String(text||'').split(/```/);
  chunks.forEach((chunk,index)=>{
-  if(index%2===1){const first=chunk.indexOf(String.fromCharCode(10)),lang=first>=0?chunk.slice(0,first).trim():'',code=first>=0?chunk.slice(first+1):chunk;const wrap=document.createElement('div');wrap.className='code-wrap';const pre=document.createElement('pre'),node=document.createElement('code');node.textContent=code;if(lang)node.className='language-'+lang.toLowerCase().replace(/[^a-z0-9-]/g,'');pre.append(node);const copy=document.createElement('button');copy.className='copy-code';copy.type='button';copy.textContent='Copy';copy.onclick=async()=>{try{await navigator.clipboard.writeText(node.textContent);copy.textContent='Copied';setTimeout(()=>copy.textContent='Copy',1200);}catch{copy.textContent='Unavailable';}};wrap.append(pre,copy);container.append(wrap);if(window.hljs)window.hljs.highlightElement(node);
+  if(index%2===1){const first=chunk.indexOf(String.fromCharCode(10)),lang=first>=0?chunk.slice(0,first).trim():'',code=first>=0?chunk.slice(first+1):chunk;const wrap=document.createElement('div');wrap.className='code-wrap';const pre=document.createElement('pre'),node=document.createElement('code');node.textContent=code;if(lang)node.className='language-'+lang.toLowerCase().replace(/[^a-z0-9-]/g,'');pre.append(node);const copy=document.createElement('button');copy.className='copy-code';copy.type='button';copy.textContent='Copy';copy.onclick=async()=>{try{await navigator.clipboard.writeText(node.textContent);copy.textContent='Copied';setTimeout(()=>copy.textContent='Copy',1200);}catch{copy.textContent='Unavailable';}};wrap.append(pre,copy);
+   if(code.length>1800){const details=document.createElement('details');details.className='code-collapse';const summary=document.createElement('summary');summary.textContent=(lang||'Code')+' · '+code.split('\n').length+' lines · Show code';details.append(summary,wrap);container.append(details);}
+   else container.append(wrap);
+   if(window.hljs&&code.length<16000)window.hljs.highlightElement(node);
   }else renderMarkdownText(container,chunk);
  });
 }
@@ -399,10 +419,11 @@ async function callAI(extraContext=''){
  if(!res.ok){const data=await res.json().catch(()=>({}));throw new Error(data.error||'Elementor could not reply.');}
  if(!res.body)throw new Error('Streaming is not supported by this connection.');
  const live={id:'stream-'+crypto.randomUUID(),role:'assistant',content:'',created_at:new Date().toISOString()};messages.push(live);renderMessages();
- const reader=res.body.getReader(),decoder=new TextDecoder();let buffer='',answer='',stopped=false;
- try{while(true){const {value,done}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});const events=buffer.split(new RegExp(String.fromCharCode(13)+'?'+String.fromCharCode(10)));buffer=events.pop()||'';for(const line of events){if(!line.startsWith('data:'))continue;const raw=line.slice(5).trim();if(!raw||raw==='[DONE]')continue;try{const part=JSON.parse(raw);const delta=part.response||part.choices?.[0]?.delta?.content||part.choices?.[0]?.text||'';if(delta){answer+=delta;live.content=answer;renderMessages();}}catch{}}}}
+ const reader=res.body.getReader(),decoder=new TextDecoder();let buffer='',answer='',stopped=false,streamUpdateQueued=false;
+ const refreshLive=()=>{if(streamUpdateQueued)return;streamUpdateQueued=true;setTimeout(()=>{streamUpdateQueued=false;if(messages.includes(live))renderMessages()},100)};
+ try{while(true){const {value,done}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});const events=buffer.split(new RegExp(String.fromCharCode(13)+'?'+String.fromCharCode(10)));buffer=events.pop()||'';for(const line of events){if(!line.startsWith('data:'))continue;const raw=line.slice(5).trim();if(!raw||raw==='[DONE]')continue;try{const part=JSON.parse(raw);const delta=part.response||part.choices?.[0]?.delta?.content||part.choices?.[0]?.text||'';if(delta){answer+=delta;live.content=answer;refreshLive();}}catch{}}}}
  catch(error){if(error.name==='AbortError')stopped=true;else throw error;}
- finally{if(activeController===controller)activeController=null;messages=messages.filter(m=>m!==live);}
+ finally{if(activeController===controller)activeController=null;messages=messages.filter(m=>m!==live);renderMessages();}
  return {answer:sanitizeElementorOutput(answer.trim()),stopped};
 }
 async function uploadImage(blob,name){

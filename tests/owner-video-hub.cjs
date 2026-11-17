@@ -172,4 +172,11 @@ assert.ok(watch.includes('renderId===youtubeRender&&frame.isConnected'), 'Old se
 assert.ok(watch.includes('controls=1&disablekb=0'), 'Publisher-hosted YouTube videos must retain native controls.');
 assert.ok(watch.includes('id="playerSourceBadge"')&&watch.includes('EPISODE THEATRE'), 'Watch player must expose source and episode context.');
 assert.ok(!watch.includes('Sound controls are hidden.'), 'Do not hide all sound controls from the owner-hosted player.');
+assert.ok(mediaWorker.includes('async function reconcileReadyObject(env: Env, row: MediaRow)') && mediaWorker.includes('async function markUploadReady(env: Env, row: MediaRow)'), 'Media Worker must recover completed B2 uploads and treat part cleanup as nonfatal.');
+assert.ok(mediaWorker.includes('parts[2] === "status"') && mediaWorker.includes('id: row.id, status: recovered ? "ready" : row.status'), 'Owner must be able to check and recover the state of their own upload.');
+assert.ok(mediaWorker.includes('if (await reconcileReadyObject(env, row))'), 'Replaying completion must be idempotent for already stored videos.');
+assert.ok(watch.includes('id="checkWatchHosting"')&&watch.includes('id="recoverHostedUpload"'), 'Watch must expose a hosting health check and owner recovery action.');
+assert.ok(watch.includes('async function watchTransferStatus(id)')&&watch.includes('PENDING_WATCH_TRANSFER'), 'Watch must preserve a failed completion reference for recovery.');
+assert.ok(watch.includes("phase!=='finishing the B2 upload'"), 'Uncertain completion must not immediately abort a potentially completed upload.');
+assert.ok(watch.includes('await saveEpisodeVideoRow(\'B2 Storage\',url,target)') && watch.includes('clearPendingTransfer(target,id)'), 'Recovered uploads must attach to the chosen episode and clear the pending record only after saving.');
 console.log('Owner Studio, AI Video Studio, Watch and game-library preservation contracts passed.');

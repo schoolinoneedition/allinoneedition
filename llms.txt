@@ -1,0 +1,23 @@
+# All in One Edition
+> All in One Edition is a browser-based hub with original games, a larger external game catalogue, an anime and cartoon episode tracker, Study Hub and an Elementor AI workspace.
+
+Canonical website: https://allinoneedition.vercel.app/
+Site description and frequently asked questions: https://allinoneedition.vercel.app/about
+
+## Key public resources
+- [Original browser games](https://allinoneedition.vercel.app/browser-games): first-party 3x3 puzzles, Snake, tile merging and short arcade games
+- [3x3 games and puzzles](https://allinoneedition.vercel.app/3x3-games): original board puzzles and publisher-hosted minigame links
+- [Watch episode tracker](https://allinoneedition.vercel.app/anime): browse episode guides, track watched episodes locally and find official viewing options
+- [Elementor AI](https://allinoneedition.vercel.app/elementor): a browser AI chat and creative workspace
+- [Study Hub](https://allinoneedition.vercel.app/study): school-oriented tools
+- [Full hub](https://allinoneedition.vercel.app/): game catalogue and tools
+- [XML sitemap](https://allinoneedition.vercel.app/sitemap.xml): indexable site pages
+
+## Important distinctions
+- All in One Edition does not claim to own publisher-hosted games or official anime.
+- Not every listed Watch episode includes an in-page playable video. Uploaded videos must be authorised for distribution.
+- Watch progress is a device-local checklist; users may export a backup.
+- External games and video providers may have browser, regional or connection requirements.
+- Elementor AI can make mistakes and may require sign-in for some operations.
+
+This information is descriptive, not an assertion of Google ranking or AI search visibility.

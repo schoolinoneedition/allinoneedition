@@ -437,3 +437,15 @@ for (const game of ['3x3 Steal an Egg', '3x3 +1 Keyboard Escape', '3×3 Tile Sli
 }
 const threeByThreeSchema=JSON.parse(threeByThreeLanding.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
 assert.equal(threeByThreeSchema.mainEntity.itemListElement.length,5,'SEO item list must represent the five real game links.');
+
+const aboutPage=read('about.html'),llmsGuide=read('llms.txt');
+assert.ok(aboutPage.includes('rel="canonical" href="https://allinoneedition.vercel.app/about"'), 'Public About page must provide a canonical URL.');
+assert.ok(aboutPage.includes('"@type":"AboutPage"')&&aboutPage.includes('Does Watch host every anime episode?'), 'AI-facing site facts must agree with visible honest Watch FAQ content.');
+assert.ok(aboutPage.includes('href="/browser-games"')&&aboutPage.includes('href="/anime"')&&aboutPage.includes('href="/elementor"'), 'About must link to actual playable content and available features.');
+assert.ok(JSON.parse(vercel).rewrites.some(x=>x.source==='/about'&&x.destination==='/about.html'), 'The About page must have a canonical clean route.');
+assert.ok(seoSitemap.includes('https://allinoneedition.vercel.app/about')&&html.includes('href="/about"')&&anime.includes('href="/about"')&&elementor.includes('href="/about"'), 'About must be in the sitemap and linked from the hub, Watch and Elementor.');
+assert.ok(llmsGuide.includes('https://allinoneedition.vercel.app/about')&&llmsGuide.includes('https://allinoneedition.vercel.app/browser-games')&&llmsGuide.includes('Not every listed Watch episode'), 'Optional AI discovery guide should point to accurate public pages with realistic limitations.');
+assert.ok(elementor.includes('function storedJSON(store,key,fallback)')&&elementor.includes("storedJSON(sessionStorage,'elementor_guest_chats',{})"), 'Elementor must survive malformed browser storage.');
+assert.ok(elementor.includes("code.length>1800")&&elementor.includes("details.className='code-collapse'"), 'Long Elementor code answers should collapse rather than fill the whole page.');
+assert.ok(elementor.includes('const refreshLive=()=>')&&elementor.includes('refreshLive();'), 'Elementor should avoid rebuilding the conversation on every network text fragment.');
+assert.ok(elementor.includes('url.username||url.password')&&elementor.includes('node.referrerPolicy=\'no-referrer\''), 'Elementor markdown links should be validated and avoid leaking referrers.');
