@@ -249,7 +249,7 @@ assert.ok(elementorWorker.includes('@cf/zai-org/glm-4.7-flash')&&elementorWorker
  assert.ok(anime.includes("visibility:'public'")&&anime.includes("'/signed-url'"),'Watch videos must use public B2 objects with signed playback links');
  assert.ok(anime.includes('MAX_VIDEO_BYTES=1024*1024*1024')&&anime.includes('file.size>MAX_VIDEO_BYTES'),'The Watch uploader must enforce its 1 GB limit');
  assert.ok(anime.includes("saveEpisodeVideoRow('B2 Storage',mediaUrl,target)")&&anime.includes("saved.provider==='B2 Storage'"),'New Watch videos must be saved and identified as B2 media');
- assert.ok(anime.includes('await getB2PlaybackUrl(saved.watch_url)')&&anime.includes('deleteB2Media(existing.watch_url)'),'Watch playback and owner cleanup must use the B2 media API');
+ assert.ok(anime.includes('getB2PlaybackUrl(saved.watch_url)')&&anime.includes('deleteB2Media(existing.watch_url)'),'Watch playback and owner cleanup must use the B2 media API');
  assert.ok(anime.includes('validateSelfHostedVideoUrl'),'Direct video URLs must still be validated');
  assert.ok(anime.includes('Drop your video file here'),'The owner must have a dedicated video upload drop zone');
  assert.ok(anime.includes('This editor is restricted to the site owner account.'),'Episode editing must stay owner-only');
