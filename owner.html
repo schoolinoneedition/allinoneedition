@@ -27,6 +27,17 @@ button,.action{appearance:none;display:inline-flex;justify-content:center;align-
 .html-file-name{margin:9px 0;color:var(--muted);font-size:12px}
 .html-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 @media(max-width:650px){.html-drop{padding:16px}.html-preview iframe{min-height:220px}}
+
+/* Owner-only Growth Desk: estimates are not live earnings or analytics. */
+.growth-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:15px}
+.growth-metric{padding:13px;border:1px solid var(--line);border-radius:12px;background:#f7f9fd;min-width:0}
+.growth-metric small{display:block;color:var(--muted);font-size:11px}
+.growth-metric output{display:block;font-size:clamp(16px,2.3vw,22px);font-weight:850;overflow-wrap:anywhere}
+.growth-note{border-left:3px solid #c98a2a;background:#fff9ef;padding:12px 14px;border-radius:0 10px 10px 0;font-size:13px;color:#74511e;margin:14px 0}
+#growthCalculator{margin-top:16px}
+#growthCalculator .grid input{max-width:100%}
+@media(max-width:650px){.growth-metrics{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -40,6 +51,32 @@ button,.action{appearance:none;display:inline-flex;justify-content:center;align-
 <a href="/anime#episodeCatalog"><strong>Watch uploader</strong><span>Choose a series and episode to upload a rights-cleared video.</span></a>
 <a href="/#community"><strong>Community and staff</strong><span>Manage accounts and community permissions from the existing hub.</span></a>
 </div></section>
+<section class="card" id="ownerGrowthDesk" aria-labelledby="growthDeskTitle">
+<h2 id="growthDeskTitle">Growth & Revenue Desk</h2>
+<p class="hint">Only you can see this inside Owner Studio after account verification. There are no invented visitor or income statistics here. Use real dashboard numbers to explore a scenario.</p>
+<div class="steps">
+<a href="https://vercel.com/nueros-projects/allinoneedition/analytics" target="_blank" rel="noopener noreferrer"><strong>Visitor analytics</strong><span>Check real page views, unique visitors and referral sources in Vercel. Enable Web Analytics there if required.</span></a>
+<a href="https://search.google.com/search-console/" target="_blank" rel="noopener noreferrer"><strong>Google Search Console</strong><span>Check search visibility and clicks when your domain is verified.</span></a>
+<a href="/ads.txt" target="_blank" rel="noopener noreferrer"><strong>Publisher file</strong><span>View the site's ads.txt seller record. This does not indicate Google approval.</span></a>
+</div>
+<div class="growth-note">Advertising and payments require an eligible adult account holder and Google's approval and consent requirements. This tool does not sell ads, accept payments, or connect to private finance accounts.</div>
+<form id="growthCalculator">
+<div class="grid">
+<div><label for="growthViews">Monthly page views (not visitors)</label><input id="growthViews" type="number" min="0" max="10000000000" step="1" inputmode="numeric" required placeholder="Enter measured page views"></div>
+<div><label for="growthRpm">Assumed page RPM (£ per 1,000 views)</label><input id="growthRpm" type="number" min="0" max="100000" step="0.01" inputmode="decimal" required placeholder="Enter an assumed page RPM"></div>
+<div><label for="growthOther">Other monthly income (£, optional)</label><input id="growthOther" type="number" min="0" max="100000000" step="0.01" inputmode="decimal" placeholder="0"></div>
+<div><label for="growthCosts">Hosting and operating costs (£ per month)</label><input id="growthCosts" type="number" min="0" max="100000000" step="0.01" inputmode="decimal" placeholder="0"></div>
+</div>
+<div class="actions"><button class="primary" type="submit">Calculate a scenario</button></div>
+</form>
+<div class="growth-metrics" aria-label="Revenue scenario results">
+<div class="growth-metric"><small>Estimated gross revenue</small><output id="growthGross">Not calculated</output></div>
+<div class="growth-metric"><small>Estimated revenue minus costs</small><output id="growthNet">Not calculated</output></div>
+<div class="growth-metric"><small>Page views to cover costs</small><output id="growthBreakEven">Not calculated</output></div>
+</div>
+<p class="status" role="status" aria-live="polite" id="growthResult">Enter your own figures to calculate an estimate. Nothing is saved or submitted.</p>
+<p class="hint">Page RPM is based on page views, not visitors or ad clicks. Actual earnings depend on approval, consent, eligible ad impressions, audience and costs. There is no guaranteed income. A parent or guardian must manage AdSense if the site operator is under 18.</p>
+</section>
 <section class="card"><h2>Add a game</h2><p class="hint">Paste a secure game URL and optionally a cover URL. This publishes a new cloud entry to the existing game library. Original games stay untouched. Some websites block in-page embedding.</p>
 <form id="gameForm"><div class="grid">
 <div><label for="gameTitle">Game title</label><input id="gameTitle" maxlength="80" minlength="3" required placeholder="My new game"></div>
@@ -278,4 +315,5 @@ $('retry').onclick=()=>verifyOwner();$('gameForm').addEventListener('submit',pub
 verifyOwner();
 })();
 </script>
+<script src="/aio-growth-desk.js" defer></script>
 </body></html>
