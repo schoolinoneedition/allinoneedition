@@ -147,7 +147,7 @@
     actions.className = 'aio-shelf-actions';
     actions.append(makeButton('Play', () => play(game), 'Play ' + game.name));
     if (queued) actions.append(makeButton('Remove', () => toggle(game), 'Remove ' + game.name + ' from queue'));
-    else actions.append(makeButton('Save', () => toggle(game), 'Save ' + game.name + ' for later'));
+    else actions.append(makeButton(has(game) ? 'Remove' : 'Save', () => toggle(game), (has(game) ? 'Remove ' + game.name + ' from queue' : 'Save ' + game.name + ' for later')));
     actions.append(makeButton('Copy link', () => { void share(game); }, 'Copy game link for ' + game.name));
     row.append(details, actions);
     return row;
