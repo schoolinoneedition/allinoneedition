@@ -1,0 +1,27 @@
+/* Game Shelf: compact saved/recent rows that preserve the existing card layout. */
+#aioGameShelf{margin:0 0 16px;padding:16px 18px;border:1px solid var(--line,#e5e6ea);border-radius:16px;background:var(--panel,#fff);color:var(--text,#1d1d20)}
+#aioGameShelf .aio-shelf-header{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+#aioGameShelf .aio-shelf-header h3{margin:0;font-size:17px}
+#aioGameShelf #aioShelfCount{font-size:11px;font-weight:800;color:var(--muted,#59616d)}
+#aioGameShelf .aio-shelf-columns{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px}
+#aioGameShelf h4{font-size:12px;margin:0 0 10px}
+#aioGameShelf .aio-shelf-list{display:grid;align-content:start;gap:7px;min-width:0}
+#aioGameShelf .aio-shelf-list>p{font-size:12px;color:var(--muted,#59616d);margin:0;line-height:1.55}
+#aioGameShelf .aio-shelf-row{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0;padding:9px 11px;border-radius:11px;border:1px solid var(--line,#e5e6ea);background:var(--soft,#f1f3f7)}
+#aioGameShelf .aio-shelf-game{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+#aioGameShelf .aio-shelf-game strong{font-size:12px;line-height:1.35;overflow-wrap:anywhere}
+#aioGameShelf .aio-shelf-game span{color:var(--muted,#59616d);font-size:10px}
+#aioGameShelf .aio-shelf-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+#aioGameShelf .aio-shelf-actions .btn{font-size:10px;min-height:30px;padding:5px 7px}
+#aioGameShelf #aioShelfStatus{font-size:11px;color:var(--muted,#59616d);line-height:1.5;margin:10px 0 0;min-height:1em}
+#aioGameShelf #aioShelfShareLink{display:block;width:100%;padding:8px;border:1px solid var(--line,#e5e6ea);border-radius:9px;background:var(--soft,#f1f3f7);color:var(--text,#1d1d20)}
+#aioGameShelf #aioShelfShareLink[hidden]{display:none}
+#aioGameShelf #aioShelfShowAll[hidden]{display:none}
+#aioGameShelf .aio-shelf-more{margin-top:8px}
+#aioGameShelf button:focus-visible,.queue-toggle:focus-visible{outline:3px solid var(--accent,#4778ee);outline-offset:2px}
+.card .queue-toggle{position:absolute;top:47px;right:8px;z-index:4;display:grid;place-items:center;width:34px;height:31px;padding:0;border:1px solid rgba(255,255,255,.72);border-radius:10px;background:rgba(17,19,24,.74);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.18);font:800 18px/1 system-ui;cursor:pointer}
+.card .queue-toggle[aria-pressed="true"]{background:rgba(255,255,255,.96);color:#1766aa}
+.card .queue-toggle:disabled{opacity:.5}
+@media(max-width:800px){#aioGameShelf .aio-shelf-columns{grid-template-columns:1fr}}
+@media(max-width:460px){#aioGameShelf{padding:13px}#aioGameShelf .aio-shelf-row{align-items:flex-start;flex-direction:column}#aioGameShelf .aio-shelf-actions{justify-content:flex-start}}
+@media(prefers-reduced-motion:reduce){#aioGameShelf *, .card .queue-toggle{animation:none!important;transition:none!important}}
