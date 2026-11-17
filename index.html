@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#ffffff">
-<meta name="description" content="Play browser games, explore study tools, follow live football and news, and use creative features in All in One Edition.">
+<meta name="description" content="Play free browser games online without downloads, enjoy original 3×3 puzzles and arcade challenges, and explore study and creative tools at All in One Edition.">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png"><link rel="shortcut icon" href="/favicon.ico"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<title>All in One Edition | Browser Games, Study Tools & More</title>
+<title>All in One Edition | Free Browser Games & 3×3 Puzzles</title>
 <link rel="canonical" href="https://allinoneedition.vercel.app/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="All in One Edition">
-<meta property="og:title" content="All in One Edition | Browser Games, Study Tools & More">
-<meta property="og:description" content="Play browser games, explore study tools, follow live football and news, and use creative features in All in One Edition.">
+<meta property="og:title" content="All in One Edition | Free Browser Games & 3×3 Puzzles">
+<meta property="og:description" content="Play free browser games online without downloads, enjoy original 3×3 puzzles and arcade challenges, and explore study and creative tools at All in One Edition.">
 <meta property="og:url" content="https://allinoneedition.vercel.app/">
 <meta name="twitter:card" content="summary">
 <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -507,7 +507,7 @@ html.game-fullscreen #gameModal.open .game-stage{height:100dvh!important;width:1
 <link rel="stylesheet" href="/party-gaming.css">
 <link rel="stylesheet" href="/cloud-gaming.css">
 <script src="/html-game-sandbox.js" defer></script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"All in One Edition","url":"https://allinoneedition.vercel.app/","description":"Play browser games, explore study tools, follow live football and news, and use creative features in All in One Edition."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"All in One Edition","url":"https://allinoneedition.vercel.app/","description":"Play free browser games online without downloads, enjoy original 3×3 puzzles and arcade challenges, and explore study and creative tools at All in One Edition."}</script>
 </head>
 <body>
 <div class="afk-overlay" id="afkOverlay" role="dialog" aria-modal="true" aria-label="AFK mode">
@@ -541,7 +541,7 @@ html.game-fullscreen #gameModal.open .game-stage{height:100dvh!important;width:1
 <div id="aioReleaseOverlay" class="aio-release-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="aioReleaseTitle"><div class="aio-release-card"><div class="aio-release-stars" aria-hidden="true">✦ · ✧ · ✦</div><div class="aio-release-kicker">ALL IN ONE EDITION UPDATE</div><div class="aio-release-version" id="aioReleaseVersion">v1</div><h2 id="aioReleaseTitle">Fresh update is here</h2><p id="aioReleaseMessage">New improvements are ready.</p><button class="btn primary" id="aioReleaseDismiss" type="button">Continue</button></div></div>
 <main id="app">
 <section id="home" class="hero">
- <div class="hero-card"><h1>One site. Games, school, tools and live info.</h1><p>A fast single-file hub. Game covers use lazy loading and a game iframe only starts after you click a card.</p><div class="chips"><button class="chip" onclick="scrollToId('games')">Browse games</button><a class="chip" href="/3x3-games" style="display:inline-flex;align-items:center;text-decoration:none">3x3 games</a><button class="chip" onclick="scrollToId('school')">School apps</button><button class="chip" onclick="scrollToId('community')">Community</button><button class="chip" onclick="scrollToId('live')">Live info</button><button class="chip" onclick="scrollToId('tools')">Useful tools</button><button class="chip" onclick="location.href='study.html'">Open Study Hub</button><button class="chip" onclick="location.href='anime.html'">Anime Zone</button><button class="chip" onclick="openAssistant()">Ask Elementor</button></div></div>
+ <div class="hero-card"><h1>One site. Games, school, tools and live info.</h1><p>Play free browser games online with no downloads. Explore 3×3 puzzles, quick arcade challenges, school tools and more. Open a game to start playing.</p><div class="chips"><button class="chip" onclick="scrollToId('games')">Browse games</button><a class="chip" href="/browser-games" style="display:inline-flex;align-items:center;text-decoration:none">Free browser games</a><a class="chip" href="/3x3-games" style="display:inline-flex;align-items:center;text-decoration:none">3x3 games</a><button class="chip" onclick="scrollToId('school')">School apps</button><button class="chip" onclick="scrollToId('community')">Community</button><button class="chip" onclick="scrollToId('live')">Live info</button><button class="chip" onclick="scrollToId('tools')">Useful tools</button><button class="chip" onclick="location.href='study.html'">Open Study Hub</button><button class="chip" onclick="location.href='anime.html'">Anime Zone</button><button class="chip" onclick="openAssistant()">Ask Elementor</button></div></div>
  <div class="quick"><div class="qcard"><div class="k">Hometime</div><div class="v" id="homeCountdown">--:--:--</div></div><div class="qcard"><div class="k">Current time</div><div class="v" id="clock">--:--:--</div></div><div class="qcard"><div class="k">Today</div><div class="v" id="date">Loading…</div></div><div class="qcard"><div class="k">Game count</div><div class="v" id="gameCount">—</div></div></div>
 </section>
 <section class="section" id="continueSection"><div class="section-head"><h2>Continue playing</h2><small>Your recent game progress stays on this device.</small></div><div id="resumePanel" class="resume-panel panel"><div><strong>No game started yet.</strong><span>Open a game and your last-played progress will appear here.</span></div><button class="btn mini" onclick="continueLastGame()">Continue</button></div></section>
