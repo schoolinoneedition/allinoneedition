@@ -52,7 +52,7 @@ module.exports=async function watchBlobUpload(req,res){
         if(!match||match[1]!==p.seriesId||Number(match[2])!==p.seasonIndex||Number(match[3])!==p.episodeNumber)throw Error('The upload path does not match the selected episode.');
         const userId=await verifyOwner(p.accessToken);
         return {
-          allowedContentTypes:[match[5]==='mp4'?'video/mp4':'video/webm'],
+          allowedContentTypes:[match[4]==='mp4'?'video/mp4':'video/webm'],
           maximumSizeInBytes:MAX_SIZE,
           addRandomSuffix:true,
           tokenPayload:JSON.stringify({userId,seriesId:p.seriesId,seasonIndex:p.seasonIndex,episodeNumber:p.episodeNumber})
