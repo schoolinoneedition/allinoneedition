@@ -25,7 +25,7 @@ const ctx={
   }
   if(url.includes('/parts/')){
    partCalls++;
-   assert.ok(options.body.size<=32*mb,'No part may exceed worker advertised maximum');
+   assert.ok(options.body.size<=8*mb,'No part may exceed worker advertised maximum');
    assert.equal(options.headers['X-Part-Size'],String(options.body.size));
    ctx.selectedEpisode={...other};
    if(partCalls===1)return {ok:false,status:503,json:async()=>({error:'Temporary failure'})};
@@ -34,7 +34,7 @@ const ctx={
   }
   if(url.endsWith('/complete')){
    const data=JSON.parse(options.body);
-   assert.equal(data.parts.length,32,'A 1 GiB MP4 must upload in 32 parts at 32 MiB');
+   assert.equal(data.parts.length,128,'A 1 GiB MP4 uses 128 mobile-friendly 8 MiB parts');
    return {ok:true,json:async()=>({status:'ready'})};
   }
   throw Error('Unexpected request '+url);
@@ -69,8 +69,8 @@ vm.runInContext(functionSource('saveEpisodeVideoRow','saveOwnerEpisodeLink'),ctx
  await ctx.uploadOwnerEpisodeVideo();
  assert.equal(initPayload.sizeBytes,oneGB);
  assert.equal(initPayload.contentType,'video/mp4');
- assert.equal(partCalls,33,'32 successful parts plus one transient 503 retry');
- assert.equal(successfulParts,32);
+ assert.equal(partCalls,129,'128 successful parts plus one transient 503 retry');
+ assert.equal(successfulParts,128);
  assert.equal(capturedTarget.seriesId,'pokemon','Upload must stay bound to the original episode.');
  assert.equal(capturedTarget.episodeNumber,4);
  assert.equal(elements.get('episodeUploadProgress').value,oneGB);
@@ -81,5 +81,5 @@ vm.runInContext(functionSource('saveEpisodeVideoRow','saveOwnerEpisodeLink'),ctx
  await ctx.uploadOwnerEpisodeVideo();
  assert.match(elements.get('ownerLinkStatus').textContent,/1 GB/);
  assert.equal(partCalls,0);
- console.log('Watch upload passed: correct episode columns, 1 GiB in 32 B2 chunks, 503 retry, fresh sessions, episode target lock and size rejection.');
+ console.log('Watch upload passed: correct episode columns, 1 GiB in 128 mobile-safe B2 chunks, 503 retry, fresh sessions, episode target lock and size rejection.');
 })().catch(error=>{console.error(error);process.exitCode=1});
