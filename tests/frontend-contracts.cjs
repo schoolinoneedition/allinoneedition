@@ -49,6 +49,8 @@ for(const route of ['/browser-games','/3x3-games','/anime']){
 
 assert.match(seoRobots, /Sitemap: https:\/\/allinoneedition\.vercel\.app\/sitemap\.xml/);
 assert.match(seoSitemap, /<urlset\b/);
+assert.ok(html.includes('<title>All in One Edition | Free Browser Games & 3×3 Puzzles</title>'), 'Homepage should describe its free playable games in the search title.');
+assert.ok(html.includes('href="/browser-games"')&&html.includes('Free browser games</a>'), 'Homepage hero should link to the indexable browser-games page.');
 for (const [page, route] of [[html, '/'], [anime, '/anime'], [social, '/social'], [study, '/study'], [elementor, '/elementor']]) {
   assert.ok(page.includes('rel="canonical" href="https://allinoneedition.vercel.app' + route + '"'), 'Public pages should expose canonical URLs.');
 }
