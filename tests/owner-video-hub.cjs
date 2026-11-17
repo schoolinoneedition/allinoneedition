@@ -225,4 +225,6 @@ assert.ok(watch.includes("if(!available){watchScroll($('episodeCatalog'));return
 assert.ok(watch.includes("document.querySelector('[data-watch-filter=\"anime\"]').click()")&&watch.includes("document.querySelector('[data-watch-filter=\"cartoons\"]').click()"),'Navigation filters must delegate to the original catalogue filter logic.');
 assert.ok(watch.includes('@media(prefers-reduced-motion:reduce)')&&watch.includes('scroll-snap-type:x proximity'),'Watch card motion must respect accessibility preferences.');
 assert.ok(watch.includes('id="ownerLinkEditor" hidden')&&watch.includes('id="uploadEpisodeVideo"')&&watch.includes('id="saveHostedEpisode"'),'Cinematic layout must preserve authenticated B2 owner publishing workflow.');
+assert.ok(watch.includes("document.querySelector('[data-watch-filter=\"all\"]').click()"),'Opening Watch search must reset the stale category filter.');
+assert.ok(watch.includes(" $('showSearch').value='';"),'Watch top navigation categories must clear an older title search.');
 console.log('Owner Studio, AI Video Studio, Watch and game-library preservation contracts passed.');
