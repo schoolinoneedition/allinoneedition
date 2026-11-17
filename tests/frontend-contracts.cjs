@@ -287,7 +287,7 @@ assert.ok(backend.includes("player.preload='none'") && backend.includes('player.
 assert.ok(backend.includes("rootMargin:'0px'") && backend.includes('prepareGalleryVideo(entry.target)'), 'Video gallery should fetch a video only when its card enters the viewport');
 
 assert.ok(social.includes('data-video-src=') && !social.includes("'<video src=\"'+escapeHTML(p.media_url)+'\" data-social-video"), 'Separate Social feed should not attach every video source during rendering');
-assert.ok(anime.includes("video.dataset.videoSrc=saved.watch_url;video.preload='none'"), 'Anime episodes should not request video bytes merely when selected');
+assert.ok(anime.includes("video.preload='none'") && anime.includes('const ensureSource=async()=>') && anime.includes("video.src=url;video.preload='metadata';attached=true;video.load()"), 'Anime episodes must not request video bytes until the viewer asks to play.');
 assert.ok(anime.includes('getB2PlaybackUrl'), 'B2 Watch playback must use short-lived signed media URLs.');
 assert.ok(html.includes('href="https://btnbuchsrfllpzlypjtn.supabase.co" crossorigin') && social.includes('href="https://btnbuchsrfllpzlypjtn.supabase.co" crossorigin') && anime.includes('href="https://btnbuchsrfllpzlypjtn.supabase.co" crossorigin'), 'Video pages should preconnect to their storage API');
 

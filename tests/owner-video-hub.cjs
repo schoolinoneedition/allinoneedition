@@ -159,4 +159,17 @@ assert.ok(helperStart>=0&&helperEnd>helperStart,'Watch save helpers must be pres
  ctx.clear(episode,mediaUrl);
  assert.equal(ctx.pending(episode),null,'Successful saving should clear the local recovery record.');
 }
+// Watch Theatre uses real media APIs, not decorative controls or third-party autoplay hacks.
+assert.ok(watch.includes('function renderHostedPlayer(show,si,ep,saved,stage,renderId)'), 'Watch must have an isolated hosted-video player.');
+for(const control of ['seek','play','back','forward','mute','volume','rate','pip','fullscreen','previous','next','native','retry']){
+  assert.ok(watch.includes('data-control="'+control+'"'), 'Watch player is missing working '+control+' control.');
+}
+assert.ok(watch.includes("video.currentTime=Number(seek.value)/1000*video.duration")&&watch.includes("video.playbackRate=Number(event.target.value)"), 'Watch seeking and playback speed must use HTML5 video APIs.');
+assert.ok(watch.includes('video.volume=Number(volume.value)')&&watch.includes('video.muted=!video.muted'), 'Watch must restore usable volume and mute.');
+assert.ok(watch.includes('video.requestPictureInPicture()')&&watch.includes('frame.requestFullscreen()'), 'Watch must support PiP and fullscreen where available.');
+assert.ok(watch.includes('videoControlsCleanup()')&&watch.includes("video.removeAttribute('src')"), 'Changing episodes must stop and release the previous video.');
+assert.ok(watch.includes('renderId===youtubeRender&&frame.isConnected'), 'Old secure playback responses must not restart a detached player.');
+assert.ok(watch.includes('controls=1&disablekb=0'), 'Publisher-hosted YouTube videos must retain native controls.');
+assert.ok(watch.includes('id="playerSourceBadge"')&&watch.includes('EPISODE THEATRE'), 'Watch player must expose source and episode context.');
+assert.ok(!watch.includes('Sound controls are hidden.'), 'Do not hide all sound controls from the owner-hosted player.');
 console.log('Owner Studio, AI Video Studio, Watch and game-library preservation contracts passed.');
