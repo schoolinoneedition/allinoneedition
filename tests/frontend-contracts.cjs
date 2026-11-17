@@ -40,6 +40,12 @@ assert.match(browserGames, /3×3 Tile Slide/);
 assert.match(browserGames, /\/games\/bonus-arcade\.html\?game=snake/);
 assert.ok(html.includes('href="/browser-games"'), "Homepage should link to games discovery.");
 assert.ok(seoSitemap.includes("https://allinoneedition.vercel.app/browser-games"), "Sitemap should list game discovery.");
+for(const page of [browserGames,threeByThreeLanding]){
+ assert.ok(page.includes('aria-label="Breadcrumb"')&&page.includes('"@type":"BreadcrumbList"'),"Game discovery pages should have visible breadcrumb navigation and matching structured data.");
+}
+for(const route of ['/browser-games','/3x3-games','/anime']){
+ assert.ok(seoSitemap.includes('https://allinoneedition.vercel.app'+route+'</loc><lastmod>2026-11-17</lastmod>'),"Refreshed content should have an accurate sitemap modification date.");
+}
 
 assert.match(seoRobots, /Sitemap: https:\/\/allinoneedition\.vercel\.app\/sitemap\.xml/);
 assert.match(seoSitemap, /<urlset\b/);
