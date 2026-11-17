@@ -36,6 +36,8 @@ jobs:
           node --check game-motion.js
           node --check aio-game-picker.js
           node --check aio-game-shelf.js
+          node --check aio-growth-desk.js
+          node --check aio-daily-original.js
       - name: Install Backblaze B2 Worker dependencies
         run: npm install --prefix cloudflare/media-worker --ignore-scripts --no-audit --no-fund
       - name: Build Cloudflare media Worker without deploying
@@ -68,6 +70,7 @@ jobs:
           node --check api/watch-blob-upload.js
           node tests/analytics-wiring.cjs
           node tests/privacy-readiness.cjs
+          node tests/growth-engine.cjs
           node tests/real-games-loading.cjs
           node tests/curated-github-pack.cjs
           node tests/notification-ux.cjs
