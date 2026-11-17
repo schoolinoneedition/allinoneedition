@@ -860,6 +860,13 @@ async function uploadOwnerVercelBlobVideo(){
   const row={series_id:target.seriesId,season_index:target.seasonIndex,episode_number:target.episodeNumber,provider,watch_url:watchUrl,updated_by:currentSession.user.id,updated_at:new Date().toISOString()};
   const result=await ownerClient.from('anime_episode_watch_links').upsert(row,{onConflict:'series_id,season_index,episode_number'});
   if(result.error)throw result.error;
+  // Switching a Watch episode back to B2 must remove the older Blob public index,
+  // otherwise the Blob index would keep overriding the new B2 player choice.
+  if(previous?.provider==='Vercel Blob'){
+   const oldBlob=await ownerClient.from('aio_watch_blob_episodes').delete()
+    .eq('series_id',target.seriesId).eq('season_index',target.seasonIndex).eq('episode_number',target.episodeNumber);
+   if(oldBlob.error)throw Error('The B2 video was saved, but the previous Blob link could not be unpublished: '+oldBlob.error.message);
+  }
   episodeLinks.set(mapKey,row);
   const oldObject=['XBT Storage','Self-hosted video'].includes(previous?.provider)&&previous.watch_url!==watchUrl?videoObjectPath(previous.watch_url):null;
   if(oldObject){try{await ownerClient.storage.from('anime-episodes').remove([oldObject])}catch{}}
