@@ -1362,9 +1362,19 @@ async function deleteB2Media(mediaUrl){
   renderPlayer(show,available.seasonIndex,available.episode);
   watchScroll($('playerTitle'));
  });
- $('navSearch').addEventListener('click',()=>{watchScroll($('browse'));$('showSearch').focus({preventScroll:true})});
- $('navAnime').addEventListener('click',()=>{document.querySelector('[data-watch-filter="anime"]').click();watchScroll($('browse'))});
- $('navCartoons').addEventListener('click',()=>{document.querySelector('[data-watch-filter="cartoons"]').click();watchScroll($('browse'))});
+ // Navigation starts a fresh browse intent; filter chips still combine with typed searches.
+ $('navSearch').addEventListener('click',()=>{
+  document.querySelector('[data-watch-filter="all"]').click();
+  watchScroll($('browse'));$('showSearch').focus({preventScroll:true});
+ });
+ $('navAnime').addEventListener('click',()=>{
+  $('showSearch').value='';
+  document.querySelector('[data-watch-filter="anime"]').click();watchScroll($('browse'));
+ });
+ $('navCartoons').addEventListener('click',()=>{
+  $('showSearch').value='';
+  document.querySelector('[data-watch-filter="cartoons"]').click();watchScroll($('browse'));
+ });
 })();
 </script>
 </body>
