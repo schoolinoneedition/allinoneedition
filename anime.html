@@ -1022,27 +1022,85 @@ async function deleteB2Media(mediaUrl){
  }
  function seriesProgress(s){let all=0,done=0;s.seasons.forEach((season,si)=>season.episodes.forEach(ep=>{all++;if(watched[key(s.id,si,ep.number)])done++}));return {all,done,pct:all?Math.round(done/all*100):0}}
  function renderStats(){let all=0,done=0;series.forEach(s=>{const p=seriesProgress(s);all+=p.all;done+=p.done});$('watchedCount').textContent=done.toLocaleString('en-GB');$('watchedCaption').textContent='of '+all.toLocaleString('en-GB')+' listed episodes marked watched';$('progressPct').textContent=(all?Math.round(done/all*100):0)+'%';$('overallBar').style.width=(all?done/all*100:0)+'%'}
+
  function renderSeries(){
-  const grid=$('seriesGrid');watchCoverObserver?.disconnect();grid.replaceChildren();grid.removeAttribute('aria-busy');
+  const grid=$('seriesGrid');
+  watchCoverObserver?.disconnect();
+  grid.replaceChildren();grid.removeAttribute('aria-busy');
   const search=$('showSearch').value.trim().toLocaleLowerCase('en-GB');
   const filtered=series.filter(s=>(activeWatchFilter==='all'||(activeWatchFilter==='cartoons'?s.kind==='cartoon':s.kind!=='cartoon'))&&(!search||[s.title,s.type,s.description,s.meta].join(' ').toLocaleLowerCase('en-GB').includes(search)));
   $('showSearchStatus').textContent=filtered.length+' '+(filtered.length===1?'show':'shows')+' found'+(search?' for your search':'')+'.';
-  if(!filtered.length){const note=document.createElement('p');note.className='empty-episode';note.textContent='No matching shows. Try another title or choose Everything.';grid.append(note);return}
-  filtered.forEach(s=>{
-   const p=seriesProgress(s),button=document.createElement('button');button.type='button';button.className='series-card';button.style.setProperty('--tone',s.tone);button.setAttribute('aria-pressed',String(s.id===activeId));
+  if(!filtered.length){
+   const note=document.createElement('p');note.className='empty-episode';
+   note.textContent='No matching series. Search another title or choose a different category.';
+   grid.append(note);return;
+  }
+  const tracked=filtered.filter(s=>seriesProgress(s).done>0).sort((a,b)=>seriesProgress(b).done-seriesProgress(a).done);
+  const anime=filtered.filter(s=>s.kind!=='cartoon'),cartoons=filtered.filter(s=>s.kind==='cartoon');
+  let groups;
+  if(search)groups=[{title:'Search results',subtitle:'Matching titles and episode guides',items:filtered}];
+  else if(activeWatchFilter==='cartoons')groups=[{title:'Family cartoons',subtitle:'Animated shows, guides and official videos',items:cartoons}];
+  else if(activeWatchFilter==='anime')groups=[
+   ...(tracked.length?[{title:'Continue tracking',subtitle:'Pick up a series you have started',items:tracked}]:[]),
+   {title:'Anime series',subtitle:'Find your next story',items:anime}
+  ];
+  else groups=[
+   ...(tracked.length?[{title:'Continue tracking',subtitle:'Your partially watched series',items:tracked}]:[]),
+   {title:'Anime to explore',subtitle:'Browse seasons and episode guides',items:anime},
+   ...(cartoons.length?[{title:'Family cartoons',subtitle:'Shows and official publisher resources',items:cartoons}]:[])
+  ];
+  const makeCard=s=>{
+   const p=seriesProgress(s),button=document.createElement('button');
+   button.type='button';button.className='series-card watch-poster-card';
+   button.style.setProperty('--tone',s.tone);
+   button.setAttribute('aria-pressed',String(s.id===activeId));
+   button.setAttribute('aria-label','View '+s.title+' · UK '+s.rating+' · '+p.pct+'% tracked');
    const art=document.createElement('div');art.className='series-art';art.dataset.jp=s.jp;
-   if(s.banner){const image=document.createElement('img');image.dataset.watchCover=s.banner;image.alt=s.title+' key visual';image.width=440;image.height=260;image.loading='lazy';image.decoding='async';image.fetchPriority='low';image.addEventListener('error',()=>image.remove(),{once:true});art.append(image);if(watchCoverObserver)watchCoverObserver.observe(image);else{image.src=s.banner;delete image.dataset.watchCover}}
+   if(s.banner){
+    const image=document.createElement('img');image.dataset.watchCover=s.banner;
+    image.alt=s.title+' key visual';image.width=440;image.height=260;image.loading='lazy';image.decoding='async';image.fetchPriority='low';
+    image.addEventListener('error',()=>image.remove(),{once:true});art.append(image);
+    if(watchCoverObserver)watchCoverObserver.observe(image);else{image.src=s.banner;delete image.dataset.watchCover}
+   }
    const symbol=document.createElement('span');symbol.className='series-symbol';symbol.textContent=s.symbol;
-   const type=document.createElement('span');type.className='series-type';type.textContent=s.type;art.append(type,symbol);
+   const type=document.createElement('span');type.className='series-type';type.textContent=s.kind==='cartoon'?'CARTOON':'ANIME';
+   const hover=document.createElement('span');hover.className='watch-poster-hover';hover.setAttribute('aria-hidden','true');
+   hover.textContent=s.type+' · UK '+s.rating+' · View episodes';
+   art.append(type,symbol,hover);
    const info=document.createElement('div');info.className='series-info';
    const h=document.createElement('h3');h.textContent=s.title;
-   const meta=document.createElement('div');meta.className='series-meta';meta.textContent=s.meta;
-   const pills=document.createElement('div');pills.className='series-meta';const rating=document.createElement('span');rating.className='pill rating';rating.textContent='UK rating · '+s.rating;const episodeCount=document.createElement('span');episodeCount.className='pill';episodeCount.textContent=p.done+'/'+p.all+' tracked';pills.append(rating,episodeCount);
+   const meta=document.createElement('div');meta.className='series-meta';meta.textContent=s.type+' · UK '+s.rating;
+   const status=document.createElement('div');status.className='watch-poster-status';status.textContent=p.done?p.done+' / '+p.all+' tracked':'Explore episodes';
    const progress=document.createElement('div');progress.className='series-progress';const fill=document.createElement('span');fill.style.width=p.pct+'%';progress.append(fill);
-   const label=document.createElement('div');label.className='series-progress-label';const a=document.createElement('span');a.textContent='Watch progress';const b=document.createElement('span');b.textContent=p.pct+'%';label.append(a,b);
-   info.append(h,meta,pills,progress,label);button.append(art,info);button.addEventListener('click',()=>selectSeries(s.id,true));grid.append(button);
+   info.append(h,meta,status,progress);button.append(art,info);
+   button.addEventListener('click',()=>selectSeries(s.id,true));
+   return button;
+  };
+  groups.filter(group=>group.items.length).forEach((group,index)=>{
+   const rail=document.createElement('section');rail.className='watch-rail';rail.setAttribute('aria-label',group.title);
+   const header=document.createElement('div');header.className='watch-rail-header';
+   const copy=document.createElement('div'),heading=document.createElement('h3'),caption=document.createElement('p');
+   heading.id='watch-rail-heading-'+index;heading.textContent=group.title;caption.textContent=group.subtitle;
+   rail.setAttribute('aria-labelledby',heading.id);copy.append(heading,caption);
+   const actions=document.createElement('div');actions.className='watch-rail-arrows';
+   const previous=document.createElement('button');previous.type='button';previous.textContent='‹';previous.setAttribute('aria-label','Scroll '+group.title+' left');
+   const next=document.createElement('button');next.type='button';next.textContent='›';next.setAttribute('aria-label','Scroll '+group.title+' right');
+   actions.append(previous,next);header.append(copy,actions);
+   const row=document.createElement('div');row.className='watch-rail-track';row.tabIndex=0;
+   row.setAttribute('role','group');row.setAttribute('aria-label',group.title+' titles. Scroll horizontally to browse.');
+   group.items.forEach(s=>row.append(makeCard(s)));
+   const scroll=direction=>row.scrollBy({left:direction*Math.max(260,row.clientWidth*.8),behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+   previous.addEventListener('click',()=>scroll(-1));next.addEventListener('click',()=>scroll(1));
+   const updateArrows=()=>{
+    previous.disabled=row.scrollLeft<=2;next.disabled=row.scrollLeft+row.clientWidth>=row.scrollWidth-3;
+   };
+   row.addEventListener('scroll',updateArrows,{passive:true});
+   if('ResizeObserver' in window){const resize=new ResizeObserver(updateArrows);resize.observe(row);row.addEventListener('focusout',()=>{}, {once:true})}
+   requestAnimationFrame(updateArrows);
+   rail.append(header,row);grid.append(rail);
   });
  }
+
  function selectSeries(id,scroll){activeId=id;activeSeason=0;$('episodeSearch').value='';$('progressFilter').value='all';updateSpotlight();renderCatalog();renderSeries();if(scroll)$('episodeCatalog').scrollIntoView({behavior:'smooth',block:'start'})}
  $('showSearch').addEventListener('input',renderSeries);
  document.querySelectorAll('[data-watch-filter]').forEach(button=>button.addEventListener('click',()=>{activeWatchFilter=button.dataset.watchFilter;document.querySelectorAll('[data-watch-filter]').forEach(item=>{const active=item===button;item.classList.toggle('active',active);item.setAttribute('aria-pressed',String(active))});const first=series.find(item=>activeWatchFilter==='all'||(activeWatchFilter==='cartoons'?item.kind==='cartoon':item.kind!=='cartoon'));if(first&&!(activeWatchFilter==='all'||(activeWatchFilter==='cartoons'?current().kind==='cartoon':current().kind!=='cartoon')))selectSeries(first.id,false);else renderSeries()}));
