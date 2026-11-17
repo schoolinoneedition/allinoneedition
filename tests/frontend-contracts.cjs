@@ -25,6 +25,16 @@ const staffRls = read('supabase/migrations/20261028103528_optimize_tiktok_sticke
 const animeStorage = read('supabase/migrations/20261030125800_anime_episode_storage_manager.sql');
 const vercel = read('vercel.json');
 const threeByThreeLanding = read('3x3-games.html');
+
+// Every dynamically rendered game card must be keyboard-operable without losing its
+// mouse click handler or the separate favourite action.
+assert.ok(html.includes('role="button" tabindex="0" aria-label="Play ${esc(g.name)}"'), 'Game catalogue cards should be keyboard-focusable and have a readable action name.');
+assert.ok(html.includes('event.target===this &amp;&amp; (event.key===&#39;Enter&#39;||event.key===&#39; &#39;)'), 'Enter and Space must open only the focused card, not its nested favourite button.');
+assert.ok(html.includes('event.preventDefault();openGame(${i})'), 'Keyboard game launches should avoid scrolling the page.');
+assert.ok(html.includes('id="gameModal" role="dialog" aria-labelledby="modalTitle"'), 'Game player dialog must have an accessible title.');
+assert.ok(html.includes('<iframe id="gameFrame" class="gameframe" title="Browser game"'), 'Embedded game iframe requires a fallback accessible name.');
+assert.ok(html.includes("gameFrame').title='Game player: '+g.name"), 'The iframe title should follow the selected game.');
+
 const seoRobots = read('robots.txt');
 const seoSitemap = read('sitemap.xml');
 const browserGames = read("browser-games.html");
