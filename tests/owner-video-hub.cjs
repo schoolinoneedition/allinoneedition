@@ -5,7 +5,7 @@ const vm=require('node:vm');
 const path=require('node:path');
 const root=path.join(__dirname,'..');
 const read=p=>fs.readFileSync(path.join(root,p),'utf8');
-const index=read('index.html'),owner=read('owner.html'),video=read('video.html'),watch=read('anime.html'),worker=read('cloudflare/elementor-ai/worker.ts'),backend=read('backend-features.js');
+const index=read('index.html'),owner=read('owner.html'),video=read('video.html'),watch=read('anime.html'),worker=read('cloudflare/elementor-ai/worker.ts'),backend=read('backend-features.js'),mediaWorker=read('cloudflare/media-worker/src/index.ts');
 const routes=JSON.parse(read('vercel.json')).rewrites;
 assert.ok(!fs.existsSync(path.join(root,'game-catalogue.css')),'Broken catalogue override must remain removed.');
 assert.ok(index.includes('id="gameGrid"')&&index.includes('id="filters"')&&index.includes('<strong>Quick picks</strong>'),'Restore the original catalogue, including its original Quick picks section.');
@@ -118,4 +118,10 @@ assert.ok(watch.includes('Anime Episode Tracker & Cartoon Guides')&&watch.includ
 assert.equal((watch.match(/class="series-card series-placeholder"/g)||[]).length, 13, 'Watch reserves initial space for all 13 shows before the script is ready.');
 assert.ok(watch.includes('aria-busy="true"')&&watch.includes("grid.removeAttribute('aria-busy')"), 'The Watch loading grid must become accessible after rendering.');
 
+assert.ok(mediaWorker.includes('new Uint8Array(body)'), 'B2 part uploads must use a fixed-length typed array so Cloudflare sends Content-Length.');
+assert.ok(mediaWorker.includes('isSiteOwner(env, user.id)')&&mediaWorker.includes('MAX_WATCH_VIDEO_BYTES'), 'The media worker must restrict public episode hosting to the owner and one GiB.');
+assert.ok(mediaWorker.includes('providerCode')&&mediaWorker.includes('b2_transfer_failed'), 'B2 provider errors must be classified and visible to clients without exposing storage secrets.');
+assert.ok(watch.includes("const magic=new Uint8Array(await file.slice(0,16).arrayBuffer())"), 'Watch should validate file bytes before initiating an upload.');
+assert.ok(watch.includes("await getB2PlaybackUrl(watchUrl)"), 'Watch must not claim unpublished or unfinished media is ready for playback.');
+assert.ok(watch.includes("phase='sending part '")&&watch.includes('B2 upload failed while '), 'Watch should report the failed upload stage for troubleshooting.');
 console.log('Owner Studio, AI Video Studio, Watch and game-library preservation contracts passed.');
