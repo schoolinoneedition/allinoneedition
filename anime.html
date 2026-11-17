@@ -126,6 +126,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
 .owner-link-panel .owner-form-actions button{border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--soft);color:var(--text);font:inherit;font-size:10px;font-weight:850;cursor:pointer}
 .owner-link-panel .owner-form-actions button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .owner-link-panel .owner-form-actions button:disabled{opacity:.45;cursor:not-allowed}
+.watch-host-health{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:11px 0;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)}.watch-host-health button,#recoverHostedUpload{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--soft);color:var(--text);font-size:11px;font-weight:850;cursor:pointer}.watch-host-health button:disabled{opacity:.55;cursor:wait}.watch-host-health span{font-size:11px;color:var(--muted);line-height:1.5;overflow-wrap:anywhere}#recoverHostedUpload[hidden]{display:none}
 .owner-link-panel .owner-link-status{min-height:16px;margin-top:8px;font-size:10px;color:var(--good)}
 .owner-link-panel .owner-terms{font-size:9px;color:var(--muted);line-height:1.55;margin-top:10px}
 .owner-access-link{display:inline-flex;margin-top:4px;color:var(--accent);font-size:10px;font-weight:850;text-decoration:underline;text-underline-offset:3px}
@@ -255,6 +256,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
      <p class="owner-terms">Choose an episode and upload your own or licensed video. AI drafts can be made in <a href="/video">Video Studio</a>. Uploading a draft here is a separate owner-only action.</p>
     <a class="owner-access-link" href="./index.html">Open All in One Edition account</a>
     <div class="owner-link-editor" id="ownerLinkEditor" hidden><a class="owner-access-link" href="/owner">Open Owner Studio to manage games and quick links</a>
+     <div class="watch-host-health"><button id="checkWatchHosting" type="button">Check B2 hosting</button><span id="watchHostingStatus" role="status" aria-live="polite">Not checked</span></div>
      <div class="owner-target" id="ownerEpisodeTarget">Choose a series and episode first.</div>
      <div class="episode-drop-zone" id="episodeDropZone">
       <div class="drop-icon">↑</div>
@@ -264,7 +266,7 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
       <input id="episodeVideoFile" type="file" accept="video/mp4,video/webm,.mp4,.webm">
       <div class="episode-upload-meta" id="episodeUploadMeta">No file selected</div>
       <progress class="episode-upload-progress" id="episodeUploadProgress" hidden></progress>
-      <div class="owner-form-actions" style="justify-content:center"><button class="primary" id="uploadEpisodeVideo" type="button" disabled>Upload and host on All in One Edition</button></div>
+      <div class="owner-form-actions" style="justify-content:center"><button class="primary" id="uploadEpisodeVideo" type="button" disabled>Upload and host on All in One Edition</button><button id="recoverHostedUpload" type="button" hidden>Recover last upload</button></div>
      </div>
      <div class="owner-hosted-result" id="hostedVideoResult" hidden>
       <label for="hostedVideoUrl">Your hosted All in One Edition video URL</label>
@@ -495,7 +497,7 @@ async function deleteB2Media(mediaUrl){
  
  function updateOwnerEditor(s,si,ep){
   $('ownerLinkPanel').hidden=false;
-  selectedEpisode={seriesId:s.id,seasonIndex:si,episodeNumber:ep.number};
+  selectedEpisode={seriesId:s.id,seasonIndex:si,episodeNumber:ep.number};updateTransferRecovery();
   const saved=episodeLinks.get(watchLinkKey(s.id,si,ep.number));
   $('ownerEpisodeTarget').textContent=s.title+' · '+s.seasons[si].name+' · Episode '+ep.number+' — '+ep.title;
   const pending=(!saved&&pendingHostedVideo(selectedEpisode))||null;
@@ -598,6 +600,48 @@ async function deleteB2Media(mediaUrl){
    if($('hostedVideoUrl').value===mediaUrl)$('ownerLinkStatus').textContent='The B2 reference is saved, but the temporary playback link is unavailable. Try reopening the episode.';
   });
  }
+ const PENDING_WATCH_TRANSFER='aio_pending_watch_transfer_v1';
+ function transferKey(target){return target&&currentSession?.user?currentSession.user.id+':'+watchLinkKey(target.seriesId,target.seasonIndex,target.episodeNumber):''}
+ function rememberPendingTransfer(target,id){try{sessionStorage.setItem(PENDING_WATCH_TRANSFER,JSON.stringify({key:transferKey(target),uploadId:id}))}catch{}}
+ function pendingTransfer(target){try{const item=JSON.parse(sessionStorage.getItem(PENDING_WATCH_TRANSFER)||'null');return item&&item.key===transferKey(target)&&/^[0-9a-f-]{36}$/i.test(item.uploadId)?item.uploadId:null}catch{return null}}
+ function clearPendingTransfer(target,id){if(pendingTransfer(target)!==id)return;try{sessionStorage.removeItem(PENDING_WATCH_TRANSFER)}catch{}}
+ function updateTransferRecovery(){
+  const button=$('recoverHostedUpload');const transfer=pendingTransfer(selectedEpisode);
+  button.hidden=!siteOwner||!transfer;button.disabled=episodeUploadActive||!transfer;
+ }
+ async function watchTransferStatus(id){
+  const {data,error}=await ownerClient.auth.getSession();const token=data?.session?.access_token;
+  if(error||!token)throw Error('Owner session expired. Sign in again.');
+  const response=await fetch(B2_MEDIA_API+'/uploads/'+encodeURIComponent(id)+'/status',{headers:{Authorization:'Bearer '+token},cache:'no-store'});
+  const status=await response.json().catch(()=>({}));
+  if(!response.ok)throw Error(status.error||'Could not check the last upload.');
+  return status;
+ }
+ async function recoverHostedUpload(){
+  const target=selectedEpisode&&{...selectedEpisode},id=pendingTransfer(target);
+  if(!target||!id)return;
+  const button=$('recoverHostedUpload');button.disabled=true;$('ownerLinkStatus').textContent='Checking the last upload…';
+  try{
+   const result=await watchTransferStatus(id);
+   if(result.status!=='ready'){ $('ownerLinkStatus').textContent='The last upload is '+result.status+'. Select the original file to retry if the transfer was interrupted.';return }
+   const url=B2_MEDIA_API+'/media/'+encodeURIComponent(id);rememberPendingHostedVideo(target,url);
+   $('hostedVideoUrl').value=url;$('episodeWatchUrl').value=url;$('hostedVideoResult').hidden=false;
+   refreshHostedOpenLink(url);updateHostedSaveButton();
+   await saveEpisodeVideoRow('B2 Storage',url,target);
+   clearPendingHostedVideo(target,url);clearPendingTransfer(target,id);
+   $('ownerLinkStatus').textContent='Recovered the completed B2 video and saved it to this episode.';
+  }catch(error){$('ownerLinkStatus').textContent='Could not recover the upload: '+(error?.message||'Connection error.')}
+  finally{updateTransferRecovery()}
+ }
+ async function checkWatchHosting(){
+  const button=$('checkWatchHosting');const message=$('watchHostingStatus');button.disabled=true;message.textContent='Checking storage connection…';
+  try{
+   const response=await fetch(B2_MEDIA_API+'/health',{cache:'no-store'});
+   const result=await response.json().catch(()=>({}));
+   message.textContent=response.ok&&result.ok?'Connected to B2. Try a short MP4 upload to test the entire pipeline.':'B2 unavailable ('+(result.providerCode||result.code||response.status)+'). Check storage settings.';
+  }catch{message.textContent='Could not reach the B2 Worker. Check your connection.'}
+  finally{button.disabled=false}
+ }
  async function uploadOwnerEpisodeVideo(){
   if(episodeUploadActive){$('ownerLinkStatus').textContent='An upload is already in progress.';return}
   if(!siteOwner||!currentSession?.user||!selectedEpisode){$('ownerLinkStatus').textContent='Only the verified site owner can upload a video. Select an episode first.';return}
@@ -630,7 +674,7 @@ async function deleteB2Media(mediaUrl){
    const initRes=await fetch(B2_MEDIA_API+'/uploads/initiate',{method:'POST',headers,body:JSON.stringify({filename:safeName,contentType,sizeBytes:file.size,visibility:'public'})});
    const init=await initRes.json().catch(()=>({}));
    if(!initRes.ok||!init.uploadId)throw new Error(init.error||'B2 could not start the upload.');
-   uploadId=init.uploadId;
+   uploadId=init.uploadId;rememberPendingTransfer(target,uploadId);updateTransferRecovery();
    const partSize=Math.max(5*1024*1024,Math.min(Number(init.partSizeBytes)||8*1024*1024,8*1024*1024));
    const parts=[];let uploaded=0,partNumber=1;
    for(let offset=0;offset<file.size;offset+=partSize,partNumber++){
@@ -654,9 +698,16 @@ async function deleteB2Media(mediaUrl){
    }
    phase='finishing the B2 upload';
    const finalSession=await ownerClient.auth.getSession();if(!finalSession.data?.session?.access_token)throw Error('Session expired. Sign in again.');headers.Authorization='Bearer '+finalSession.data.session.access_token;
-   const completeRes=await fetch(B2_MEDIA_API+'/uploads/'+encodeURIComponent(uploadId)+'/complete',{method:'POST',headers,body:JSON.stringify({parts})});
-   const complete=await completeRes.json().catch(()=>({}));
-   if(!completeRes.ok)throw new Error(complete.error||'B2 could not finish the upload.');
+   let completionError=null;
+   try{
+    const completeRes=await fetch(B2_MEDIA_API+'/uploads/'+encodeURIComponent(uploadId)+'/complete',{method:'POST',headers,body:JSON.stringify({parts})});
+    const complete=await completeRes.json().catch(()=>({}));
+    if(!completeRes.ok||complete.status!=='ready')throw Error(complete.error||'B2 could not confirm the completed upload.');
+   }catch(error){
+    completionError=error;
+    const checked=await watchTransferStatus(uploadId);
+    if(checked.status!=='ready')throw completionError;
+   }
    completed=true;phase='publishing the episode';
    const mediaUrl=B2_MEDIA_API+'/media/'+encodeURIComponent(uploadId);
    rememberPendingHostedVideo(target,mediaUrl);
@@ -668,14 +719,18 @@ async function deleteB2Media(mediaUrl){
     updateHostedSaveButton();
    }
    await saveEpisodeVideoRow('B2 Storage',mediaUrl,target);saved=true;
-   clearPendingHostedVideo(target,mediaUrl);
+   clearPendingHostedVideo(target,mediaUrl);clearPendingTransfer(target,uploadId);
    if(selectedEpisode&&watchLinkKey(selectedEpisode.seriesId,selectedEpisode.seasonIndex,selectedEpisode.episodeNumber)===watchLinkKey(target.seriesId,target.seasonIndex,target.episodeNumber)){
     $('episodeWatchUrl').value=mediaUrl;$('hostedVideoUrl').value=mediaUrl;refreshHostedOpenLink(mediaUrl);$('hostedVideoResult').hidden=false;updateHostedSaveButton();
    }
    $('ownerLinkStatus').textContent='Uploaded to B2. The episode is now saved and ready to stream.';
    $('episodeVideoFile').value='';$('episodeUploadMeta').textContent='B2 upload complete · '+file.name;button.disabled=true;
   }catch(error){
-   if(uploadId&&!completed){try{const abortSession=await ownerClient.auth.getSession();const abortToken=abortSession.data?.session?.access_token||currentSession?.access_token;if(abortToken)await fetch(B2_MEDIA_API+'/uploads/'+encodeURIComponent(uploadId)+'/abort',{method:'POST',headers:{'Authorization':'Bearer '+abortToken}})}catch{}}
+   if(uploadId&&!completed&&phase!=='finishing the B2 upload'){
+    try{const abortSession=await ownerClient.auth.getSession();const abortToken=abortSession.data?.session?.access_token||currentSession?.access_token;
+     if(abortToken){const abort=await fetch(B2_MEDIA_API+'/uploads/'+encodeURIComponent(uploadId)+'/abort',{method:'POST',headers:{Authorization:'Bearer '+abortToken}});if(abort.ok)clearPendingTransfer(target,uploadId)}
+    }catch{}
+   }
    if(uploadId&&completed&&!saved){
     const mediaUrl=B2_MEDIA_API+'/media/'+encodeURIComponent(uploadId);
     if(selectedEpisode&&watchLinkKey(selectedEpisode.seriesId,selectedEpisode.seasonIndex,selectedEpisode.episodeNumber)===watchLinkKey(target.seriesId,target.seasonIndex,target.episodeNumber)){
@@ -686,7 +741,7 @@ async function deleteB2Media(mediaUrl){
     const message=error instanceof TypeError?'Could not reach the B2 upload service. Check your connection and try again.':(error?.message||'Storage error.');
     $('ownerLinkStatus').textContent='B2 upload failed while '+phase+': '+message+' The selected file is still here so you can retry.';
    }
-  }finally{episodeUploadActive=false;progress.hidden=true;button.disabled=!$('episodeVideoFile').files?.[0];updateHostedSaveButton()}
+  }finally{episodeUploadActive=false;progress.hidden=true;button.disabled=!$('episodeVideoFile').files?.[0];updateHostedSaveButton();updateTransferRecovery()}
  }
  async function removeOwnerEpisodeLink(){
   if(!siteOwner||!currentSession?.user||!selectedEpisode)return;
@@ -930,6 +985,8 @@ async function deleteB2Media(mediaUrl){
  $('saveEpisodeLink').addEventListener('click',saveOwnerEpisodeLink);
  $('saveHostedEpisode').addEventListener('click',saveHostedVideoToEpisode);
  $('uploadEpisodeVideo').addEventListener('click',uploadOwnerEpisodeVideo);
+ $('checkWatchHosting').addEventListener('click',checkWatchHosting);
+ $('recoverHostedUpload').addEventListener('click',recoverHostedUpload);
  $('removeEpisodeLink').addEventListener('click',removeOwnerEpisodeLink);
  $('chooseEpisodeVideo').addEventListener('click',()=>$('episodeVideoFile').click());
  $('episodeVideoFile').addEventListener('change',()=>{
