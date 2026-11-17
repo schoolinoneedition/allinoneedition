@@ -476,6 +476,7 @@ html.game-fullscreen #gameModal.open .game-stage{height:100dvh!important;width:1
 <link rel="stylesheet" href="./ultimate-experience.css">
 <link rel="stylesheet" href="./aio-notifications.css">
 <link rel="stylesheet" href="/aio-game-picker.css">
+<link rel="stylesheet" href="/aio-game-shelf.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 /* Unified games search + compact responsive header */
@@ -568,8 +569,22 @@ html.game-fullscreen #gameModal.open .game-stage{height:100dvh!important;width:1
     <div class="aio-picker-actions">
       <button type="button" class="btn mini primary" id="aioPickerPlay" disabled>Play this game</button>
       <button type="button" class="btn mini" id="aioPickerNext" disabled>Another pick</button>
+      <button type="button" class="btn mini" id="aioPickerSave" aria-pressed="false" disabled>Save for later</button>
+      <button type="button" class="btn mini" id="aioPickerShare" disabled>Copy game link</button>
     </div>
   </div>
+</div>
+<div id="aioGameShelf" aria-label="Your Game Shelf">
+  <div class="aio-shelf-header"><h3>Game Shelf</h3><span id="aioShelfCount">0 saved</span></div>
+  <div class="aio-shelf-columns">
+    <div><h4>Saved for later</h4>
+      <div class="aio-shelf-list" id="aioShelfSavedList"><p>Save a Game Mixer pick or tap + on a game card.</p></div>
+      <button type="button" class="btn mini aio-shelf-more" id="aioShelfShowAll" hidden>Show all saved games</button>
+    </div>
+    <div><h4>Recently played</h4><div class="aio-shelf-list" id="aioShelfRecentList"><p>Games you open appear here.</p></div></div>
+  </div>
+  <p id="aioShelfStatus" role="status" aria-live="polite"></p>
+  <input id="aioShelfShareLink" type="text" readonly hidden aria-label="Game link to copy">
 </div>
 <div class="filters" id="filters"></div><div class="games" id="gameGrid"></div><div id="loadMoreWrap" style="display:none;justify-content:center;margin-top:18px"><button class="btn mini" id="loadMoreBtn" onclick="loadMoreGames()">Load more games</button></div></section>
 <section id="cloud-gaming" class="section">
@@ -915,7 +930,7 @@ function cardHTML(g,i){
   const sourceLikeLabel=/pizza edition|construct(?:\s*3)?|topvaz|onlinegames(?:\.io)?|crazygames|poki|newgrounds|itch(?:\.io)?/i;
   const badgeText=(g.tag&&!sourceLikeLabel.test(g.tag))?g.tag:g.cat;
   const isFavourite=favouriteGames.has(gameKey(g));
-  const favouriteMarkup=`<button class="favourite-toggle${isFavourite?' active':''}" type="button" aria-label="${isFavourite?'Remove':'Add'} ${esc(g.name)} ${isFavourite?'from':'to'} favourites" aria-pressed="${isFavourite}" onclick="toggleFavourite(event,${i})">${isFavourite?'★':'☆'}</button>`;
+  const favouriteMarkup=`<button class="favourite-toggle${isFavourite?' active':''}" type="button" aria-label="${isFavourite?'Remove':'Add'} ${esc(g.name)} ${isFavourite?'from':'to'} favourites" aria-pressed="${isFavourite}" onclick="toggleFavourite(event,${i})">${isFavourite?'★':'☆'}</button>`; const queueMarkup=`<button class="queue-toggle" type="button" data-game-index="${i}" aria-label="Save ${esc(g.name)} for later" aria-pressed="false" title="Save for later" onclick="window.aioGameShelf?.toggleFromCard(event,${i})">+</button>`;
   // Keep the first viewport responsive; let the remaining cards decode lazily.
   const priority=i<6?'eager':'lazy';
   const fp=i<3?' fetchpriority="high"':'';
@@ -940,7 +955,7 @@ function cardHTML(g,i){
   const progressMarkup=progressCardsEnabled&&pct>0?`<div class="cover-progress"><span style="width:${pct}%"></span></div>`:'';
   const pctMarkup=progressCardsEnabled&&pct>0?`<span class="progress-chip">${pct}%</span>`:'';
   const img=`<img loading="${priority}" decoding="async"${fp} class="image-loading" src="${esc(primary)}" data-candidates="${candidateAttr}" data-candidate-index="0" data-fallback="${esc(fallback)}" alt="${esc(g.name)}" onerror="useCardFallback(this)" onload="imageLoaded(this)">`;
-  return `<article class="card" role="button" tabindex="0" aria-label="Play ${esc(g.name)}" data-game-index="${i}" style="--card-i:${Math.min(i,24)}" onclick="openGame(${i})" onkeydown="if(event.target===this &amp;&amp; (event.key===&#39;Enter&#39;||event.key===&#39; &#39;)){event.preventDefault();openGame(${i})}"><div class="cover" style="--c1:${c1};--c2:${c2}">${img}<div class="fallback" style="display:none">${initials(g.name)}</div><div class="badge">${esc(badgeText)}</div>${favouriteMarkup}<div class="playhint">PLAY</div>${progressMarkup}</div><div class="card-title" title="${esc(g.name)}">${esc(g.name)}</div><div class="card-meta"><span>${esc(g.cat)}</span>${pctMarkup}</div></article>`;
+  return `<article class="card" role="button" tabindex="0" aria-label="Play ${esc(g.name)}" data-game-index="${i}" style="--card-i:${Math.min(i,24)}" onclick="openGame(${i})" onkeydown="if(event.target===this &amp;&amp; (event.key===&#39;Enter&#39;||event.key===&#39; &#39;)){event.preventDefault();openGame(${i})}"><div class="cover" style="--c1:${c1};--c2:${c2}">${img}<div class="fallback" style="display:none">${initials(g.name)}</div><div class="badge">${esc(badgeText)}</div>${favouriteMarkup}${queueMarkup}<div class="playhint">PLAY</div>${progressMarkup}</div><div class="card-title" title="${esc(g.name)}">${esc(g.name)}</div><div class="card-meta"><span>${esc(g.cat)}</span>${pctMarkup}</div></article>`;
 }
 
 const MUSIC_TITLES={en:'Music streamer',es:'Reproductor de música',fr:'Lecteur de musique',de:'Musik-Player',pl:'Odtwarzacz muzyki',pt:'Leitor de música',tr:'Müzik oynatıcı',ar:'مشغل الموسيقى',it:'Lettore musicale',nl:'Muziekspeler',ja:'音楽プレーヤー',ko:'음악 플레이어'};
@@ -993,7 +1008,7 @@ function filteredGames(){
  return list;
 }
 function renderGames(){currentFiltered=filteredGames();if(visibleLimit>currentFiltered.length)visibleLimit=currentFiltered.length;const shown=currentFiltered.slice(0,visibleLimit);$('gameGrid').innerHTML=shown.length?shown.map(x=>cardHTML(x.g,x.i)).join(''):`<div class="panel" style="grid-column:1/-1">No games match that search.</div>`;$('gameCount').textContent=String(GAMES.length);$('librarySummary').textContent=`${GAMES.length} catalogue entries · game availability may vary`;
- const goal=$('catalogueGoal');if(goal)goal.textContent=GAMES.length.toLocaleString('en-GB')+' / 2,000 catalogue-entry goal';const wrap=$('loadMoreWrap'),btn=$('loadMoreBtn');if(wrap&&btn){wrap.style.display=currentFiltered.length>visibleLimit?'flex':'none';btn.textContent=`Load more games (${Math.min(48,currentFiltered.length-visibleLimit)} more)`}hydrateImages();setupGameConnectionWarmup();}
+ const goal=$('catalogueGoal');if(goal)goal.textContent=GAMES.length.toLocaleString('en-GB')+' / 2,000 catalogue-entry goal';const wrap=$('loadMoreWrap'),btn=$('loadMoreBtn');if(wrap&&btn){wrap.style.display=currentFiltered.length>visibleLimit?'flex':'none';btn.textContent=`Load more games (${Math.min(48,currentFiltered.length-visibleLimit)} more)`}hydrateImages();setupGameConnectionWarmup();window.aioGameShelf?.sync();window.aioOpenSharedGame?.();}
 function loadMoreGames(){visibleLimit+=48;renderGames();window.scrollBy({top:140,behavior:'smooth'})}
 function setCat(c){activeCat=c;visibleLimit=48;renderFilters();renderGames()}
 function toggleFavourite(event,index){if(event){event.preventDefault();event.stopPropagation()}const game=GAMES[index];if(!game)return;const key=gameKey(game);if(favouriteGames.has(key)){favouriteGames.delete(key);showToast('Removed from favourites')}else{favouriteGames.add(key);showToast('Added to favourites')}storage.setItem(FAVOURITES_KEY,JSON.stringify([...favouriteGames]));renderFilters();renderGames()}
@@ -1171,7 +1186,7 @@ async function startGamePresence(game){
       });
   }catch{if(label)label.textContent='Live players · unavailable';}
 }
-function openGame(i){const g=GAMES[i];if(!g)return;$('gameFrame').allowFullscreen=true;currentGame=g;$('gameFrame').title='Game player: '+g.name;startGamePresence(g);warmGameConnection(g.url);gameMuted=false;updateGameMuteButton();const k=gameKey(g),st=gameProgress[k]||{progress:0,plays:0};st.plays=(st.plays||0)+1;st.lastPlayed=Date.now();gameProgress[k]=st;storage.setItem(GAME_PROGRESS_KEY,JSON.stringify(gameProgress));$('modalTitle').textContent=g.name;if($('progressRange'))$('progressRange').value=st.progress||0;if($('progressLabel'))$('progressLabel').textContent=(st.progress||0)+'%';if($('playCountLabel'))$('playCountLabel').textContent=(st.plays||0)+' play'+(st.plays===1?'':'s');if($('modalNote'))$('modalNote').textContent=g.credit?g.credit+' Game progress is stored locally when supported.':'Hub progress is saved locally on this device.';document.querySelectorAll('.progressbarbox').forEach(e=>e.classList.remove('progress-visible'));$('gameLoading').style.display='grid';$('gameError').classList.remove('show');$('gameModal').classList.add('open');updateResumeCard();loadGameIntoFrame(g)}
+function openGame(i){const g=GAMES[i];if(!g)return;$('gameFrame').allowFullscreen=true;currentGame=g;$('gameFrame').title='Game player: '+g.name;startGamePresence(g);warmGameConnection(g.url);gameMuted=false;updateGameMuteButton();const k=gameKey(g),st=gameProgress[k]||{progress:0,plays:0};st.plays=(st.plays||0)+1;st.lastPlayed=Date.now();gameProgress[k]=st;storage.setItem(GAME_PROGRESS_KEY,JSON.stringify(gameProgress));$('modalTitle').textContent=g.name;if($('progressRange'))$('progressRange').value=st.progress||0;if($('progressLabel'))$('progressLabel').textContent=(st.progress||0)+'%';if($('playCountLabel'))$('playCountLabel').textContent=(st.plays||0)+' play'+(st.plays===1?'':'s');if($('modalNote'))$('modalNote').textContent=g.credit?g.credit+' Game progress is stored locally when supported.':'Hub progress is saved locally on this device.';document.querySelectorAll('.progressbarbox').forEach(e=>e.classList.remove('progress-visible'));$('gameLoading').style.display='grid';$('gameError').classList.remove('show');$('gameModal').classList.add('open');updateResumeCard();window.aioGameShelf?.sync();loadGameIntoFrame(g)}
 function reloadGame(){if(!currentGame)return;$('gameError').classList.remove('show');loadGameIntoFrame(currentGame)}function openCurrentGameNewTab(){if(!currentGame)return;if(isUploadedHtmlGame(currentGame)){showToast('Uploaded HTML games play in the protected game player.');return;}window.open(currentGame.url,'_blank','noopener,noreferrer')}
 $('gameFrame').addEventListener('load',()=>{
  if(!currentGame||!$('gameModal').classList.contains('open'))return;
@@ -1607,12 +1622,16 @@ CATEGORIES=['All',...new Set(GAMES.map(g=>g.cat))];
 /* Keep every startup feature isolated: one optional error must not stop the rest of the hub. */
 function safeBoot(fn){try{return fn()}catch(e){console.error('All in One boot:',e);return null}}
 safeBoot(renderFilters);safeBoot(initSettings);if($('previewTitle'))$('previewTitle').textContent='No preview playing';safeBoot(initExtraTools);safeBoot(renderNotes);safeBoot(renderTodos);safeBoot(renderCalc);safeBoot(renderChatBoot);safeBoot(updateStudyProgress);safeBoot(updateWorldClock);safeBoot(initSpotifyBridge);setTimeout(()=>safeBoot(initSpotifyBridge),1200);safeBoot(renderGames);
-safeBoot(()=>{
- const requested=new URLSearchParams(location.search).get('play');
- if(!requested||requested.length>100)return;
- const index=GAMES.findIndex(game=>game.name===requested);
- if(index>=0)openGame(index);
-});
+let aioSharedGameOpened=false;
+window.aioOpenSharedGame=()=>{
+  if(aioSharedGameOpened)return true;
+  const params=new URLSearchParams(location.search),requested=params.get('play'),ref=params.get('gameRef');
+  if(!requested||requested.length>100||(ref&&ref.length>2200))return false;
+  const index=GAMES.findIndex(game=>game.name===requested&&(!ref||game.url===ref));
+  if(index<0)return false;
+  aioSharedGameOpened=true;openGame(index);return true;
+};
+safeBoot(()=>window.aioOpenSharedGame());
 // Keep the first view responsive; append a separately cacheable curated catalogue after first paint.
 let aioCommunityPackLoaded=false;
 async function loadAioCommunityPack(){
@@ -1639,7 +1658,7 @@ async function loadAioCommunityPack(){
  aioCommunityPackLoaded=true;
  if(!added)return;
  CATEGORIES=['All',...new Set(GAMES.map(g=>g.cat))];
- renderFilters();renderGames();
+ renderFilters();renderGames();window.aioOpenSharedGame?.();
 }
 setTimeout(()=>{loadAioCommunityPack().catch(error=>console.warn('Additional catalogue unavailable:',error?.message||error))},550);
 // Load the provider's public game catalogue after the initial UI is responsive.
@@ -3416,6 +3435,7 @@ socialBind=function(){__oldSocialBind();socialBindPostManagement();setTimeout(()
 <script src="./backend-features.js" defer></script>
 <script src="./appearance.js" defer></script>
 <script src="/aio-game-picker.js" defer></script>
+<script src="/aio-game-shelf.js" defer></script>
 <script src="./ultimate-experience.js" defer></script>
 
 <script>

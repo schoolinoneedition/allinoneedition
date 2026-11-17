@@ -441,7 +441,7 @@ assert.ok(seoRoutes.some(r => r.source === '/3x3-games' && r.destination === '/3
 assert.ok(read('sitemap.xml').includes('https://allinoneedition.vercel.app/3x3-games'), '3x3 page must appear in the sitemap.');
 assert.ok(threeByThreeLanding.includes('rel="canonical" href="https://allinoneedition.vercel.app/3x3-games"'), '3x3 page needs the correct canonical.');
 assert.ok(html.includes('href="/3x3-games"') && read('browser-games.html').includes('href="/3x3-games"'), 'Search discovery pages must be reachable from the game hub.');
-assert.ok(html.includes("get('play')") && html.includes('GAMES.findIndex(game=>game.name===requested)'), 'Game links can only open exact named catalogue titles.');
+assert.ok(html.includes("params.get('play')") && html.includes("params.get('gameRef')") && html.includes('GAMES.findIndex(game=>game.name===requested&&(!ref||game.url===ref))'), 'Game links can only open exact named catalogue titles and must match the exact game URL when provided.');
 for (const game of ['3x3 Steal an Egg', '3x3 +1 Keyboard Escape', '3×3 Tile Slide', '3×3 Tic Tac Toe', '3×3 Pattern Recall']) {
  assert.ok(threeByThreeLanding.includes('<h3>'+game+'</h3>'), '3x3 page missing existing game: '+game);
 }
