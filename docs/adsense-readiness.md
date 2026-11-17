@@ -1,6 +1,6 @@
-# AdSense readiness checklist (not activated)
+# AdSense verification code installed, site review pending
 
-All in One Edition currently has a public /privacy page and privacy links. The AdSense verification script, ads.txt, auto ads and manual ad units have **not** been added. No custom cookie popup has been installed.
+All in One Edition currently has a public /privacy page and privacy links. The requested exact AdSense script for publisher `ca-pub-4571610192955651` is installed on public pages for site verification. The `ads.txt` file, custom ad slots and manually configured ad units have **not** been added. Auto Ads are controlled by the eligible AdSense account owner in Google settings. No custom cookie popup has been installed.
 
 ## Eligibility and publisher ownership
 
@@ -16,7 +16,7 @@ References: https://support.google.com/adsense/answer/13554116?hl=en-GB and http
 
 ## Ownership and review
 
-Only after eligible account ownership is confirmed should an adult account owner add the appropriate AdSense verification code or meta tag to the approved site. The dashboard must verify and review the site. HTTP 200 or a deployed script does not prove review success. Serving ads requires the AdSense site to show Ready.
+The user-provided AdSense script is present for site ownership verification only. An eligible adult account owner must manage the corresponding AdSense account and any identity/payment verification. The dashboard must verify and review the site. HTTP 200 or a deployed script does not prove review success. Serving ads requires the AdSense site to show Ready.
 
 Reference: https://support.google.com/adsense/answer/12131223?hl=en-GB
 
@@ -27,7 +27,7 @@ Reference: https://support.google.com/adsense/answer/12131223?hl=en-GB
 - Avoid sticky overlays, unexpected layout shifts, controls near ads, hidden adverts and making gameplay require ad clicks.
 - Use Google's recommended spacing around gameplay to avoid accidental clicks.
 - An eligible publisher should review audience ages, content rights and appropriate ad settings before activation.
-- Keep ad slots off until consent, account eligibility, review status and actual ad units are verified.
+- Keep custom ad slots off until consent, account eligibility, review status and actual ad units are verified. The common verification tag may also act as an Auto Ads loader if the account owner enables Auto Ads, so the account owner must check those settings and certified consent before monetization.
 
 References: https://support.google.com/adsense/answer/1346295?hl=en-GB and https://support.google.com/adsense/answer/2768340?hl=en-GB
 
