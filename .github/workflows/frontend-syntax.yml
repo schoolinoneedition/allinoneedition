@@ -71,6 +71,7 @@ jobs:
           node tests/analytics-wiring.cjs
           node tests/privacy-readiness.cjs
           node tests/growth-engine.cjs
+          node tests/original-guides.cjs
           node tests/real-games-loading.cjs
           node tests/curated-github-pack.cjs
           node tests/notification-ux.cjs
