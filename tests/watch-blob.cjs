@@ -14,6 +14,7 @@ assert.match(html,/aio_watch_blob_episodes/);
 assert.match(html,/provider:'Vercel Blob'/);
 assert.match(html,/saved.provider==='Vercel Blob'/);
 assert.match(html,/async function uploadOwnerEpisodeVideo/,'Existing B2 upload must remain intact');
+assert.match(html,/if\(previous\?\.provider==='Vercel Blob'\)/,'Switching back to B2 must remove stale Blob publication.');
 assert.match(sql,/enable row level security/);
 assert.match(sql,/private.is_aio_site_owner\(\)/);
 assert.match(sql,/to anon,authenticated using \(true\)/);
