@@ -211,4 +211,18 @@ const errorResponse=exposed.json({error:'Authentication required'},401,corsHeade
 assert.equal(errorResponse.headers.get('access-control-allow-origin'),allowedOrigin,'Error responses must also carry CORS or browsers will disguise errors as network failures.');
 const unauthorized=exposed.json({error:'Origin not allowed'},403,exposed.cors(new Request('https://media.example/uploads/initiate',{headers:{Origin:'https://malicious.invalid'}}),{APP_ORIGIN:allowedOrigin}));
 assert.equal(unauthorized.headers.get('access-control-allow-origin'),null,'Other origins must not gain CORS access.');
+// Cinematic Watch browsing must preserve the existing episode tracker and secure owner functionality.
+assert.ok(watch.includes('class="topbar watch-cinema-nav"')&&watch.includes('id="navAnime"')&&watch.includes('id="navCartoons"')&&watch.includes('id="navSearch"'),'Watch must expose streaming-style navigation and functional search/categories.');
+assert.ok(watch.includes('id="spotlightTitle">Pokémon</h1>')&&watch.includes('id="spotlightBanner"'),'Watch must have a descriptive cinematic featured heading, not lose its SEO h1.');
+assert.ok(watch.includes("const tracked=filtered.filter(s=>seriesProgress(s).done>0)")&&watch.includes("title:'Continue tracking'"),'Watch must group in-progress series using saved episode progress.');
+assert.ok(watch.includes("title:'Anime to explore'")&&watch.includes("title:'Family cartoons'"),'Watch must include separate horizontal anime and family rows.');
+assert.ok(watch.includes("className='watch-rail-track'")&&watch.includes("row.scrollBy({left:direction*"),'Rows must be horizontally scrollable with working arrow controls.');
+assert.ok(watch.includes("button.addEventListener('click',()=>selectSeries(s.id,true))"),'Hover cards must open the real existing episode catalogue.');
+assert.ok(watch.includes("className='watch-poster-hover'")&&watch.includes('.watch-poster-card:hover .watch-poster-hover'),'Poster hover previews must be implemented without auto-playing unlicensed trailers.');
+assert.ok(watch.includes("image.dataset.watchCover=s.banner")&&watch.includes('watchCoverObserver.observe(image)'),'Remote series art must remain lazy-loaded.');
+assert.ok(watch.includes('function firstPlayableEpisode(show)')&&watch.includes('episodeLinks.has(watchLinkKey(show.id,si,episode.number))'),'Featured video button must only advertise an actually attached video.');
+assert.ok(watch.includes("if(!available){watchScroll($('episodeCatalog'));return}"),'Featured button cannot pretend every episode is playable.');
+assert.ok(watch.includes("document.querySelector('[data-watch-filter=\"anime\"]').click()")&&watch.includes("document.querySelector('[data-watch-filter=\"cartoons\"]').click()"),'Navigation filters must delegate to the original catalogue filter logic.');
+assert.ok(watch.includes('@media(prefers-reduced-motion:reduce)')&&watch.includes('scroll-snap-type:x proximity'),'Watch card motion must respect accessibility preferences.');
+assert.ok(watch.includes('id="ownerLinkEditor" hidden')&&watch.includes('id="uploadEpisodeVideo"')&&watch.includes('id="saveHostedEpisode"'),'Cinematic layout must preserve authenticated B2 owner publishing workflow.');
 console.log('Owner Studio, AI Video Studio, Watch and game-library preservation contracts passed.');
