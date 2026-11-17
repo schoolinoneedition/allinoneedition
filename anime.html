@@ -208,26 +208,40 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
 <script src="./appearance.js" defer></script>
 </head>
 <body>
-<header class="topbar">
- <a class="brand" href="./index.html"><img class="mark" src="/favicon.png" alt="" width="38" height="38"><span>All in One Edition<small>Watch · anime and family cartoons</small></span></a>
- <span class="spacer"></span>
- <a class="toplink" href="/browser-games">Games</a><a class="toplink" href="/video">AI Video</a>
- <a class="toplink" href="./study.html">Study Hub</a>
- <a class="toplink primary" href="./index.html">← Hub</a>
- <button class="theme" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">◐</button>
+<header class="topbar watch-cinema-nav">
+ <a class="brand" href="/" aria-label="All in One Edition home"><img class="mark" src="/favicon.png" alt="" width="36" height="36"><span>All in One <b>WATCH</b><small>All in One Edition</small></span></a>
+ <nav class="watch-primary-nav" aria-label="Watch sections">
+  <a class="watch-nav-link is-active" href="#watchMain" aria-current="page">Home</a>
+  <a class="watch-nav-link" href="#browse">Series</a>
+  <button class="watch-nav-link" id="navAnime" type="button">Anime</button>
+  <button class="watch-nav-link" id="navCartoons" type="button">Cartoons</button>
+  <a class="watch-nav-link" href="/browser-games">Games</a>
+ </nav>
+ <div class="watch-nav-actions">
+  <button class="watch-nav-icon" id="navSearch" type="button" aria-label="Search shows" title="Search shows"><svg aria-hidden="true" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.8" cy="10.8" r="7.2"/><path d="m16.5 16.5 5 5"/></svg></button>
+  <a class="watch-nav-link nav-hub" href="/">← Hub</a>
+  <button class="theme" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">◐</button>
+ </div>
 </header>
-<main>
- <section class="hero">
-  <div class="hero-copy"><span class="eyebrow">✦ All in One · Watch</span><h1>Anime, cartoons<br>and episode guides.</h1><p>Keep your anime watchlist, explore family-friendly cartoons and follow episodes from official publishers. Your progress stays saved in this browser.</p></div>
-  <div class="hero-stat"><div><div class="stat-top"><span>Your watch progress</span><span>LOCAL</span></div><div class="stat-number" id="watchedCount">0</div><div class="stat-caption" id="watchedCaption">Episodes marked watched</div></div><div><div class="stat-top"><span>Overall progress</span><span id="progressPct">0%</span></div><div class="stat-progress"><span id="overallBar"></span></div><div class="stat-caption" style="margin-top:8px">Tick an episode to update your progress.</div></div></div>
+<main id="watchMain">
+ <section class="spotlight-banner" id="spotlightBanner" data-kanji="ア" style="--spotlight:#e8a52d" aria-label="Featured series">
+  <div class="spotlight-art" aria-hidden="true"><img id="spotlightImage" alt="" width="1400" height="790" loading="eager" fetchpriority="high" decoding="async"><span class="spotlight-symbol" id="spotlightSymbol">◉</span></div>
+  <div class="spotlight-copy">
+   <span class="spotlight-kicker" id="spotlightKicker">FEATURED SERIES · WATCH</span>
+   <h1 id="spotlightTitle">Pokémon</h1>
+   <div class="spotlight-meta"><span class="pill rating" id="spotlightRating">UK U</span><span class="spotlight-divider" aria-hidden="true">•</span><span id="spotlightMeta">Episode guide and watch tracker</span></div>
+   <p id="spotlightDescription">Choose a series to browse episodes, track progress and find official viewing options.</p>
+   <div class="spotlight-actions"><button class="action primary" id="spotlightBrowse" type="button"><span aria-hidden="true">▶</span> Explore episodes</button><button class="action" id="spotlightWatch" type="button">More details</button></div>
+   <span class="spotlight-disclaimer">Series guides and official sources · Not every title has hosted playback</span>
+  </div>
  </section>
- <section class="spotlight-banner" id="spotlightBanner" data-kanji="ア" style="--spotlight:#e8a52d" aria-live="polite">
-  <div class="spotlight-copy"><span class="spotlight-kicker" id="spotlightKicker">FEATURED SERIES · ANIME ZONE</span><h2 id="spotlightTitle">Pokémon</h2><p id="spotlightDescription">Pick a series, choose an episode and track your watch progress.</p><div class="spotlight-meta"><span class="pill rating" id="spotlightRating">UK U</span><span class="pill" id="spotlightMeta">Episode guide and watch tracker</span></div><div class="spotlight-actions"><button class="action primary" id="spotlightBrowse" type="button">Browse episodes ↓</button><button class="action" id="spotlightWatch" type="button">Watch available episode ▶</button></div></div>
-  <div class="spotlight-art" aria-hidden="true"><img id="spotlightImage" alt="" width="800" height="450" loading="eager" fetchpriority="high" decoding="async"><span class="spotlight-symbol" id="spotlightSymbol">◉</span></div>
+ <section class="hero watch-progress-strip" aria-label="Your watch progress">
+  <div class="hero-copy"><span class="eyebrow">YOUR WATCHLIST</span><p>Find anime and cartoons, explore their seasons and save your watched progress on this device.</p></div>
+  <div class="hero-stat"><div class="watch-stat-count"><span>Your progress</span><strong id="watchedCount" class="stat-number">0</strong><span class="stat-caption" id="watchedCaption">Episodes marked watched</span></div><div class="watch-stat-meter"><span>Episodes tracked <strong id="progressPct">0%</strong></span><div class="stat-progress"><span id="overallBar"></span></div><span class="stat-caption">Updates as you tick episodes.</span></div></div>
  </section>
- <div class="section-title"><div><h2>Explore Watch</h2><p>Keep anime and family cartoons in one place, with clear categories and official episode sources.</p></div></div>
+ <div class="section-title" id="browse"><div><span class="watch-section-eyebrow">FIND YOUR NEXT SERIES</span><h2>Explore Watch</h2><p>Discover anime and family cartoons, track episodes and find official sources.</p></div></div>
  <div class="watch-discovery"><div class="watch-filters" role="group" aria-label="Filter shows"><button type="button" class="watch-filter active" data-watch-filter="all" aria-pressed="true">Everything</button><button type="button" class="watch-filter" data-watch-filter="anime" aria-pressed="false">Anime</button><button type="button" class="watch-filter" data-watch-filter="cartoons" aria-pressed="false">Family cartoons</button></div><label class="watch-search-label" for="showSearch">Find a show <input class="field" id="showSearch" type="search" autocomplete="off" placeholder="Search titles, genres or descriptions" aria-describedby="showSearchStatus"></label></div><p id="showSearchStatus" class="watch-search-status" role="status" aria-live="polite"></p>
- <p class="watch-content-note">Family cartoon picks link to official publisher videos or episode guides. Anime titles keep their published age labels; some are aimed at older audiences. Always check the programme rating before watching.</p>
+ <p class="watch-content-note">Explore series and episode guides. Videos are available only where an authorised upload or publisher source exists. Check programme age ratings.</p>
  <section class="series-grid" id="seriesGrid" aria-label="Anime series" aria-busy="true"><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div></section>
  <section class="catalog" id="episodeCatalog" aria-label="Episode catalogue">
   <div class="episode-panel">
