@@ -876,7 +876,7 @@ async function deleteB2Media(mediaUrl){
    const init=await initRes.json().catch(()=>({}));
    if(!initRes.ok||!init.uploadId)throw new Error(init.error||'B2 could not start the upload.');
    uploadId=init.uploadId;rememberPendingTransfer(target,uploadId);updateTransferRecovery();
-   const partSize=Math.max(5*1024*1024,Math.min(Number(init.partSizeBytes)||8*1024*1024,32*1024*1024));
+   const partSize=Math.max(5*1024*1024,Math.min(Number(init.partSizeBytes)||8*1024*1024,8*1024*1024));
    const parts=[];let uploaded=0,partNumber=1;
    for(let offset=0;offset<file.size;offset+=partSize,partNumber++){
     phase='sending part '+partNumber+' of '+Math.ceil(file.size/partSize);
