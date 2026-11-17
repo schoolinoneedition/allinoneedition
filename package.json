@@ -1,0 +1,9 @@
+{
+  "name": "all-in-one-edition",
+  "private": true,
+  "version": "1.0.0",
+  "description": "AIO static hub and secure serverless media upload routes",
+  "dependencies": {
+    "@vercel/blob": "2.9.0"
+  }
+}
