@@ -79,6 +79,34 @@
     {
       "source": "/privacy",
       "destination": "/privacy.html"
+    },
+    {
+      "source": "/play/tile-slide",
+      "destination": "/play/tile-slide.html"
+    },
+    {
+      "source": "/play/tic-tac-toe",
+      "destination": "/play/tic-tac-toe.html"
+    },
+    {
+      "source": "/play/pattern-recall",
+      "destination": "/play/pattern-recall.html"
+    },
+    {
+      "source": "/play/circuit-snake",
+      "destination": "/play/circuit-snake.html"
+    },
+    {
+      "source": "/play/merge-matrix",
+      "destination": "/play/merge-matrix.html"
+    },
+    {
+      "source": "/play/orbit-dash",
+      "destination": "/play/orbit-dash.html"
+    },
+    {
+      "source": "/play/colour-catch",
+      "destination": "/play/colour-catch.html"
     }
   ],
   "headers": [
