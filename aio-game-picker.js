@@ -99,6 +99,7 @@
       meta.textContent = 'No matching catalogue entries';
       play.disabled = true;
       next.disabled = true;
+      window.aioGameShelf?.sync();
       return null;
     }
 
@@ -116,6 +117,7 @@
     meta.textContent = (selected.cat || 'Browser game') + (played(selected) ? ' · Previously opened' : ' · New to you');
     play.disabled = false;
     next.disabled = false;
+    window.aioGameShelf?.sync();
     return selected;
   }
 
