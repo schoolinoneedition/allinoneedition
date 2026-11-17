@@ -43,6 +43,19 @@ html[data-aio-wallpaper-active="1"] .top{background:rgba(255,255,255,.78)}
 #videoPreview{display:block;width:100%;max-height:360px;margin-top:14px;border-radius:12px;background:#10131a}
 #videoPreview[hidden]{display:none}
 .video-open-link{display:inline-block;margin-top:10px;color:var(--accent);font-weight:800;font-size:12px}
+
+
+/* Stable chat rendering: long code stays inside collapsible scrollable panels. */
+.code-collapse{max-width:100%;min-width:0;margin:12px 0;border:1px solid var(--line);border-radius:12px;background:var(--panel);overflow:hidden}
+.code-collapse summary{display:block;cursor:pointer;padding:11px 14px;font-size:12px;font-weight:850;color:var(--ink);background:var(--soft);list-style:none}
+.code-collapse summary:before{content:"▸";margin-right:8px}.code-collapse[open] summary:before{content:"▾"}
+.code-collapse .code-wrap{margin:0;min-width:0}
+.code-collapse pre,.bubble pre{max-width:100%;overflow-x:auto;overflow-y:auto;max-height:60vh;overscroll-behavior:contain;white-space:pre;tab-size:2}
+.code-collapse .copy-code{position:sticky;float:right;right:8px;top:8px;z-index:1;margin:8px 8px 0 0}
+.message-actions button,.icon-btn,.tool-btn,.send,.side-action,.chat-link{transition:background .15s,border-color .15s,box-shadow .15s}
+:where(button,a,input,textarea,select,summary):focus-visible{outline:3px solid #6688e5;outline-offset:2px}
+@media(max-width:700px){.code-collapse pre,.bubble pre{font-size:11px;max-height:42vh}.code-collapse summary{font-size:11px;padding:10px}.composer{border-radius:15px}.message-actions button{min-height:38px}}
+@media(prefers-reduced-motion:reduce){.message-actions button,.icon-btn,.tool-btn,.send,.side-action,.chat-link{transition:none}}
 </style>
 <style>
 /* Elementor workspace refinement: stable viewport, readable chat, and touch-first layouts */
