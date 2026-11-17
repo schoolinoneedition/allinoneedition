@@ -715,7 +715,7 @@ async function deleteB2Media(mediaUrl){
     const item=siteOwner?row:{...row,provider:'B2 Storage',watch_url:B2_MEDIA_API+'/media/'+encodeURIComponent(row.media_id)};
     return [watchLinkKey(item.series_id,item.season_index,item.episode_number),item];
    }));
-   renderCatalog();
+   updateSpotlight();renderSeries();renderCatalog();
    if(selectedEpisode){
     const seriesItem=series.find(item=>item.id===selectedEpisode.seriesId),ep=seriesItem?.seasons[selectedEpisode.seasonIndex]?.episodes.find(item=>item.number===selectedEpisode.episodeNumber);
     if(seriesItem&&ep)renderPlayer(seriesItem,selectedEpisode.seasonIndex,ep);
@@ -957,6 +957,14 @@ async function deleteB2Media(mediaUrl){
   ownerClient.auth.onAuthStateChange((_event,session)=>{currentSession=session||null;setTimeout(async()=>{await refreshOwnerAccess();await loadEpisodeLinks()},0)});
  }
  function current(){return series.find(s=>s.id===activeId)||series[0]}
+ function firstPlayableEpisode(show){
+  for(let si=0;si<show.seasons.length;si++){
+   for(const episode of show.seasons[si].episodes){
+    if(episodeLinks.has(watchLinkKey(show.id,si,episode.number)))return {seasonIndex:si,episode,kind:'hosted'};
+   }
+  }
+  return show.embedVideoId?{seasonIndex:0,episode:show.seasons[0].episodes[0],kind:'publisher'}:null;
+ }
  function updateSpotlight(){
   const s=current(),banner=$('spotlightBanner');
   banner.style.setProperty('--spotlight',s.tone);banner.dataset.kanji=s.jp;
@@ -964,8 +972,11 @@ async function deleteB2Media(mediaUrl){
   $('spotlightTitle').textContent=s.title;$('spotlightDescription').textContent=s.description;
   $('spotlightRating').textContent=s.kind==='cartoon'?'FAMILY PICK':'UK '+s.rating;$('spotlightMeta').textContent=s.meta;
   $('spotlightSymbol').textContent=s.symbol;
+  const playable=firstPlayableEpisode(s),quickPlay=$('spotlightWatch');
+  quickPlay.textContent=playable?(playable.kind==='hosted'?'▶ Play available video':'▶ Official video'):'More details';
+  quickPlay.setAttribute('aria-label',playable?'Open an available video for '+s.title:'Browse details for '+s.title);
   const image=$('spotlightImage');
-  if(s.banner){image.hidden=false;image.onload=()=>{image.hidden=false};image.onerror=()=>{image.hidden=true};image.src=s.banner;image.alt=s.title+' anime banner'}
+  if(s.banner){image.hidden=false;image.onload=()=>{image.hidden=false};image.onerror=()=>{image.hidden=true};image.src=s.banner;image.alt=s.title+' series key visual'}
   else{image.removeAttribute('src');image.alt='';image.hidden=true}
  }
 
@@ -1275,13 +1286,13 @@ async function deleteB2Media(mediaUrl){
     previous.disabled=row.scrollLeft<=2;next.disabled=row.scrollLeft+row.clientWidth>=row.scrollWidth-3;
    };
    row.addEventListener('scroll',updateArrows,{passive:true});
-   if('ResizeObserver' in window){const resize=new ResizeObserver(updateArrows);resize.observe(row);row.addEventListener('focusout',()=>{}, {once:true})}
+   // No persistent observers: rerendering a rail must not retain detached cards.
    requestAnimationFrame(updateArrows);
    rail.append(header,row);grid.append(rail);
   });
  }
 
- function selectSeries(id,scroll){activeId=id;activeSeason=0;$('episodeSearch').value='';$('progressFilter').value='all';updateSpotlight();renderCatalog();renderSeries();if(scroll)$('episodeCatalog').scrollIntoView({behavior:'smooth',block:'start'})}
+ function selectSeries(id,scroll){activeId=id;activeSeason=0;$('episodeSearch').value='';$('progressFilter').value='all';updateSpotlight();renderCatalog();renderSeries();if(scroll)$('episodeCatalog').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'})}
  $('showSearch').addEventListener('input',renderSeries);
  document.querySelectorAll('[data-watch-filter]').forEach(button=>button.addEventListener('click',()=>{activeWatchFilter=button.dataset.watchFilter;document.querySelectorAll('[data-watch-filter]').forEach(item=>{const active=item===button;item.classList.toggle('active',active);item.setAttribute('aria-pressed',String(active))});const first=series.find(item=>activeWatchFilter==='all'||(activeWatchFilter==='cartoons'?item.kind==='cartoon':item.kind!=='cartoon'));if(first&&!(activeWatchFilter==='all'||(activeWatchFilter==='cartoons'?current().kind==='cartoon':current().kind!=='cartoon')))selectSeries(first.id,false);else renderSeries()}));
  function renderCatalog(){
@@ -1343,9 +1354,17 @@ async function deleteB2Media(mediaUrl){
  try{if(localStorage.getItem(THEME)==='light')document.documentElement.classList.add('light')}catch{}
  window.addEventListener('storage',event=>{if(event.key===STORE){watched=readStore();renderStats();renderSeries();renderCatalog()}});
  updateSpotlight();renderStats();renderSeries();renderCatalog();initOwnerLinks();
- $('spotlightBrowse').addEventListener('click',()=> $('episodeCatalog').scrollIntoView({behavior:'smooth',block:'start'}));
- $('spotlightWatch').textContent='Play featured episode ▶';
- $('spotlightWatch').addEventListener('click',()=>{const s=current(),ep=s.seasons[0].episodes[0];renderPlayer(s,0,ep);$('playerTitle').scrollIntoView({behavior:'smooth',block:'nearest'})});
+ const watchScroll=target=>target?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+ $('spotlightBrowse').addEventListener('click',()=>watchScroll($('episodeCatalog')));
+ $('spotlightWatch').addEventListener('click',()=>{
+  const show=current(),available=firstPlayableEpisode(show);
+  if(!available){watchScroll($('episodeCatalog'));return}
+  renderPlayer(show,available.seasonIndex,available.episode);
+  watchScroll($('playerTitle'));
+ });
+ $('navSearch').addEventListener('click',()=>{watchScroll($('browse'));$('showSearch').focus({preventScroll:true})});
+ $('navAnime').addEventListener('click',()=>{document.querySelector('[data-watch-filter="anime"]').click();watchScroll($('browse'))});
+ $('navCartoons').addEventListener('click',()=>{document.querySelector('[data-watch-filter="cartoons"]').click();watchScroll($('browse'))});
 })();
 </script>
 </body>
