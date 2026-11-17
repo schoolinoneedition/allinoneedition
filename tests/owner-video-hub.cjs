@@ -161,7 +161,7 @@ assert.ok(helperStart>=0&&helperEnd>helperStart,'Watch save helpers must be pres
 }
 // Watch matches Social's video-first tap-to-pause design: no bulky control dashboard.
 assert.ok(watch.includes('function renderHostedPlayer(show,si,ep,saved,stage,renderId)'), 'Watch must keep its dedicated hosted-video player.');
-assert.ok(watch.includes('className=\\'watch-video-stage watch-social-player\\''), 'Watch hosted videos must use the clean Social-style player surface.');
+assert.ok(watch.includes("className='watch-video-stage watch-social-player'"), 'Watch hosted videos must use the clean Social-style player surface.');
 assert.ok(watch.includes("className='watch-slim-controls'"), 'Watch must use one lightweight floating control bar.');
 for (const control of ['play','seek','time','sound','fullscreen']){
  assert.ok(watch.includes('data-control="'+control+'"'), 'Simple player is missing the '+control+' control.');
@@ -174,7 +174,7 @@ assert.ok(watch.includes("video.addEventListener('click',toggle)")&&watch.includ
 assert.ok(watch.includes("if(!video.paused&&!video.ended){video.pause();return}"), 'Tapping while playing must pause immediately.');
 assert.ok(watch.includes("video.currentTime=Number(seek.value)/1000*video.duration"), 'Seek timeline must control the actual media playback position.');
 assert.ok(watch.includes('frame.requestFullscreen()'), 'Fullscreen control must remain functional.');
-assert.ok(watch.includes('retry.addEventListener(\\'click\\',retryPlayback)'), 'Failed secure video loads must offer an actual retry action.');
+assert.ok(watch.includes("retry.addEventListener('click',retryPlayback)"), 'Failed secure video loads must offer an actual retry action.');
 assert.ok(watch.includes("video.removeAttribute('src')")&&watch.includes("if(videoControlsCleanup){videoControlsCleanup()"), 'Changing an episode must stop and release the previous media stream.');
 assert.ok(watch.includes('renderId===youtubeRender&&frame.isConnected'), 'Old secure playback responses must not restart removed players.');
 assert.ok(watch.includes("getB2PlaybackUrl(saved.watch_url)"), 'B2 media URLs must remain securely signed.');
