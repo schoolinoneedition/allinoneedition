@@ -32,7 +32,13 @@ const ALLOWED_TYPES = new Set([
 ]);
 
 function json(data: unknown, status = 200, headers: HeadersInit = {}) {
-  return new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", ...headers } });
+  // Headers is iterable but has no enumerable own properties. Spreading it into
+  // an object silently strips Access-Control-Allow-Origin from JSON responses.
+  // Safari then reports a network failure although B2 created the upload.
+  const responseHeaders = new Headers(headers);
+  responseHeaders.set("content-type", "application/json; charset=utf-8");
+  responseHeaders.set("cache-control", "no-store");
+  return new Response(JSON.stringify(data), { status, headers: responseHeaders });
 }
 function cors(request: Request, env: Env) {
   const origin = request.headers.get("Origin");

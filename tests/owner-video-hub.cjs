@@ -179,4 +179,28 @@ assert.ok(watch.includes('id="checkWatchHosting"')&&watch.includes('id="recoverH
 assert.ok(watch.includes('async function watchTransferStatus(id)')&&watch.includes('PENDING_WATCH_TRANSFER'), 'Watch must preserve a failed completion reference for recovery.');
 assert.ok(watch.includes("phase!=='finishing the B2 upload'"), 'Uncertain completion must not immediately abort a potentially completed upload.');
 assert.ok(watch.includes('await saveEpisodeVideoRow(\'B2 Storage\',url,target)') && watch.includes('clearPendingTransfer(target,id)'), 'Recovered uploads must attach to the chosen episode and clear the pending record only after saving.');
+// Execute the actual Worker JSON/CORS helpers, not just a string assertion.
+// In JavaScript, {...new Headers()} drops every CORS header despite an HTTP 201.
+const jsonStart=mediaWorker.indexOf('function json(data: unknown,');
+const jsonEnd=mediaWorker.indexOf('async function isSiteOwner(',jsonStart);
+assert.ok(jsonStart>=0&&jsonEnd>jsonStart,'Worker JSON and CORS functions must exist.');
+const isolatedHelpers=mediaWorker.slice(jsonStart,jsonEnd)
+  .replace('data: unknown','data')
+  .replace('headers: HeadersInit = {}','headers = {}')
+  .replace('request: Request, env: Env','request, env');
+const exposed=vm.runInNewContext(isolatedHelpers+';({json,cors})',{Headers,Response,Request});
+const allowedOrigin='https://allinoneedition.vercel.app';
+const request=new Request('https://media.example/uploads/initiate',{method:'POST',headers:{Origin:allowedOrigin}});
+const corsHeaders=exposed.cors(request,{APP_ORIGIN:allowedOrigin});
+assert.ok(corsHeaders instanceof Headers,'CORS header helper must produce Headers.');
+const created=exposed.json({uploadId:'test-upload'},201,corsHeaders);
+assert.equal(created.status,201,'Upload initiation response must retain its HTTP 201.');
+assert.equal(created.headers.get('access-control-allow-origin'),allowedOrigin,'Upload response must expose CORS origin so Safari can read the upload ID.');
+assert.match(created.headers.get('access-control-allow-headers')||'',/Authorization/,'Upload response must expose allowed request headers.');
+assert.equal(created.headers.get('cache-control'),'no-store');
+assert.match(created.headers.get('content-type')||'',/application\/json/);
+const errorResponse=exposed.json({error:'Authentication required'},401,corsHeaders);
+assert.equal(errorResponse.headers.get('access-control-allow-origin'),allowedOrigin,'Error responses must also carry CORS or browsers will disguise errors as network failures.');
+const unauthorized=exposed.json({error:'Origin not allowed'},403,exposed.cors(new Request('https://media.example/uploads/initiate',{headers:{Origin:'https://malicious.invalid'}}),{APP_ORIGIN:allowedOrigin}));
+assert.equal(unauthorized.headers.get('access-control-allow-origin'),null,'Other origins must not gain CORS access.');
 console.log('Owner Studio, AI Video Studio, Watch and game-library preservation contracts passed.');
