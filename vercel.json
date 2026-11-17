@@ -71,6 +71,10 @@
     {
       "source": "/3x3-games",
       "destination": "/3x3-games.html"
+    },
+    {
+      "source": "/about",
+      "destination": "/about.html"
     }
   ],
   "headers": [
