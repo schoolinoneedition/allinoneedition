@@ -203,31 +203,225 @@ main{width:min(1260px,100%);margin:0 auto;padding:30px 20px 58px}
 @media(max-width:360px){.watch-social-player .watch-slim-controls output{min-width:63px;font-size:9px}.watch-social-player .watch-slim-controls{gap:3px}}
 @media(prefers-reduced-motion:reduce){.watch-social-player .watch-video-overlay span{transition:none!important}}
 
+
+/* Streaming-home cinematic browse. Distinct AIO identity, not another platform's branding. */
+:root{--watch-surface:#101014;--watch-elevated:#1e1e23;--watch-border:#34353d}
+body{background:#101014;color:#f5f5f7}
+.watch-cinema-nav{height:68px;gap:clamp(14px,2.2vw,30px);padding:0 clamp(16px,3.5vw,56px);border-bottom:1px solid #26262c;background:rgba(7,7,9,.96);box-shadow:0 5px 18px #0003}
+.watch-cinema-nav .brand{flex:0 0 auto;color:#fff;font-weight:850;font-size:14px;letter-spacing:-.02em}
+.watch-cinema-nav .brand b{color:#fa5963;font-size:15px;letter-spacing:.045em}
+.watch-cinema-nav .brand small{font-size:10px;color:#9c9da9;letter-spacing:.02em}
+.watch-cinema-nav .mark{border-radius:7px;max-width:36px}
+.watch-primary-nav{display:flex;align-items:center;gap:clamp(4px,1.1vw,17px);min-width:0;flex:1}
+.watch-nav-link{appearance:none;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;min-height:39px;padding:9px 12px;border:0;border-radius:30px;background:transparent;color:#d0d1d8;font-size:12px;font-weight:650;text-decoration:none;white-space:nowrap;transition:background .18s,color .18s,transform .18s}
+.watch-nav-link:hover,.watch-nav-link:focus-visible{color:white;background:#29292f}
+.watch-nav-link.is-active{background:#34353c;color:#fff;font-weight:800}
+.watch-nav-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.watch-nav-icon{width:40px;height:40px;display:grid;place-items:center;color:#fff;background:transparent;border:0;border-radius:50%;transition:background .18s}
+.watch-nav-icon:hover{background:#29292f}
+.watch-cinema-nav .theme{height:34px;width:34px;border:0;background:#23242b;color:#f5f5f7;border-radius:50%}
+.watch-cinema-nav .theme:hover{background:#41414b}
+.watch-cinema-nav .nav-hub{border:1px solid #43434a;border-radius:10px;font-size:11px}
+#watchMain{max-width:1560px;width:100%;padding:0 clamp(16px,3.5vw,56px) 64px;overflow:clip}
+#watchMain .spotlight-banner{display:flex;position:relative;align-items:flex-end;isolation:isolate;min-height:clamp(350px,40vw,540px);margin:0 0 0;padding:clamp(24px,5vw,62px) clamp(22px,4vw,58px);border:0;border-radius:0 0 19px 19px;background:#11151d;box-shadow:0 17px 50px #0008;overflow:hidden}
+#watchMain .spotlight-banner:after{content:none}
+#watchMain .spotlight-banner:before{content:"";position:absolute;z-index:1;inset:0;background:linear-gradient(90deg,rgba(10,10,15,.96) 0%,rgba(10,10,15,.86) 28%,rgba(10,10,15,.43) 59%,rgba(10,10,15,.08) 100%),linear-gradient(0deg,rgba(10,10,15,.82) 0%,transparent 46%,rgba(10,10,15,.09) 100%);pointer-events:none}
+#watchMain .spotlight-art{position:absolute;z-index:0;inset:0;display:block;min-height:0;border:0;border-radius:0;background:radial-gradient(ellipse at 72% 20%,color-mix(in srgb,var(--spotlight) 65%,#1a1e27),#111318 70%);backdrop-filter:none}
+#watchMain .spotlight-art:before,#watchMain .spotlight-art:after{display:none}
+#watchMain .spotlight-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 28%;opacity:.88;display:block;filter:saturate(.94)}
+#watchMain .spotlight-art img[hidden]{display:none}
+#watchMain .spotlight-symbol{position:absolute;top:18%;right:15%;font-size:clamp(110px,22vw,270px);color:rgba(255,255,255,.12);text-shadow:none}
+#watchMain .spotlight-art:has(img:not([hidden])) .spotlight-symbol{display:none}
+#watchMain .spotlight-copy{z-index:2;position:relative;max-width:min(590px,62%);display:flex;flex-direction:column;align-items:flex-start;gap:11px;color:#fff;text-shadow:0 1px 10px #0005}
+#watchMain .spotlight-kicker{font-size:11px;color:#f6ced0;font-weight:900;letter-spacing:.14em}
+#watchMain #spotlightTitle{font-size:clamp(36px,5.5vw,75px);font-weight:950;letter-spacing:-.045em;line-height:.99;margin:0;color:white;text-wrap:balance}
+#watchMain .spotlight-meta{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin:1px 0 0;font-size:13px;font-weight:750;color:#ececf2}
+#watchMain .spotlight-meta .pill{font-size:11px;border:1px solid #ddd8;border-radius:5px;padding:4px 6px;background:#12141c70;color:#fff}
+#watchMain .spotlight-meta .spotlight-divider{opacity:.5}
+#watchMain .spotlight-copy p{font-size:clamp(13px,1.4vw,17px);font-weight:510;line-height:1.58;margin:4px 0;color:#f4f3f5;max-width:530px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+#watchMain .spotlight-actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 0}
+#watchMain .spotlight-actions .action{min-height:47px;min-width:120px;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:0;border-radius:8px;padding:12px 20px;font-size:13px;font-weight:900;transition:transform .18s,background .18s,box-shadow .18s}
+#watchMain .spotlight-actions .action:hover{transform:translateY(-2px)}
+#watchMain .spotlight-actions .action.primary{background:#fff;color:#16161d;box-shadow:0 7px 20px #0004}
+#watchMain .spotlight-actions .action.primary:hover{background:#d9dce2}
+#watchMain .spotlight-actions .action:not(.primary){background:rgba(99,102,112,.65);color:#fff}
+#watchMain .spotlight-actions .action:not(.primary):hover{background:rgba(128,132,142,.87)}
+#watchMain .spotlight-disclaimer{font-size:11px;line-height:1.4;color:#c1c1cb;max-width:390px}
+#watchMain .watch-progress-strip{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:17px 0 29px;padding:15px 20px;border:1px solid #33343b;border-radius:13px;background:#18191e}
+#watchMain .watch-progress-strip .hero-copy,#watchMain .watch-progress-strip .hero-stat{border:0;box-shadow:none;background:none;border-radius:0;padding:0}
+#watchMain .watch-progress-strip .hero-copy{display:flex;flex-direction:column;gap:5px;flex:1;min-width:0}
+#watchMain .watch-progress-strip .hero-copy:after{content:none}
+#watchMain .watch-progress-strip .hero-copy .eyebrow{font-size:10px;color:#f08b91;letter-spacing:.09em}
+#watchMain .watch-progress-strip .hero-copy p{max-width:460px;margin:0;font-size:12px;color:#b9bac5}
+#watchMain .watch-progress-strip .hero-stat{display:flex;flex-direction:row;align-items:center;gap:27px;flex:0 1 auto}
+#watchMain .watch-stat-count{display:flex;align-items:center;gap:8px;white-space:nowrap;font-size:11px;color:#bfc0c8}
+#watchMain .watch-stat-count .stat-number{font-size:22px;letter-spacing:-.03em;color:#fff}
+#watchMain .watch-stat-count .stat-caption{display:none}
+#watchMain .watch-stat-meter{width:180px;max-width:29vw;display:flex;flex-direction:column;gap:5px;font-size:11px;color:#c4c5cd}
+#watchMain .watch-stat-meter>span:first-child{display:flex;justify-content:space-between;gap:10px}
+#watchMain .watch-stat-meter strong{color:#fff}
+#watchMain .watch-stat-meter .stat-caption{display:none}
+#watchMain .watch-stat-meter .stat-progress{height:5px;background:#3f3e47}
+#watchMain .watch-stat-meter .stat-progress span{background:linear-gradient(90deg,#eb6876,#f4a5ae)}
+#watchMain .section-title{margin:32px 0 12px}
+#watchMain .section-title h2{font-size:clamp(21px,2.6vw,28px);letter-spacing:-.035em;margin:3px 0}
+#watchMain .section-title p{font-size:12px;color:#b2b3bd}
+#watchMain .watch-section-eyebrow{font-size:10px;font-weight:900;letter-spacing:.13em;color:#f28f95}
+#watchMain .watch-discovery{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:8px}
+#watchMain .watch-filters{gap:8px;flex-wrap:wrap}
+#watchMain .watch-filter{min-height:35px;border-radius:999px;border:1px solid #4d4d54;background:#202126;color:#e1e0e8;padding:8px 16px;font-size:12px;font-weight:800;transition:background .16s,border-color .16s,transform .16s}
+#watchMain .watch-filter[aria-pressed=true],#watchMain .watch-filter:hover{color:#17171c;background:#fff;border-color:#fff}
+#watchMain .watch-filter:hover{transform:translateY(-1px)}
+#watchMain .watch-search-label{color:#e2e2e9;font-size:12px}
+#watchMain .watch-search-label .field{min-width:260px;max-width:360px;background:#24252c;color:#f6f5fa;border-color:#444650;height:42px;font-size:12px}
+#watchMain .watch-search-label .field::placeholder{color:#999ba5}
+#watchMain .watch-search-status{font-size:11px;color:#bcbcc4;min-height:15px;margin:6px 0 8px}
+#watchMain .watch-content-note{margin:0 0 14px;font-size:11px;color:#a5a5b0}
+#watchMain .series-grid{display:block;min-width:0;margin:0 0 14px}
+#watchMain .watch-rail{margin:0 0 30px;min-width:0}
+#watchMain .watch-rail-header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 8px}
+#watchMain .watch-rail-header h3{font-size:clamp(17px,2vw,23px);line-height:1.25;letter-spacing:-.025em;margin:0;color:#fff}
+#watchMain .watch-rail-header p{font-size:11px;color:#aaaab5;margin:5px 0 0}
+#watchMain .watch-rail-arrows{display:flex;gap:6px}
+#watchMain .watch-rail-arrows button{min-width:36px;height:36px;border:1px solid #45454f;border-radius:50%;background:#24252d;color:#fff;font-size:24px;line-height:1;display:grid;place-items:center;transition:background .15s,transform .15s}
+#watchMain .watch-rail-arrows button:hover:not(:disabled){background:#555660;transform:scale(1.06)}
+#watchMain .watch-rail-arrows button:disabled{opacity:.25;cursor:default}
+#watchMain .watch-rail-track{display:flex;align-items:stretch;gap:12px;overflow-x:auto;overflow-y:hidden;padding:9px 3px 20px;scroll-snap-type:x proximity;scrollbar-width:thin;scrollbar-color:#585860 transparent;overscroll-behavior-inline:contain}
+#watchMain .watch-rail-track::-webkit-scrollbar{height:5px}
+#watchMain .watch-rail-track::-webkit-scrollbar-thumb{background:#55555f;border-radius:99px}
+#watchMain .series-card.watch-poster-card{flex:0 0 clamp(178px,19vw,258px);width:clamp(178px,19vw,258px);min-height:240px;max-width:260px;scroll-snap-align:start;border-radius:11px;border:1px solid #31313c;background:#1b1c22;transform:none;transition:transform .22s,box-shadow .22s,border-color .22s;box-shadow:0 6px 16px #0003;z-index:0;overflow:hidden}
+#watchMain .series-card.watch-poster-card:hover,#watchMain .series-card.watch-poster-card:focus-visible{transform:translateY(-6px) scale(1.035);z-index:2;border-color:#b2b2b7;box-shadow:0 16px 28px #0009}
+#watchMain .watch-poster-card[aria-pressed=true]{border-color:#ed8990;box-shadow:0 0 0 1px #ed8990}
+#watchMain .watch-poster-card .series-art{position:relative;height:152px;flex:0 0 152px;padding:0;background:linear-gradient(140deg,var(--tone),#191b24);overflow:hidden}
+#watchMain .watch-poster-card .series-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 29%;transition:transform .3s,filter .3s;z-index:0}
+#watchMain .watch-poster-card:hover .series-art img,#watchMain .watch-poster-card:focus-visible .series-art img{transform:scale(1.1);filter:brightness(.68)}
+#watchMain .watch-poster-card .series-art:before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.62))}
+#watchMain .watch-poster-card .series-art:after{display:none}
+#watchMain .watch-poster-card .series-type{position:absolute;top:10px;left:10px;z-index:2;font-size:9px;letter-spacing:.08em;background:#0b0c10a8;padding:5px 8px;border-radius:5px;color:#fff}
+#watchMain .watch-poster-card .series-symbol{position:absolute;bottom:13px;right:12px;z-index:2;width:35px;height:35px;font-size:18px;border-radius:9px;background:#13131c99;border-color:#ffffff4d}
+#watchMain .watch-poster-hover{position:absolute;z-index:3;inset:auto 10px 12px 10px;max-width:calc(100% - 20px);font-size:11px;font-weight:850;color:#fff;line-height:1.45;text-align:left;text-shadow:0 2px 6px #000;opacity:0;transform:translateY(8px);transition:opacity .22s,transform .22s;pointer-events:none}
+#watchMain .watch-poster-card:hover .watch-poster-hover,#watchMain .watch-poster-card:focus-visible .watch-poster-hover{opacity:1;transform:translateY(0)}
+#watchMain .watch-poster-card .series-info{display:flex;flex-direction:column;gap:4px;padding:12px 12px 13px;flex:1;min-width:0}
+#watchMain .watch-poster-card .series-info h3{font-size:13px;line-height:1.35;color:#fff;letter-spacing:-.015em;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#watchMain .watch-poster-card .series-meta{font-size:10px;color:#adaeb8;line-height:1.4}
+#watchMain .watch-poster-status{font-size:10px;color:#b4b5bf;margin-top:auto;padding-top:7px}
+#watchMain .watch-poster-card .series-progress{height:3px;background:#3b3a42;border-radius:99px}
+#watchMain .watch-poster-card .series-progress span{background:#f48d96}
+#watchMain .catalog{margin-top:30px;grid-template-columns:minmax(0,1fr) 290px;gap:18px;scroll-margin-top:90px}
+#watchMain .episode-panel,#watchMain .side-panel{background:#1a1b21;border:1px solid #34343c;box-shadow:none;border-radius:14px}
+#watchMain .episode-panel{padding:clamp(13px,2vw,22px)}
+#watchMain .catalog-head h2{font-size:22px;color:#fff}
+#watchMain .catalog-head p{font-size:12px;color:#b2b4bf}
+#watchMain .episode-row{background:#22232a;border-color:#393a43}
+#watchMain .episode-row:hover{border-color:#91919d;background:#2b2d36}
+#watchMain .ep-copy strong{font-size:13px;color:#f4f4f8}
+#watchMain .ep-copy small{font-size:10px}
+#watchMain .ep-play{background:#3e404b;border-color:#656876;color:#fff}
+#watchMain .ep-play:hover{background:#fff;color:#181820}
+#watchMain .season-tab[aria-pressed=true]{background:#f2f2f4;color:#14141a;border-color:#f2f2f4}
+#watchMain .side-panel h3{font-size:14px;color:#f4f4f7}
+#watchMain .side-panel p{font-size:11px}
+#watchMain .field{font-size:12px;background:#26272f;color:#fff;border-color:#454650}
+#watchMain .watch-guide{background:#18191f;border-color:#34353d;margin-top:36px}
+#watchMain .watch-guide h2{color:#fff}
+#watchMain .watch-guide details{border-color:#393b46}
+#watchMain .watch-guide summary{font-size:13px;color:#f5f5f7}
+#watchMain .footer{color:#aeafba;border-top:1px solid #34343d}
+@media(max-width:1060px){
+ .watch-primary-nav{gap:2px}
+ .watch-nav-link{padding:8px 9px;font-size:11px}
+ #watchMain .catalog{grid-template-columns:minmax(0,1fr) 265px}
+ #watchMain .spotlight-copy{max-width:68%}
+}
+@media(max-width:800px){
+ .watch-cinema-nav{gap:8px;height:62px}
+ .watch-primary-nav{overflow-x:auto;scrollbar-width:none}
+ .watch-primary-nav::-webkit-scrollbar{display:none}
+ .watch-cinema-nav .nav-hub{display:none}
+ #watchMain .spotlight-banner{min-height:400px}
+ #watchMain .spotlight-copy{max-width:78%}
+ #watchMain .catalog{grid-template-columns:1fr}
+ #watchMain .side-stack{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #watchMain .watch-progress-strip{align-items:flex-start;flex-wrap:wrap}
+}
+@media(max-width:550px){
+ .watch-cinema-nav{height:58px;padding:0 10px}
+ .watch-cinema-nav .brand{gap:5px;font-size:10px}
+ .watch-cinema-nav .brand b{font-size:11px}
+ .watch-cinema-nav .brand small{display:none}
+ .watch-cinema-nav .mark{width:28px;height:28px}
+ .watch-cinema-nav .watch-primary-nav{gap:0}
+ .watch-cinema-nav .watch-nav-link{min-height:35px;font-size:10px;padding:7px 8px}
+ .watch-nav-actions{gap:2px}
+ .watch-nav-icon{width:30px;height:34px}
+ .watch-cinema-nav .theme{display:none}
+ #watchMain{padding:0 12px 42px}
+ #watchMain .spotlight-banner{min-height:420px;margin:0 -12px;padding:30px 22px 30px;border-radius:0 0 14px 14px}
+ #watchMain .spotlight-banner:before{background:linear-gradient(0deg,#0a0a0ff5 0%,#0a0a0fc9 38%,#0a0a0f36 75%),linear-gradient(90deg,#0a0a0f88,transparent)}
+ #watchMain .spotlight-art img{object-position:center 21%}
+ #watchMain .spotlight-copy{max-width:100%;gap:9px}
+ #watchMain #spotlightTitle{font-size:clamp(34px,9vw,52px)}
+ #watchMain .spotlight-copy p{font-size:12px;line-height:1.52;max-width:96%;-webkit-line-clamp:3}
+ #watchMain .spotlight-kicker{font-size:9px}
+ #watchMain .spotlight-meta{font-size:11px;gap:7px}
+ #watchMain .spotlight-actions .action{font-size:12px;min-height:43px;padding:10px 13px}
+ #watchMain .spotlight-disclaimer{font-size:9px}
+ #watchMain .watch-progress-strip{padding:13px;gap:12px}
+ #watchMain .watch-progress-strip .hero-stat{width:100%;justify-content:space-between;gap:10px}
+ #watchMain .watch-stat-meter{max-width:42vw;width:155px}
+ #watchMain .watch-discovery{align-items:stretch;flex-direction:column}
+ #watchMain .watch-search-label{display:flex;flex-direction:column;align-items:stretch}
+ #watchMain .watch-search-label .field{min-width:0;width:100%;max-width:none}
+ #watchMain .watch-filter{font-size:10px;min-height:32px;padding:7px 12px}
+ #watchMain .watch-rail-track{gap:10px}
+ #watchMain .series-card.watch-poster-card{flex-basis:182px;width:182px;min-height:229px}
+ #watchMain .watch-poster-card .series-art{height:139px;flex-basis:139px}
+ #watchMain .watch-rail-header h3{font-size:18px}
+ #watchMain .side-stack{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+ .watch-cinema-nav .watch-nav-link,.watch-cinema-nav .watch-nav-icon,#watchMain .watch-poster-card,#watchMain .watch-poster-card .series-art img,#watchMain .watch-poster-hover,#watchMain .watch-rail-arrows button,#watchMain .spotlight-actions .action{transition:none!important;transform:none!important}
+}
+
 </style>
 <link rel="stylesheet" href="./appearance.css">
 <script src="./appearance.js" defer></script>
 </head>
 <body>
-<header class="topbar">
- <a class="brand" href="./index.html"><img class="mark" src="/favicon.png" alt="" width="38" height="38"><span>All in One Edition<small>Watch · anime and family cartoons</small></span></a>
- <span class="spacer"></span>
- <a class="toplink" href="/browser-games">Games</a><a class="toplink" href="/video">AI Video</a>
- <a class="toplink" href="./study.html">Study Hub</a>
- <a class="toplink primary" href="./index.html">← Hub</a>
- <button class="theme" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">◐</button>
+<header class="topbar watch-cinema-nav">
+ <a class="brand" href="/" aria-label="All in One Edition home"><img class="mark" src="/favicon.png" alt="" width="36" height="36"><span>All in One <b>WATCH</b><small>All in One Edition</small></span></a>
+ <nav class="watch-primary-nav" aria-label="Watch sections">
+  <a class="watch-nav-link is-active" href="#watchMain" aria-current="page">Home</a>
+  <a class="watch-nav-link" href="#browse">Series</a>
+  <button class="watch-nav-link" id="navAnime" type="button">Anime</button>
+  <button class="watch-nav-link" id="navCartoons" type="button">Cartoons</button>
+  <a class="watch-nav-link" href="/browser-games">Games</a>
+ </nav>
+ <div class="watch-nav-actions">
+  <button class="watch-nav-icon" id="navSearch" type="button" aria-label="Search shows" title="Search shows"><svg aria-hidden="true" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.8" cy="10.8" r="7.2"/><path d="m16.5 16.5 5 5"/></svg></button>
+  <a class="watch-nav-link nav-hub" href="/">← Hub</a>
+  <button class="theme" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">◐</button>
+ </div>
 </header>
-<main>
- <section class="hero">
-  <div class="hero-copy"><span class="eyebrow">✦ All in One · Watch</span><h1>Anime, cartoons<br>and episode guides.</h1><p>Keep your anime watchlist, explore family-friendly cartoons and follow episodes from official publishers. Your progress stays saved in this browser.</p></div>
-  <div class="hero-stat"><div><div class="stat-top"><span>Your watch progress</span><span>LOCAL</span></div><div class="stat-number" id="watchedCount">0</div><div class="stat-caption" id="watchedCaption">Episodes marked watched</div></div><div><div class="stat-top"><span>Overall progress</span><span id="progressPct">0%</span></div><div class="stat-progress"><span id="overallBar"></span></div><div class="stat-caption" style="margin-top:8px">Tick an episode to update your progress.</div></div></div>
+<main id="watchMain">
+ <section class="spotlight-banner" id="spotlightBanner" data-kanji="ア" style="--spotlight:#e8a52d" aria-label="Featured series">
+  <div class="spotlight-art" aria-hidden="true"><img id="spotlightImage" alt="" width="1400" height="790" loading="eager" fetchpriority="high" decoding="async"><span class="spotlight-symbol" id="spotlightSymbol">◉</span></div>
+  <div class="spotlight-copy">
+   <span class="spotlight-kicker" id="spotlightKicker">FEATURED SERIES · WATCH</span>
+   <h1 id="spotlightTitle">Pokémon</h1>
+   <div class="spotlight-meta"><span class="pill rating" id="spotlightRating">UK U</span><span class="spotlight-divider" aria-hidden="true">•</span><span id="spotlightMeta">Episode guide and watch tracker</span></div>
+   <p id="spotlightDescription">Choose a series to browse episodes, track progress and find official viewing options.</p>
+   <div class="spotlight-actions"><button class="action primary" id="spotlightBrowse" type="button"><span aria-hidden="true">▶</span> Explore episodes</button><button class="action" id="spotlightWatch" type="button">More details</button></div>
+   <span class="spotlight-disclaimer">Series guides and official sources · Not every title has hosted playback</span>
+  </div>
  </section>
- <section class="spotlight-banner" id="spotlightBanner" data-kanji="ア" style="--spotlight:#e8a52d" aria-live="polite">
-  <div class="spotlight-copy"><span class="spotlight-kicker" id="spotlightKicker">FEATURED SERIES · ANIME ZONE</span><h2 id="spotlightTitle">Pokémon</h2><p id="spotlightDescription">Pick a series, choose an episode and track your watch progress.</p><div class="spotlight-meta"><span class="pill rating" id="spotlightRating">UK U</span><span class="pill" id="spotlightMeta">Episode guide and watch tracker</span></div><div class="spotlight-actions"><button class="action primary" id="spotlightBrowse" type="button">Browse episodes ↓</button><button class="action" id="spotlightWatch" type="button">Watch available episode ▶</button></div></div>
-  <div class="spotlight-art" aria-hidden="true"><img id="spotlightImage" alt="" width="800" height="450" loading="eager" fetchpriority="high" decoding="async"><span class="spotlight-symbol" id="spotlightSymbol">◉</span></div>
+ <section class="hero watch-progress-strip" aria-label="Your watch progress">
+  <div class="hero-copy"><span class="eyebrow">YOUR WATCHLIST</span><p>Find anime and cartoons, explore their seasons and save your watched progress on this device.</p></div>
+  <div class="hero-stat"><div class="watch-stat-count"><span>Your progress</span><strong id="watchedCount" class="stat-number">0</strong><span class="stat-caption" id="watchedCaption">Episodes marked watched</span></div><div class="watch-stat-meter"><span>Episodes tracked <strong id="progressPct">0%</strong></span><div class="stat-progress"><span id="overallBar"></span></div><span class="stat-caption">Updates as you tick episodes.</span></div></div>
  </section>
- <div class="section-title"><div><h2>Explore Watch</h2><p>Keep anime and family cartoons in one place, with clear categories and official episode sources.</p></div></div>
+ <div class="section-title" id="browse"><div><span class="watch-section-eyebrow">FIND YOUR NEXT SERIES</span><h2>Explore Watch</h2><p>Discover anime and family cartoons, track episodes and find official sources.</p></div></div>
  <div class="watch-discovery"><div class="watch-filters" role="group" aria-label="Filter shows"><button type="button" class="watch-filter active" data-watch-filter="all" aria-pressed="true">Everything</button><button type="button" class="watch-filter" data-watch-filter="anime" aria-pressed="false">Anime</button><button type="button" class="watch-filter" data-watch-filter="cartoons" aria-pressed="false">Family cartoons</button></div><label class="watch-search-label" for="showSearch">Find a show <input class="field" id="showSearch" type="search" autocomplete="off" placeholder="Search titles, genres or descriptions" aria-describedby="showSearchStatus"></label></div><p id="showSearchStatus" class="watch-search-status" role="status" aria-live="polite"></p>
- <p class="watch-content-note">Family cartoon picks link to official publisher videos or episode guides. Anime titles keep their published age labels; some are aimed at older audiences. Always check the programme rating before watching.</p>
+ <p class="watch-content-note">Explore series and episode guides. Videos are available only where an authorised upload or publisher source exists. Check programme age ratings.</p>
  <section class="series-grid" id="seriesGrid" aria-label="Anime series" aria-busy="true"><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div><div class="series-card series-placeholder" aria-hidden="true"><div class="series-art"></div><div class="series-info"></div></div></section>
  <section class="catalog" id="episodeCatalog" aria-label="Episode catalogue">
   <div class="episode-panel">
@@ -521,7 +715,7 @@ async function deleteB2Media(mediaUrl){
     const item=siteOwner?row:{...row,provider:'B2 Storage',watch_url:B2_MEDIA_API+'/media/'+encodeURIComponent(row.media_id)};
     return [watchLinkKey(item.series_id,item.season_index,item.episode_number),item];
    }));
-   renderCatalog();
+   updateSpotlight();renderSeries();renderCatalog();
    if(selectedEpisode){
     const seriesItem=series.find(item=>item.id===selectedEpisode.seriesId),ep=seriesItem?.seasons[selectedEpisode.seasonIndex]?.episodes.find(item=>item.number===selectedEpisode.episodeNumber);
     if(seriesItem&&ep)renderPlayer(seriesItem,selectedEpisode.seasonIndex,ep);
@@ -763,6 +957,14 @@ async function deleteB2Media(mediaUrl){
   ownerClient.auth.onAuthStateChange((_event,session)=>{currentSession=session||null;setTimeout(async()=>{await refreshOwnerAccess();await loadEpisodeLinks()},0)});
  }
  function current(){return series.find(s=>s.id===activeId)||series[0]}
+ function firstPlayableEpisode(show){
+  for(let si=0;si<show.seasons.length;si++){
+   for(const episode of show.seasons[si].episodes){
+    if(episodeLinks.has(watchLinkKey(show.id,si,episode.number)))return {seasonIndex:si,episode,kind:'hosted'};
+   }
+  }
+  return show.embedVideoId?{seasonIndex:0,episode:show.seasons[0].episodes[0],kind:'publisher'}:null;
+ }
  function updateSpotlight(){
   const s=current(),banner=$('spotlightBanner');
   banner.style.setProperty('--spotlight',s.tone);banner.dataset.kanji=s.jp;
@@ -770,8 +972,11 @@ async function deleteB2Media(mediaUrl){
   $('spotlightTitle').textContent=s.title;$('spotlightDescription').textContent=s.description;
   $('spotlightRating').textContent=s.kind==='cartoon'?'FAMILY PICK':'UK '+s.rating;$('spotlightMeta').textContent=s.meta;
   $('spotlightSymbol').textContent=s.symbol;
+  const playable=firstPlayableEpisode(s),quickPlay=$('spotlightWatch');
+  quickPlay.textContent=playable?(playable.kind==='hosted'?'▶ Play available video':'▶ Official video'):'More details';
+  quickPlay.setAttribute('aria-label',playable?'Open an available video for '+s.title:'Browse details for '+s.title);
   const image=$('spotlightImage');
-  if(s.banner){image.hidden=false;image.onload=()=>{image.hidden=false};image.onerror=()=>{image.hidden=true};image.src=s.banner;image.alt=s.title+' anime banner'}
+  if(s.banner){image.hidden=false;image.onload=()=>{image.hidden=false};image.onerror=()=>{image.hidden=true};image.src=s.banner;image.alt=s.title+' series key visual'}
   else{image.removeAttribute('src');image.alt='';image.hidden=true}
  }
 
@@ -1008,28 +1213,86 @@ async function deleteB2Media(mediaUrl){
  }
  function seriesProgress(s){let all=0,done=0;s.seasons.forEach((season,si)=>season.episodes.forEach(ep=>{all++;if(watched[key(s.id,si,ep.number)])done++}));return {all,done,pct:all?Math.round(done/all*100):0}}
  function renderStats(){let all=0,done=0;series.forEach(s=>{const p=seriesProgress(s);all+=p.all;done+=p.done});$('watchedCount').textContent=done.toLocaleString('en-GB');$('watchedCaption').textContent='of '+all.toLocaleString('en-GB')+' listed episodes marked watched';$('progressPct').textContent=(all?Math.round(done/all*100):0)+'%';$('overallBar').style.width=(all?done/all*100:0)+'%'}
+
  function renderSeries(){
-  const grid=$('seriesGrid');watchCoverObserver?.disconnect();grid.replaceChildren();grid.removeAttribute('aria-busy');
+  const grid=$('seriesGrid');
+  watchCoverObserver?.disconnect();
+  grid.replaceChildren();grid.removeAttribute('aria-busy');
   const search=$('showSearch').value.trim().toLocaleLowerCase('en-GB');
   const filtered=series.filter(s=>(activeWatchFilter==='all'||(activeWatchFilter==='cartoons'?s.kind==='cartoon':s.kind!=='cartoon'))&&(!search||[s.title,s.type,s.description,s.meta].join(' ').toLocaleLowerCase('en-GB').includes(search)));
   $('showSearchStatus').textContent=filtered.length+' '+(filtered.length===1?'show':'shows')+' found'+(search?' for your search':'')+'.';
-  if(!filtered.length){const note=document.createElement('p');note.className='empty-episode';note.textContent='No matching shows. Try another title or choose Everything.';grid.append(note);return}
-  filtered.forEach(s=>{
-   const p=seriesProgress(s),button=document.createElement('button');button.type='button';button.className='series-card';button.style.setProperty('--tone',s.tone);button.setAttribute('aria-pressed',String(s.id===activeId));
+  if(!filtered.length){
+   const note=document.createElement('p');note.className='empty-episode';
+   note.textContent='No matching series. Search another title or choose a different category.';
+   grid.append(note);return;
+  }
+  const tracked=filtered.filter(s=>seriesProgress(s).done>0).sort((a,b)=>seriesProgress(b).done-seriesProgress(a).done);
+  const anime=filtered.filter(s=>s.kind!=='cartoon'),cartoons=filtered.filter(s=>s.kind==='cartoon');
+  let groups;
+  if(search)groups=[{title:'Search results',subtitle:'Matching titles and episode guides',items:filtered}];
+  else if(activeWatchFilter==='cartoons')groups=[{title:'Family cartoons',subtitle:'Animated shows, guides and official videos',items:cartoons}];
+  else if(activeWatchFilter==='anime')groups=[
+   ...(tracked.length?[{title:'Continue tracking',subtitle:'Pick up a series you have started',items:tracked}]:[]),
+   {title:'Anime series',subtitle:'Find your next story',items:anime}
+  ];
+  else groups=[
+   ...(tracked.length?[{title:'Continue tracking',subtitle:'Your partially watched series',items:tracked}]:[]),
+   {title:'Anime to explore',subtitle:'Browse seasons and episode guides',items:anime},
+   ...(cartoons.length?[{title:'Family cartoons',subtitle:'Shows and official publisher resources',items:cartoons}]:[])
+  ];
+  const makeCard=s=>{
+   const p=seriesProgress(s),button=document.createElement('button');
+   button.type='button';button.className='series-card watch-poster-card';
+   button.style.setProperty('--tone',s.tone);
+   button.setAttribute('aria-pressed',String(s.id===activeId));
+   button.setAttribute('aria-label','View '+s.title+' · UK '+s.rating+' · '+p.pct+'% tracked');
    const art=document.createElement('div');art.className='series-art';art.dataset.jp=s.jp;
-   if(s.banner){const image=document.createElement('img');image.dataset.watchCover=s.banner;image.alt=s.title+' key visual';image.width=440;image.height=260;image.loading='lazy';image.decoding='async';image.fetchPriority='low';image.addEventListener('error',()=>image.remove(),{once:true});art.append(image);if(watchCoverObserver)watchCoverObserver.observe(image);else{image.src=s.banner;delete image.dataset.watchCover}}
+   if(s.banner){
+    const image=document.createElement('img');image.dataset.watchCover=s.banner;
+    image.alt=s.title+' key visual';image.width=440;image.height=260;image.loading='lazy';image.decoding='async';image.fetchPriority='low';
+    image.addEventListener('error',()=>image.remove(),{once:true});art.append(image);
+    if(watchCoverObserver)watchCoverObserver.observe(image);else{image.src=s.banner;delete image.dataset.watchCover}
+   }
    const symbol=document.createElement('span');symbol.className='series-symbol';symbol.textContent=s.symbol;
-   const type=document.createElement('span');type.className='series-type';type.textContent=s.type;art.append(type,symbol);
+   const type=document.createElement('span');type.className='series-type';type.textContent=s.kind==='cartoon'?'CARTOON':'ANIME';
+   const hover=document.createElement('span');hover.className='watch-poster-hover';hover.setAttribute('aria-hidden','true');
+   hover.textContent=s.type+' · UK '+s.rating+' · View episodes';
+   art.append(type,symbol,hover);
    const info=document.createElement('div');info.className='series-info';
    const h=document.createElement('h3');h.textContent=s.title;
-   const meta=document.createElement('div');meta.className='series-meta';meta.textContent=s.meta;
-   const pills=document.createElement('div');pills.className='series-meta';const rating=document.createElement('span');rating.className='pill rating';rating.textContent='UK rating · '+s.rating;const episodeCount=document.createElement('span');episodeCount.className='pill';episodeCount.textContent=p.done+'/'+p.all+' tracked';pills.append(rating,episodeCount);
+   const meta=document.createElement('div');meta.className='series-meta';meta.textContent=s.type+' · UK '+s.rating;
+   const status=document.createElement('div');status.className='watch-poster-status';status.textContent=p.done?p.done+' / '+p.all+' tracked':'Explore episodes';
    const progress=document.createElement('div');progress.className='series-progress';const fill=document.createElement('span');fill.style.width=p.pct+'%';progress.append(fill);
-   const label=document.createElement('div');label.className='series-progress-label';const a=document.createElement('span');a.textContent='Watch progress';const b=document.createElement('span');b.textContent=p.pct+'%';label.append(a,b);
-   info.append(h,meta,pills,progress,label);button.append(art,info);button.addEventListener('click',()=>selectSeries(s.id,true));grid.append(button);
+   info.append(h,meta,status,progress);button.append(art,info);
+   button.addEventListener('click',()=>selectSeries(s.id,true));
+   return button;
+  };
+  groups.filter(group=>group.items.length).forEach((group,index)=>{
+   const rail=document.createElement('section');rail.className='watch-rail';rail.setAttribute('aria-label',group.title);
+   const header=document.createElement('div');header.className='watch-rail-header';
+   const copy=document.createElement('div'),heading=document.createElement('h3'),caption=document.createElement('p');
+   heading.id='watch-rail-heading-'+index;heading.textContent=group.title;caption.textContent=group.subtitle;
+   rail.setAttribute('aria-labelledby',heading.id);copy.append(heading,caption);
+   const actions=document.createElement('div');actions.className='watch-rail-arrows';
+   const previous=document.createElement('button');previous.type='button';previous.textContent='‹';previous.setAttribute('aria-label','Scroll '+group.title+' left');
+   const next=document.createElement('button');next.type='button';next.textContent='›';next.setAttribute('aria-label','Scroll '+group.title+' right');
+   actions.append(previous,next);header.append(copy,actions);
+   const row=document.createElement('div');row.className='watch-rail-track';row.tabIndex=0;
+   row.setAttribute('role','group');row.setAttribute('aria-label',group.title+' titles. Scroll horizontally to browse.');
+   group.items.forEach(s=>row.append(makeCard(s)));
+   const scroll=direction=>row.scrollBy({left:direction*Math.max(260,row.clientWidth*.8),behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+   previous.addEventListener('click',()=>scroll(-1));next.addEventListener('click',()=>scroll(1));
+   const updateArrows=()=>{
+    previous.disabled=row.scrollLeft<=2;next.disabled=row.scrollLeft+row.clientWidth>=row.scrollWidth-3;
+   };
+   row.addEventListener('scroll',updateArrows,{passive:true});
+   // No persistent observers: rerendering a rail must not retain detached cards.
+   requestAnimationFrame(updateArrows);
+   rail.append(header,row);grid.append(rail);
   });
  }
- function selectSeries(id,scroll){activeId=id;activeSeason=0;$('episodeSearch').value='';$('progressFilter').value='all';updateSpotlight();renderCatalog();renderSeries();if(scroll)$('episodeCatalog').scrollIntoView({behavior:'smooth',block:'start'})}
+
+ function selectSeries(id,scroll){activeId=id;activeSeason=0;$('episodeSearch').value='';$('progressFilter').value='all';updateSpotlight();renderCatalog();renderSeries();if(scroll)$('episodeCatalog').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'})}
  $('showSearch').addEventListener('input',renderSeries);
  document.querySelectorAll('[data-watch-filter]').forEach(button=>button.addEventListener('click',()=>{activeWatchFilter=button.dataset.watchFilter;document.querySelectorAll('[data-watch-filter]').forEach(item=>{const active=item===button;item.classList.toggle('active',active);item.setAttribute('aria-pressed',String(active))});const first=series.find(item=>activeWatchFilter==='all'||(activeWatchFilter==='cartoons'?item.kind==='cartoon':item.kind!=='cartoon'));if(first&&!(activeWatchFilter==='all'||(activeWatchFilter==='cartoons'?current().kind==='cartoon':current().kind!=='cartoon')))selectSeries(first.id,false);else renderSeries()}));
  function renderCatalog(){
@@ -1091,9 +1354,17 @@ async function deleteB2Media(mediaUrl){
  try{if(localStorage.getItem(THEME)==='light')document.documentElement.classList.add('light')}catch{}
  window.addEventListener('storage',event=>{if(event.key===STORE){watched=readStore();renderStats();renderSeries();renderCatalog()}});
  updateSpotlight();renderStats();renderSeries();renderCatalog();initOwnerLinks();
- $('spotlightBrowse').addEventListener('click',()=> $('episodeCatalog').scrollIntoView({behavior:'smooth',block:'start'}));
- $('spotlightWatch').textContent='Play featured episode ▶';
- $('spotlightWatch').addEventListener('click',()=>{const s=current(),ep=s.seasons[0].episodes[0];renderPlayer(s,0,ep);$('playerTitle').scrollIntoView({behavior:'smooth',block:'nearest'})});
+ const watchScroll=target=>target?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+ $('spotlightBrowse').addEventListener('click',()=>watchScroll($('episodeCatalog')));
+ $('spotlightWatch').addEventListener('click',()=>{
+  const show=current(),available=firstPlayableEpisode(show);
+  if(!available){watchScroll($('episodeCatalog'));return}
+  renderPlayer(show,available.seasonIndex,available.episode);
+  watchScroll($('playerTitle'));
+ });
+ $('navSearch').addEventListener('click',()=>{watchScroll($('browse'));$('showSearch').focus({preventScroll:true})});
+ $('navAnime').addEventListener('click',()=>{document.querySelector('[data-watch-filter="anime"]').click();watchScroll($('browse'))});
+ $('navCartoons').addEventListener('click',()=>{document.querySelector('[data-watch-filter="cartoons"]').click();watchScroll($('browse'))});
 })();
 </script>
 </body>
