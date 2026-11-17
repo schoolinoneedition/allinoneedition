@@ -1410,7 +1410,34 @@ async function deleteB2Media(mediaUrl){
   catch{$('ownerLinkStatus').textContent='Clipboard unavailable. Select and copy the hosted URL manually.'}
  });
  $('exportProgress').addEventListener('click',()=>{
-  const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),watched},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='all-in-one-anime-progress.json';a.click();URL.revokeObjectURL(url);$('saveStatus').textContent='Progress backup exported.';
+  const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),watched,myList:[...watchMyList]},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='all-in-one-anime-progress.json';a.click();URL.revokeObjectURL(url);$('saveStatus').textContent='Progress backup exported.';
+ });
+
+ $('importProgress').addEventListener('click',()=>$('importProgressFile').click());
+ $('importProgressFile').addEventListener('change',async event=>{
+  const file=event.target.files?.[0];
+  if(!file)return;
+  try{
+   if(file.size<=0||file.size>1024*1024)throw Error('Choose a watch backup JSON file under 1 MB.');
+   const data=JSON.parse(await file.text());
+   if(!data||typeof data!=='object'||!data.watched||typeof data.watched!=='object'||Array.isArray(data.watched))throw Error('The selected file is not a Watch progress backup.');
+   const known=new Set();
+   for(const show of series)for(let si=0;si<show.seasons.length;si++)for(const ep of show.seasons[si].episodes)known.add(key(show.id,si,ep.number));
+   let imported=0;
+   for(const [epKey,done] of Object.entries(data.watched)){
+    if(done===true&&known.has(epKey)){if(!watched[epKey])imported++;watched[epKey]=true;}
+   }
+   let saved=0;
+   if(Array.isArray(data.myList)){
+    for(const id of data.myList){
+     if(typeof id==='string'&&series.some(show=>show.id===id)&&!watchMyList.has(id)){watchMyList.add(id);saved++;}
+    }
+    try{localStorage.setItem(WATCH_MY_LIST,JSON.stringify([...watchMyList]))}catch{}
+   }
+   save();renderCatalog();
+   $('saveStatus').textContent='Backup restored: '+imported+' new watched ticks and '+saved+' new My List shows. Existing progress kept.';
+  }catch(error){$('saveStatus').textContent='Could not restore backup: '+(error?.message||'Invalid JSON file.')}
+  finally{event.target.value='';}
  });
  $('clearProgress').addEventListener('click',()=>{
   if(!confirm('Clear every watched tick in this browser?'))return;
@@ -1420,7 +1447,7 @@ async function deleteB2Media(mediaUrl){
   const light=!document.documentElement.classList.contains('light');document.documentElement.classList.toggle('light',light);try{localStorage.setItem(THEME,light?'light':'dark')}catch{}
  });
  try{if(localStorage.getItem(THEME)==='light')document.documentElement.classList.add('light')}catch{}
- window.addEventListener('storage',event=>{if(event.key===STORE){watched=readStore();renderStats();renderSeries();renderCatalog()}});
+ window.addEventListener('storage',event=>{if(event.key===STORE){watched=readStore();renderStats();renderSeries();renderCatalog()}else if(event.key===WATCH_MY_LIST){watchMyList=readWatchMyList();renderSeries();refreshWatchActions()}});
  updateSpotlight();renderStats();renderSeries();renderCatalog();initOwnerLinks();
  const watchScroll=target=>target?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
  $('spotlightBrowse').addEventListener('click',()=>watchScroll($('episodeCatalog')));
