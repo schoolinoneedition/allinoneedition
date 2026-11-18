@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" role="img" aria-labelledby="title desc">
+<title id="title">NEON EXPRESS 3D</title><desc id="desc">A futuristic blue car on a dark neon-lit city arcade course at night.</desc>
+<defs><linearGradient id="sky" x1="0" y1="0" x2="0.8" y2="1"><stop stop-color="#071227"/><stop offset=".6" stop-color="#1c2353"/><stop offset="1" stop-color="#0d162a"/></linearGradient><linearGradient id="road" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#202c45"/><stop offset="1" stop-color="#070c1a"/></linearGradient><linearGradient id="car" x1="0" x2="1"><stop stop-color="#1297e8"/><stop offset=".54" stop-color="#59e3f2"/><stop offset="1" stop-color="#137bb4"/></linearGradient><linearGradient id="letters" x1="0" x2="1"><stop stop-color="#b7fdf3"/><stop offset="1" stop-color="#81b2ff"/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="5"/></filter></defs>
+<rect width="480" height="300" fill="url(#sky)"/>
+<circle cx="390" cy="55" r="25" fill="#c2d6fb" opacity=".65"/><circle cx="390" cy="55" r="33" fill="#9dbafd" opacity=".21" filter="url(#glow)"/>
+<g fill="#131f38"><path d="M0 154V86h36v23h26V68h45v86zM125 156V54h30v34h20V36h44v120zM250 154V76h37V45h34v109zM350 155V65h37v22h27V45h41v110z"/></g>
+<g fill="#74d7ee" opacity=".62">
+<path d="M13 105h6v3h-6zm15 0h6v3h-6zm50-20h6v4h-6zm16 0h6v4h-6zm44-16h7v4h-7zm14 0h7v4h-7zm14 0h7v4h-7zm15 0h7v4h-7zm17 9h7v4h-7zm61 16h7v3h-7zm16 0h7v3h-7zm35-29h7v4h-7zm52 23h7v4h-7zm16 0h7v4h-7zm20-25h7v4h-7zm14 0h7v4h-7zm14 0h7v4h-7z"/>
+</g><path d="M0 300l133-146h212l135 146z" fill="url(#road)"/>
+<path d="M133 154L0 300" stroke="#1fe5e8" stroke-width="5"/><path d="M345 154l135 146" stroke="#ec56cb" stroke-width="5"/>
+<path d="M226 154l-36 146M254 154l37 146" stroke="#a9bddd" stroke-width="3" stroke-dasharray="12 17" opacity=".8"/>
+<path d="M187 220l-38 61 29 10 32-50zM293 220l38 61-29 10-32-50z" fill="#121e37" stroke="#225a7b" stroke-width="2"/>
+<ellipse cx="240" cy="260" rx="96" ry="23" fill="#1ae1e0" opacity=".4" filter="url(#glow)"/>
+<path d="M182 230l19-32 78 0 20 32 23 40-162 0z" fill="url(#car)" stroke="#8afcff" stroke-width="3"/>
+<path d="M204 200l13-19h46l13 19-4 29h-65z" fill="#112c50" stroke="#8abce6" stroke-width="2"/>
+<path d="M210 232h60" stroke="#beffff" stroke-width="4"/><path d="M168 259h32v8h-36zM280 259h32l5 8h-37z" fill="#a8fdff"/>
+<path d="M201 198l-18 32m96-32 20 32" stroke="#98f9fa" stroke-width="3"/><path d="M209 270h61" stroke="#06172e" stroke-width="6"/>
+<rect x="17" y="16" width="227" height="54" rx="9" fill="#081426" opacity=".88" stroke="#467ea1"/>
+<text x="31" y="39" font-size="12" font-family="Arial, sans-serif" font-weight="bold" letter-spacing="3" fill="#89dfeb">AIO ORIGINAL</text>
+<text x="30" y="58" font-size="24" font-family="Arial, sans-serif" font-weight="900" letter-spacing="-1" fill="url(#letters)">NEON EXPRESS</text>
+</svg>

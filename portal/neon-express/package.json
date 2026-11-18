@@ -1,0 +1,10 @@
+{
+  "name": "aio-neon-express-portal",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Build tools for standalone, original NEON EXPRESS WebGL arcade game",
+  "dependencies": {
+    "three": "0.187.0",
+    "esbuild": "0.25.12"
+  }
+}

@@ -38,6 +38,9 @@ jobs:
           node --check aio-game-shelf.js
           node --check aio-growth-desk.js
           node --check aio-daily-original.js
+          node --check games/neon-express/game.js
+          node --check games/neon-express/logic.mjs
+          node --check scripts/build-neon-express-portal.cjs
       - name: Install Backblaze B2 Worker dependencies
         run: npm install --prefix cloudflare/media-worker --ignore-scripts --no-audit --no-fund
       - name: Build Cloudflare media Worker without deploying
@@ -72,11 +75,25 @@ jobs:
           node tests/privacy-readiness.cjs
           node tests/growth-engine.cjs
           node tests/original-guides.cjs
+          node tests/neon-express.cjs
           node tests/real-games-loading.cjs
           node tests/curated-github-pack.cjs
           node tests/notification-ux.cjs
       - name: Audit game catalogue duplicates and required fields
         run: node scripts/audit-games.cjs
+      - name: Install original 3D portal build dependencies
+        run: npm install --prefix portal/neon-express --no-audit --no-fund
+      - name: Build independently hosted original 3D game
+        run: |
+          node scripts/build-neon-express-portal.cjs
+          node tests/neon-express-portal.cjs
+      - name: Archive standalone 3D review build
+        uses: actions/upload-artifact@v4
+        with:
+          name: neon-express-3d-review-build
+          path: dist/neon-express-portal/
+          if-no-files-found: error
+          retention-days: 30
       - name: Check inline JavaScript in app and original games
         run: |
           python - <<'PY'
