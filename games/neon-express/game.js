@@ -161,7 +161,7 @@ function buildCity(){
    mesh.receiveShadow=true;world.add(mesh);buildings.push(mesh);
    if(i%5===0){
     const panel=box(w*.92,.3,.3,i%2?materials.cyan:materials.pink);
-    panel.position.set(x,h-.09,z+w*.5+.2);mesh.add(panel);
+    panel.position.set(0,h*.5-.09,w*.5+.2);mesh.add(panel);
     // Panels are decorative city lights, not interactive or advertisements.
    }
   }
@@ -239,7 +239,7 @@ function spawnTraffic(){
  const palette=[0xe82a65,0xf6b154,0x637fdc,0x74c5c7,0xc0cad8,0x957ec8];
  const object=makeCar(palette[Math.floor(Math.random()*palette.length)]);
  object.position.set(LANES[lane],0,-175);
- object.rotation.y=Math.PI;
+ object.rotation.y=0;
  world.add(object);
  traffic.push({mesh:object,lane,z:-175,scored:false,near:false});
 }
