@@ -45,6 +45,8 @@ async function build(){
  assert.ok(javascript.length>120000,'The bundle must include the local Three.js engine.');
  assert.doesNotMatch(javascript,/https:\/\/cdn\.jsdelivr\.net\/npm\/three/i);
  fs.writeFileSync(path.join(out,'index.html'),html);
+ const threeLicense=fs.readFileSync(path.join(engineDir,'three','LICENSE'),'utf8');
+ fs.writeFileSync(path.join(out,'THIRD_PARTY_NOTICES.txt'),'Three.js 3D engine — MIT license\n\n'+threeLicense);
  fs.writeFileSync(path.join(out,'README.txt'),[
   'NEON EXPRESS - Original 3D WebGL technical review build',
   '',
