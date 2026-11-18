@@ -107,6 +107,10 @@
     {
       "source": "/play/colour-catch",
       "destination": "/play/colour-catch.html"
+    },
+    {
+      "source": "/games/neon-express",
+      "destination": "/games/neon-express.html"
     }
   ],
   "headers": [
