@@ -55,7 +55,7 @@ assert.match(js,/Math\.min\(window\.devicePixelRatio/,'Limit expensive rendering
 assert.match(js,/window\.matchMedia\('\(prefers-reduced-motion: reduce\)'\)/);
 assert.ok(js.includes("state.mode='running'"),'Playing state should start explicitly.');
 assert.ok(js.includes('getMaxAnisotropy'),'Scene should use textured building materials.');
-assert.ok(js.includes('window.addEventListener(\\'resize\\'')||js.includes("window.addEventListener('resize'"));
+assert.ok(js.includes("window.addEventListener('resize'"),'Game must update camera with viewport.');
 assert.doesNotMatch(js,/fetch\s*\(|XMLHttpRequest|eval\s*\(|localStorage\.setItem\(['"]aio\.password/i,'Game must not collect data or use remote gameplay APIs.');
 assert.equal(html.split('pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4571610192955651').length-1,1,'Preserve the same legitimate publisher verification script exactly once.');
 assert.doesNotMatch(html,/<ins[^>]*adsbygoogle/i,'No unapproved ad units should be positioned by gameplay controls.');
