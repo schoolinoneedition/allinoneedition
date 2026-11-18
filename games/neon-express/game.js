@@ -67,7 +67,7 @@ function crash(){
  if(state.mode!=='running')return;
  state.mode='over';state.shake=.7;beep(82,.32,.08);
  saveBest();
- setMenu('RUN<br><span>COMPLETE</span>','Score '+state.score.toLocaleString('en-GB')+' · '+Math.floor(state.distance)+' m travelled · '+state.near+' near misses. Each new run has fresh traffic.','TRY AGAIN','NIGHT RUN RESULTS');
+ setMenu('RUN<br><span>COMPLETE</span>','Score '+state.score.toLocaleString('en-GB')+' · '+Math.floor(state.distance)+' m travelled · '+state.near+' clean passes. Each new run has fresh traffic.','TRY AGAIN','NIGHT RUN RESULTS');
  message('Run over. Score '+state.score+'. Best '+best+'.');
 }
 
@@ -261,8 +261,8 @@ function advanceTraffic(dt,speed){
    item.scored=true;
    if(nearMiss(state.x,5,item.mesh.position.x,8.0)){
     state.near++;state.score=runPoints(state.distance,state.near);
-    ui.combo.textContent='NEAR MISS +80 · '+state.near;
-    ui.combo.classList.add('active');state.noteClock=2;showNote('CLOSE CALL +80');beep(790,.11,.045);
+    ui.combo.textContent='CLEAN PASS +80 · '+state.near;
+    ui.combo.classList.add('active');state.noteClock=2;showNote('CLEAN PASS +80');beep(790,.11,.045);
    }
   }
   if(item.z>26){
