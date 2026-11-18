@@ -81,3 +81,24 @@ Migration `20261028094752_aio_purchase_rebuy_after_refund.sql` allows a refunded
 
 
 Migration `20261028094834_aio_reward_rules_deny_client_reads.sql` explicitly denies direct client reads of the private game reward allowlist; authenticated users can only interact with it through the server-validated session RPCs.
+
+
+## Social upload storage: Vercel Blob (18 November 2026)
+
+New signed-in Social file uploads go from the browser directly to the
+existing Vercel Blob store using `/api/social-blob-upload`.
+Supabase Auth verifies upload-token requests. Files are limited to 15 MiB
+for images and 100 MiB for videos, with an allowed media MIME type list.
+`BLOB_READ_WRITE_TOKEN` remains on the Vercel server only.
+
+Supabase retains accounts, post records, comments and reactions. Old
+`social-media` bucket objects and existing post media URLs are kept.
+New post rows save their Vercel Blob URL in `social_posts.media_url`.
+A per-user authenticated `/api/social-blob-delete` endpoint cleans new
+files on deletion; old Supabase file deletion stays supported. Failed
+post creation attempts to clean up the newly uploaded Blob.
+
+Important: HTTP 402 errors on Supabase Auth or Realtime indicate a
+separate usage/billing restriction. Moving file storage does not resolve
+those errors. Check the organization's Supabase Usage and Billing pages
+before declaring sign-in and Social publishing restored.
