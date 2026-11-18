@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070c18">
+<meta name="description" content="NEON EXPRESS is a free original 3D night-city traffic arcade game from All in One Edition. Change lanes, pass traffic, and build your best score with keyboard or touch.">
+<title>NEON EXPRESS | Original 3D Arcade Driving Game | AIO</title>
+<link rel="canonical" href="https://allinoneedition.vercel.app/games/neon-express">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="All in One Edition">
+<meta property="og:title" content="NEON EXPRESS · 3D Night Run">
+<meta property="og:description" content="Take a neon night run through a fictional 3D city. A free original arcade game with touch and keyboard controls.">
+<meta property="og:url" content="https://allinoneedition.vercel.app/games/neon-express">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/favicon.ico">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js"}}</script>
+<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4571610192955651" crossorigin="anonymous"></script>
+<style>
+:root{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:#f3f9ff;background:#070c18;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;min-height:100dvh;overflow-x:hidden;background:#070c18}button{font:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:3px solid #a6efff;outline-offset:4px}
+a{color:inherit}.game-shell{position:relative;width:100%;height:100dvh;min-height:560px;isolation:isolate;overflow:hidden}
+#scene{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,#1d244d 0%,#070c18 70%);z-index:-2}
+#scene canvas{width:100%;height:100%;display:block;touch-action:pan-y}
+#scene::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(to bottom,rgba(4,8,19,.15),transparent 28%,transparent 70%,rgba(4,8,19,.57));z-index:1}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:max(env(safe-area-inset-top),16px) clamp(15px,4vw,46px) 0;position:relative;z-index:3}
+.brand{display:flex;flex-direction:column;gap:3px}.eyebrow{font-size:10px;letter-spacing:.23em;text-transform:uppercase;color:#89dbe8;font-weight:900}
+.wordmark{font-size:clamp(17px,2.5vw,28px);font-weight:950;font-style:italic;letter-spacing:.02em;line-height:1}
+.top-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap;justify-content:flex-end}
+.ghost{border:1px solid #a0b7cb66;background:#0d1833b8;backdrop-filter:blur(12px);color:#f3f9ff;border-radius:11px;padding:10px 13px;font-size:12px;font-weight:800;text-decoration:none;min-height:40px;display:inline-flex;align-items:center}
+.ghost:hover{background:#21335bb8}
+.hud{position:absolute;inset:90px 28px auto;z-index:3;display:flex;align-items:start;justify-content:space-between;gap:16px;pointer-events:none}
+.stats{display:flex;gap:10px;flex-wrap:wrap}.stat{background:#071328c9;backdrop-filter:blur(14px);border:1px solid #89dbff40;border-radius:14px;min-width:104px;padding:11px 15px;box-shadow:0 10px 28px #0005}
+.stat small{display:block;text-transform:uppercase;letter-spacing:.12em;font-size:9px;font-weight:900;color:#92bed6;margin-bottom:3px}
+.stat strong{display:block;font-size:clamp(19px,3vw,32px);font-weight:950;line-height:1.25;font-variant-numeric:tabular-nums}
+.stat strong em{font-style:normal;font-weight:800;font-size:11px;color:#99accd}
+.combo{border:1px solid #5aeac899;border-radius:12px;background:#08342eab;color:#98ffe2;padding:8px 12px;font-size:12px;font-weight:900;opacity:0;transform:translateY(-6px);transition:opacity .2s,transform .2s}
+.combo.active{opacity:1;transform:none}
+.bottom{position:absolute;left:0;right:0;bottom:max(env(safe-area-inset-bottom),20px);z-index:4;padding:0 clamp(14px,4vw,44px);display:flex;justify-content:space-between;align-items:end;gap:16px;pointer-events:none}
+.control-hint{display:flex;align-items:center;gap:12px;color:#bbd3eb;font-size:12px;font-weight:750;text-shadow:0 2px 10px #000}
+.key{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border:1px solid #adcced69;border-radius:7px;background:#142340b9;color:white;font-weight:900;min-width:32px}
+.touch-controls{display:flex;gap:12px;pointer-events:auto}
+.touch-controls button{width:clamp(60px,13vw,88px);height:clamp(60px,13vw,88px);border-radius:18px;border:1px solid #b0d9ff88;background:#112348d9;backdrop-filter:blur(10px);box-shadow:inset 0 1px #ffffff55,0 12px 32px #0008;color:#e9f6ff;font-size:28px;font-weight:850;touch-action:manipulation}
+.touch-controls button:active{background:#306297e3;transform:scale(.96)}
+.center-note{position:absolute;top:26%;left:50%;transform:translateX(-50%);z-index:4;color:#b6fff2;text-shadow:0 0 18px #54f6e3;font-size:clamp(18px,4vw,40px);font-style:italic;font-weight:1000;letter-spacing:.08em;opacity:0;pointer-events:none;text-align:center}
+.center-note.show{animation:notePop .9s both}
+@keyframes notePop{0%{opacity:0;transform:translate(-50%,12px) scale(.86)}23%{opacity:1;transform:translate(-50%,0) scale(1.02)}73%{opacity:1}100%{opacity:0;transform:translate(-50%,-14px)}}
+.overlay{position:absolute;inset:0;background:radial-gradient(ellipse at center,#081329d9,#030714f0);z-index:7;display:grid;place-items:center;padding:22px;backdrop-filter:blur(9px)}
+.overlay[hidden]{display:none!important}
+.menu{width:min(490px,100%);padding:clamp(23px,5vw,39px);border:1px solid #85d6f25c;border-radius:24px;background:linear-gradient(160deg,#101b38e8,#080f21f7);box-shadow:0 20px 90px #000a,0 0 60px #00ceff20}
+.menu .mini{font-size:10px;color:#73e8dc;text-transform:uppercase;letter-spacing:.18em;font-weight:950}
+.menu h1{font-size:clamp(40px,9vw,70px);line-height:.94;letter-spacing:-.055em;font-weight:1000;font-style:italic;margin:14px 0 20px;text-shadow:0 0 22px #2be4ff32}
+.menu h1 span{color:#6cece0}.menu p{color:#bed0e5;line-height:1.7;font-size:14px;margin:0 0 21px}
+.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:22px 0}
+.mini-grid div{border:1px solid #477f9966;border-radius:12px;background:#132c44aa;padding:12px 13px}
+.mini-grid strong{display:block;color:#ecfcff;font-size:13px}.mini-grid span{font-size:11px;color:#9ebbd0}
+.primary{border:none;background:linear-gradient(110deg,#72f1dc,#74b6ff);color:#061222;border-radius:14px;min-height:54px;width:100%;font-weight:950;letter-spacing:.04em;box-shadow:0 10px 28px #35cde048;transition:filter .15s,transform .15s}
+.primary:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.menu-foot{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-top:17px;color:#90abc4;font-size:11px}
+.status{color:#f8d6aa!important;min-height:19px;margin:6px 0!important;font-size:12px!important}
+#gameStatus{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+@media(min-width:900px) and (pointer:fine){.touch-controls{display:none}}
+@media(max-width:700px){.game-shell{min-height:520px}.topbar{padding-top:max(env(safe-area-inset-top),12px)}.hud{inset:80px 13px auto}.stat{min-width:83px;padding:9px 10px}.stat strong{font-size:19px}.stats{gap:6px}.control-hint{display:none}.bottom{justify-content:flex-end}.ghost{padding:8px 10px;font-size:11px}.wordmark{font-size:17px}.top-actions{gap:5px}.combo{display:none}}
+@media(max-height:650px){.topbar{padding-top:7px}.hud{top:55px}.bottom{bottom:7px}.touch-controls button{height:55px;width:65px}.menu{padding:19px}.menu h1{font-size:36px;margin:9px 0}.mini-grid{margin:12px 0}.menu p{margin-bottom:11px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.center-note.show{opacity:1;transform:translateX(-50%)}}
+</style>
+</head>
+<body>
+<div class="game-shell">
+<div id="scene" aria-hidden="true"></div>
+<header class="topbar">
+<div class="brand"><span class="eyebrow">All in One Edition · Original 3D</span><span class="wordmark">NEON EXPRESS</span></div>
+<nav class="top-actions" aria-label="Game actions"><a href="/browser-games" class="ghost">All games</a><button type="button" class="ghost" id="sound" aria-pressed="false">Sound off</button><button type="button" class="ghost" id="pause" aria-label="Pause or resume game">Pause</button></nav>
+</header>
+<div class="hud" aria-label="Game progress">
+<div class="stats"><div class="stat"><small>Score</small><strong id="score">00000</strong></div><div class="stat"><small>Distance</small><strong id="distance">0 <em>m</em></strong></div><div class="stat"><small>Best</small><strong id="best">00000</strong></div></div>
+<div class="combo" id="combo">NEAR MISS +80</div>
+</div>
+<div class="center-note" id="note" aria-hidden="true">CLOSE CALL!</div>
+<div class="bottom"><div class="control-hint"><span class="key">←</span><span class="key">→</span><span>or A / D to change lanes · P to pause</span></div><div class="touch-controls" aria-label="Touch lane controls"><button type="button" id="left" aria-label="Move one lane left">←</button><button type="button" id="right" aria-label="Move one lane right">→</button></div></div>
+<div class="overlay" id="overlay">
+<div class="menu"><div class="mini" id="menuLabel">AIO ORIGINAL 3D ARCADE</div><h1 id="menuTitle">NEON<br><span>EXPRESS</span></h1>
+<p id="menuDescription">A cinematic run through a fictional midnight city. Slip past traffic, build your score and chase your own best distance. No account or download needed.</p>
+<div class="mini-grid"><div><strong>Move between lanes</strong><span>← → or A / D · touch buttons</span></div><div><strong>Keep the run going</strong><span>Avoid traffic · earn near misses</span></div></div>
+<p class="status" id="menuStatus" role="status" aria-live="polite"></p>
+<button type="button" class="primary" id="start">START NIGHT RUN</button>
+<div class="menu-foot"><span>3D WebGL</span><span>Original AIO game</span><span>Local best score</span></div>
+</div>
+</div>
+<div id="gameStatus" role="status" aria-live="polite">Game ready.</div>
+</div>
+<script type="module" src="/games/neon-express/game.js"></script>
+</body>
+</html>
