@@ -53,7 +53,7 @@ assert.match(js,/function toggleSound\(/);
 assert.match(js,/document\.hidden/,'Hidden-tab game must auto-pause.');
 assert.match(js,/Math\.min\(window\.devicePixelRatio/,'Limit expensive rendering resolution.');
 assert.match(js,/window\.matchMedia\('\(prefers-reduced-motion: reduce\)'\)/);
-assert.ok(js.includes('state.mode=\\'running\\'')||js.includes("state.mode='running'"));
+assert.ok(js.includes("state.mode='running'"),'Playing state should start explicitly.');
 assert.ok(js.includes('getMaxAnisotropy'),'Scene should use textured building materials.');
 assert.ok(js.includes('window.addEventListener(\\'resize\\'')||js.includes("window.addEventListener('resize'"));
 assert.doesNotMatch(js,/fetch\s*\(|XMLHttpRequest|eval\s*\(|localStorage\.setItem\(['"]aio\.password/i,'Game must not collect data or use remote gameplay APIs.');
