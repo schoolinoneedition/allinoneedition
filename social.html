@@ -1153,6 +1153,11 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
     }
   }
   function queueSocialMediaWarmup(){
+    // Do not preload legacy Supabase videos in the background: this burns
+    // through the small Free-plan egress quota even if nobody plays them.
+    // The visible/current video still loads normally on user interaction.
+    const legacySupabaseBackgroundWarmupEnabled=false;
+    if(!legacySupabaseBackgroundWarmupEnabled)return;
     if(!socialWarmAllowed())return;
     bindSocialWarmEvents();
     const feed=$('feed'),feedRect=feed?.getBoundingClientRect();
@@ -1468,6 +1473,13 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
     feedQuery=String($('feedSearch')?.value||'').slice(0,120);
     renderFeed();
   }
+  function socialAuthErrorMessage(error){
+    const message=String(error?.message||'');
+    if(Number(error?.status)===402||/exceed_[a-z_]+|usage (?:limit|quota)|payment required|billing restriction|quota exceeded/i.test(message)){
+      return 'Sign-in is temporarily unavailable because the authentication service reached a usage limit. Your existing account is still saved. Please try again after the site owner restores Supabase access.';
+    }
+    return 'Sign-in failed: '+(message||'try again');
+  }
   function updateAuthMode(){
     $('authSubmit').textContent=authMode==='signup'?'Create account':'Sign in';
     $('authModeToggle').textContent=authMode==='signup'?'Use existing account':'Create account instead';
@@ -1485,7 +1497,7 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
       if(authMode==='signup'&&!q.data?.session){setStatus('authStatus','Account created. Check your email for the verification link, then sign in.','good');return;}
       currentUser=q.data?.user||q.data?.session?.user||currentUser;
       await refreshSession();await loadFeed();setStatus('authStatus','Signed in successfully.','good');showToast('Account connected');
-    }catch(e){setStatus('authStatus','Sign-in failed: '+String(e?.message||'try again'),'bad');}
+    }catch(e){setStatus('authStatus',socialAuthErrorMessage(e),'bad');}
     finally{btn.disabled=false;updateAuthMode();}
   }
   async function signOut(){

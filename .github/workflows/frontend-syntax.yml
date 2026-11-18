@@ -68,6 +68,7 @@ jobs:
           node tests/watch-upload.cjs
           node tests/watch-blob.cjs
           node tests/social-blob.cjs
+          node tests/auth-quota-egress.cjs
           node --check api/social-blob-upload.js
           node --check api/social-blob-delete.js
           node --check api/watch-blob-upload.js

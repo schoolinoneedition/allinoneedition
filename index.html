@@ -2194,6 +2194,13 @@ function switchAuthMode(mode){
   setAppRoute(mode==='signup'?'signup':'login',true);
 }
 
+function aioAuthErrorMessage(error){
+  const message=String(error?.message||'');
+  if(Number(error?.status)===402||/exceed_[a-z_]+|usage (?:limit|quota)|payment required|billing restriction|quota exceeded/i.test(message)){
+    return 'Sign-in is temporarily unavailable because the authentication service reached a usage limit. Your account has not been deleted. The site owner needs to restore Supabase access before you can sign in.';
+  }
+  return message||'Authentication failed. Check your details and try again.';
+}
 async function submitAuth(){
   if(!supabaseClient)return showToast('Supabase is not ready. Refresh and try again.');
   const email=$('authEmail').value.trim(),password=$('authPassword').value,username=$('authUsername').value.trim();
@@ -2208,7 +2215,7 @@ async function submitAuth(){
     if(res.error)throw res.error;
     $('authStatus').textContent=authMode==='signup'&&!res.data?.session?'Supabase email confirmation is ON. To allow instant signup, turn off Authentication → Providers → Email → Confirm email in your Supabase dashboard, then try again.':'Signed in successfully.';
     if(res.data?.session){closeAuth();setAppRoute('home',true);scrollToId('community');}
-  }catch(e){$('authStatus').textContent=e.message||'Authentication failed. Check your details and try again.';}
+  }catch(e){$('authStatus').textContent=aioAuthErrorMessage(e);}
   finally{if(button){button.disabled=false;button.textContent='Continue';}}
 }
 async function signOutUser(){if(!supabaseClient)return;try{const {error}=await supabaseClient.auth.signOut();if(error)throw error;showToast('Signed out');}catch(e){showToast('Sign out failed: '+(e?.message||'try again'));}}
