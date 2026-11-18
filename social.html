@@ -1297,6 +1297,29 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
     }catch(e){if(e?.name!=='AbortError')showToast('Could not share this post.');}
   }
   function showCompose(){openOverlay('composeOverlay');setStatus('postStatus','Direct URLs can be posted as a guest. File uploads need your account.');$('mediaUrl')?.focus();}
+  function isOwnSocialBlobURL(raw,userId){
+    try{
+      const url=new URL(String(raw||''));
+      return url.protocol==='https:'&&
+        /^[a-z0-9-]+\.public\.blob\.vercel-storage\.com$/i.test(url.hostname)&&
+        url.pathname.startsWith('/social/'+String(userId)+'/')&&
+        /\.(jpe?g|png|webp|gif|mp4|m4v|webm|ogv|ogg|mov|3gp|mkv|avi|wmv|flv|mpeg|mpg|ts|mts|m2ts|m2v|h264|264|hevc|h265|av1|ivf)$/i.test(url.pathname);
+    }catch{return false;}
+  }
+  async function removeOwnSocialBlob(url){
+    const session=await client.auth.getSession();
+    const accessToken=session.data?.session?.access_token;
+    if(!accessToken)throw Error('Sign in again to remove the uploaded file.');
+    const response=await fetch('/api/social-blob-delete',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({accessToken,url})
+    });
+    if(!response.ok){
+      const body=await response.json().catch(()=>({}));
+      throw Error(String(body.error||'Blob cleanup unavailable.'));
+    }
+  }
   async function createPost(event){
     event.preventDefault();if(postBusy)return;
     const file=$('mediaFile').files?.[0]||null;
@@ -1306,7 +1329,7 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
     const direct=String($('mediaUrl').value||'').trim();
     if(!file&&!direct){setStatus('postStatus','Add a direct media URL or choose a file.','bad');return;}
     if(file&&!currentUser){$('authPanel').hidden=false;setStatus('postStatus','Sign in first to upload a file.','bad');setStatus('authStatus','Sign in or create your existing account to upload media.');return;}
-    let mediaType='',mediaURL=direct,storagePath='';
+    let mediaType='',mediaURL=direct,blobUploadURL='';
     if(file){
       const videoMime=videoMimeType(file);
       const isVideo=!!videoMime||String(file.type||'').toLowerCase().startsWith('video/');
@@ -1322,16 +1345,26 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
     }
     if(!client){setStatus('postStatus','Cloud service is unavailable. Nothing was published.','bad');return;}
     postBusy=true;const submit=$('submitPost');submit.disabled=true;submit.textContent='Publishing…';
-    setStatus('postStatus',file?'Uploading media to XBT storage…':'Publishing your post…');
+    setStatus('postStatus',file?'Preparing secure Vercel Blob upload…':'Publishing your post…');
     try{
       if(file){
         const extensionMatch=String(file.name||'').toLowerCase().match(/\.([a-z0-9]{1,8})$/);
         const ext=extensionMatch?.[1]||(mediaType==='video'?'mp4':'jpg');
-        const uploadContentType=mediaType==='video'?(videoMimeType(file)||String(file.type||'video/mp4')):(file.type||'image/jpeg');
-        storagePath='social/'+currentUser.id+'/'+(window.crypto?.randomUUID?window.crypto.randomUUID():Date.now().toString(36)+'-'+Math.random().toString(36).slice(2))+'.'+ext;
-        const up=await client.storage.from('social-media').upload(storagePath,file,{upsert:false,contentType:uploadContentType,cacheControl:'31536000'});
-        if(up.error)throw up.error;
-        mediaURL=client.storage.from('social-media').getPublicUrl(storagePath).data.publicUrl;
+        const sessionResult=await client.auth.getSession();
+        const accessToken=sessionResult.data?.session?.access_token;
+        if(!accessToken)throw Error('Your session expired. Sign in again.');
+        const {upload}=await import('https://esm.sh/@vercel/blob@2.9.0/client');
+        const filename=(window.crypto?.randomUUID?window.crypto.randomUUID():Date.now().toString(36)+'-'+Math.random().toString(36).slice(2))+'.'+ext;
+        const pathname='social/'+currentUser.id+'/'+filename;
+        const uploaded=await upload(pathname,file,{
+          access:'public',
+          multipart:true,
+          handleUploadUrl:'/api/social-blob-upload',
+          clientPayload:JSON.stringify({accessToken,sizeBytes:file.size}),
+          onUploadProgress:event=>setStatus('postStatus','Uploading to Vercel Blob · '+Math.round(Number(event.percentage)||0)+'%')
+        });
+        if(!isOwnSocialBlobURL(uploaded?.url,currentUser.id))throw Error('Storage returned an unexpected media URL.');
+        blobUploadURL=uploaded.url;mediaURL=uploaded.url;
       }
       const payload={visitor_id:visitorId(),username:username||'Guest',avatar_url:avatarURL()||null,caption,media_type:mediaType,media_url:mediaURL};
       const q=await client.from('social_posts').insert(payload).select('id,visitor_id,username,avatar_url,caption,media_type,media_url,created_at').single();
@@ -1342,7 +1375,7 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
       setStatus('postStatus','Post published successfully.','good');
     }catch(e){
       console.error('Social post create failed:',e);
-      if(storagePath){try{await client.storage.from('social-media').remove([storagePath]);}catch{}}
+      if(blobUploadURL){try{await removeOwnSocialBlob(blobUploadURL);}catch(cleanupError){console.warn('Social orphan cleanup failed:',cleanupError);}}
       setStatus('postStatus','Post was not published: '+String(e?.message||'connection error')+'. Try again.','bad');
     }finally{postBusy=false;submit.disabled=false;submit.textContent='Publish post';}
   }
@@ -1374,12 +1407,16 @@ button.feed-load-more:hover{background:var(--soft);border-color:var(--accent)}
       let mediaCleanupFailed=false;
       try{
         const media=new URL(String(post.media_url||''));
-        const marker='/storage/v1/object/public/social-media/';
-        if(media.origin===new URL(SUPABASE_URL).origin&&media.pathname.includes(marker)){
-          const path=decodeURIComponent(media.pathname.split(marker)[1]||'');
-          if(path.startsWith('social/'+String(currentUser.id)+'/')){
-            const removal=await client.storage.from('social-media').remove([path]);
-            if(removal.error)mediaCleanupFailed=true;
+        if(isOwnSocialBlobURL(media.href,currentUser.id)){
+          await removeOwnSocialBlob(media.href);
+        }else{
+          const marker='/storage/v1/object/public/social-media/';
+          if(media.origin===new URL(SUPABASE_URL).origin&&media.pathname.includes(marker)){
+            const path=decodeURIComponent(media.pathname.split(marker)[1]||'');
+            if(path.startsWith('social/'+String(currentUser.id)+'/')){
+              const removal=await client.storage.from('social-media').remove([path]);
+              if(removal.error)mediaCleanupFailed=true;
+            }
           }
         }
       }catch{mediaCleanupFailed=true;}
